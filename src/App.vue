@@ -1,17 +1,11 @@
 <script setup>
-import Header from "./components/Header.vue"
-import Footer from "./components/Footer.vue"
 import AdminPOS from "./views/AdminPOS.vue"
 </script>
 
 <template>
-  <Header />
-
   <main class="main-content">
     <AdminPOS />
   </main>
-
-  <Footer />
 </template>
 
 <style>
