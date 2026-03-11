@@ -92,6 +92,7 @@ const {
                 <p v-if="discountPercent > 0" class="original-price">
                     Giá gốc: {{ totalPrice.toLocaleString() }} VND
                 </p>
+                
                 <p class="total">
                     Thành tiền: {{ finalPrice.toLocaleString() }} VND
                     <span v-if="discountPercent > 0" class="discount-badge">-{{ discountPercent }}%</span>

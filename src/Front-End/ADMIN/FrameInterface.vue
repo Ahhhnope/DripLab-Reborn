@@ -27,7 +27,9 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu()
             </div>
         </aside>
 
+         <!-- Phần Nội dung code Bên phải  -->
         <main class="main-content">
+            <!-- Link Đơn hàng tại quầy -->
             <CounterOrder v-if="activeIndex === 2">
 
             </CounterOrder>
