@@ -1,47 +1,45 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import Header from "./components/Header.vue"
+import Footer from "./components/Footer.vue"
+import AdminPOS from "./views/AdminPOS.vue"
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <Header />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
+  <main class="main-content">
+    <AdminPOS />
   </main>
+
+  <Footer />
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<style>
+body{
+  margin:0;
+  padding:0;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+#app{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  width:100%;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+/* phần nội dung chính */
+.main-content{
+  flex:1;
+  width:100%;
+  margin:0;
+  padding:0;
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+/* QUAN TRỌNG: bỏ container giới hạn */
+.content-container{
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding:0;
 }
 </style>
