@@ -1,10 +1,10 @@
 <script setup>
-import Frameinterface from './Front-End/ADMIN/FrameInterface.vue'
+import AdminPOS from '../src/Front-End/ADMIN/AdminPOS.vue'
 </script>
 
 <template>
   <main>
-    <Frameinterface></Frameinterface>
+    <AdminPOS></AdminPOS>
   </main>
 </template>
 
