@@ -1,6 +1,7 @@
 <script setup>
 import { useAdminMenu } from '../JS/FrameInterface.JS'
-const { menuItems, setActive, isActive, logout } = useAdminMenu()
+import CounterOrder from './CounterOrder.vue'
+const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu()
 </script>
 
 <style scoped src="../CSS/FrameInterface.CSS"></style>
@@ -27,7 +28,9 @@ const { menuItems, setActive, isActive, logout } = useAdminMenu()
         </aside>
 
         <main class="main-content">
+            <CounterOrder v-if="activeIndex === 2">
 
+            </CounterOrder>
         </main>
     </div>
 </template>

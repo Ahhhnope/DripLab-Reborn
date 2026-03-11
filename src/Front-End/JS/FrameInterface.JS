@@ -15,5 +15,5 @@ export function useAdminMenu() {
     const isActive = (id) => activeIndex.value === id
     const logout = () => alert('Đăng xuất!')
 
-    return { menuItems, setActive, isActive, logout }
+    return { menuItems, setActive, isActive, logout, activeIndex }
 }
