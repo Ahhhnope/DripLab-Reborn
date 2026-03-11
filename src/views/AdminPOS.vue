@@ -5,205 +5,133 @@
       <h2 class="logo">ADMIN</h2>
 
       <ul>
-        <li>Bảng quản trị</li>
-        <li class="active">Đơn tại quầy</li>
-        <li>Quản lý đơn hàng</li>
-        <li>Quản lý bàn</li>
-        <li>Quản lý sản phẩm</li>
-        <li>Quản lý khuyến mãi</li>
+        <li>📊 Bảng quản trị</li>
+        <li class="active">🧾 Đơn tại quầy</li>
+        <li>📦 Quản lý đơn hàng</li>
+        <li>🪑 Quản lý bàn</li>
+        <li>☕ Quản lý sản phẩm</li>
+        <li>🏷 Quản lý khuyến mãi</li>
       </ul>
     </aside>
 
-    <!-- Sản Phẩm -->
+    <!-- Products -->
     <main class="products">
+      <!-- Search -->
       <div class="search-bar">
-        <input type="text" placeholder="Tìm sản phẩm..." />
-        <button>Tìm kiếm</button>
+        <input v-model="search" type="text" placeholder="Tìm sản phẩm..." />
+        <button @click="searchProduct">Tìm kiếm</button>
       </div>
 
+      <!-- Product Grid -->
       <div class="product-grid">
-        <div class="product-card" v-for="i in 6" :key="i">
-          <div class="product-img"></div>
-          <p>Tên sản phẩm</p>
+        <div
+          v-for="product in filteredProducts"
+          :key="product.id"
+          class="product-card"
+          @click="addToCart(product)"
+        >
+          <img :src="product.img" class="product-img" />
+
+          <p class="product-name">{{ product.name }}</p>
         </div>
       </div>
     </main>
 
-    <!-- Giỏ hàng -->
+    <!-- Cart -->
     <aside class="cart">
       <h3>Sản phẩm đã gọi</h3>
 
-      <div class="cart-item">
-        <span>SP 1</span>
-        <span>x1</span>
-      </div>
-
-      <div class="cart-item">
-        <span>SP 2</span>
-        <span>x2</span>
-      </div>
-
-      <div class="cart-item">
-        <span>SP 3</span>
-        <span>x3</span>
+      <div v-for="item in cart" :key="item.id" class="cart-item">
+        <span>{{ item.name }}</span>
+        <span>x{{ item.qty }}</span>
       </div>
 
       <textarea placeholder="Ghi chú..."></textarea>
 
-      <div class="total">Thành tiền: <strong>0 VND</strong></div>
+      <div class="total">Thành tiền: {{ total }} VND</div>
 
       <button class="pay-btn">Thanh toán</button>
     </aside>
   </div>
 </template>
 
-<style scoped>
-/*=============== GOOGLE FONTS ===============*/
-@import url("https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800;900&display=swap");
+<script setup>
+import { ref, computed } from "vue";
 
-/*=============== CSS VARIABLES ===============*/
-:root {
-  /* Color Palette - LIGHT MODE */
-  --first-color: #b8906a;
-  --first-color-alt: #a17d59;
-  --hover-color: hsl(0, 0%, 95%);
-  --title-color: #5c4033;
-  --text-color: #999;
-  --white-color: hsl(0, 0%, 100%);
-  --border-color: #e0e0e0;
-  --body-color: #f5f5f0;
-  --header-bg: rgba(248, 248, 246, 0.85);
-  --header-text: #3d2b1f;
-  --footer-bg: #3d2b1f;
-  --footer-text: #f5f5f0;
-  --primary: #3b5e4a;
-  --accent-gold: #c79a5e;
-  --dark-brown: #3d2b1f;
-  --background-light: #f8f8f6;
+const search = ref("");
 
-  /* Typography */
-  --body-font: "Epilogue", sans-serif;
-  --second-font: "Epilogue", sans-serif;
-  --header-font: "Epilogue", sans-serif;
-  
-  /* Font Sizes */
-  --bigger-font-size: 1.5rem;
-  --normal-font-size: .938rem;
-  --small-font-size: .875rem;
+const products = ref([
+  { id: 1, name: "Classic Latte", price: 35000, img: "/IMG/classic-latte.png" },
+  { id: 2, name: "Cortado", price: 40000, img: "/IMG/cortado.png" },
+  { id: 3, name: "Flat White", price: 38000, img: "/IMG/flat-white.jpg" },
+  { id: 4, name: "Dark Velvet", price: 40000, img: "/IMG/dark-velvet.png" },
+  { id: 5, name: "Ethiopia Yirgacheffe", price: 42000, img: "/IMG/ethiopia.png" },
+  { id: 6, name: "V60 Seasonal", price: 45000, img: "/IMG/v602.jpg" },
+  { id: 7, name: "Colombia Geisha", price: 42000, img: "/IMG/geisha.png" },
+  { id: 8, name: "Mocha", price: 35000, img: "/IMG/mocha.jpg" },
+  { id: 9, name: "Matcha Latte", price: 50000, img: "/IMG/Matcha-latte.png" },
+  { id: 10, name: "Earl Grey Reverse", price: 35000, img: "/IMG/Earl-grey.png" },
+  { id: 11, name: "Hojicha Roasted", price: 40000, img: "/IMG/Hojicha-roasted.png" },
+  { id: 12, name: "Oolong High Mountain", price: 35000, img: "/IMG/oolong.png" },
+]);
 
-  /* Font Weights */
-  --font-regular: 400;
-  --font-semi-bold: 600;
-  --font-black: 900;
+const cart = ref([]);
+
+const filteredProducts = computed(() => {
+  return products.value.filter((p) =>
+    p.name.toLowerCase().includes(search.value.toLowerCase()),
+  );
+});
+
+function searchProduct() {
+  // chỉ cần input là đã filter rồi
 }
 
-/*=============== DARK MODE VARIABLES ===============*/
-html.dark {
-  /* Body, Header, Footer đổi màu theo theme */
-  --body-color: #1a1714;
-  --background-light: #1a1714;
-  --title-color: #f5f5f0;
-  --text-color: #c0c0c0;
-  --border-color: #3d2b1f;
-  --white-color: #2a2520;
-  --header-bg: rgba(26, 23, 20, 0.85);
-  --header-text: #f5f5f0;
-  --footer-bg: #1a1714;
-  --footer-text: #e0e0e0;
-}
+function addToCart(product) {
+  const exist = cart.value.find((i) => i.id === product.id);
 
-/*=============== RESPONSIVE TYPOGRAPHY ===============*/
-@media screen and (min-width: 1150px) {
-  :root {
-    --bigger-font-size: 1.75rem;
-    --normal-font-size: 1rem;
-    --small-font-size: .938rem;
+  if (exist) {
+    exist.qty++;
+  } else {
+    cart.value.push({
+      ...product,
+      qty: 1,
+    });
   }
 }
 
-/*=============== BASE RESET ===============*/
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}   
+const total = computed(() => {
+  return cart.value.reduce((sum, item) => sum + item.price * item.qty, 0);
+});
+</script>
 
-body {
-  background: var(--body-color);
-  font-family: var(--body-font);
-  color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/*=============== REUSABLE CLASSES ===============*/
-.grid {
-  display: grid;
-  gap: 1.5rem;
-}
-
-input,
-button {
-  border: none;
-  outline: none;
-  font-family: var(--body-font);
-  font-size: var(--normal-font-size);
-}
-
-a {
-  text-decoration: none;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-.main-content {
-  margin-top: 70px;
-  min-height: calc(100vh - 70px - 300px);
-  padding: 0;
-}
-
-.content-container {
-  width:100%;
-  max-width:none;
-  margin:0;
-  padding:0;
-}
-
-.content-container h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--title-color);
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-
-.content-container p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-color);
-  transition: color 0.3s ease;
-}
+<style scoped>
 .pos-container {
-  display:flex;
-  width:100%;
-  min-height:calc(100vh - 70px);
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  background: #f5f6fa;
 }
 
 /* sidebar */
 
 .sidebar {
-  width: 240px;
-  background: #744409;
+  width: 230px;
+  background: #7a4a0a;
   color: white;
-  padding: 20px;
+  padding: 25px 20px;
+  font-family: "Poppins", sans-serif;
 }
 
 .logo {
   text-align: center;
-  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 25px;
 }
+
+/* menu */
 
 .sidebar ul {
   list-style: none;
@@ -211,21 +139,30 @@ img {
 }
 
 .sidebar li {
-  padding: 10px;
-  margin-bottom: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
+/* hover */
+
 .sidebar li:hover {
-  background: #3a3a5a;
+  background: #5e3608;
+  padding-left: 18px;
 }
+
+/* active */
 
 .active {
   background: #4caf50;
+  font-weight: 600;
 }
 
-/* sản phẩm */
+/* products */
 
 .products {
   flex: 1;
@@ -240,50 +177,64 @@ img {
 
 .search-bar input {
   flex: 1;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid #ccc;
 }
 
 .search-bar button {
-  padding: 8px 15px;
+  padding: 10px 18px;
   background: #4caf50;
   border: none;
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.product-grid{
-  display:grid;
+.search-bar button:hover {
+  background: #3e8e41;
+}
+
+/* grid */
+
+.product-grid {
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap:20px;
+  gap: 20px;
 }
 
 .product-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: 0.2s;
+  overflow: hidden;
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
 }
 
 .product-img {
-  height: 90px;
-  background: #ddd;
-  border-radius: 6px;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
   margin-bottom: 8px;
 }
 
-/* giỏ hàng */
+.product-name {
+  font-size: 14px;
+  color: #555;
+}
+
+/* cart */
 
 .cart {
-  width: 300px;
+  width: 280px;
   background: white;
   padding: 20px;
   border-left: 1px solid #ddd;
@@ -305,17 +256,22 @@ textarea {
 
 .total {
   margin-top: 15px;
-  font-size: 16px;
+  font-weight: bold;
 }
 
 .pay-btn {
   margin-top: 10px;
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background: #4caf50;
   border: none;
   color: white;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.pay-btn:hover {
+  background: #3e8e41;
 }
 </style>
