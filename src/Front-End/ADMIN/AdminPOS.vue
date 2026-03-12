@@ -2,29 +2,6 @@
 
 <template>
   <div class="admin-layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <img src="../IMG/DripLab_Logo.png" class="sidebar-logo" alt="logo" />
-        <span class="sidebar-title">ADMIN</span>
-      </div>
-
-      <ul class="sidebar-nav">
-        <li v-for="item in menuItems" :key="item.id">
-          <button
-            class="nav-item"
-            :class="{ active: isActive(item.id) }"
-            @click="setActive(item.id)"
-          >
-            {{ item.label }}
-          </button>
-        </li>
-      </ul>
-
-      <div class="sidebar-footer">
-        <button class="logout-btn" @click="logout">← LOGOUT</button>
-      </div>
-    </aside>
-
     <main class="main-content">
       <!-- Products -->
       <section class="products">
@@ -33,15 +10,37 @@
           <button @click="searchProduct">Tìm kiếm</button>
         </div>
 
-        <div class="product-grid">
+        <div class="custom-grid">
+          <div class="custom-card" @click="openBean">
+            <h3>Chọn hạt cà phê</h3>
+            <p v-if="selected.bean">{{ selected.bean.name }}</p>
+          </div>
+
           <div
-            v-for="product in filteredProducts"
-            :key="product.id"
-            class="product-card"
-            @click="addToCart(product)"
+            class="custom-card"
+            :class="{ disabled: step < 2 }"
+            @click="openBase"
           >
-            <img :src="product.img" class="product-img" />
-            <p class="product-name">{{ product.name }}</p>
+            <h3>Chọn base</h3>
+            <p v-if="selected.base">{{ selected.base.name }}</p>
+          </div>
+
+          <div
+            class="custom-card"
+            :class="{ disabled: step < 3 }"
+            @click="openMilk"
+          >
+            <h3>Chọn sữa</h3>
+            <p v-if="selected.milk">{{ selected.milk.name }}</p>
+          </div>
+
+          <div
+            class="custom-card"
+            :class="{ disabled: step < 4 }"
+            @click="openTopping"
+          >
+            <h3>Chọn topping</h3>
+            <p v-if="selected.topping">{{ selected.topping.name }}</p>
           </div>
         </div>
       </section>
@@ -53,7 +52,7 @@
 
           <div v-for="item in cart" :key="item.id" class="cart-item">
             <span>{{ item.name }}</span>
-            <span>x{{ item.qty }}</span>
+            <span>{{ item.price }} VND</span>
           </div>
         </div>
 
@@ -61,18 +60,88 @@
           Mã giảm giá:
           <textarea placeholder="..."></textarea>
 
-          <div class="total">Thành tiền: {{ total }} VND</div>
+          <div class="total">Thành tiền: {{ total.toLocaleString() }} VND</div>
 
           <button class="pay-btn">Thanh toán</button>
         </div>
       </aside>
+      <div v-if="showBeanPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/Bean.jpg" class="card-img" />
+          <h3>Chọn hạt cà phê</h3>
+
+          <button v-for="b in beans" :key="b.name" @click="selectBean(b)">
+            {{ b.name }} - {{ b.price }} VND
+          </button>
+        </div>
+      </div>
+
+      <div v-if="showBasePopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/base.png" class="card-img" />
+          <h3>Chọn base</h3>
+
+          <button v-for="b in bases" :key="b.name" @click="selectBase(b)">
+            {{ b.name }} - {{ b.price }} VND
+          </button>
+        </div>
+      </div>
+
+      <div v-if="showMilkPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/milk.jpg" class="card-img" />
+          <h3>Chọn sữa</h3>
+
+          <button v-for="m in milks" :key="m.name" @click="selectMilk(m)">
+            {{ m.name }} - {{ m.price }} VND
+          </button>
+        </div>
+      </div>
+
+      <div v-if="showToppingPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/topping.jpg" class="card-img" />
+          <h3>Chọn topping</h3>
+
+          <button v-for="t in toppings" :key="t.name" @click="selectTopping(t)">
+            {{ t.name }} - {{ t.price }} VND
+          </button>
+        </div>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { useAdminMenu } from "../JS/AdminPOS.JS";
-const { menuItems, setActive, isActive, logout } = useAdminMenu();
-import { usePOS } from "../JS/AdminPOS.JS";
-const { search, cart, filteredProducts, searchProduct, addToCart, total, } = usePOS();
+import { usePOS } from "../JS/AdminPOS.js";
+
+const {
+  search,
+  cart,
+  total,
+  step,
+  selected,
+
+  beans,
+  bases,
+  milks,
+  toppings,
+
+  showBeanPopup,
+  showBasePopup,
+  showMilkPopup,
+  showToppingPopup,
+
+  openBean,
+  openBase,
+  openMilk,
+  openTopping,
+
+  selectBean,
+  selectBase,
+  selectMilk,
+  selectTopping,
+
+  searchProduct,
+} = usePOS();
 </script>
