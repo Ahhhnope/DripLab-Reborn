@@ -45,26 +45,66 @@
         </div>
       </section>
 
-      <!-- Cart -->
-      <aside class="cart">
-        <div class="cart-items">
-          <h3>Sản phẩm đã gọi:</h3>
+      <div class="order-section">
+      <h2 class="order-title">Sản phẩm đã gọi</h2>
 
-          <div v-for="item in cart" :key="item.id" class="cart-item">
-            <span>{{ item.name }}</span>
-            <span>{{ item.price }} VND</span>
+      <!-- Danh sách món -->
+      <div class="order-list">
+        <div
+          v-for="(item, index) in orderedItems"
+          :key="index"
+          class="order-item"
+        >
+          <div class="item-info">
+            <span class="item-name">{{ item.name }}</span>
           </div>
+          <span class="item-price">{{ item.price.toLocaleString() }} VND</span>
+          <button class="remove-btn" @click="removeItem(index)">✕</button>
         </div>
+      </div>
 
-        <div class="cart-footer">
-          Mã giảm giá:
-          <textarea placeholder="..."></textarea>
-
-          <div class="total">Thành tiền: {{ total.toLocaleString() }} VND</div>
-
-          <button class="pay-btn">Thanh toán</button>
+      <!-- Mã khuyến mãi -->
+      <div class="discount-section">
+        <p class="discount-label">Mã khuyến mãi</p>
+        <div class="discount-bar">
+          <input
+            v-model="discountInput"
+            type="text"
+            placeholder="Nhập mã..."
+            class="discount-input"
+          />
+          <button class="discount-btn" @click="applyDiscount">Áp dụng</button>
         </div>
-      </aside>
+        <!-- Thông báo kết quả -->
+        <p
+          v-if="discountMessage"
+          class="discount-message"
+          :class="{
+            success: discountPercent > 0,
+            error: discountPercent === 0,
+          }"
+        >
+          {{ discountMessage }}
+        </p>
+      </div>
+
+      <!-- Footer: tổng tiền + thanh toán -->
+      <div class="order-footer">
+        <!-- Hiện giá gốc nếu có giảm giá -->
+        <p v-if="discountPercent > 0" class="original-price">
+          Giá gốc: {{ totalPrice.toLocaleString() }} VND
+        </p>
+
+        <p class="total">
+          Thành tiền: {{ finalPrice.toLocaleString() }} VND
+          <span v-if="discountPercent > 0" class="discount-badge"
+            >-{{ discountPercent }}%</span
+          >
+        </p>
+        <button class="checkout-btn" @click="checkout">Thanh toán</button>
+      </div>
+    </div>
+      
       <div v-if="showBeanPopup" class="popup">
         <div class="popup-box">
           <img src="../IMG/Bean.jpg" class="card-img" />
@@ -117,8 +157,6 @@ import { usePOS } from "../JS/AdminPOS.js";
 
 const {
   search,
-  cart,
-  total,
   step,
   selected,
 
@@ -126,6 +164,8 @@ const {
   bases,
   milks,
   toppings,
+
+  orderedItems,
 
   showBeanPopup,
   showBasePopup,
@@ -141,6 +181,16 @@ const {
   selectBase,
   selectMilk,
   selectTopping,
+
+  removeItem,
+
+  discountInput,
+  discountPercent,
+  discountMessage,
+  totalPrice,
+  finalPrice,
+  applyDiscount,
+  checkout,
 
   searchProduct,
 } = usePOS();
