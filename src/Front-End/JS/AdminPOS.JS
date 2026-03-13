@@ -24,7 +24,7 @@ export function usePOS(){
 
   const search = ref("")
   const step = ref(1)
-  const cart = ref([])
+  const orderedItems = ref([])
 
   const selected = ref({
     bean:null,
@@ -118,7 +118,10 @@ export function usePOS(){
     showToppingPopup.value=false
     addToCart()
   }
-
+  
+  
+    
+    
   /* CART */
 
   function addToCart(){
@@ -141,7 +144,7 @@ export function usePOS(){
         selected.value.topping.price
     }
 
-    cart.value.push(item)
+    orderedItems.value.push(item)
 
     selected.value={
       bean:null,
@@ -153,43 +156,113 @@ export function usePOS(){
     step.value=1
   }
 
-  /* TOTAL */
+   
 
-  const total = computed(()=>{
-    return cart.value.reduce((sum,item)=>{
-      return sum + item.price * item.qty
-    },0)
-  })
+    // Tính tổng tiền trước giảm giá
+    const totalPrice = computed(() => {
+        return orderedItems.value.reduce((sum, item) => sum + item.price, 0)
+    })
+
+    // ====== MÃ KHUYẾN MÃI ======
+
+    // Danh sách mã khuyến mãi hợp lệ: 
+    const discountCodes = {
+        'KM50': 50,   // giảm 50%
+        'KM20': 20,   // giảm 20%
+        'KM10': 10,   // giảm 10%
+    }
+
+    // Mã người dùng đang nhập
+    const discountInput = ref('')
+
+    // Mã đã được áp dụng thành công
+    const appliedCode = ref('')
+
+    // % giảm hiện tại (0 = chưa áp dụng)
+    const discountPercent = ref(0)
+
+    // Thông báo lỗi mã
+    const discountMessage = ref('')
+
+    // Bấm "Áp dụng" mã khuyến mãi
+    function applyDiscount() {
+        const code = discountInput.value.trim().toUpperCase()
+
+        if (discountCodes[code]) {
+            appliedCode.value = code
+            discountPercent.value = discountCodes[code]
+            discountMessage.value = `Áp dụng thành công! Giảm ${discountCodes[code]}%`
+        } else {
+            appliedCode.value = ''
+            discountPercent.value = 0
+            discountMessage.value = 'Mã không hợp lệ!'
+        }
+    }
+
+    // Tổng tiền sau khi giảm
+    const finalPrice = computed(() => {
+        if (discountPercent.value === 0) return totalPrice.value
+        return totalPrice.value * (1 - discountPercent.value / 100)
+    })
+
+     // Xóa món khỏi đơn
+    function removeItem(index) {
+        orderedItems.value.splice(index, 1)
+    }
+
+  // Thanh toán
+    function checkout() {
+        if (orderedItems.value.length === 0) {
+            alert('Chưa có sản phẩm nào!')
+            return
+        }
+        alert(`Thanh toán thành công! Tổng tiền: ${finalPrice.value.toLocaleString()} VND`)
+        orderedItems.value = []
+        discountInput.value = ''
+        appliedCode.value = ''
+        discountPercent.value = 0
+        discountMessage.value = ''
+    }
 
   function searchProduct(){}
 
   return{
-    search,
-    step,
-    selected,
-    cart,
+  search,
+  step,
+  selected,
 
-    beans,
-    bases,
-    milks,
-    toppings,
+  beans,
+  bases,
+  milks,
+  toppings,
 
-    showBeanPopup,
-    showBasePopup,
-    showMilkPopup,
-    showToppingPopup,
+  orderedItems,
 
-    openBean,
-    openBase,
-    openMilk,
-    openTopping,
+  showBeanPopup,
+  showBasePopup,
+  showMilkPopup,
+  showToppingPopup,
 
-    selectBean,
-    selectBase,
-    selectMilk,
-    selectTopping,
+  openBean,
+  openBase,
+  openMilk,
+  openTopping,
 
-    total,
-    searchProduct
-  }
+  selectBean,
+  selectBase,
+  selectMilk,
+  selectTopping,
+
+  removeItem,
+
+  discountInput,
+  discountPercent,
+  discountMessage,
+  totalPrice,
+  finalPrice,
+  applyDiscount,
+  checkout,
+
+  searchProduct
+}
 }
