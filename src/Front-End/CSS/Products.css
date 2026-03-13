@@ -1,0 +1,19 @@
+.page {
+  margin: 10px;
+  color: black;
+}
+
+.admin-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.admin-table th,
+.admin-table td {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+.admin-table th {
+  background: #f3f3f3;
+}
