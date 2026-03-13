@@ -2,7 +2,6 @@
 import { useAdminMenu } from "../JS/FrameInterface.JS";
 import CounterOrder from "./CounterOrder.vue";
 import AdminPOS from './AdminPOS.vue'
-import Products from "./Products.vue";
 const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
 </script>
 
@@ -18,11 +17,7 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
 
       <ul class="sidebar-nav">
         <li v-for="item in menuItems" :key="item.id">
-          <button
-            class="nav-item"
-            :class="{ active: isActive(item.id) }"
-            @click="setActive(item.id)"
-          >
+          <button class="nav-item" :class="{ active: isActive(item.id) }" @click="setActive(item.id)">
             {{ item.label }}
           </button>
         </li>
@@ -36,10 +31,7 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
     <!-- Phần Nội dung code Bên phải  -->
     <main class="main-content">
       <!-- Link Đơn hàng tại quầy -->
-      <CounterOrder
-        v-if="activeIndex === 2"
-        @openCustom="activeIndex = 6"
-      ></CounterOrder>
+      <CounterOrder v-if="activeIndex === 2" @openCustom="activeIndex = 6"></CounterOrder>
       <AdminPOS v-if="activeIndex === 6"></AdminPOS>
       <Products v-if="activeIndex === 3"></Products>
     </main>
