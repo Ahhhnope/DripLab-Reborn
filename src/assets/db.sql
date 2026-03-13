@@ -60,17 +60,18 @@ create table cart_item_toppings (
 	topping_id int foreign key references toppings (id)
 );
 -------------------------------------------
-insert into users values ('admin', 'admin@gmail.com', '12345', '0123456789')
-insert into carts values ('1')
+insert into users (full_name, email, password, phone) values ('admin', 'admin@gmail.com', '12345', '0123456789')
 
-insert into drinks values
+insert into carts (user_id) values ('1')
+
+insert into drinks (name, description, base_price, quantity, image_url) values
 ('Matcha Tea', null, 45000, 100, '/IMG/tên_ảnh.png'),
 ('Tea 1', null, 25000, 100, '/IMG/tên_ảnh.png'),
 ('Tea 2', null, 35000, 100, '/IMG/tên_ảnh.png'),
 ('Tea 3', null, 45000, 100, '/IMG/tên_ảnh.png'),
 ('Tea 4', null, 55000, 100, '/IMG/tên_ảnh.png')
 
-insert into toppings values
+insert into toppings (name, price) values
 ('Trân châu đen', 5000),
 ('Thạch cà phê', 5000),
 ('Kem cheese', 8000),
