@@ -77,3 +77,4 @@ insert into toppings values
 ('Pudding trứng', 8000),
 ('Kem béo', 6000),
 ('Whipping cream', 8000)
+
