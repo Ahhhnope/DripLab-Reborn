@@ -2,6 +2,7 @@
 import { useAdminMenu } from "../JS/FrameInterface.JS";
 import CounterOrder from "./CounterOrder.vue";
 import AdminPOS from './AdminPOS.vue'
+import Products from "./Products.vue";
 const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
 </script>
 

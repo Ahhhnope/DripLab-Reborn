@@ -1,4 +1,8 @@
 import { ref, computed } from 'vue'
+function getImg(filename) {
+    return new URL(`../IMG/${filename}`, import.meta.url).href
+}
+
 
 export function useCounterOrder() {
     const searchText = ref('')
@@ -6,16 +10,15 @@ export function useCounterOrder() {
     // Danh sách sản phẩm mẫu 
     const allProducts = ref([
         { id: 0, name: 'CUSTOM', image: '/IMG/DripLab_Logo.png', price: 0 },
-        { id: 1, name: 'Matcha Tea', image: '/IMG/Matcha_Tea.png', price: 45000 },
-        { id: 2, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 3, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 4, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 5, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 6, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 7, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
-        { id: 8, name: 'Classic Latte', image: '/IMG/Classic_Latte.png', price: 45000 },
+        { id: 1, name: 'Matcha Tea', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 2, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 3, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 4, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 5, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 6, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 7, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 8, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
     ])
-
     // Danh sách hiển thị (lọc theo tìm kiếm)
     const products = ref([...allProducts.value])
 

@@ -1,5 +1,4 @@
 <script setup>
-import "../CSS/Products.css";
 import { ref, onMounted } from "vue";
 import { getDrinks, addDrink, updateDrink, deleteDrink } from "../JS/ApiStuff";
 
@@ -8,6 +7,9 @@ const newDrink = ref({
     name: "",
     basePrice: 0
 });
+
+const showEditModal = ref(false)
+const selectedDrink = ref(null)
 
 async function loadDrinks() {
     drinks.value = await getDrinks();
@@ -28,6 +30,16 @@ async function saveDrink(drink) {
     loadDrinks();
 }
 
+function openEdit(drink) {
+    selectedDrink.value = { ...drink }
+    showEditModal.value = true
+}
+
+function closeModal() {
+    showEditModal.value = false
+}
+
+
 async function removeDrink(id) {
     await deleteDrink(id);
     loadDrinks();
@@ -37,6 +49,8 @@ onMounted(() => {
     loadDrinks();
 })
 </script>
+
+<style scoped src="../CSS/Products.css"></style>
 
 <template>
     <div class="page">
@@ -63,7 +77,7 @@ onMounted(() => {
                     <td>{{ drink.basePrice }}</td>
 
                     <td>
-                        <button @click="saveDrink(drink)">Update</button>
+                        <button @click="openEdit(drink)">Update</button>
                         <button @click="removeDrink(drink.id)">Xóa</button>
                     </td>
 
@@ -83,5 +97,26 @@ onMounted(() => {
             <button type="submit">Add Drink</button>
 
         </form>
+
+
+        <div v-if="showEditModal" class="modal-overlay">
+
+            <div class="modal">
+
+                <h3>Edit Drink</h3>
+
+                <input v-model="selectedDrink.name" placeholder="Drink Name" />
+
+                <input type="number" v-model="selectedDrink.basePrice" placeholder="Price" />
+
+                <div class="modal-buttons">
+                    <button @click="saveDrink(selectedDrink)">Save</button>
+                    <button @click="closeModal">Cancel</button>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 </template>
