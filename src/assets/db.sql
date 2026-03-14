@@ -59,6 +59,30 @@ create table cart_item_toppings (
 	cart_item_id int foreign key references cart_items (id),
 	topping_id int foreign key references toppings (id)
 );
+
+create table orders (
+	id int identity(1,1) primary key,
+	
+);
+
+create table invoices (
+	id int identity(1,1) primary key,
+	invoice_number int,
+	invoice_date date,
+	customer_name nvarchar(50),
+	customer_phone varchar(10),
+	customer_adress nvarchar(50),
+	original_price float,
+	discount_amount float,
+	shipping_fee float,
+	tax_amount float,
+	final_price float,
+	payment_method nvarchar(50),
+	payment_status nvarchar(50),
+	created_at default getdate(),
+	order_id int,
+	customer_id int,
+);
 -------------------------------------------
 insert into users (full_name, email, password, phone) values ('admin', 'admin@gmail.com', '12345', '0123456789')
 
