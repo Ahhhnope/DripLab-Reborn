@@ -78,3 +78,5 @@ insert into toppings values
 ('Kem béo', 6000),
 ('Whipping cream', 8000)
 
+select * from drinks
+
