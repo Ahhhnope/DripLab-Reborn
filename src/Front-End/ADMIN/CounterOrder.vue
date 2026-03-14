@@ -2,40 +2,44 @@
 import { useCounterOrder } from "../JS/CounterOrder.JS";
 
 const {
-  searchText,
-  products,
-  orderedItems,
-  totalPrice,
-  finalPrice,
-  searchProducts,
-  removeItem,
-  checkout,
+  searchText, // Ô tìm kiếm sản phẩm
+  products, // Danh sách sản phẩm
+  orderedItems, // Danh sách món đã chọn trong đơn
+  totalPrice, // Tổng tiền trước khi giảm giá
+  finalPrice, // Tổng tiền sau khi áp dụng giảm giá
+  searchProducts, // Hàm tìm kiếm sản phẩm
+  removeItem, // Hàm xóa món khỏi đơn hàng
+  checkout, // Hàm thanh toán đơn hàng
+
   // mã khuyến mãi
-  discountInput,
-  discountCodeList,
-  appliedCode,
-  discountPercent,
-  discountMessage,
-  applyDiscount,
+  discountInput, // Ô nhập mã giảm giá
+  discountCodeList, // Danh sách mã giảm giá
+  appliedCode, // Mã giảm giá đã áp dụng
+  discountPercent, // Phần trăm giảm giá
+  discountMessage, // Thông báo khi áp dụng mã
+  applyDiscount, // Hàm áp dụng mã giảm giá
+
   // khách hàng
-  customerList,
-  selectedCustomer,
+  customerList, // Danh sách khách hàng
+  selectedCustomer, // Khách hàng đang được chọn
+
   // màn hình chọn đơn
-  showOrderScreen,
-  orderList,
-  createNewOrder,
-  selectOrder,
+  showOrderScreen, // Hiển thị màn hình danh sách đơn
+  orderList, // Danh sách các đơn hàng
+  createNewOrder, // Tạo đơn hàng mới
+  selectOrder, // Chọn đơn hàng
+
   // popup
-  showPopup,
-  selectedProduct,
-  toppingList,
-  selectedToppings,
-  selectedSize,
-  openPopup,
-  closePopup,
-  toggleTopping,
-  isToppingSelected,
-  confirmOrder,
+  showPopup, // Trạng thái hiển thị popup chọn sản phẩm
+  selectedProduct, // Sản phẩm đang được chọn
+  toppingList, // Danh sách topping
+  selectedToppings, // Các topping đã chọn
+  selectedSize, // Size sản phẩm đã chọn
+  openPopup, // Mở popup chọn sản phẩm
+  closePopup, // Đóng popup
+  toggleTopping, // Thêm / bỏ topping
+  isToppingSelected, // Kiểm tra topping đã được chọn chưa
+  confirmOrder, // Xác nhận thêm sản phẩm vào đơn
 } = useCounterOrder();
 
 const emit = defineEmits(["openCustom"]);
