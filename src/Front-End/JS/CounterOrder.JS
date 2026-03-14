@@ -1,21 +1,24 @@
 import { ref, computed } from 'vue'
+function getImg(filename) {
+    return new URL(`../IMG/${filename}`, import.meta.url).href
+}
+
 
 export function useCounterOrder() {
     const searchText = ref('')
 
     // Danh sách sản phẩm mẫu 
     const allProducts = ref([
-        { id: 0, name: 'CUSTOM', image: '/IMG/DripLab_Logo.png', price: 0 },
-        { id: 1, name: 'Matcha Tea', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 2, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 3, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 4, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 5, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 6, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 7, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
-        { id: 8, name: 'Classic Latte', image: '/IMG/tên_ảnh.png', price: 45000 },
+        { id: 0, name: 'CUSTOM', image: getImg('Matcha-latte.png'), price: 0 },
+        { id: 1, name: 'Matcha Tea', image: '/IMG/Matcha-latte.png', price: 45000 },
+        { id: 2, name: 'Classic Latte', image: '/IMG/mocha.jpg', price: 45000 },
+        { id: 3, name: 'Robusta', image: '/IMG/robusta.jpg', price: 45000 },
+        { id: 4, name: 'Oolong', image: '/IMG/oolong.png', price: 45000 },
+        { id: 5, name: 'Milk', image: '/IMG/milk.jpg', price: 45000 },
+        { id: 6, name: 'Hojicha', image: '/IMG/Hojicha-roasted.png', price: 45000 },
+        { id: 7, name: 'Geisha', image: '/IMG/geisha.png', price: 45000 },
+        { id: 8, name: 'Moka', image: '/IMG/moka.jpg', price: 45000 },
     ])
-
     // Danh sách hiển thị (lọc theo tìm kiếm)
     const products = ref([...allProducts.value])
 
