@@ -32,8 +32,8 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
     <!-- Phần Nội dung code Bên phải  -->
     <main class="main-content">
       <!-- Link Đơn hàng tại quầy -->
-      <CounterOrder v-if="activeIndex === 2" @openCustom="activeIndex = 6"></CounterOrder>
-      <AdminPOS v-if="activeIndex === 6"></AdminPOS>
+      <CounterOrder v-if="activeIndex === 2" @openCustom="activeIndex = 8"></CounterOrder>
+      <AdminPOS v-if="activeIndex === 8"></AdminPOS>
       <Products v-if="activeIndex === 3"></Products>
     </main>
   </div>
