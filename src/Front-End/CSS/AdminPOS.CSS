@@ -11,6 +11,7 @@
   height: 100vh;
   overflow: hidden;
   min-width: 0;
+
 }
 
 /* ===== khu custom builder ===== */
@@ -20,6 +21,7 @@
   min-width: 0;
 }
 
+
 /* tiêu đề */
 .pos-title {
   text-align: center;
@@ -27,6 +29,7 @@
   font-weight: bold;
   margin-bottom: 16px;
   color: #222;
+
 }
 
 /* search */
@@ -62,7 +65,9 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   color: black;
+
   width: 100%;
+
 }
 
 .custom-card {

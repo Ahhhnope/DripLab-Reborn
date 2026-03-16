@@ -7,10 +7,11 @@ export function useAdminMenu() {
         { id: 1, label: 'Quản lý thống kê' },
         { id: 2, label: 'Đơn tại quầy' },
         { id: 3, label: 'Quản lý sản phẩm' },
-        { id: 4 , label: 'Quản lý tin tức' },
+        { id: 4, label: 'Quản lý tin tức' },
         { id: 5, label: 'Quản lý khuyến mãi' },
         { id: 6, label: 'Quản lý Hóa đơn' },
         { id: 7, label: 'Quản lý Đơn hàng' },
+
     ]
 
     const setActive = (id) => activeIndex.value = id
