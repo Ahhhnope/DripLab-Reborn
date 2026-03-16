@@ -2,44 +2,40 @@
 import { useCounterOrder } from "../JS/CounterOrder.JS";
 
 const {
-  searchText, // Ô tìm kiếm sản phẩm
-  products, // Danh sách sản phẩm
-  orderedItems, // Danh sách món đã chọn trong đơn
-  totalPrice, // Tổng tiền trước khi giảm giá
-  finalPrice, // Tổng tiền sau khi áp dụng giảm giá
-  searchProducts, // Hàm tìm kiếm sản phẩm
-  removeItem, // Hàm xóa món khỏi đơn hàng
-  checkout, // Hàm thanh toán đơn hàng
+  searchText,
+  products,
+  orderedItems,
+  totalPrice,
+  finalPrice,
+  searchProducts,
+  removeItem,
+  checkout,
 
-  // mã khuyến mãi
-  discountInput, // Ô nhập mã giảm giá
-  discountCodeList, // Danh sách mã giảm giá
-  appliedCode, // Mã giảm giá đã áp dụng
-  discountPercent, // Phần trăm giảm giá
-  discountMessage, // Thông báo khi áp dụng mã
-  applyDiscount, // Hàm áp dụng mã giảm giá
+  discountInput,
+  discountCodeList,
+  appliedCode,
+  discountPercent,
+  discountMessage,
+  applyDiscount,
 
-  // khách hàng
-  customerList, // Danh sách khách hàng
-  selectedCustomer, // Khách hàng đang được chọn
+  customerList,
+  selectedCustomer,
 
-  // màn hình chọn đơn
-  showOrderScreen, // Hiển thị màn hình danh sách đơn
-  orderList, // Danh sách các đơn hàng
-  createNewOrder, // Tạo đơn hàng mới
-  selectOrder, // Chọn đơn hàng
+  showOrderScreen,
+  orderList,
+  createNewOrder,
+  selectOrder,
 
-  // popup
-  showPopup, // Trạng thái hiển thị popup chọn sản phẩm
-  selectedProduct, // Sản phẩm đang được chọn
-  toppingList, // Danh sách topping
-  selectedToppings, // Các topping đã chọn
-  selectedSize, // Size sản phẩm đã chọn
-  openPopup, // Mở popup chọn sản phẩm
-  closePopup, // Đóng popup
-  toggleTopping, // Thêm / bỏ topping
-  isToppingSelected, // Kiểm tra topping đã được chọn chưa
-  confirmOrder, // Xác nhận thêm sản phẩm vào đơn
+  showPopup,
+  selectedProduct,
+  toppingList,
+  selectedToppings,
+  selectedSize,
+  openPopup,
+  closePopup,
+  toggleTopping,
+  isToppingSelected,
+  confirmOrder,
 } = useCounterOrder();
 
 const emit = defineEmits(["openCustom"]);
@@ -60,19 +56,32 @@ function handleProductClick(product) {
     <div class="product-section">
       <h1 class="title">ĐƠN TẠI QUẦY</h1>
 
-      <!-- Chưa tạo đơn: chỉ hiện nút tạo đơn ở giữa -->
-      <div v-if="showOrderScreen" class="empty-order-area">
+      <!-- Chưa tạo đơn: nút góc trên trái -->
+      <div v-if="showOrderScreen" class="top-left-area">
         <button class="create-order-btn-center" @click="createNewOrder">
           + Thêm hóa đơn
         </button>
       </div>
 
-      <!-- Đã tạo đơn: hiện thanh tìm kiếm + lưới sản phẩm -->
+      <!-- Đã tạo đơn -->
       <template v-else>
         <!-- Thanh tìm kiếm -->
         <div class="search-bar">
           <input v-model="searchText" type="text" placeholder="Tìm sản phẩm..." class="search-input" />
           <button class="search-btn" @click="searchProducts">Tìm kiếm</button>
+        </div>
+
+        <!-- Tabs hóa đơn -->
+        <div class="order-tabs">
+          <div
+            v-for="(order, index) in orderList"
+            :key="index"
+            class="order-tab"
+            @click="selectOrder(order)"
+          >
+            HD {{ index + 1 }}
+          </div>
+          <button class="add-tab-btn" @click="createNewOrder">+</button>
         </div>
 
         <!-- Lưới sản phẩm -->
@@ -116,7 +125,7 @@ function handleProductClick(product) {
           </div>
         </div>
 
-        <!-- Combobox khách hàng (trên khuyến mãi) -->
+        <!-- Combobox khách hàng -->
         <div class="customer-section">
           <select v-model="selectedCustomer" class="customer-select">
             <option value="" disabled></option>
