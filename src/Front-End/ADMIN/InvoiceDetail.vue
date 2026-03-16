@@ -1,52 +1,50 @@
 <style scoped src="../CSS/AdminInvoice.CSS"></style>
 <template>
 
-<div class="invoice-detail">
+<div class="popup-overlay">
 
-  <div class="detail-box">
+  <div class="invoice-popup">
 
-    <button class="close" @click="$emit('close')">X</button>
+    <!-- LEFT: Order detail -->
+    <div class="order-section">
 
-    <h2>Mã đơn hàng</h2>
+      <button class="popup-close" @click="$emit('close')">X</button>
 
-    <div class="order-items">
+      <h2>
+        Mã đơn hàng: {{ invoice.order_id }}
+        <span class="status">Đã hủy</span>
+      </h2>
 
-      <!-- Backend sẽ render list -->
-      <div
-        class="item"
-        v-for="(item,index) in invoice?.items"
-        :key="index"
-      >
-        SL: {{ item.qty }}
-        {{ item.name }}
+      <div class="product-list">
+
+        <div class="product">
+          <span>Số Lượng:</span>
+          <span>Tên Sản Phẩm 1</span>
+          <span class="price">VND</span>
+        </div>
+
+        <ul>
+          <li>1x Topping 1</li>
+          <li>2x Topping 2</li>
+          <li>1x Size L</li>
+        </ul>
+
+      </div>
+
+      <div class="total-box">
+
+        <p>Tổng số tiền: <span>VND</span></p>
+        <p>Khuyến mãi: <span>VND</span></p>
+        <p>Tổng tiền sau chiết khấu: <span>VND</span></p>
+
+        <p class="time">
+          Thời gian đặt:
+          <span>Hôm nay 13:38</span>
+        </p>
+
       </div>
 
     </div>
-
-    <div class="price-box">
-
-      <p>Tổng số tiền:</p>
-      <p>Khuyến mãi:</p>
-      <p>Tổng tiền sau chiết khấu:</p>
-      <p>Thời gian đặt:</p>
-
-    </div>
-
-  </div>
-
-
-  <!-- Khách hàng -->
-  <div class="customer-box">
-
-    <h3>Khách hàng</h3>
-
-    <div class="avatar"></div>
-
-    <p>Mã KH:</p>
-    <p>Tên KH:</p>
-    <p>SĐT:</p>
-    <p>Email:</p>
-    <p>Địa chỉ:</p>
 
   </div>
 
@@ -56,6 +54,6 @@
 
 <script setup>
 defineProps({
-  invoice:Object
-})
+  invoice: Object,
+});
 </script>
