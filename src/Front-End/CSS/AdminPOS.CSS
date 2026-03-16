@@ -4,20 +4,6 @@
   box-sizing: border-box;
 }
 
-<<<<<<< HEAD
-/* ===== layout ===== */
-
-.admin-layout{
-  display:flex;
-  width:100%;
-  height:100vh;
-}
-.main-content{
-  flex:1;
-  display:grid;
-  grid-template-columns: 1fr 260px;
-  height:100vh;
-=======
 /* ===== wrapper của AdminPOS ===== */
 .pos-wrapper {
   display: grid;
@@ -25,7 +11,7 @@
   height: 100vh;
   overflow: hidden;
   min-width: 0;
->>>>>>> e06f5247adbeec69708f0fc8ac8c27155cf0723c
+
 }
 
 /* ===== khu custom builder ===== */
@@ -35,11 +21,7 @@
   min-width: 0;
 }
 
-<<<<<<< HEAD
-.products{
-  padding:20px;
-  max-width: 900px;
-=======
+
 /* tiêu đề */
 .pos-title {
   text-align: center;
@@ -47,7 +29,7 @@
   font-weight: bold;
   margin-bottom: 16px;
   color: #222;
->>>>>>> e06f5247adbeec69708f0fc8ac8c27155cf0723c
+
 }
 
 /* search */
@@ -83,12 +65,9 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   color: black;
-<<<<<<< HEAD
-  width:100%;
-  max-width:none;  
-=======
+
   width: 100%;
->>>>>>> e06f5247adbeec69708f0fc8ac8c27155cf0723c
+
 }
 
 .custom-card {
