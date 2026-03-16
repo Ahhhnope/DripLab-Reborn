@@ -9,6 +9,7 @@ export function useAdminMenu() {
         { id: 3, label: 'Quản lý sản phẩm' },
         { id: 4, label: 'Quản lý tin tức' },
         { id: 5, label: 'Quản lí khuyến mãi' },
+        { id: 6, label: 'Quản lí hóa đơn' },
     ]
 
     const setActive = (id) => activeIndex.value = id

@@ -2,6 +2,7 @@
 import { useAdminMenu } from "../JS/FrameInterface.JS";
 import CounterOrder from "./CounterOrder.vue";
 import AdminPOS from './AdminPOS.vue'
+import AdminInvoice from'./AdminInvoice.vue'
 const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
 </script>
 
@@ -37,9 +38,10 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
       <!-- Link Đơn hàng tại quầy -->
       <CounterOrder
         v-if="activeIndex === 2"
-        @openCustom="activeIndex = 6"
+        @openCustom="activeIndex = 7"
       ></CounterOrder>
-      <AdminPOS v-if="activeIndex === 6"></AdminPOS>
+      <AdminPOS v-if="activeIndex === 7"></AdminPOS>
+      <AdminInvoice v-if="activeIndex === 6"></AdminInvoice>
     </main>
   </div>
 </template>

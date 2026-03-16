@@ -1,0 +1,76 @@
+.invoice-page{
+display:flex;
+gap:20px;
+padding:20px;
+color:black;
+background:white;
+}
+
+.invoice-table{
+flex:3;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #555;
+padding:10px;
+text-align:center;
+}
+
+button{
+background:#2ecc71;
+border:none;
+padding:5px 10px;
+cursor:pointer;
+}
+
+.customer-box{
+flex:1;
+border:1px solid #555;
+padding:20px;
+}
+
+.avatar{
+width:60px;
+height:60px;
+border-radius:50%;
+border:2px solid white;
+margin-bottom:10px;
+}
+
+/* popup */
+
+.invoice-detail{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.7);
+display:flex;
+align-items:center;
+justify-content:center;
+gap:30px;
+}
+
+.detail-box{
+background:black;
+padding:30px;
+width:400px;
+border:1px solid white;
+}
+
+.close{
+position:absolute;
+right:20px;
+top:20px;
+}
+
+.item{
+margin:10px 0;
+}
+
+.price-box{
+margin-top:20px;
+}
