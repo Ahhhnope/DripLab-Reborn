@@ -1,13 +1,16 @@
 import { ref, computed } from 'vue'
 
+// Hàm lấy đường dẫn ảnh từ thư mục IMG
 function getImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
 
 export function useCounterOrder() {
+
+    // PHẦN 1: TÌM KIẾM SẢN PHẨM
+
     const searchText = ref('')
 
-    // Danh sách sản phẩm mẫu 
     const allProducts = ref([
         { id: 0, name: 'CUSTOM', image: getImg('DripLab_Logo.png'), price: 0 },
         { id: 1, name: 'Matcha Tea', image: getImg('Matcha-latte.png'), price: 45000 },
@@ -20,18 +23,78 @@ export function useCounterOrder() {
         { id: 8, name: 'Moka', image: getImg('moka.jpg'), price: 45000 },
     ])
 
-    // Danh sách hiển thị (lọc theo tìm kiếm)
+    // Danh sách sản phẩm hiển thị (thay đổi khi tìm kiếm)
     const products = ref([...allProducts.value])
 
-    // Danh sách món đã gọi
+    function searchProducts() {
+        const keyword = searchText.value.toLowerCase().trim()
+        if (keyword === '') {
+            products.value = [...allProducts.value]
+        } else {
+            products.value = allProducts.value.filter(p =>
+                p.name.toLowerCase().includes(keyword)
+            )
+        }
+    }
+
+    // PHẦN 2: QUẢN LÝ HÓA ĐƠN (TABS)
+
+    const showOrderScreen = ref(true)
+    const orderList = ref([])    // Danh sách tất cả hóa đơn
+    const currentOrder = ref(null)  // Hóa đơn đang được chọn
+
+    // Tạo hóa đơn mới
+    // Mỗi hóa đơn có giỏ hàng, khách hàng, mã giảm giá RIÊNG
+    function createNewOrder() {
+        const newOrder = {
+            id: orderList.value.length + 1,
+            items: [],   // ← giỏ hàng riêng
+            customer: '',
+            discountInput: '',
+            appliedCode: '',
+            discountPercent: 0,
+            discountMessage: '',
+        }
+        orderList.value.push(newOrder)
+        selectOrder(newOrder)  // Tự chuyển sang hóa đơn mới
+    }
+
+    // Chuyển tab → load đúng dữ liệu của hóa đơn được chọn
+    function selectOrder(order) {
+        currentOrder.value = order
+        showOrderScreen.value = false
+
+        // Load giỏ hàng của hóa đơn này
+        orderedItems.value = order.items
+
+        // Load khách hàng của hóa đơn này
+        selectedCustomer.value = order.customer
+
+        // Load mã khuyến mãi của hóa đơn này
+        discountInput.value = order.discountInput
+        appliedCode.value = order.appliedCode
+        discountPercent.value = order.discountPercent
+        discountMessage.value = order.discountMessage
+    }
+
+    // PHẦN 3: GIỎ HÀNG (MÓN ĐÃ GỌI)
+
+    // orderedItems sẽ được gán lại mỗi khi chuyển tab (trong selectOrder)
     const orderedItems = ref([])
 
-    // Tính tổng tiền trước giảm giá
     const totalPrice = computed(() => {
         return orderedItems.value.reduce((sum, item) => sum + item.price, 0)
     })
 
-    // ====== MÃ KHUYẾN MÃI ======
+    function removeItem(index) {
+        orderedItems.value.splice(index, 1)
+        // Lưu lại vào hóa đơn hiện tại
+        if (currentOrder.value) {
+            currentOrder.value.items = orderedItems.value
+        }
+    }
+
+    // PHẦN 4: MÃ KHUYẾN MÃI
 
     const discountCodes = {
         'KM50': 50,
@@ -52,6 +115,7 @@ export function useCounterOrder() {
 
     function applyDiscount() {
         const code = discountInput.value.trim().toUpperCase()
+
         if (discountCodes[code]) {
             appliedCode.value = code
             discountPercent.value = discountCodes[code]
@@ -61,6 +125,14 @@ export function useCounterOrder() {
             discountPercent.value = 0
             discountMessage.value = 'Mã không hợp lệ!'
         }
+
+        // Lưu trạng thái mã vào hóa đơn hiện tại
+        if (currentOrder.value) {
+            currentOrder.value.discountInput = discountInput.value
+            currentOrder.value.appliedCode = appliedCode.value
+            currentOrder.value.discountPercent = discountPercent.value
+            currentOrder.value.discountMessage = discountMessage.value
+        }
     }
 
     const finalPrice = computed(() => {
@@ -68,59 +140,52 @@ export function useCounterOrder() {
         return totalPrice.value * (1 - discountPercent.value / 100)
     })
 
-    // ====== Kết thúc MÃ KHUYẾN MÃI ======
+    // PHẦN 5: KHÁCH HÀNG
 
-    // ====== KHÁCH HÀNG ======
     const customerList = ref([])
     const selectedCustomer = ref('')
-    // ====== Kết thúc KHÁCH HÀNG ======
 
-    // ====== MÀN HÌNH CHỌN ĐƠN (chỉ trong cột phải) ======
-    const showOrderScreen = ref(true)
-    const orderList = ref([])
-
-    function createNewOrder() {
-        showOrderScreen.value = false
-    }
-
-    function selectOrder(order) {
-        showOrderScreen.value = false
-    }
-    // ====== Kết thúc MÀN HÌNH CHỌN ĐƠN ======
-
-    // Tìm kiếm sản phẩm
-    function searchProducts() {
-        const keyword = searchText.value.toLowerCase()
-        if (keyword === '') {
-            products.value = [...allProducts.value]
-        } else {
-            products.value = allProducts.value.filter(p =>
-                p.name.toLowerCase().includes(keyword)
-            )
+    // Gọi hàm này khi chọn khách hàng (thay vì dùng v-model trực tiếp)
+    function onSelectCustomer(customerId) {
+        selectedCustomer.value = customerId
+        // Lưu vào hóa đơn hiện tại
+        if (currentOrder.value) {
+            currentOrder.value.customer = customerId
         }
     }
 
-    // Xóa món khỏi đơn
-    function removeItem(index) {
-        orderedItems.value.splice(index, 1)
-    }
+    // PHẦN 6: THANH TOÁN
 
-    // Thanh toán
     function checkout() {
         if (orderedItems.value.length === 0) {
             alert('Chưa có sản phẩm nào!')
             return
         }
-        alert(`Thanh toán thành công! Tổng tiền: ${finalPrice.value.toLocaleString()} VND`)
-        orderedItems.value = []
-        discountInput.value = ''
-        appliedCode.value = ''
-        discountPercent.value = 0
-        discountMessage.value = ''
-        selectedCustomer.value = ''
+
+        alert(`Thanh toán thành công!\nTổng tiền: ${finalPrice.value.toLocaleString()} VND`)
+
+        // Xóa hóa đơn này khỏi danh sách
+        const index = orderList.value.findIndex(o => o === currentOrder.value)
+        if (index !== -1) orderList.value.splice(index, 1)
+
+        if (orderList.value.length === 0) {
+            // Không còn hóa đơn nào → về màn hình ban đầu
+            showOrderScreen.value = true
+            currentOrder.value = null
+            orderedItems.value = []
+            discountInput.value = ''
+            appliedCode.value = ''
+            discountPercent.value = 0
+            discountMessage.value = ''
+            selectedCustomer.value = ''
+        } else {
+            // Còn hóa đơn khác → chuyển sang hóa đơn cuối
+            selectOrder(orderList.value[orderList.value.length - 1])
+        }
     }
 
-    // ====== Cửa sổ - POPUP ======
+    // PHẦN 7: POPUP CHỌN TOPPING & SIZE
+
     const showPopup = ref(false)
     const selectedProduct = ref(null)
 
@@ -130,7 +195,7 @@ export function useCounterOrder() {
         { id: 3, name: 'Kem cheese', price: 8000 },
         { id: 4, name: 'Pudding trứng', price: 8000 },
         { id: 5, name: 'Kem béo', price: 6000 },
-        { id: 6, name: 'Kem cheese', price: 10000 },
+        { id: 6, name: 'Kem cheese đặc', price: 10000 },
         { id: 7, name: 'Machiato', price: 5000 },
         { id: 8, name: 'Whipping cream', price: 8000 },
     ]
@@ -164,44 +229,60 @@ export function useCounterOrder() {
         return selectedToppings.value.some(t => t.id === topping.id)
     }
 
+    // Thêm món vào giỏ hàng và lưu vào hóa đơn hiện tại
     function confirmOrder() {
         const toppingPrice = selectedToppings.value.reduce((sum, t) => sum + t.price, 0)
         const toppingNames = selectedToppings.value.map(t => t.name).join(', ')
-        orderedItems.value.push({
+
+        const newItem = {
             ...selectedProduct.value,
             price: selectedProduct.value.price + toppingPrice,
             size: selectedSize.value,
             toppings: toppingNames || 'Không có',
-        })
+        }
+
+        orderedItems.value.push(newItem)
+
+        // Lưu lại vào hóa đơn hiện tại
+        if (currentOrder.value) {
+            currentOrder.value.items = orderedItems.value
+        }
+
         closePopup()
     }
-    // ====== Kết thúc cửa sổ======
 
+    // ==========================================
+    // EXPORT
+    // ==========================================
     return {
         searchText,
         products,
+        searchProducts,
+
+        showOrderScreen,
+        orderList,
+        currentOrder,
+        createNewOrder,
+        selectOrder,
+
         orderedItems,
         totalPrice,
-        finalPrice,
-        searchProducts,
         removeItem,
-        checkout,
-        // mã khuyến mãi
+
         discountInput,
         discountCodeList,
         appliedCode,
         discountPercent,
         discountMessage,
         applyDiscount,
-        // khách hàng
+        finalPrice,
+
         customerList,
         selectedCustomer,
-        // màn hình chọn đơn
-        showOrderScreen,
-        orderList,
-        createNewOrder,
-        selectOrder,
-        // popup
+        onSelectCustomer,
+
+        checkout,
+
         showPopup,
         selectedProduct,
         toppingList,
