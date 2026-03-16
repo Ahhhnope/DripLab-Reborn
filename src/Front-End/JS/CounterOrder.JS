@@ -40,9 +40,9 @@ export function useCounterOrder() {
     }
 
     const discountCodeList = ref([
-        { code: 'KM50', label: 'KM50 - Giảm 50%' },
-        { code: 'KM20', label: 'KM20 - Giảm 20%' },
-        { code: 'KM10', label: 'KM10 - Giảm 10%' },
+        { code: 'KM50', label: 'Khuyến mãi giảm 50%' },
+        { code: 'KM20', label: 'Khuyến mãi giảm 20%' },
+        { code: 'KM10', label: 'Khuyến mãi giảm 10%' },
     ])
 
     const discountInput = ref('')
