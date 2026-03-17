@@ -17,6 +17,17 @@ create table users (
 	phone varchar(10) not null
 );
 
+create table customers (
+	id int identity(1,1) primary key,
+	full_name nvarchar(50),
+	loyalty_point float,
+	default_address nvarchar(50),
+	date_of_birth date,
+	phone varchar(10),
+	created_at date default getdate(),
+	user_id int foreign key references users (id)
+);
+
 create table promo_codes (
 	id int identity(1,1) primary key,
 	name nvarchar(50) not null,
@@ -62,7 +73,20 @@ create table cart_item_toppings (
 
 create table orders (
 	id int identity(1,1) primary key,
-	
+	order_number int,
+	order_date date default getdate(),
+	customer_name nvarchar(50),
+	customer_phone varchar(10),
+	customer_address nvarchar(50),
+	original_price float,
+	discount_amount float,
+	shipping_fee float,
+	tax_amount float,
+	final_price float,
+	note nvarchar(100),
+	created_at date default getdate(),
+	updated_at date default getdate(),
+	customer_id int foreign key references customers (id)
 );
 
 create table invoices (
@@ -71,7 +95,7 @@ create table invoices (
 	invoice_date date,
 	customer_name nvarchar(50),
 	customer_phone varchar(10),
-	customer_adress nvarchar(50),
+	customer_address nvarchar(50),
 	original_price float,
 	discount_amount float,
 	shipping_fee float,
@@ -79,9 +103,9 @@ create table invoices (
 	final_price float,
 	payment_method nvarchar(50),
 	payment_status nvarchar(50),
-	created_at default getdate(),
-	order_id int,
-	customer_id int,
+	created_at date default getdate(),
+	order_id int foreign key references orders (id),
+	customer_id int foreign key references customers (id)
 );
 -------------------------------------------
 insert into users (full_name, email, password, phone) values ('admin', 'admin@gmail.com', '12345', '0123456789')
