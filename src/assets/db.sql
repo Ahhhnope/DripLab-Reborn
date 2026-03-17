@@ -11,10 +11,10 @@ go
 ------------------------------------------
 create table users (
 	id int identity(1,1) primary key,
-	full_name nvarchar(50) not null,
-	email varchar(50) not null,
-	password nvarchar(50) not null,
-	phone varchar(10) not null
+	full_name nvarchar(50),
+	email varchar(50),
+	password nvarchar(50),
+	phone varchar(10)
 );
 
 create table customers (
@@ -30,8 +30,8 @@ create table customers (
 
 create table promo_codes (
 	id int identity(1,1) primary key,
-	name nvarchar(50) not null,
-	code nvarchar(max) not null,
+	name nvarchar(50),
+	code nvarchar(max),
 	description nvarchar(100)
 );
 
@@ -40,17 +40,17 @@ create table promo_codes (
 -------------------------------------------
 create table drinks (
 	id int identity(1,1) primary key,
-	name nvarchar(50) not null,
+	name nvarchar(50),
 	description nvarchar(50),
-	base_price float not null,
+	base_price float,
 	quantity int,
 	image_url nvarchar(max)
 );
 
 create table toppings (
 	id int identity(1,1) primary key,
-	name nvarchar(50) not null,
-	price float not null
+	name nvarchar(50),
+	price float
 );
 
 create table carts (
@@ -62,7 +62,7 @@ create table cart_items (
 	id int identity(1,1) primary key,
 	cart_id int foreign key references carts (id),
 	product_id int foreign key references drinks (id),
-	quantity int not null
+	quantity int
 );
 
 create table cart_item_toppings (
@@ -108,24 +108,28 @@ create table invoices (
 	customer_id int foreign key references customers (id)
 );
 -------------------------------------------
-insert into users (full_name, email, password, phone) values ('admin', 'admin@gmail.com', '12345', '0123456789')
+insert into users (full_name, email, password, phone) values
+('admin', 'admin@gmail.com', '12345', '0123456789')
+
+insert into customers (full_name, loyalty_point, default_address, date_of_birth, phone, user_id) values
+('admin', 200000000, '*default address*', '2024-11-21', '0123457689', 1)
 
 insert into carts (user_id) values ('1')
 
 insert into drinks (name, description, base_price, quantity, image_url) values
-('Matcha Tea', null, 45000, 100, '/IMG/tên_ảnh.png'),
-('Tea 1', null, 25000, 100, '/IMG/tên_ảnh.png'),
-('Tea 2', null, 35000, 100, '/IMG/tên_ảnh.png'),
-('Tea 3', null, 45000, 100, '/IMG/tên_ảnh.png'),
-('Tea 4', null, 55000, 100, '/IMG/tên_ảnh.png')
+('Matcha Tea', null, 45000, 100, N'/IMG/tên_ảnh.png'),
+('Tea 1', null, 25000, 100, N'/IMG/tên_ảnh.png'),
+('Tea 2', null, 35000, 100, N'/IMG/tên_ảnh.png'),
+('Tea 3', null, 45000, 100, N'/IMG/tên_ảnh.png'),
+('Tea 4', null, 55000, 100, N'/IMG/tên_ảnh.png')
 
 insert into toppings (name, price) values
-('Trân châu đen', 5000),
-('Thạch cà phê', 5000),
-('Kem cheese', 8000),
-('Pudding trứng', 8000),
-('Kem béo', 6000),
-('Whipping cream', 8000)
+(N'Trân châu đen', 5000),
+(N'Thạch cà phê', 5000),
+(N'Kem cheese', 8000),
+(N'Pudding trứng', 8000),
+(N'Kem béo', 6000),
+(N'Whipping cream', 8000)
 
-select * from drinks
+select * from customers
 

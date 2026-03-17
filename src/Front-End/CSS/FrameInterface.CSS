@@ -11,6 +11,10 @@
   overflow: hidden;
 }
 
+/* ============================
+   SIDEBAR
+============================ */
+
 .sidebar {
   width: 215px;
   height: 100vh;
@@ -19,33 +23,35 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
+.sidebar {
+  scrollbar-width: none; /* Firefox */
+}
+.sidebar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+/* --- Header: logo to, căn giữa, nền xám --- */
 .sidebar-header {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  padding: 20px 16px;
   background: #8a8a8a;
-  color: white;
   flex-shrink: 0;
 }
 
 .sidebar-logo {
-  width: 50px;
-  height: 50px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
   object-fit: contain;
   background: white;
-  padding: 5px;
+  padding: 6px;
 }
 
-.sidebar-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
+/* --- Nav menu --- */
 .sidebar-nav {
   flex: 1;
   list-style: none;
@@ -69,31 +75,138 @@
   background: #d9d9d9;
 }
 
+/* --- Footer: avatar + tên + role + logout --- */
 .sidebar-footer {
-  padding: 16px;
+  padding: 12px 16px;
+  background: #6b6b6b;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #555;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
   flex-shrink: 0;
 }
 
-.logout-btn {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #1a1a1a;
-  border-radius: 999px;
-  background: white;
+.user-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  color: white;
+  font-size: 0.88rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  color: #ccc;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
   cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9rem;
+  color: white;
+  font-size: 1.2rem;
+  padding: 4px;
+  flex-shrink: 0;
 }
 
 .logout-btn:hover {
-  background: red;
-  color: white;
+  color: #ff6b6b;
 }
+
+/* ============================
+   MAIN CONTENT
+============================ */
 
 .main-content {
   flex: 1;
   height: 100vh;
   overflow-y: auto;
   background: white;
+}
+
+/* ============================
+   SUBMENU CẤP 1
+============================ */
+
+.submenu {
+  list-style: none;
+  background: #f5f5f5;
+}
+
+.sub-item {
+  padding-left: 24px !important;
+  text-align: left !important;
+  font-size: 0.88rem !important;
+  font-weight: 400 !important;
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  border-bottom: none !important;
+  position: relative;
+}
+
+/* Dấu chấm đầu dòng cấp 1 */
+.sub-item::before {
+  content: '·';
+  position: absolute;
+  left: 12px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #666;
+}
+
+.sub-item:hover,
+.sub-item.active {
+  background: #e8e8e8 !important;
+  color: #000 !important;
+}
+
+/* ============================
+   SUBMENU CẤP 2
+============================ */
+
+.level2-menu {
+  background: #f0f0f0;
+}
+
+.level2 {
+  padding-left: 38px !important;
+  font-size: 0.85rem !important;
+  background: #f0f0f0 !important;
+  color: #555 !important;
+}
+
+/* Dấu chấm đầu dòng cấp 2 */
+.level2::before {
+  content: '·';
+  position: absolute;
+  left: 26px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #999;
+}
+
+.level2:hover,
+.level2.active {
+  background: #e0e0e0 !important;
+  color: #000 !important;
 }
