@@ -4,6 +4,7 @@ import CounterOrder from "./CounterOrder.vue";
 import AdminPOS from './AdminPOS.vue'
 import AdminInvoice from'./AdminInvoice.vue'
 import Products from "./Products.vue";
+import KhuyenMai from "./KhuyenMai.vue";
 const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
 </script>
 
@@ -37,6 +38,7 @@ const { menuItems, setActive, isActive, logout, activeIndex } = useAdminMenu();
       <AdminPOS v-if="activeIndex === 10"></AdminPOS>
       <Products v-if="activeIndex === 3"></Products>
       <AdminInvoice v-if="activeIndex === 6"></AdminInvoice>
+      <KhuyenMai v-if="activeIndex === 5"></KhuyenMai>
     </main>
   </div>
 </template>
