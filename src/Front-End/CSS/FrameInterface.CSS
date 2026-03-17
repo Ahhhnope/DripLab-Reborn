@@ -97,3 +97,65 @@
   overflow-y: auto;
   background: white;
 }
+
+/* ---- Submenu ---- */
+
+.submenu {
+  list-style: none;
+  background: #f5f5f5;
+  border-left: none;
+}
+
+.sub-item {
+  padding-left: 24px !important;
+  text-align: left !important;
+  font-size: 0.88rem !important;
+  font-weight: 400 !important;
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  border-bottom: none !important;
+  position: relative;
+}
+
+/* Dấu chấm đầu dòng */
+.sub-item::before {
+  content: '·';
+  position: absolute;
+  left: 12px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #666;
+}
+
+.sub-item:hover,
+.sub-item.active {
+  background: #e8e8e8 !important;
+  color: #000 !important;
+}
+
+.level2-menu {
+  background: #f0f0f0;
+  border-left: none;
+}
+
+.level2 {
+  padding-left: 38px !important;
+  font-size: 0.85rem !important;
+  background: #f0f0f0 !important;
+  color: #555 !important;
+}
+
+.level2::before {
+  content: '·';
+  position: absolute;
+  left: 26px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #999;
+}
+
+.level2:hover,
+.level2.active {
+  background: #e0e0e0 !important;
+  color: #000 !important;
+}
