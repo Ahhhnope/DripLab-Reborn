@@ -9,8 +9,10 @@ export function useAdminMenu() {
         { id: 3, label: 'Quản lý sản phẩm' },
         { id: 4, label: 'Quản lý tin tức' },
         { id: 5, label: 'Quản lý khuyến mãi' },
-        { id: 6, label: 'Quản lý Hóa đơn' },
+        { id: 6, label: 'Quản lý hóa đơn' },
         { id: 7, label: 'Quản lý Đơn hàng' },
+        { id: 8, label: 'Quản lý nhân viên' },
+        { id: 9, label: 'Quản lý khách hàng' },
 
     ]
 
