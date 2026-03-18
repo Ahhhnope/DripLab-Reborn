@@ -7,17 +7,19 @@ import AdminPOS from './Front-End/ADMIN/AdminPOS.vue'
 import AdminInvoice from './Front-End/ADMIN/AdminInvoice.vue'
 import KhuyenMai from './Front-End/ADMIN/KhuyenMai.vue'
 import Products from './Front-End/ADMIN/Products.vue'
+import AdminEmployee from './Front-End/ADMIN/AdminEmployee.vue'
 
 const routes = [
     {
         path: '/',
         component: FrameInterface,
         children: [
-            { path: 'DonTaiQuay', component: CounterOrder },
+            { path: 'QuanLyDonTaiQuay', component: CounterOrder },
             { path: 'AdminPOS', component: AdminPOS },
-            { path: 'AdminInvoice', component: AdminInvoice },
-            { path: 'KhuyenMai', component: KhuyenMai },
-            { path: 'Products', component: Products },
+            { path: 'QuanLyHoaDon', component: AdminInvoice },
+            { path: 'QuanLyKhuyenMai', component: KhuyenMai },
+            { path: 'QuanLySanPham', component: Products },
+            { path: 'QuanLyNhanVien', component: AdminEmployee },
         ]
     }
 ]

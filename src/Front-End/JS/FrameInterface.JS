@@ -9,11 +9,11 @@ export function useAdminMenu() {
 
     const menuItems = [
         { id: 1, label: 'Quản lý thống kê', path: '/' },
-        { id: 2, label: 'Đơn tại quầy', path: 'DonTaiQuay' },
+        { id: 2, label: 'Đơn tại quầy', path: '/QuanLyDonTaiQuay' },
         {
             id: 3, label: 'Quản lý sản phẩm',
             children: [
-                { id: 31, label: 'Sản phẩm', path: '/Products' },
+                { id: 31, label: 'Sản phẩm', path: '/QuanLySanPham' },
                 {
                     id: 32, label: 'Thành phần',
                     subChildren: [
@@ -26,15 +26,15 @@ export function useAdminMenu() {
                 },
             ]
         },
-        { id: 4, label: 'Quản lý tin tức', path: '/TinTuc' },
-        { id: 5, label: 'Quản lý khuyến mãi', path: '/KhuyenMai' },
-        { id: 6, label: 'Quản lý hóa đơn', path: '/AdminInvoice' },
-        { id: 7, label: 'Quản lý đơn hàng', path: '/DonHang' },
+        { id: 4, label: 'Quản lý tin tức', path: '/QuanLyTinTuc' },
+        { id: 5, label: 'Quản lý khuyến mãi', path: '/QuanLyKhuyenMai' },
+        { id: 6, label: 'Quản lý hóa đơn', path: '/QuanLyHoaDon' },
+        { id: 7, label: 'Quản lý đơn hàng', path: '/QuanLyDonHang' },
         {
             id: 8, label: 'Quản lý tài khoản',
             children: [
-                { id: 81, label: 'Quản lý nhân viên', path: '/NhanVien' },
-                { id: 82, label: 'Quản lý khách hàng', path: '/KhachHang' },
+                { id: 81, label: 'Quản lý nhân viên', path: '/QuanLyNhanVien' },
+                { id: 82, label: 'Quản lý khách hàng', path: '/QuanLyKhachHang' },
             ]
         },
     ]
