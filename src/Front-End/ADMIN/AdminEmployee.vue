@@ -1,41 +1,82 @@
 <template>
   <div class="employee-container">
+    <!-- HEADER -->
     <div class="header">
-      <h2>Nhân viên</h2>
-      <button @click="addEmployee">Thêm nv</button>
+      <h2>Quản lý tài khoản nhân viên</h2>
+      <button @click="openAdd">+ Thêm nhân viên</button>
     </div>
 
     <table>
       <thead>
         <tr>
-          <th>STT</th>
-          <th>ID</th>
-          <th>Tên nv</th>
+          <th>Tên nhân viên</th>
           <th>Tài khoản</th>
           <th>Mật khẩu</th>
-          <th>Ngày tạo</th>
-          <th></th>
+          <th>Hành động</th>
         </tr>
       </thead>
-
       <tbody>
         <tr v-for="(emp, index) in employees" :key="emp.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ emp.id }}</td>
           <td>{{ emp.name }}</td>
           <td>{{ emp.username }}</td>
           <td>{{ emp.password }}</td>
-          <td>{{ emp.createdAt }}</td>
           <td>
-            <span class="action" @click="editEmployee(index)">Sửa</span>
-            |
-            <span class="action" @click="deleteEmployee(index)">Xóa</span>
+            <span class="action edit" @click="openEdit(index)">Sửa</span>
+            <span class="action delete" @click="deleteEmployee(index)">Xóa</span>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <div v-if="showPopup" class="popup-overlay">
+      <div class="popup">
+        <div class="popup-header">
+          <h3>{{ isEditing ? 'Sửa nhân viên' : 'Thêm nhân viên' }}</h3>
+          <span class="close-btn" @click="closePopup">✖</span>
+        </div>
+
+        <div class="form-group">
+          <label>Tên</label>
+          <input v-model="form.name" />
+        </div>
+
+        <div class="form-group">
+          <label>Tài khoản</label>
+          <input v-model="form.username" />
+        </div>
+
+        <div class="form-group">
+          <label>Mật khẩu</label>
+          <input type="password" v-model="form.password" />
+        </div>
+
+        <div class="form-group" v-if="isEditing">
+          <label>Mật khẩu mới</label>
+          <input type="password" v-model="form.newPassword" />
+        </div>
+
+        <div class="popup-actions">
+          <button class="save-btn" @click="saveEmployee">Lưu</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script src="../JS/AdminEmployee.JS"></script>
+<script setup>
+import useEmployee from "../JS/AdminEmployee.JS"
+
+const {
+  employees,
+  deleteEmployee,
+  openEdit,
+  openAdd,
+  isEditing,
+  showPopup,
+  form,
+  closePopup,
+  saveEmployee
+} = useEmployee()
+</script>
+
 <style scoped src="../CSS/AdminEmployee.CSS"></style>
