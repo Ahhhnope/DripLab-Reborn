@@ -1,0 +1,164 @@
+.promo-page{
+    padding:30px 40px;
+    width:100%;
+}
+
+/* tiêu đề */
+.promo-page h2{
+    font-size:26px;
+    font-weight:600;
+    color:#1f2937;
+    margin-bottom:20px;
+}
+
+/* filter */
+.filter{
+    background:#fff;
+    padding:16px;
+    border-radius:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+/* bảng */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* header bảng */
+thead{
+    background:#f3f4f6;
+}
+
+th{
+    padding:14px;
+    text-align:left;
+    font-weight:600;
+    color:#374151;
+}
+
+/* body bảng */
+td{
+    padding:14px;
+    border-top:1px solid #eee;
+    color:#4b5563;
+}
+
+tbody tr:hover{
+    background:#fafafa;
+}
+
+/* pagination */
+.pagination{
+    margin-top:16px;
+    display:flex;
+    gap:8px;
+}
+
+.pagination button{
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    background:#e5e7eb;
+    cursor:pointer;
+}
+
+.pagination button:hover{
+    background:#f97316;
+    color:white;
+}
+
+
+/* FILTER BOX */
+
+.filter{
+background:white;
+padding:18px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+margin-bottom:20px;
+}
+
+.filter input,
+.filter select{
+padding:8px 10px;
+border:1px solid #ddd;
+border-radius:6px;
+font-size:14px;
+color:#374151;
+}
+
+.filter input:focus,
+.filter select:focus{
+outline:none;
+border-color:#f97316;
+}
+
+
+/* BUTTON */
+
+.filter button{
+padding:8px 14px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+}
+
+.filter button:nth-child(6){
+background:#f97316;
+color:white;
+}
+
+.filter button:nth-child(7){
+background:#e5e7eb;
+}
+
+.filter button:nth-child(8){
+background:#22c55e;
+color:white;
+}
+
+/* Nút hành động */
+.action-buttons{
+    display:flex;
+    gap:8px;
+}
+
+.edit-btn{
+    background:#3b82f6;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.edit-btn:hover{
+    background:#2563eb;
+}
+
+.delete-btn{
+    background:#ef4444;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.delete-btn:hover{
+    background:#dc2626;
+}
+
