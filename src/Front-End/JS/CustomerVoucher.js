@@ -73,150 +73,150 @@ export default {
     },
 
 
-methods: {
+    methods: {
 
 
-    filterVoucher() {
+        filterVoucher() {
 
-        this.filteredVouchers = this.vouchers.filter(v => {
+            this.filteredVouchers = this.vouchers.filter(v => {
 
-            const matchSearch =
-                v.code.toLowerCase().includes(this.search.toLowerCase()) ||
-                v.name.toLowerCase().includes(this.search.toLowerCase())
+                const matchSearch =
+                    v.code.toLowerCase().includes(this.search.toLowerCase()) ||
+                    v.name.toLowerCase().includes(this.search.toLowerCase())
 
-            const matchStatus =
-                !this.status || v.status === this.status
+                const matchStatus =
+                    !this.status || v.status === this.status
 
-            const matchType =
-                !this.type || v.type === this.type
+                const matchType =
+                    !this.type || v.type === this.type
 
-            const matchDate =
-                (!this.fromDate || new Date(v.start) >= new Date(this.fromDate)) &&
-                (!this.toDate || new Date(v.end) <= new Date(this.toDate))
+                const matchDate =
+                    (!this.fromDate || new Date(v.start) >= new Date(this.fromDate)) &&
+                    (!this.toDate || new Date(v.end) <= new Date(this.toDate))
 
-            return matchSearch && matchStatus && matchType && matchDate
+                return matchSearch && matchStatus && matchType && matchDate
 
-        })
+            })
 
-        this.currentPage = 1
+            this.currentPage = 1
 
-    },
-
-
-    resetFilter() {
-
-        this.search = ""
-        this.status = ""
-        this.type = ""
-        this.fromDate = ""
-        this.toDate = ""
-
-        this.filteredVouchers = this.vouchers
-
-        this.currentPage = 1
-
-    },
+        },
 
 
-    addVoucher() {
+        resetFilter() {
 
-        const index = this.vouchers.length + 1
+            this.search = ""
+            this.status = ""
+            this.type = ""
+            this.fromDate = ""
+            this.toDate = ""
 
-        const newVoucher = {
+            this.filteredVouchers = this.vouchers
 
-            id: "KM_" + String(index).padStart(2, '0'),
-            code: "NEW" + Math.floor(Math.random() * 1000),
-            name: "Voucher mới",
-            type: "PHẦN TRĂM",
-            value: "15%",
-            quantity: 1,
-            start: "2025-12-01",
-            end: "2026-01-01",
-            status: "HOẠT ĐỘNG"
+            this.currentPage = 1
 
-        }
-
-        this.vouchers.unshift(newVoucher)
-
-        this.filterVoucher()
-
-        this.currentPage = 1
-
-    },
+        },
 
 
-    deleteVoucher(id) {
+        addVoucher() {
 
-        if (confirm("Bạn có chắc muốn xóa không?")) {
+            const index = this.vouchers.length + 1
 
-            const index = this.vouchers.findIndex(v => v.id === id)
+            const newVoucher = {
 
-            if (index !== -1) {
-                this.vouchers.splice(index, 1)
+                id: "KM_" + String(index).padStart(2, '0'),
+                code: "NEW" + Math.floor(Math.random() * 1000),
+                name: "Voucher mới",
+                type: "PHẦN TRĂM",
+                value: "15%",
+                quantity: 1,
+                start: "2025-12-01",
+                end: "2026-01-01",
+                status: "HOẠT ĐỘNG"
+
             }
+
+            this.vouchers.unshift(newVoucher)
 
             this.filterVoucher()
 
-            if (this.currentPage > this.totalPages) {
-                this.currentPage = this.totalPages || 1
+            this.currentPage = 1
+
+        },
+
+
+        deleteVoucher(id) {
+
+            if (confirm("Bạn có chắc muốn xóa không?")) {
+
+                const index = this.vouchers.findIndex(v => v.id === id)
+
+                if (index !== -1) {
+                    this.vouchers.splice(index, 1)
+                }
+
+                this.filterVoucher()
+
+                if (this.currentPage > this.totalPages) {
+                    this.currentPage = this.totalPages || 1
+                }
+
             }
 
-        }
+        },
+
+
+        // ── Mở popup, copy dữ liệu vào form ──
+        editVoucher(v) {
+
+            this.editForm = { ...v }
+            this.showEditModal = true
+
+        },
+
+
+        // ── Lưu chỉnh sửa vào mảng gốc ──
+        saveEdit() {
+
+            const index = this.vouchers.findIndex(v => v.id === this.editForm.id)
+
+            if (index !== -1) {
+                this.vouchers.splice(index, 1, { ...this.editForm })
+            }
+
+            this.filterVoucher()
+            this.closeModal()
+
+        },
+
+
+        // ── Đóng popup ──
+        closeModal() {
+
+            this.showEditModal = false
+
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--
+            }
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++
+            }
+        },
+
 
     },
 
+    mounted() {
 
-    // ── Mở popup, copy dữ liệu vào form ──
-    editVoucher(v) {
+        this.filteredVouchers = this.vouchers
 
-        this.editForm = { ...v }
-        this.showEditModal = true
-
-    },
-
-
-    // ── Lưu chỉnh sửa vào mảng gốc ──
-    saveEdit() {
-
-        const index = this.vouchers.findIndex(v => v.id === this.editForm.id)
-
-        if (index !== -1) {
-            this.vouchers.splice(index, 1, { ...this.editForm })
-        }
-
-        this.filterVoucher()
-        this.closeModal()
-
-    },
-
-
-    // ── Đóng popup ──
-    closeModal() {
-
-        this.showEditModal = false
-
-    },
-
-    prevPage() {
-    if (this.currentPage > 1) {
-        this.currentPage--
     }
-},
-
-nextPage() {
-    if (this.currentPage < this.totalPages) {
-        this.currentPage++
-    }
-},
-
-
-},
-
-mounted() {
-
-    this.filteredVouchers = this.vouchers
-
-}
 
 }
 
