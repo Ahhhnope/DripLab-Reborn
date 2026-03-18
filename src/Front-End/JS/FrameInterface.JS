@@ -1,43 +1,71 @@
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 export function useAdminMenu() {
     const activeIndex = ref(1)
     const openMenu = ref(null)
     const openSub = ref(null)
+    const router = useRouter()
 
     const menuItems = [
-        { id: 1, label: 'Quản lý thống kê' },
-        { id: 2, label: 'Đơn tại quầy' },
+        { id: 1, label: 'Quản lý thống kê', path: '/' },
+        { id: 2, label: 'Đơn tại quầy', path: 'DonTaiQuay' },
         {
             id: 3, label: 'Quản lý sản phẩm',
             children: [
-                { id: 31, label: 'Sản phẩm' },
+                { id: 31, label: 'Sản phẩm', path: '/Products' },
                 {
                     id: 32, label: 'Thành phần',
                     subChildren: [
-                        { id: 321, label: 'Hạt cà phê' },
-                        { id: 322, label: 'Sữa' },
-                        { id: 323, label: 'Kem béo' },
-                        { id: 324, label: 'Kem lạnh' },
-                        { id: 325, label: 'Cách thức' },
+                        { id: 321, label: 'Hạt cà phê', path: '/HatCaPhe' },
+                        { id: 322, label: 'Sữa', path: '/Sua' },
+                        { id: 323, label: 'Kem béo', path: '/KemBeo' },
+                        { id: 324, label: 'Kem lạnh', path: '/KemLanh' },
+                        { id: 325, label: 'Cách thức', path: '/CachThuc' },
                     ]
                 },
             ]
         },
-        { id: 4, label: 'Quản lý tin tức' },
-        { id: 5, label: 'Quản lý khuyến mãi' },
-        { id: 6, label: 'Quản lý hóa đơn' },
-        { id: 7, label: 'Quản lý đơn hàng' },
+        { id: 4, label: 'Quản lý tin tức', path: '/TinTuc' },
+        { id: 5, label: 'Quản lý khuyến mãi', path: '/KhuyenMai' },
+        { id: 6, label: 'Quản lý hóa đơn', path: '/AdminInvoice' },
+        { id: 7, label: 'Quản lý đơn hàng', path: '/DonHang' },
         {
             id: 8, label: 'Quản lý tài khoản',
             children: [
-                { id: 81, label: 'Quản lý nhân viên' },
-                { id: 82, label: 'Quản lý khách hàng' },
+                { id: 81, label: 'Quản lý nhân viên', path: '/NhanVien' },
+                { id: 82, label: 'Quản lý khách hàng', path: '/KhachHang' },
             ]
         },
     ]
 
     const logout = () => alert('Đăng xuất!')
 
-    return { menuItems, activeIndex, openMenu, openSub, logout }
+    function clickMenu(item) {
+        activeIndex.value = item.id
+        if (item.children) {
+            openMenu.value = openMenu.value === item.id ? null : item.id
+        } else {
+            openMenu.value = null
+            if (item.path) router.push(item.path)
+        }
+        openSub.value = null
+    }
+
+    function clickSub(child) {
+        activeIndex.value = child.id
+        if (child.subChildren) {
+            openSub.value = openSub.value === child.id ? null : child.id
+        } else {
+            openSub.value = null
+            if (child.path) router.push(child.path)
+        }
+    }
+
+    function clickSubChild(subChild) {
+        activeIndex.value = subChild.id
+        if (subChild.path) router.push(subChild.path)
+    }
+
+    return { menuItems, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild }
 }

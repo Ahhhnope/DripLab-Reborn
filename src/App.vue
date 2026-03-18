@@ -1,12 +1,9 @@
 <script setup>
-// import AdminPOS from '../src/Front-End/ADMIN/AdminPOS.vue'
-import FrameInterface from './Front-End/ADMIN/FrameInterface.vue';
 </script>
 
 <template>
   <main>
-    <!-- <AdminPOS></AdminPOS> -->
-    <FrameInterface></FrameInterface>
+     <RouterView />
   </main>
 </template>
 
