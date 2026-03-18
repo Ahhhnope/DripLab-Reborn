@@ -206,69 +206,6 @@
 }
 
 /* ===================================
-   TABS HÓA ĐƠN
-   =================================== */
-.order-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 12px;
-    align-items: center;
-}
-
-/* Tab bình thường — trông nổi bật, rõ ràng */
-.order-tab {
-    padding: 8px 20px;
-    background-color: white;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-    cursor: pointer;
-    border: 2px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: all 0.15s ease;
-    user-select: none;
-}
-
-.order-tab:hover {
-    border-color: #4caf50;
-    color: #2e7d32;
-    background-color: #f1faf1;
-}
-
-/* Tab đang được chọn (active) — giống như "trang đang mở" */
-.order-tab.active {
-    background-color: #4caf50;
-    border-color: #4caf50;
-    color: white;
-    box-shadow: 0 3px 8px rgba(76, 175, 80, 0.4);
-    transform: translateY(-1px);
-    /* nhấc lên nhẹ để nổi bật */
-}
-
-/* Nút + thêm hóa đơn mới */
-.add-tab-btn {
-    padding: 8px 16px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.35);
-    transition: all 0.15s ease;
-    line-height: 1;
-}
-
-.add-tab-btn:hover {
-    background-color: #43a047;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.45);
-}
-
-/* ===================================
    LƯỚI SẢN PHẨM
    =================================== */
 .product-grid {
@@ -409,29 +346,6 @@
 
 .remove-btn:hover {
     color: #b71c1c;
-}
-
-/* Combobox khách hàng */
-.customer-section {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-    margin-top: 4px;
-}
-
-.customer-select {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 13px;
-    background-color: white;
-    outline: none;
-    cursor: pointer;
-    appearance: auto;
-}
-
-.customer-select:focus {
-    border-color: #4caf50;
 }
 
 /* Mã khuyến mãi */

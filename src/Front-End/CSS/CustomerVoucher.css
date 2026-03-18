@@ -24,10 +24,20 @@
 }
 
 /* bảng */
+<<<<<<< HEAD
 table {
     width: 100%;
     table-layout: fixed;        /* cột không bị co giãn theo nội dung */
     border-collapse: collapse;
+=======
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    /* border-radius:12px; lmao*/
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+>>>>>>> a00e3f04135b9567b0e6e729fdc3596b8f5d05f5
 }
 
 thead th,

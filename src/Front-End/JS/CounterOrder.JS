@@ -44,19 +44,17 @@ export function useCounterOrder() {
     const currentOrder = ref(null)  // Hóa đơn đang được chọn
 
     // Tạo hóa đơn mới
-    // Mỗi hóa đơn có giỏ hàng, khách hàng, mã giảm giá RIÊNG
     function createNewOrder() {
         const newOrder = {
             id: orderList.value.length + 1,
-            items: [],   // ← giỏ hàng riêng
-            customer: '',
+            items: [],
             discountInput: '',
             appliedCode: '',
             discountPercent: 0,
             discountMessage: '',
         }
         orderList.value.push(newOrder)
-        selectOrder(newOrder)  // Tự chuyển sang hóa đơn mới
+        selectOrder(newOrder)
     }
 
     // Chuyển tab → load đúng dữ liệu của hóa đơn được chọn
@@ -67,9 +65,6 @@ export function useCounterOrder() {
         // Load giỏ hàng của hóa đơn này
         orderedItems.value = order.items
 
-        // Load khách hàng của hóa đơn này
-        selectedCustomer.value = order.customer
-
         // Load mã khuyến mãi của hóa đơn này
         discountInput.value = order.discountInput
         appliedCode.value = order.appliedCode
@@ -79,7 +74,6 @@ export function useCounterOrder() {
 
     // PHẦN 3: GIỎ HÀNG (MÓN ĐÃ GỌI)
 
-    // orderedItems sẽ được gán lại mỗi khi chuyển tab (trong selectOrder)
     const orderedItems = ref([])
 
     const totalPrice = computed(() => {
@@ -88,7 +82,6 @@ export function useCounterOrder() {
 
     function removeItem(index) {
         orderedItems.value.splice(index, 1)
-        // Lưu lại vào hóa đơn hiện tại
         if (currentOrder.value) {
             currentOrder.value.items = orderedItems.value
         }
@@ -126,7 +119,6 @@ export function useCounterOrder() {
             discountMessage.value = 'Mã không hợp lệ!'
         }
 
-        // Lưu trạng thái mã vào hóa đơn hiện tại
         if (currentOrder.value) {
             currentOrder.value.discountInput = discountInput.value
             currentOrder.value.appliedCode = appliedCode.value
@@ -140,21 +132,7 @@ export function useCounterOrder() {
         return totalPrice.value * (1 - discountPercent.value / 100)
     })
 
-    // PHẦN 5: KHÁCH HÀNG
-
-    const customerList = ref([])
-    const selectedCustomer = ref('')
-
-    // Gọi hàm này khi chọn khách hàng (thay vì dùng v-model trực tiếp)
-    function onSelectCustomer(customerId) {
-        selectedCustomer.value = customerId
-        // Lưu vào hóa đơn hiện tại
-        if (currentOrder.value) {
-            currentOrder.value.customer = customerId
-        }
-    }
-
-    // PHẦN 6: THANH TOÁN
+    // PHẦN 5: THANH TOÁN
 
     function checkout() {
         if (orderedItems.value.length === 0) {
@@ -164,12 +142,10 @@ export function useCounterOrder() {
 
         alert(`Thanh toán thành công!\nTổng tiền: ${finalPrice.value.toLocaleString()} VND`)
 
-        // Xóa hóa đơn này khỏi danh sách
         const index = orderList.value.findIndex(o => o === currentOrder.value)
         if (index !== -1) orderList.value.splice(index, 1)
 
         if (orderList.value.length === 0) {
-            // Không còn hóa đơn nào → về màn hình ban đầu
             showOrderScreen.value = true
             currentOrder.value = null
             orderedItems.value = []
@@ -177,14 +153,12 @@ export function useCounterOrder() {
             appliedCode.value = ''
             discountPercent.value = 0
             discountMessage.value = ''
-            selectedCustomer.value = ''
         } else {
-            // Còn hóa đơn khác → chuyển sang hóa đơn cuối
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
 
-    // PHẦN 7: POPUP CHỌN TOPPING & SIZE
+    // PHẦN 6: POPUP CHỌN TOPPING & SIZE
 
     const showPopup = ref(false)
     const selectedProduct = ref(null)
@@ -229,7 +203,6 @@ export function useCounterOrder() {
         return selectedToppings.value.some(t => t.id === topping.id)
     }
 
-    // Thêm món vào giỏ hàng và lưu vào hóa đơn hiện tại
     function confirmOrder() {
         const toppingPrice = selectedToppings.value.reduce((sum, t) => sum + t.price, 0)
         const toppingNames = selectedToppings.value.map(t => t.name).join(', ')
@@ -243,7 +216,6 @@ export function useCounterOrder() {
 
         orderedItems.value.push(newItem)
 
-        // Lưu lại vào hóa đơn hiện tại
         if (currentOrder.value) {
             currentOrder.value.items = orderedItems.value
         }
@@ -276,10 +248,6 @@ export function useCounterOrder() {
         discountMessage,
         applyDiscount,
         finalPrice,
-
-        customerList,
-        selectedCustomer,
-        onSelectCustomer,
 
         checkout,
 

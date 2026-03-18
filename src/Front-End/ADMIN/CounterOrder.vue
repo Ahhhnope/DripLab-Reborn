@@ -1,5 +1,8 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import { useCounterOrder } from "../JS/CounterOrder.JS";
+
+const router = useRouter()
 
 const {
   searchText,
@@ -24,10 +27,6 @@ const {
   applyDiscount,
   finalPrice,
 
-  customerList,
-  selectedCustomer,
-  onSelectCustomer,
-
   checkout,
 
   showPopup,
@@ -42,11 +41,9 @@ const {
   confirmOrder,
 } = useCounterOrder();
 
-const emit = defineEmits(["openCustom"]);
-
 function handleProductClick(product) {
   if (product.id === 0) {
-    emit("openCustom");
+    router.push('/AdminPOS')
   } else {
     openPopup(product);
   }
@@ -58,37 +55,22 @@ function handleProductClick(product) {
 <template>
   <div class="counter-order">
 
-    <!-- CỘT TRÁI: Tìm kiếm + Tabs hóa đơn + Lưới sản phẩm           -->
+    <!-- CỘT TRÁI -->
     <div class="product-section">
       <h1 class="title">ĐƠN TẠI QUẦY</h1>
 
-      <!-- Chưa có đơn nào: chỉ hiện nút tạo đơn -->
       <div v-if="showOrderScreen" class="top-left-area">
         <button class="create-order-btn-center" @click="createNewOrder">
           + Thêm hóa đơn
         </button>
       </div>
 
-      <!-- Đã có đơn: hiện đầy đủ giao diện -->
       <template v-else>
-
-        <!-- Thanh tìm kiếm -->
         <div class="search-bar">
           <input v-model="searchText" type="text" placeholder="Tìm sản phẩm..." class="search-input" />
           <button class="search-btn" @click="searchProducts">Tìm kiếm</button>
         </div>
 
-        <!-- Tabs hóa đơn -->
-        <!-- Tab active = hóa đơn đang chọn, sẽ sáng xanh -->
-        <div class="order-tabs">
-          <div v-for="(order, index) in orderList" :key="order.id" class="order-tab"
-            :class="{ active: currentOrder === order }" @click="selectOrder(order)">
-            HD {{ index + 1 }}
-          </div>
-          <button class="add-tab-btn" @click="createNewOrder">+</button>
-        </div>
-
-        <!-- Lưới sản phẩm -->
         <div class="product-grid">
           <div v-for="product in products" :key="product.id" class="product-card" @click="handleProductClick(product)">
             <img :src="product.image" :alt="product.name" class="product-img" />
@@ -97,15 +79,12 @@ function handleProductClick(product) {
             </p>
           </div>
         </div>
-
       </template>
     </div>
 
-    <!-- CỘT PHẢI: Giỏ hàng + Khuyến mãi + Thanh toán                -->
-  
+    <!-- CỘT PHẢI -->
     <div class="order-section">
 
-      <!-- Chưa tạo đơn -->
       <div v-if="showOrderScreen" class="order-screen">
         <h2 class="order-title">Sản phẩm đã gọi</h2>
         <div class="order-screen-list">
@@ -116,11 +95,9 @@ function handleProductClick(product) {
         </div>
       </div>
 
-      <!-- Đã vào đơn -->
       <template v-else>
         <h2 class="order-title">Sản phẩm đã gọi</h2>
 
-        <!-- Danh sách món -->
         <div class="order-list">
           <div v-for="(item, index) in orderedItems" :key="index" class="order-item">
             <div class="item-info">
@@ -132,18 +109,6 @@ function handleProductClick(product) {
           </div>
         </div>
 
-        <!-- Chọn khách hàng -->
-        <!-- Dùng @change thay vì v-model để lưu vào đúng hóa đơn -->
-        <div class="customer-section">
-          <select :value="selectedCustomer" @change="onSelectCustomer($event.target.value)" class="customer-select">
-            <option value="" disabled>-- Chọn khách hàng --</option>
-            <option v-for="customer in customerList" :key="customer.id" :value="customer.id">
-              {{ customer.name }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Mã khuyến mãi -->
         <div class="discount-section">
           <p class="discount-label">Mã khuyến mãi</p>
           <div class="discount-bar">
@@ -163,7 +128,6 @@ function handleProductClick(product) {
           </p>
         </div>
 
-        <!-- Tổng tiền + Thanh toán -->
         <div class="order-footer">
           <p v-if="discountPercent > 0" class="original-price">
             Giá gốc: {{ totalPrice.toLocaleString() }} VND
@@ -176,15 +140,12 @@ function handleProductClick(product) {
           </p>
           <button class="checkout-btn" @click="checkout">Thanh toán</button>
         </div>
-
       </template>
     </div>
 
-    <!-- POPUP: Chọn Topping và Size                                  -->
-   
+    <!-- POPUP: Chọn Topping và Size -->
     <div v-if="showPopup" class="popup-overlay">
       <div class="popup">
-
         <h2 class="popup-product-name">{{ selectedProduct.name }}</h2>
 
         <p class="popup-label">Topping</p>
@@ -206,7 +167,6 @@ function handleProductClick(product) {
           <button class="cancel-btn" @click="closePopup">Hủy</button>
           <button class="confirm-btn" @click="confirmOrder">Xác nhận</button>
         </div>
-
       </div>
     </div>
 
