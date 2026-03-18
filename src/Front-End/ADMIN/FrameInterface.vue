@@ -5,6 +5,7 @@ import AdminPOS from './AdminPOS.vue'
 import AdminInvoice from './AdminInvoice.vue'
 import Products from "./Products.vue";
 import KhuyenMai from "./KhuyenMai.vue";
+import AdminEmployee from "./AdminEmployee.vue";
 
 const { menuItems, activeIndex, openMenu, openSub, logout } = useAdminMenu();
 
@@ -97,6 +98,7 @@ function clickSub(child) {
       <Products v-if="activeIndex === 31" />
       <AdminInvoice v-if="activeIndex === 6" />
       <KhuyenMai v-if="activeIndex === 5" />
+      <AdminEmployee v-if="activeIndex === 81" />
     </main>
   </div>
 </template>

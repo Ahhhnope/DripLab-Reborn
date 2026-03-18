@@ -1,0 +1,36 @@
+.employee-container {
+  padding: 20px;
+  color: black;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 14px;
+  border: 1px solid #000;
+  background: transparent;
+  cursor: pointer;
+  background-color: green;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #555;
+  padding: 10px;
+  text-align: center;
+}
+
+.action {
+  cursor: pointer;
+  color: #00aaff;
+}
