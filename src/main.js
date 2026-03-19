@@ -16,6 +16,7 @@ import QuanLySPkem from './Front-End/ADMIN/QuanLySPkem.vue'
 import QuanLySPKemBeo from './Front-End/ADMIN/QuanLySPKemBeo.vue'
 import AdminQLKH from './Front-End/ADMIN/AdminQLKH.vue'
 
+
 const routes = [
     {
         path: '/',
@@ -28,7 +29,7 @@ const routes = [
             { path: 'QuanLyDonHang', component: OrderList },
             { path: 'QuanLySanPham', component: Products },
             { path: 'QuanLyNhanVien', component: AdminEmployee },
-            { path: 'QuanLyKhachHang', component: AdminQLKH },
+             { path: 'QuanLyKhachHang', component: AdminQLKH },
 
             { path: 'SanPhamKem', component: QuanLySPkem },
             { path: 'SanPhamkemBeo', component: QuanLySPKemBeo },
