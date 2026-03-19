@@ -80,10 +80,6 @@ async function saveCustomer() {
     createdAt: new Date().toLocaleDateString("vi-VN")
   }
   customers.value.push(newCus)
-
-  // Khi có backend: bỏ comment dòng dưới
-  // await axios.post("http://localhost:8080/customers", newCus)
-
   showPopup.value = false
   syncFiltered()
 }
@@ -93,7 +89,6 @@ async function deleteCustomer(index) {
   const realIndex = customers.value.findIndex(e => e.id === c.id)
   if (realIndex !== -1) {
     customers.value.splice(realIndex, 1)
-    // await axios.delete(`http://localhost:8080/customers/${c.id}`)
   }
   syncFiltered()
 }

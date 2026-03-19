@@ -18,7 +18,7 @@
         <tr>
           <th>STT</th>
           <th>ID</th>
-          <th>Tên kh</th>
+          <th>Tên khách hàng</th>
           <th>Tài khoản</th>
           <th>Mật khẩu</th>
           <th>SDT</th>
