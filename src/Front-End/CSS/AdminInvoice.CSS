@@ -50,7 +50,7 @@ tbody td {
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: #fafbff; }
 
-/* ── Nút Xem thêm - giống Voucher ── */
+
 .view-btn {
   background: #3b82f6;
   color: white;
@@ -76,6 +76,16 @@ tbody tr:hover { background: #fafbff; }
   top: 20px;
   height: fit-content;
   border-top: 4px solid #3b82f6;
+}
+
+.customer-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #9ca3af;
+  font-size: 13.5px;
+  font-style: italic;
 }
 
 .customer-box h3 {
@@ -235,7 +245,6 @@ tbody tr:hover { background: #fafbff; }
 
 .popup-close:hover { background: #dc2626; }
 
-/* ── Thêm vào cuối file CSS cũ ── */
 
 .filter {
   background: #fff;
