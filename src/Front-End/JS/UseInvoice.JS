@@ -2,10 +2,70 @@ import { ref } from "vue"
 import axios from "axios"
 
 const invoices = ref([])
+const filteredInvoices = ref([])
 
-async function loadInvoices(){
-  const res = await axios.get("http://localhost:8080/invoices")
-  invoices.value = res.data
+const search        = ref("")
+const paymentFilter = ref("")
+const fromDate      = ref("")
+const toDate        = ref("")
+
+async function loadInvoices() {
+  try {
+    const res = await axios.get("http://localhost:8080/invoices")
+    invoices.value = res.data
+    filteredInvoices.value = res.data
+  } catch (err) {
+    // ── Backend chưa chạy → dùng data mẫu ──
+    console.warn("Không kết nối được backend, dùng data mẫu")
+    const sample = [
+      {
+        invoice_id: "HD_01", order_id: "DH_01", date: "2026-03-20",
+        payment_method: "Tiền mặt", final_price: 45000,
+        customer: { id: "KH_01", name: "Nguyễn Văn A", phone: "0988888888", email: "a@gmail.com", address: "Hà Nội" },
+        items: [{ name: "Cà phê sữa", qty: 1 }, { name: "Topping trân châu", qty: 1 }],
+        original_price: 50000, discount: 5000, shipping: 0, created_at: "20/03/2026 13:38"
+      },
+      {
+        invoice_id: "HD_02", order_id: "DH_02", date: "2026-03-21",
+        payment_method: "Chuyển khoản", final_price: 65000,
+        customer: { id: "KH_02", name: "Trần Văn B", phone: "0977777777", email: "b@gmail.com", address: "Hồ Chí Minh" },
+        items: [{ name: "Cold Brew", qty: 1 }, { name: "Kem cheese", qty: 1 }],
+        original_price: 70000, discount: 5000, shipping: 0, created_at: "21/03/2026 09:20"
+      }
+    ]
+    invoices.value = sample
+    filteredInvoices.value = sample
+  }
 }
 
-export { invoices, loadInvoices }
+function filterInvoice() {
+  const q = search.value.toLowerCase()
+  filteredInvoices.value = invoices.value.filter(inv => {
+    const matchSearch  = inv.invoice_id.toLowerCase().includes(q) ||
+                         inv.order_id.toLowerCase().includes(q)
+    const matchPayment = !paymentFilter.value || inv.payment_method === paymentFilter.value
+    const matchFrom    = !fromDate.value || new Date(inv.date) >= new Date(fromDate.value)
+    const matchTo      = !toDate.value   || new Date(inv.date) <= new Date(toDate.value)
+    return matchSearch && matchPayment && matchFrom && matchTo
+  })
+}
+
+function resetFilter() {
+  search.value        = ""
+  paymentFilter.value = ""
+  fromDate.value      = ""
+  toDate.value        = ""
+  filteredInvoices.value = [...invoices.value]
+}
+
+export {
+  invoices,
+  filteredInvoices,
+  search,
+  paymentFilter,
+  fromDate,
+  toDate,
+  loadInvoices,
+  filterInvoice,
+  resetFilter
+}
