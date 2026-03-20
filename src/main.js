@@ -9,7 +9,7 @@ import KhuyenMai from './Front-End/ADMIN/KhuyenMai.vue'
 import OrderList from './Front-End/ADMIN/OrderList.vue'
 import Products from './Front-End/ADMIN/Products.vue'
 import AdminEmployee from './Front-End/ADMIN/AdminEmployee.vue'
-
+import './assets/main.css' // Phải có dòng này thì Tailwind mới chạy được
 const routes = [
     {
         path: '/',

@@ -1,5 +1,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+// Import icon từ heroicons
+import { 
+  HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon, 
+  DocumentTextIcon, TicketIcon, NewspaperIcon, 
+  UserCircleIcon, AdjustmentsHorizontalIcon, 
+  ChartBarIcon
+} from '@heroicons/vue/24/outline'
 
 export function useAdminMenu() {
     const activeIndex = ref(1)
@@ -7,36 +14,55 @@ export function useAdminMenu() {
     const openSub = ref(null)
     const router = useRouter()
 
-    const menuItems = [
-        { id: 1, label: 'Quản lý thống kê', path: '/' },
-        { id: 2, label: 'Đơn tại quầy', path: '/QuanLyDonTaiQuay' },
+    // Cấu trúc menu chia theo Group
+    const menuGroups = [
         {
-            id: 3, label: 'Quản lý sản phẩm',
-            children: [
-                { id: 31, label: 'Sản phẩm', path: '/QuanLySanPham' },
-                {
-                    id: 32, label: 'Thành phần',
-                    subChildren: [
-                        { id: 321, label: 'Hạt cà phê', path: '/HatCaPhe' },
-                        { id: 322, label: 'Sữa', path: '/Sua' },
-                        { id: 323, label: 'Kem béo', path: '/KemBeo' },
-                        { id: 324, label: 'Kem lạnh', path: '/KemLanh' },
-                        { id: 325, label: 'Cách thức', path: '/CachThuc' },
+            title: 'Báo cáo & Phân tích',
+            items: [
+                { id: 1, label: 'Thống Kê', icon: ChartBarIcon, path: '/' },
+            ]
+        },
+        {
+            title: 'Quản lý bán hàng',
+            items: [
+                { id: 2, label: 'Đơn tại quầy', icon: ShoppingCartIcon, path: '/QuanLyDonTaiQuay' },
+                { 
+                    id: 3, label: 'Sản phẩm', icon: CubeIcon,
+                    children: [
+                        { id: 31, label: 'Danh sách sản phẩm', path: '/QuanLySanPham' },
+                        { 
+                            id: 32, label: 'Thuộc tính', 
+                            subChildren: [
+                                { id: 321, label: 'Hạt cà phê', path: '/HatCaPhe' },
+                                { id: 322, label: 'Sữa', path: '/Sua' },
+                                { id: 325, label: 'Cách thức', path: '/CachThuc' },
+                            ] 
+                        },
+                    ]
+                },
+                { id: 6, label: 'Hóa đơn', icon: DocumentTextIcon, path: '/QuanLyHoaDon' },
+                { id: 7, label: 'Đơn hàng', icon: AdjustmentsHorizontalIcon, path: '/QuanLyDonHang' },
+            ]
+        },
+        {
+            title: 'Quản lý giảm giá',
+            items: [
+                { id: 5, label: 'Phiếu giảm giá', icon: TicketIcon, path: '/QuanLyKhuyenMai' },
+                { id: 4, label: 'Tin tức', icon: NewspaperIcon, path: '/QuanLyTinTuc' },
+            ]
+        },
+        {
+            title: 'Quản lý hệ thống',
+            items: [
+                { 
+                    id: 8, label: 'Tài khoản', icon: UserCircleIcon,
+                    children: [
+                        { id: 81, label: 'Nhân viên', path: '/QuanLyNhanVien' },
+                        { id: 82, label: 'Khách hàng', path: '/QuanLyKhachHang' },
                     ]
                 },
             ]
-        },
-        { id: 4, label: 'Quản lý tin tức', path: '/QuanLyTinTuc' },
-        { id: 5, label: 'Quản lý khuyến mãi', path: '/QuanLyKhuyenMai' },
-        { id: 6, label: 'Quản lý hóa đơn', path: '/QuanLyHoaDon' },
-        { id: 7, label: 'Quản lý đơn hàng', path: '/QuanLyDonHang' },
-        {
-            id: 8, label: 'Quản lý tài khoản',
-            children: [
-                { id: 81, label: 'Quản lý nhân viên', path: '/QuanLyNhanVien' },
-                { id: 82, label: 'Quản lý khách hàng', path: '/QuanLyKhachHang' },
-            ]
-        },
+        }
     ]
 
     const logout = () => alert('Đăng xuất!')
@@ -67,5 +93,5 @@ export function useAdminMenu() {
         if (subChild.path) router.push(subChild.path)
     }
 
-    return { menuItems, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild }
+    return { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild }
 }
