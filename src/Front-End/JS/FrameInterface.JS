@@ -17,11 +17,11 @@ export function useAdminMenu() {
                 {
                     id: 32, label: 'Thành phần',
                     subChildren: [
-                        { id: 321, label: 'Hạt cà phê', path: '/HatCaPhe' },
-                        { id: 322, label: 'Sữa', path: '/Sua' },
-                        { id: 323, label: 'Kem béo', path: '/KemBeo' },
-                        { id: 324, label: 'Kem lạnh', path: '/KemLanh' },
-                        { id: 325, label: 'Cách thức', path: '/CachThuc' },
+                        { id: 321, label: 'Hạt cà phê', path: '/SanPhamHatCaPhe' },
+                        { id: 322, label: 'Sữa', path: '/SanPhamSua' },
+                        { id: 323, label: 'Kem béo', path: '/SanPhamkemBeo' },
+                        { id: 324, label: 'Kem lạnh', path: '/SanPhamKem' },
+                        { id: 325, label: 'Cách thức', path: '/QuanLyCachThuc' },
                     ]
                 },
             ]

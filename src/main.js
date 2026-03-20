@@ -9,6 +9,13 @@ import KhuyenMai from './Front-End/ADMIN/KhuyenMai.vue'
 import OrderList from './Front-End/ADMIN/OrderList.vue'
 import Products from './Front-End/ADMIN/Products.vue'
 import AdminEmployee from './Front-End/ADMIN/AdminEmployee.vue'
+import QuanLySPCachThuc from './Front-End/ADMIN/QuanLySPCachThuc.vue'
+import QuanLySPSua from './Front-End/ADMIN/QuanLySPSua.vue'
+import QuanLySPHatCaPhe from './Front-End/ADMIN/QuanLySPHatCaPhe.vue'
+import QuanLySPkem from './Front-End/ADMIN/QuanLySPkem.vue'
+import QuanLySPKemBeo from './Front-End/ADMIN/QuanLySPKemBeo.vue'
+import AdminQLKH from './Front-End/ADMIN/AdminQLKH.vue'
+
 
 const routes = [
     {
@@ -22,6 +29,13 @@ const routes = [
             { path: 'QuanLyDonHang', component: OrderList },
             { path: 'QuanLySanPham', component: Products },
             { path: 'QuanLyNhanVien', component: AdminEmployee },
+             { path: 'QuanLyKhachHang', component: AdminQLKH },
+
+            { path: 'SanPhamKem', component: QuanLySPkem },
+            { path: 'SanPhamkemBeo', component: QuanLySPKemBeo },
+            { path: 'SanPhamSua', component: QuanLySPSua },
+            { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe },
+            { path: 'QuanLyCachThuc', component: QuanLySPCachThuc },
         ]
     }
 ]

@@ -12,6 +12,11 @@
           <option value="Tiền mặt">Tiền mặt</option>
           <option value="Chuyển khoản">Chuyển khoản</option>
         </select>
+        <select v-model="receiveFilter">
+          <option value="">Tất cả hình thức</option>
+          <option value="Tại Quầy">Tại Quầy</option>
+          <option value="Online">Online</option>
+        </select>
         <input type="date" v-model="fromDate" />
         <input type="date" v-model="toDate" />
         <button class="btn-filter" @click="filterInvoice">Lọc</button>
@@ -26,6 +31,7 @@
             <th>Mã đơn hàng</th>
             <th>Ngày hiện</th>
             <th>Phương thức thanh toán</th>
+            <th>Nhận Hàng</th>
             <th>Giá</th>
             <th>Hành động</th>
           </tr>
@@ -37,6 +43,11 @@
             <td>{{ invoice.order_id }}</td>
             <td>{{ invoice.date }}</td>
             <td>{{ invoice.payment_method }}</td>
+            <td>
+              <span :class="invoice.receive_type === 'Online' ? 'badge-online' : 'badge-counter'">
+                {{ invoice.receive_type }}
+              </span>
+            </td>
             <td>{{ invoice.final_price.toLocaleString('vi-VN') }} VND</td>
             <td>
               <button class="view-btn" @click="openInvoice(invoice)">Xem thêm</button>
@@ -45,15 +56,20 @@
         </tbody>
       </table>
     </div>
-
-    <!-- Khách hàng -->
-    <div class="customer-box" v-if="selectedInvoice">
+    <div class="customer-box">
       <h3>Thông tin khách hàng</h3>
-      <p><strong>Mã KH:</strong>    {{ selectedInvoice.customer.id }}</p>
-      <p><strong>Tên:</strong>      {{ selectedInvoice.customer.name }}</p>
-      <p><strong>SĐT:</strong>      {{ selectedInvoice.customer.phone }}</p>
-      <p><strong>Email:</strong>    {{ selectedInvoice.customer.email }}</p>
-      <p><strong>Địa chỉ:</strong>  {{ selectedInvoice.customer.address }}</p>
+
+      <div v-if="selectedInvoice" class="customer-info">
+        <p><strong>Mã KH:</strong>   {{ selectedInvoice.customer.id }}</p>
+        <p><strong>Tên:</strong>     {{ selectedInvoice.customer.name }}</p>
+        <p><strong>SĐT:</strong>     {{ selectedInvoice.customer.phone }}</p>
+        <p><strong>Email:</strong>   {{ selectedInvoice.customer.email }}</p>
+        <p><strong>Địa chỉ:</strong> {{ selectedInvoice.customer.address }}</p>
+      </div>
+
+      <div v-else class="customer-empty">
+        <p>Chọn hóa đơn để xem thông tin khách hàng</p>
+      </div>
     </div>
   </div>
 
@@ -71,12 +87,13 @@ import {
   filteredInvoices,
   search,
   paymentFilter,
+  receiveFilter,
   fromDate,
   toDate,
   loadInvoices,
   filterInvoice,
   resetFilter
-} from '../JS/UseInvoice.JS'
+} from "../JS/UseInvoice.JS"
 
 const showDetail      = ref(false)
 const selectedInvoice = ref(null)
