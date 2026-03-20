@@ -21,7 +21,7 @@ const { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub,
 
 <template>
   <div class="flex w-screen h-screen overflow-hidden bg-slate-50 font-sans text-slate-700">
-    <aside class="w-64 h-full flex flex-col flex-shrink-0 bg-white border-r border-slate-200 shadow-sm">
+    <aside class="w-64 h-full flex flex-col shrink-0 bg-white border-r border-slate-200 shadow-sm">
       
       <div class="flex items-center px-6 py-6 bg-white border-b border-slate-50">
         <div class="p-1.5 bg-slate-900 rounded-lg shadow-md">
