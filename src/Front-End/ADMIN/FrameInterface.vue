@@ -3,7 +3,17 @@ import { useAdminMenu } from "../JS/FrameInterface.JS";
 import { 
   ChevronDownIcon, 
   ChevronUpIcon,
-  ArrowLeftOnRectangleIcon 
+  ArrowLeftOnRectangleIcon,
+  // THÊM CÁC ICON DƯỚI ĐÂY (Phải khớp với file JS của bạn)
+  HomeIcon, 
+  ShoppingCartIcon, 
+  CubeIcon, 
+  DocumentTextIcon,
+  TicketIcon,
+  NewspaperIcon,
+  UserCircleIcon,
+  AdjustmentsHorizontalIcon,
+  UserGroupIcon
 } from '@heroicons/vue/24/outline'
 
 const { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild } = useAdminMenu();
