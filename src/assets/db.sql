@@ -131,5 +131,5 @@ insert into toppings (name, price) values
 (N'Kem béo', 6000),
 (N'Whipping cream', 8000)
 
-select * from customers
+select * from carts
 
