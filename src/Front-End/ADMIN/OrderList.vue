@@ -5,18 +5,34 @@
     <OrderStatusTab v-model="activeTab" />
     <OrderFilter @apply="applyFilter" />
     <OrderTable :items="items" @view="onView" @confirm="onConfirm" @cancel="onCancel" />
+
+    <OrderDetailModal
+      v-model:open="detailOpen"
+      :order="selectedOrder"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    />
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import OrderStatusTab from "../../components/OrderStatusTab.vue";
 import OrderFilter from "../../components/OrderFilter.vue";
 import OrderTable from "../../components/OrderTable.vue";
+import OrderDetailModal from "../../components/OrderDetailModal.vue";
 import { useOrderList } from "../JS/OrderList";
 
 const { activeTab, items, applyFilter } = useOrderList();
 
-function onView(row) { console.log("view", row); }
+const detailOpen = ref(false);
+const selectedOrder = ref(null);
+
+function onView(row) {
+  selectedOrder.value = row;   // lấy luôn data mẫu trong OrderList.js
+  detailOpen.value = true;
+}
+
 function onConfirm(row) { console.log("confirm", row); }
 function onCancel(row) { console.log("cancel", row); }
 </script>
