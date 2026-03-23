@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @source "../Front-End/";
 
-/* Đảm bảo khung hình tràn màn hình */
+
 html, body, #app {
   margin: 0;
   padding: 0;
