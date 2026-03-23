@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@source "../Front-End/";
+
+/* Đảm bảo khung hình tràn màn hình */
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
