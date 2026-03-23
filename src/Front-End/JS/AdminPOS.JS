@@ -1,268 +1,226 @@
 import { ref, computed } from 'vue'
+import axios from 'axios'
 
-export function useAdminMenu() {
-  const activeIndex = ref(1)
-
-  const menuItems = [
-    { id: 1, label: 'Quản lý thống kê' },
-    { id: 2, label: 'Đơn tại quầy' },
-    { id: 3, label: 'Quản lý sản phẩm' },
-    { id: 4, label: 'Quản lý tin tức' },
-    { id: 5, label: 'Quản lí khuyến mãi' },
-  ]
-
-  const setActive = (id) => activeIndex.value = id
-  const isActive = (id) => activeIndex.value === id
-  const logout = () => alert('Đăng xuất!')
-
-  return { menuItems, setActive, isActive, logout }
-}
-
-/* POS CUSTOM DRINK */
-
-export function usePOS(){
+export function usePOS() {
 
   const search = ref("")
   const step = ref(1)
   const orderedItems = ref([])
 
   const selected = ref({
-    bean:null,
-    base:null,
-    milk:null,
-    topping:null
+    bean: null,
+    base: null,
+    milk: null,
+    toppings: []
   })
 
   /* popup */
-
-  const showBeanPopup = ref(false)
-  const showBasePopup = ref(false)
-  const showMilkPopup = ref(false)
+  const showBeanPopup    = ref(false)
+  const showBasePopup    = ref(false)
+  const showMilkPopup    = ref(false)
   const showToppingPopup = ref(false)
 
-  /* PRODUCTS */
+  /* PRODUCTS - load từ backend */
+  const beans    = ref([])
+  const bases    = ref([])
+  const milks    = ref([])
+  const toppings = ref([])
 
-  const beans = [
-    { name:"Robusta", price:12000, img:"/IMG/robusta.jpg" },
-    { name:"Arabica", price:15000, img:"/IMG/arabica.png" },
-    { name:"Culi", price:18000, img:"/IMG/culi.jpg" },
-    { name:"Moka", price:20000, img:"/IMG/moka.jpg" }
+  const sampleBeans = [
+    { name: "Robusta", price: 12000 },
+    { name: "Arabica", price: 15000 },
+    { name: "Culi",    price: 18000 },
+    { name: "Moka",    price: 20000 }
   ]
 
-  const bases = [
-    { name:"Espresso (pha máy)", price:10000, img:"/IMG/espresso.jpg" },
-    { name:"Cold Brew (ủ)", price:12000, img:"/IMG/coldbrew.jpg" },
-    { name:"Pour Over (nhỏ giọt)", price:15000, img:"/IMG/pourover.jpg" }
+  const sampleBases = [
+    { name: "Espresso (pha máy)",    price: 10000 },
+    { name: "Cold Brew (ủ)",         price: 12000 },
+    { name: "Pour Over (nhỏ giọt)", price: 15000 }
   ]
 
-  const milks = [
-    { name:"Sữa tươi", price:7000, img:"/IMG/suatuoi.jpg" },
-    { name:"Sữa hạt", price:9000, img:"/IMG/suahạt.jpg" },
-    { name:"Sữa kem béo", price:10000, img:"/IMG/kembeo.jpg" },
-    { name:"Sữa đặc", price:5000, img:"/IMG/suadac.jpg" }
+  const sampleMilks = [
+    { name: "Sữa tươi",   price: 7000  },
+    { name: "Sữa hạt",    price: 9000  },
+    { name: "Sữa kem béo", price: 10000 },
+    { name: "Sữa đặc",    price: 5000  }
   ]
 
-  const toppings = [
-    { name:"Trân châu đen", price:5000, img:"/IMG/tranchau.jpg" },
-    { name:"Thạch cà phê", price:6000, img:"/IMG/thachcf.jpg" },
-    { name:"Kem cheese", price:8000, img:"/IMG/creamcheese.jpg" },
-    { name:"Pudding trứng", price:7000, img:"/IMG/pudding.jpg" },
-    { name:"Kem béo", price:6000, img:"/IMG/kembeo.jpg" },
-    { name:"Machiato", price:7000, img:"/IMG/machiato.jpg" },
-    { name:"Whipping cream", price:8000, img:"/IMG/whipping.jpg" }
+  const sampleToppings = [
+    { name: "Trân châu đen",  price: 5000 },
+    { name: "Thạch cà phê",   price: 6000 },
+    { name: "Kem cheese",     price: 8000 },
+    { name: "Pudding trứng",  price: 7000 },
+    { name: "Kem béo",        price: 6000 },
+    { name: "Machiato",       price: 7000 },
+    { name: "Whipping cream", price: 8000 }
   ]
+
+  async function loadProducts() {
+    try {
+      const [b, ba, m, t] = await Promise.all([
+        axios.get("http://localhost:8080/beans"),
+        axios.get("http://localhost:8080/bases"),
+        axios.get("http://localhost:8080/milks"),
+        axios.get("http://localhost:8080/toppings")
+      ])
+      beans.value    = b.data
+      bases.value    = ba.data
+      milks.value    = m.data
+      toppings.value = t.data
+    } catch (err) {
+      console.warn("Không kết nối được backend, dùng data mẫu")
+      beans.value    = sampleBeans
+      bases.value    = sampleBases
+      milks.value    = sampleMilks
+      toppings.value = sampleToppings
+    }
+  }
 
   /* open popup */
-
-  function openBean(){
-    showBeanPopup.value=true
-  }
-
-  function openBase(){
-    if(step.value<2) return
-    showBasePopup.value=true
-  }
-
-  function openMilk(){
-    if(step.value<3) return
-    showMilkPopup.value=true
-  }
-
-  function openTopping(){
-    if(step.value<4) return
-    showToppingPopup.value=true
-  }
+  function openBean()    { showBeanPopup.value = true }
+  function openBase()    { if (step.value < 2) return; showBasePopup.value = true }
+  function openMilk()    { if (step.value < 3) return; showMilkPopup.value = true }
+  function openTopping() { if (step.value < 4) return; showToppingPopup.value = true }
 
   /* select */
-
-  function selectBean(b){
-    selected.value.bean=b
-    step.value=2
-    showBeanPopup.value=false
+  function selectBean(b) {
+    selected.value.bean = b
+    step.value = 2
+    showBeanPopup.value = false
   }
 
-  function selectBase(b){
-    selected.value.base=b
-    step.value=3
-    showBasePopup.value=false
+  function selectBase(b) {
+    selected.value.base = b
+    step.value = 3
+    showBasePopup.value = false
   }
 
-  function selectMilk(m){
-    selected.value.milk=m
-    step.value=4
-    showMilkPopup.value=false
+  function selectMilk(m) {
+    selected.value.milk = m
+    step.value = 4
+    showMilkPopup.value = false
   }
 
-  function selectTopping(t){
-    selected.value.topping=t
-    showToppingPopup.value=false
+  function selectTopping(t) {
+    if (selected.value.toppings.length >= 3) {
+      alert('Chỉ được chọn tối đa 3 topping!')
+      return
+    }
+    selected.value.toppings.push(t)
+  }
+
+  function removeTopping(index) {
+    selected.value.toppings.splice(index, 1)
+  }
+
+  function confirmTopping() {
+    if (selected.value.toppings.length === 0) {
+      alert('Vui lòng chọn ít nhất 1 topping!')
+      return
+    }
+    showToppingPopup.value = false
     addToCart()
   }
-  
-  
-    
-    
-  /* CART */
 
-  function addToCart(){
+  /* CART */
+  function addToCart() {
+    const toppingNames = selected.value.toppings.map(t => t.name).join(', ')
+    const toppingPrice = selected.value.toppings.reduce((sum, t) => sum + t.price, 0)
 
     const item = {
       id: Date.now(),
-
       name:
-        selected.value.bean.name+" + "+
-        selected.value.base.name+" + "+
-        selected.value.milk.name+" + "+
-        selected.value.topping.name,
-
-      qty:1,
-
+        selected.value.bean.name + ' + ' +
+        selected.value.base.name + ' + ' +
+        selected.value.milk.name + ' + ' +
+        toppingNames,
+      qty: 1,
       price:
         selected.value.bean.price +
         selected.value.base.price +
         selected.value.milk.price +
-        selected.value.topping.price
+        toppingPrice
     }
 
     orderedItems.value.push(item)
-
-    selected.value={
-      bean:null,
-      base:null,
-      milk:null,
-      topping:null
-    }
-
-    step.value=1
+    selected.value = { bean: null, base: null, milk: null, toppings: [] }
+    step.value = 1
   }
 
-   
+  /* DISCOUNT */
+  const discountCodes = { 'KM50': 50, 'KM20': 20, 'KM10': 10 }
+  const discountInput   = ref('')
+  const appliedCode     = ref('')
+  const discountPercent = ref(0)
+  const discountMessage = ref('')
 
-    // Tính tổng tiền trước giảm giá
-    const totalPrice = computed(() => {
-        return orderedItems.value.reduce((sum, item) => sum + item.price, 0)
-    })
-
-    // ====== MÃ KHUYẾN MÃI ======
-
-    // Danh sách mã khuyến mãi hợp lệ: 
-    const discountCodes = {
-        'KM50': 50,   // giảm 50%
-        'KM20': 20,   // giảm 20%
-        'KM10': 10,   // giảm 10%
+  function applyDiscount() {
+    const code = discountInput.value.trim().toUpperCase()
+    if (discountCodes[code]) {
+      appliedCode.value     = code
+      discountPercent.value = discountCodes[code]
+      discountMessage.value = `Áp dụng thành công! Giảm ${discountCodes[code]}%`
+    } else {
+      appliedCode.value     = ''
+      discountPercent.value = 0
+      discountMessage.value = 'Mã không hợp lệ!'
     }
+  }
 
-    // Mã người dùng đang nhập
-    const discountInput = ref('')
+  const totalPrice = computed(() =>
+    orderedItems.value.reduce((sum, item) => sum + item.price, 0)
+  )
 
-    // Mã đã được áp dụng thành công
-    const appliedCode = ref('')
+  const finalPrice = computed(() => {
+    if (discountPercent.value === 0) return totalPrice.value
+    return totalPrice.value * (1 - discountPercent.value / 100)
+  })
 
-    // % giảm hiện tại (0 = chưa áp dụng)
-    const discountPercent = ref(0)
+  function removeItem(index) { orderedItems.value.splice(index, 1) }
 
-    // Thông báo lỗi mã
-    const discountMessage = ref('')
-
-    // Bấm "Áp dụng" mã khuyến mãi
-    function applyDiscount() {
-        const code = discountInput.value.trim().toUpperCase()
-
-        if (discountCodes[code]) {
-            appliedCode.value = code
-            discountPercent.value = discountCodes[code]
-            discountMessage.value = `Áp dụng thành công! Giảm ${discountCodes[code]}%`
-        } else {
-            appliedCode.value = ''
-            discountPercent.value = 0
-            discountMessage.value = 'Mã không hợp lệ!'
-        }
+  /* Thanh toán - gửi lên backend */
+  async function checkout() {
+    if (orderedItems.value.length === 0) {
+      alert('Chưa có sản phẩm nào!')
+      return
     }
-
-    // Tổng tiền sau khi giảm
-    const finalPrice = computed(() => {
-        if (discountPercent.value === 0) return totalPrice.value
-        return totalPrice.value * (1 - discountPercent.value / 100)
-    })
-
-     // Xóa món khỏi đơn
-    function removeItem(index) {
-        orderedItems.value.splice(index, 1)
+    const payload = {
+      items:          orderedItems.value,
+      totalPrice:     totalPrice.value,
+      discountCode:   appliedCode.value,
+      discountPercent: discountPercent.value,
+      finalPrice:     finalPrice.value
     }
-
-  // Thanh toán
-    function checkout() {
-        if (orderedItems.value.length === 0) {
-            alert('Chưa có sản phẩm nào!')
-            return
-        }
-        alert(`Thanh toán thành công! Tổng tiền: ${finalPrice.value.toLocaleString()} VND`)
-        orderedItems.value = []
-        discountInput.value = ''
-        appliedCode.value = ''
-        discountPercent.value = 0
-        discountMessage.value = ''
+    try {
+      // Khi có backend: bỏ comment dòng dưới
+      // await axios.post("http://localhost:8080/orders", payload)
+      alert(`Thanh toán thành công! Tổng tiền: ${finalPrice.value.toLocaleString()} VND`)
+    } catch (err) {
+      alert('Thanh toán thất bại, vui lòng thử lại!')
+      return
     }
+    orderedItems.value  = []
+    discountInput.value = ''
+    appliedCode.value   = ''
+    discountPercent.value = 0
+    discountMessage.value = ''
+  }
 
-  function searchProduct(){}
+  function searchProduct() {}
 
-  return{
-  search,
-  step,
-  selected,
-
-  beans,
-  bases,
-  milks,
-  toppings,
-
-  orderedItems,
-
-  showBeanPopup,
-  showBasePopup,
-  showMilkPopup,
-  showToppingPopup,
-
-  openBean,
-  openBase,
-  openMilk,
-  openTopping,
-
-  selectBean,
-  selectBase,
-  selectMilk,
-  selectTopping,
-
-  removeItem,
-
-  discountInput,
-  discountPercent,
-  discountMessage,
-  totalPrice,
-  finalPrice,
-  applyDiscount,
-  checkout,
-
-  searchProduct
-}
+  return {
+    search, step, selected,
+    beans, bases, milks, toppings,
+    loadProducts,
+    orderedItems,
+    showBeanPopup, showBasePopup, showMilkPopup, showToppingPopup,
+    openBean, openBase, openMilk, openTopping,
+    selectBean, selectBase, selectMilk, selectTopping,
+    removeTopping, confirmTopping,
+    removeItem,
+    discountInput, discountPercent, discountMessage,
+    totalPrice, finalPrice, applyDiscount, checkout,
+    searchProduct
+  }
 }

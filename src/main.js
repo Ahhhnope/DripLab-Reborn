@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 
-// Import CSS (Rất quan trọng để Tailwind hoạt động)
+// Import CSS (để Tailwind hoạt động)
 import './assets/main.css' 
 
 // Import các Component chính
