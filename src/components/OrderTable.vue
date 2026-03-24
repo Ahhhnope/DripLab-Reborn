@@ -68,7 +68,7 @@
                   class="font-semibold text-emerald-600 hover:underline"
                   @click.prevent="confirm(r)"
                 >
-                  Xác nhận
+                  Sửa
                 </a>
 
                 <span class="text-slate-300">|</span>
@@ -78,7 +78,7 @@
                   class="font-semibold text-red-600 hover:underline"
                   @click.prevent="cancel(r)"
                 >
-                  Huỷ
+                  Xoá
                 </a>
               </div>
             </td>

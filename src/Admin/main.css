@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../Front-End/";
+@source "../../src/**/*.{vue,js,ts,jsx,tsx}";
 
 
 html, body, #app {

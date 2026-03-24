@@ -55,6 +55,63 @@ export function useOrderList() {
       subtotal: 1500000,
       discount: 49626,
     },
+    {
+      id: 3,
+      code: "751602731",
+      shippingType: "Đang vận chuyển",
+      status: "shipping",
+      qty: 5,
+      pay: 200000,
+      deadline: "08/03/2026 14:05:07",
+
+      // CHI TIẾT MẪU
+      customer: { name: "Trần Văn E", phone: "0912xxxxxx" },
+      createdAt: "06/03/2026 13:10",
+      itemsDetail: [
+        { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
+        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
+      ],
+      subtotal: 1500000,
+      discount: 49626,
+    },
+    {
+      id: 4,
+      code: "771602731",
+      shippingType: "Đã giao",
+      status: "delivered",
+      qty: 5,
+      pay: 500000,
+      deadline: "08/03/2026 14:05:07",
+
+      // CHI TIẾT MẪU
+      customer: { name: "Trần Văn E", phone: "0912xxxxxx" },
+      createdAt: "06/03/2026 13:10",
+      itemsDetail: [
+        { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
+        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
+      ],
+      subtotal: 1500000,
+      discount: 49626,
+    },
+    {
+      id: 5,
+      code: "781602731",
+      shippingType: "Đã huỷ",
+      status: "cancelled",
+      qty: 5,
+      pay: 100000,
+      deadline: "08/03/2026 14:05:07",
+
+      // CHI TIẾT MẪU
+      customer: { name: "Trần Văn Nam", phone: "0912xxxxxx" },
+      createdAt: "06/03/2026 13:10",
+      itemsDetail: [
+        { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
+        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
+      ],
+      subtotal: 1500000,
+      discount: 49626,
+    },
   ]);
 
   const items = computed(() => {
