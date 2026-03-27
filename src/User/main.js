@@ -3,7 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import './main.css'
 
-import InterfaceHomePage from '@/Front-End/USER/InterfaceHomePage.vue'
+import InterfaceHomePage from '../Front-End/USER/InterfaceHomePage.vue'
+import UserAccount from '../Front-End/USER/UserAccount.vue'
+import UserChangePassword from '../Front-End/USER/UserChangePassword.vue'
+import UserAddress from '../Front-End/USER/UserAddress.vue'
+import UserOrders from '../Front-End/USER/UserOrders.vue'
 
 const routes = [
     {
@@ -13,7 +17,24 @@ const routes = [
     {
         path: '/homepage',
         component: InterfaceHomePage,
-        children: []
+        children: [
+            {
+                path: '/account',
+                component: UserAccount
+            },
+            {
+                path: '/account/password',
+                component: UserChangePassword
+            },
+            {
+                path: '/account/address',
+                component: UserAddress
+            },
+            {
+                path: '/account/orders',
+                component: UserOrders
+            }
+        ]
     }
 ]
 

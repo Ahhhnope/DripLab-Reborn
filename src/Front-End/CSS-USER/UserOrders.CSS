@@ -1,0 +1,472 @@
+/* ── Order Steps ── */
+.order-steps {
+  position: relative;
+  padding: 10px 0 20px;
+}
+
+.steps-line-bg {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #f1f5f9;
+}
+
+.steps-line-progress {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  height: 2px;
+  background: #bd490f;
+  transition: width 0.4s ease;
+}
+
+.steps-row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: white;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.step-circle .material-symbols-outlined { font-size: 18px; }
+
+.step-circle.done {
+  background: #bd490f;
+  color: white;
+}
+
+.step-circle.active {
+  background: white;
+  border: 2px solid #bd490f;
+  color: #bd490f;
+  box-shadow: 0 4px 12px rgba(189,73,15,0.15);
+}
+
+.step-circle.pending {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #d1d5db;
+}
+
+.step-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.step-label.done,
+.step-label.active { color: #bd490f; }
+.step-label.pending { color: #9ca3af; }
+
+/* ── Order Grid ── */
+.order-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Shipping */
+.card-title .title-icon {
+  font-size: 20px;
+  color: #bd490f;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.shipping-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.shipping-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #181311;
+}
+
+.shipping-text {
+  font-size: 13px;
+  color: #6b7280;
+  white-space: pre-line;
+}
+
+.shipping-footer {
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #bd490f;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover { text-decoration: underline; }
+
+/* Active Order */
+.active-order-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.active-order-img {
+  width: 88px;
+  height: 88px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f8f6f6;
+}
+
+.active-order-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.active-order-info { flex: 1; }
+
+.active-order-info h4 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #181311;
+  margin-bottom: 8px;
+}
+
+.active-order-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.active-order-qty {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.active-order-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #bd490f;
+  margin-top: 4px;
+}
+
+.active-order-badge {
+  background: rgba(189,73,15,0.1);
+  color: #bd490f;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* Receipts */
+.receipts-card { padding: 0; overflow: hidden; }
+
+.receipts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.receipts-header .card-title { margin-bottom: 0; }
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #374151;
+}
+
+.filter-btn:hover { background: #f9fafb; }
+
+.receipts-table-wrapper { overflow-x: auto; }
+
+.receipts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receipts-table thead tr {
+  background: #faf9f9;
+}
+
+.receipts-table th {
+  padding: 14px 28px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.receipts-table th.text-right,
+.receipts-table td.text-right { text-align: right; }
+
+.receipt-row td {
+  padding: 18px 28px;
+  border-top: 1px solid #f8fafc;
+}
+
+.receipt-row:hover td { background: #fafafa; }
+
+.receipt-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.receipt-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(189,73,15,0.1);
+  color: #bd490f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.receipt-icon .material-symbols-outlined { font-size: 16px; }
+
+.receipt-id {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #181311;
+}
+
+.receipt-category {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.receipt-date { font-size: 13px; color: #6b7280; }
+
+.receipt-price { font-size: 13.5px; font-weight: 700; color: #181311; }
+
+.view-detail-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: #bd490f;
+  background: rgba(189,73,15,0.05);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-detail-btn:hover {
+  background: #bd490f;
+  color: white;
+}
+
+.receipts-footer {
+  padding: 16px;
+  background: #faf9f9;
+  text-align: center;
+}
+
+.load-more-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.load-more-btn:hover { color: #bd490f; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-box {
+  background: #fdf8f3;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 28px;
+  border-bottom: 1px solid rgba(60,47,47,0.1);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3c2f2f;
+  margin-bottom: 4px;
+}
+
+.modal-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a3d2a;
+}
+
+.modal-date {
+  font-size: 12px;
+  color: rgba(60,47,47,0.5);
+  margin-top: 2px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: rgba(60,47,47,0.4);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal-close-btn:hover { color: #8a3d2a; }
+
+.modal-products {
+  padding: 20px 28px;
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-product-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.modal-product-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(60,47,47,0.05);
+}
+
+.modal-product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-product-info { flex: 1; }
+
+.modal-product-info h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3c2f2f;
+  margin-bottom: 4px;
+}
+
+.modal-product-info p {
+  font-size: 12px;
+  color: rgba(60,47,47,0.5);
+}
+
+.modal-product-price {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #3c2f2f;
+  white-space: nowrap;
+}
+
+.modal-summary {
+  padding: 20px 28px;
+  background: rgba(60,47,47,0.04);
+  border-top: 1px solid rgba(60,47,47,0.08);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: rgba(60,47,47,0.6);
+  margin-bottom: 8px;
+}
+
+.total-row {
+  padding-top: 10px;
+  border-top: 1px solid rgba(60,47,47,0.1);
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #3c2f2f;
+}
+
+.total-price { color: #8a3d2a; font-size: 18px; }
+
+.modal-close-main-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: #8a3d2a;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close-main-btn:hover { background: #6d3021; }
