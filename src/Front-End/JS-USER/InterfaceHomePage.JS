@@ -50,7 +50,8 @@ export function useUserLayout() {
     }
 
     function goToLogin() {
-        router.push('/login')
+        activeNav.value = 'account'
+        router.push('/account')
     }
 
     function goToCart() {

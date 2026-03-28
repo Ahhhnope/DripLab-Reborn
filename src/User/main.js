@@ -4,16 +4,27 @@ import App from './App.vue'
 import './main.css'
 
 import InterfaceHomePage from '@/Front-End/USER/InterfaceHomePage.vue'
+import UserStores from '../Front-End/USER/UserStores.vue'
+
 
 const routes = [
     {
         path: '/',
-        redirect: '/homepage'
-    },
-    {
-        path: '/homepage',
         component: InterfaceHomePage,
-        children: []
+        children: [
+            {
+                path: '',
+                redirect: '/homepage'
+            },
+            {
+                path: 'homepage',
+                component: InterfaceHomePage
+            },
+            {
+                path: 'stores',
+                component: UserStores
+            }
+        ]
     }
 ]
 
