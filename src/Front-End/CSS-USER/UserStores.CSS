@@ -3,13 +3,16 @@
 
 /* ===== MÀU SẮC ===== */
 :root {
-  --gold:      #e0c076;   /* màu vàng chủ đạo từ HTML gốc */
-  --coffee:    #3E2723;   /* nâu đậm */
-  --bg:        #f8f7f6;   /* nền sáng */
-  --text:      #3E2723;
-  --text-soft: rgba(62,39,35,0.6);
-  --border:    rgba(62,39,35,0.1);
-  --white:     #ffffff;
+  --gold: #e0c076;
+  /* màu vàng chủ đạo từ HTML gốc */
+  --coffee: #3E2723;
+  /* nâu đậm */
+  --bg: #f8f7f6;
+  /* nền sáng */
+  --text: #3E2723;
+  --text-soft: rgba(62, 39, 35, 0.6);
+  --border: rgba(62, 39, 35, 0.1);
+  --white: #ffffff;
 }
 
 /* ===== TỔNG QUÁT ===== */
@@ -134,7 +137,7 @@
 
 .info-text {
   font-size: 14px;
-  color: rgba(62,39,35,0.8);
+  color: rgba(62, 39, 35, 0.8);
   margin: 0 0 2px;
   display: flex;
   justify-content: space-between;
@@ -151,7 +154,7 @@
 }
 
 .tag {
-  background: rgba(62,39,35,0.05);
+  background: rgba(62, 39, 35, 0.05);
   color: var(--text);
   font-size: 12px;
   font-weight: 600;
@@ -175,7 +178,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s;
-  box-shadow: 0 4px 16px rgba(224,192,118,0.3);
+  box-shadow: 0 4px 16px rgba(224, 192, 118, 0.3);
 }
 
 .btn-directions:hover {
@@ -227,7 +230,7 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: rgba(62,39,35,0.4);
+  color: rgba(62, 39, 35, 0.4);
   margin: 4px 0 0;
 }
 
@@ -257,13 +260,13 @@
 
 .bar-label {
   width: 10px;
-  color: rgba(62,39,35,0.6);
+  color: rgba(62, 39, 35, 0.6);
 }
 
 .bar-track {
   flex: 1;
   height: 6px;
-  background: rgba(62,39,35,0.05);
+  background: rgba(62, 39, 35, 0.05);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -302,7 +305,7 @@
    =================================== */
 .write-review-box {
   background: var(--white);
-  border: 1px solid rgba(224,192,118,0.3);
+  border: 1px solid rgba(224, 192, 118, 0.3);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 24px;
@@ -329,7 +332,7 @@
 
 .wr-star {
   font-size: 22px;
-  color: rgba(62,39,35,0.2);
+  color: rgba(62, 39, 35, 0.2);
   cursor: pointer;
   transition: color 0.15s;
 }
@@ -418,7 +421,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(224,192,118,0.2);
+  background: rgba(224, 192, 118, 0.2);
   color: var(--gold);
   display: flex;
   align-items: center;
@@ -446,13 +449,13 @@
 }
 
 .ri-star.dim {
-  color: rgba(62,39,35,0.15);
+  color: rgba(62, 39, 35, 0.15);
 }
 
 .ri-date {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(62,39,35,0.4);
+  color: rgba(62, 39, 35, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -461,7 +464,7 @@
 .ri-text {
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(62,39,35,0.8);
+  color: rgba(62, 39, 35, 0.8);
   margin: 0;
 }
 

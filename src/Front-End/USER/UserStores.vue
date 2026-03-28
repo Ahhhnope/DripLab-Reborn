@@ -5,22 +5,30 @@
     <section class="photo-grid">
       <!-- Ảnh lớn trái (chiếm 2 hàng) -->
       <div class="photo-item photo-big">
-        <div class="photo-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACiqIMCNghyhx1mxHuryYcVP3lKk_IqXozA7gJ3BbRb7Znx1uaBGTq0f2ILd5hK3MEgScOUbV1bcDkt-NysEDEwAish075vvb06TmJrWz7FIHKeCl8xe-zCw_Uh5QLmT3DknFeb5VHrlXY_C5acuKXWc74sfdhThFkCBFla4f36cdi2uQtVMYw4porXzCqYvjTvKFLxc9rd2C3MO4vXFeW2QDV2-GE8h5hCT3Y_HMvE7unt38cyFhul-BRNT0H98sA5FHApHKSASvl')"></div>
+        <div class="photo-bg"
+          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACiqIMCNghyhx1mxHuryYcVP3lKk_IqXozA7gJ3BbRb7Znx1uaBGTq0f2ILd5hK3MEgScOUbV1bcDkt-NysEDEwAish075vvb06TmJrWz7FIHKeCl8xe-zCw_Uh5QLmT3DknFeb5VHrlXY_C5acuKXWc74sfdhThFkCBFla4f36cdi2uQtVMYw4porXzCqYvjTvKFLxc9rd2C3MO4vXFeW2QDV2-GE8h5hCT3Y_HMvE7unt38cyFhul-BRNT0H98sA5FHApHKSASvl')">
+        </div>
       </div>
 
       <!-- Ảnh nhỏ trên phải -->
       <div class="photo-item">
-        <div class="photo-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQ5L7Po32mSj8zVOrFXqbcsLLiZTLSggn56XvGRzXc9GLOCRLcUekG7cepjE9MwyzELJj_p4ZSQfCgsglHYL_unAnvZjg3jUg8vgz-vEDOPyvY4SgRg06o30XwXVG5TKXomFhhZqsw3QQgC2LG0BWKeVwfE9t2uIUvzVgy8TBOxOun3zi7T0ZAdJ68fgeeui25G9d0pVyUHZhq5usEdLldVCMzNLazgqZ5cXaXumu-VxloVog9mBkglSAqOFKOf-muqArHNGMRIhiH')"></div>
+        <div class="photo-bg"
+          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQ5L7Po32mSj8zVOrFXqbcsLLiZTLSggn56XvGRzXc9GLOCRLcUekG7cepjE9MwyzELJj_p4ZSQfCgsglHYL_unAnvZjg3jUg8vgz-vEDOPyvY4SgRg06o30XwXVG5TKXomFhhZqsw3QQgC2LG0BWKeVwfE9t2uIUvzVgy8TBOxOun3zi7T0ZAdJ68fgeeui25G9d0pVyUHZhq5usEdLldVCMzNLazgqZ5cXaXumu-VxloVog9mBkglSAqOFKOf-muqArHNGMRIhiH')">
+        </div>
       </div>
 
       <!-- Ảnh nhỏ trên phải 2 -->
       <div class="photo-item">
-        <div class="photo-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0sA_9dNVPBdE1ieXwfKaEQno3wmpiJpK44_fkSLnCeOZ8_tO53Q5xkuW-NjeVqlnCEsgXnPpeGJX8dTC3H1M9BtyJMUqK3ePhWr4VvMZ-6WUpu9hogG8WmkT7fLufAUISy5QQ4Rks3Nk9_CXYCaJlQhaLNTAse1E3l53-24-5tytFMw_TRSpZWxnQF0qY5EJSuhO6IjHdGlBElmpNsXf_Tc22EjZsmzq7LOUbyaulplX1lv_PzTKXiy9h3oj_7G3R_SjySbGjaA1N')"></div>
+        <div class="photo-bg"
+          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0sA_9dNVPBdE1ieXwfKaEQno3wmpiJpK44_fkSLnCeOZ8_tO53Q5xkuW-NjeVqlnCEsgXnPpeGJX8dTC3H1M9BtyJMUqK3ePhWr4VvMZ-6WUpu9hogG8WmkT7fLufAUISy5QQ4Rks3Nk9_CXYCaJlQhaLNTAse1E3l53-24-5tytFMw_TRSpZWxnQF0qY5EJSuhO6IjHdGlBElmpNsXf_Tc22EjZsmzq7LOUbyaulplX1lv_PzTKXiy9h3oj_7G3R_SjySbGjaA1N')">
+        </div>
       </div>
 
       <!-- Ảnh rộng dưới phải (chiếm 2 cột) -->
       <div class="photo-item photo-wide">
-        <div class="photo-bg" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZttY2fDqUalM3AU8m23UAlZz8oOplihStoqiNaKM2PmBCIKkC370YgxtlguTPtWoF8b5vvmXLdts1beCoNeJkwXqKOr2YEqR2zxmlr6c9kgrA6in2yGCytK3_iHvYdm1b4kLIBPKqLfCVy6nADtCHj3QuwSItB0g3Pb3M5Cs2FqDiY_1_o9lHyTFYgr8X55ReUdmPr68ttG6qasd8BoQma4wIhv2t2E6L8JVPxs3G7GVqtXc9CkAMH26YKq3gQ25xNmzGSIeJpuul')"></div>
+        <div class="photo-bg"
+          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZttY2fDqUalM3AU8m23UAlZz8oOplihStoqiNaKM2PmBCIKkC370YgxtlguTPtWoF8b5vvmXLdts1beCoNeJkwXqKOr2YEqR2zxmlr6c9kgrA6in2yGCytK3_iHvYdm1b4kLIBPKqLfCVy6nADtCHj3QuwSItB0g3Pb3M5Cs2FqDiY_1_o9lHyTFYgr8X55ReUdmPr68ttG6qasd8BoQma4wIhv2t2E6L8JVPxs3G7GVqtXc9CkAMH26YKq3gQ25xNmzGSIeJpuul')">
+        </div>
       </div>
     </section>
 
@@ -101,15 +109,21 @@
           <div class="rating-bars">
             <div class="bar-row">
               <span class="bar-label">5</span>
-              <div class="bar-track"><div class="bar-fill" style="width:85%"></div></div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:85%"></div>
+              </div>
             </div>
             <div class="bar-row">
               <span class="bar-label">4</span>
-              <div class="bar-track"><div class="bar-fill" style="width:10%"></div></div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:10%"></div>
+              </div>
             </div>
             <div class="bar-row">
               <span class="bar-label">3</span>
-              <div class="bar-track"><div class="bar-fill" style="width:3%"></div></div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:3%"></div>
+              </div>
             </div>
           </div>
 
@@ -125,20 +139,12 @@
           <div class="wr-header">
             <h3 class="wr-title">Viết Đánh Giá</h3>
             <div class="wr-stars">
-              <span
-                v-for="i in 5" :key="i"
-                class="material-symbols-outlined wr-star"
-                :class="{ active: i <= newReview.stars }"
-                @click="newReview.stars = i"
-              >star</span>
+              <span v-for="i in 5" :key="i" class="material-symbols-outlined wr-star"
+                :class="{ active: i <= newReview.stars }" @click="newReview.stars = i">star</span>
             </div>
           </div>
-          <textarea
-            v-model="newReview.text"
-            class="wr-textarea"
-            placeholder="Chia sẻ trải nghiệm của bạn về cà phê và không gian..."
-            rows="3"
-          ></textarea>
+          <textarea v-model="newReview.text" class="wr-textarea"
+            placeholder="Chia sẻ trải nghiệm của bạn về cà phê và không gian..." rows="3"></textarea>
           <div class="wr-footer">
             <button class="btn-submit" @click="submitReview">Gửi Đánh Giá</button>
           </div>
@@ -153,11 +159,8 @@
                 <div>
                   <h4 class="ri-name">{{ r.name }}</h4>
                   <div class="ri-stars">
-                    <span
-                      v-for="i in 5" :key="i"
-                      class="material-symbols-outlined ri-star"
-                      :class="{ dim: i > r.stars }"
-                    >star</span>
+                    <span v-for="i in 5" :key="i" class="material-symbols-outlined ri-star"
+                      :class="{ dim: i > r.stars }">star</span>
                   </div>
                 </div>
               </div>
