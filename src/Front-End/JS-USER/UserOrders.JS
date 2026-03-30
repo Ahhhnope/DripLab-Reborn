@@ -57,7 +57,7 @@ export function useUserOrders() {
   const receipts = ref([
     {
       id: '#DL-9283-01', category: 'Coffee Equipment',
-      date: 'Oct 12, 2023', total: '$128.50',
+      date: '12/10/2023', total: '$128',
       subtotal: '$59.50', tax: '$2.97',
       items: [
         { name: 'Ethiopian Yirgacheffe', qty: 1, price: '$24.50', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' },
@@ -66,7 +66,7 @@ export function useUserOrders() {
     },
     {
       id: '#DL-8122-42', category: 'Artisan Beans',
-      date: 'Sep 28, 2023', total: '$45.00',
+      date: '28/09/2023', total: '$45.00',
       subtotal: '$42.86', tax: '$2.14',
       items: [
         { name: 'Artisan Blend Beans', qty: 1, price: '$45.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }
@@ -74,7 +74,7 @@ export function useUserOrders() {
     },
     {
       id: '#DL-7501-19', category: 'Monthly Subscription',
-      date: 'Sep 01, 2023', total: '$32.00',
+      date: '01/09/2023', total: '$32.00',
       subtotal: '$30.48', tax: '$1.52',
       items: [
         { name: 'Monthly Subscription Box', qty: 1, price: '$32.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }
