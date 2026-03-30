@@ -35,6 +35,10 @@ const routes = [
                 path: '/stores',
                 component: UserStores
             },
+            {
+                path: '/homepage',
+                component: InterfaceHomePage
+            },
         ]
     }
 ]
