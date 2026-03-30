@@ -31,7 +31,7 @@ export function useUserAddress() {
 
   function saveAddress() {
     if (!addressForm.value.street || !addressForm.value.city) {
-      message.value     = 'Vui lòng điền Street Address và City!'
+      message.value     = 'Vui lòng điền địa chỉ đường và thành phố!'
       messageType.value = 'error'
       return
     }

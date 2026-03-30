@@ -41,6 +41,36 @@ export function useUserAccount() {
     { id: 'DL00134', date: '25/03/2026', status: 'Pending',   total: 65000 }
   ])
 
+  
+  const fileInput = ref(null)
+
+  
+  function triggerFileInput() {
+    fileInput.value.click()
+  }
+
+  
+  function onAvatarChange(event) {
+    const file = event.target.files[0]
+    if (!file) return
+
+    // Kiểm tra dung lượng max 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      user.value.avatar = e.target.result
+      // Khi có backend: upload file lên server
+      // const formData = new FormData()
+      // formData.append('avatar', file)
+      // await axios.post('/api/user/avatar', formData)
+    }
+    reader.readAsDataURL(file)
+  }
+
   function saveProfile() {
     user.value.name = form.value.name
     alert('Lưu thành công!')
@@ -61,6 +91,8 @@ export function useUserAccount() {
     // Khi có backend: await axios.put('/api/user/password', passwordForm.value)
   }
 
+  function setTab(id) { activeTab.value = id }
+
   function logout() {
     router.push('/login')
   }
@@ -74,6 +106,10 @@ export function useUserAccount() {
   addresses, orders,
   navItems,
   activeTab,
+  fileInput,           
+  triggerFileInput,   
+  onAvatarChange,
+  setTab, 
   goTo, saveProfile, savePassword, logout
 }
 }
