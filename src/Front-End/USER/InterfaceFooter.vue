@@ -1,6 +1,5 @@
 <script setup>
 import { useFooter } from '../JS-USER/InterfaceFooter.js'
-import '../CSS-USER/InterfaceFooter.CSS'
 
 const { connectLinks, socialLinks, year } = useFooter()
 </script>
@@ -35,16 +34,19 @@ const { connectLinks, socialLinks, year } = useFooter()
       <div class="footer-col">
         <h4>Follow Us On</h4>
         <div class="footer-social">
-          <a v-for="s in socialLinks" :key="s.label" :href="s.href" target="_blank">
-            {{ s.label }}
+          <a v-for="s in socialLinks" :key="s.label" :href="s.href" :title="s.label" target="_blank">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path :d="s.icon" fill="#FAF7F0" />
+            </svg>
           </a>
         </div>
       </div>
 
     </div>
-
     <div class="footer-bottom">
       <p>© {{ year }} Drip Lab. Space for coffee heads.</p>
     </div>
   </footer>
 </template>
+
+<style src="../CSS-USER/InterfaceFooter.CSS"></style>
