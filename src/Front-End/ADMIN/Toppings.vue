@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <style scoped src="../CSS/QLHatCF.CSS"></style>
 
 <template>
@@ -96,3 +97,7 @@ const { search, currentPage, PAGE_SIZE, filtered, totalPages, pageStart, pagedRo
 const handleSubmit = () => { const r = submitForm(); if (r.error) showToast(r.error, 'err'); if (r.success) showToast('✅ ' + r.success, 'ok') }
 const handleDelete = () => { const r = doDelete(); if (r.success) showToast('🗑 ' + r.success, 'ok') }
 </script>
+=======
+<script setup></script>
+<template></template>?
+>>>>>>> cadae89caf90d96ab4c1a4531fe829c02cb08d82

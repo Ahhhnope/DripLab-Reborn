@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { sharedUser, saveUserProfile } from './Useruser.JS'
 
 export function useUserAccount() {
   const router = useRouter()
@@ -13,16 +14,16 @@ export function useUserAccount() {
     { id: 'orders',   label: 'Đơn hàng của tôi',   icon: 'package',     route: '/account/orders' },
   ]
 
-  const user = ref({
-    name:   'Tuân Nguyễn Đình',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBD1ZW68pBEupULBdQQvsJBx4zsNuuZJGpwXDdh8NbcA8dhyRO-XnKk4_u0vHgK3JS7I3ixMTfi7hQ-h1HgjYX9ViGY18zJeb9jxRrYHmVIMidrVerQicquMEonvthNlHrO5gCKer1L0ST2AjCyTLchpQ7xI3z5hFZZzzYL8uaXzQagiKkZIHHE0xMSaCiBqrYjDMUA_heW5FBT4IcJh8XSknWPwp7RMYR54MokfC-HtDCrfQqX8b3kNsVeIstZdlgCgYiYlL2fE-NC'
-  })
+ 
+  const user = sharedUser
 
-  const form = ref({
-    name:  'Tuân Nguyễn Đình',
-    email: 'tuan.nguyen@driplab.com',
-    phone: '+84 123 456 789'
-  })
+  const savedProfile = JSON.parse(localStorage.getItem('userProfile') || 'null')
+
+ const form = ref({
+  name:  savedProfile?.name  || 'Tuân Nguyễn Đình',
+  email: savedProfile?.email || 'tuan.nguyen@driplab.com',
+  phone: savedProfile?.phone || '+84 123 456 789'
+ })
 
   const passwordForm = ref({
     current: '',
@@ -41,11 +42,61 @@ export function useUserAccount() {
     { id: 'DL00134', date: '25/03/2026', status: 'Pending',   total: 65000 }
   ])
 
-  function saveProfile() {
-    user.value.name = form.value.name
-    alert('Lưu thành công!')
-    // Khi có backend: await axios.put('/api/user/profile', form.value)
+  
+  const fileInput = ref(null)
+
+  
+  function triggerFileInput() {
+    fileInput.value.click()
   }
+
+  
+  
+function onAvatarChange(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    
+    user.value.avatar = e.target.result
+    pendingAvatar.value = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+
+const pendingAvatar = ref(null)
+
+
+function saveProfile() {
+    saveUserProfile({
+      name:   form.value.name,
+      email:  form.value.email,
+      phone:  form.value.phone,
+      avatar: pendingAvatar.value || user.value.avatar
+    })
+    pendingAvatar.value = null
+    alert('Lưu thành công!')
+  }
+
+  // Lưu vào localStorage để giữ sau reload
+  localStorage.setItem('userProfile', JSON.stringify({
+    name:   user.value.name,
+    email:  form.value.email,
+    phone:  form.value.phone,
+    avatar: user.value.avatar
+  }))
+
+  alert('Lưu thành công!')
+
+  // Khi có backend: await axios.put('/api/user/profile', { ...form.value, avatar: user.value.avatar })
+}
 
   function savePassword() {
     if (!passwordForm.value.current || !passwordForm.value.newPass) {
@@ -61,6 +112,8 @@ export function useUserAccount() {
     // Khi có backend: await axios.put('/api/user/password', passwordForm.value)
   }
 
+  function setTab(id) { activeTab.value = id }
+
   function logout() {
     router.push('/login')
   }
@@ -71,9 +124,10 @@ export function useUserAccount() {
 
   return {
   user, form, passwordForm,
-  addresses, orders,
-  navItems,
-  activeTab,
-  goTo, saveProfile, savePassword, logout
-}
+    addresses, orders,
+    navItems, activeTab,
+    fileInput, pendingAvatar,
+    triggerFileInput, onAvatarChange,
+    setTab, saveProfile, savePassword,
+    goTo, logout
 }

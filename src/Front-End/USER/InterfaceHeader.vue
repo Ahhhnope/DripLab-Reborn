@@ -1,12 +1,11 @@
 <script setup>
 import { useHeader } from '../JS-USER/InterfaceHeader.js'
-import '../CSS-USER/InterfaceHeader.CSS'
 
 const { navItems, goToLogin, goToCart } = useHeader()
 </script>
 
 <template>
-  <div class="header-wrapper">
+  <header class="header-wrapper">
     <div class="header-inner">
 
       <RouterLink to="/homepage" class="header-logo">
@@ -39,5 +38,7 @@ const { navItems, goToLogin, goToCart } = useHeader()
       </div>
 
     </div>
-  </div>
+  </header>
 </template>
+
+<style src="../CSS-USER/InterfaceHeader.CSS"></style>

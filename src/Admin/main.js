@@ -22,8 +22,12 @@ import QuanLySPSua from '@/Front-End/ADMIN/QuanLySPSua.vue'
 import QuanLySPHatCaPhe from '@/Front-End/ADMIN/QuanLySPHatCaPhe.vue'
 import QuanLySPkem from '@/Front-End/ADMIN/QuanLySPkem.vue'
 import QuanLySPKemBeo from '@/Front-End/ADMIN/QuanLySPKemBeo.vue'
+<<<<<<< HEAD
 import Toppings from '@/Front-End/ADMIN/Toppings.vue'
 
+=======
+import Toppings from '../Front-End/ADMIN/Toppings.vue'
+>>>>>>> cadae89caf90d96ab4c1a4531fe829c02cb08d82
 
 const routes = [
     {
@@ -43,7 +47,11 @@ const routes = [
             { path: 'SanPhamSua', component: QuanLySPSua },
             { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe },
             { path: 'QuanLyCachThuc', component: QuanLySPCachThuc },
+<<<<<<< HEAD
             {path: 'QuanLyTopping', component: Toppings}
+=======
+            { path: 'QuanLyTopping', component: Toppings },
+>>>>>>> cadae89caf90d96ab4c1a4531fe829c02cb08d82
         ]
     }
 ]

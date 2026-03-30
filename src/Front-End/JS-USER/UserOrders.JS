@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { sharedUser} from './Useruser.JS'
 
 export function useUserOrders() {
   const router = useRouter()
@@ -13,10 +14,7 @@ export function useUserOrders() {
     { id: 'orders',   label: 'Đơn hàng của tôi',          icon: 'package',     route: '/account/orders' },
   ]
 
-  const user = ref({
-    name:   'Tuân Nguyễn Đình',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBD1ZW68pBEupULBdQQvsJBx4zsNuuZJGpwXDdh8NbcA8dhyRO-XnKk4_u0vHgK3JS7I3ixMTfi7hQ-h1HgjYX9ViGY18zJeb9jxRrYHmVIMidrVerQicquMEonvthNlHrO5gCKer1L0ST2AjCyTLchpQ7xI3z5hFZZzzYL8uaXzQagiKkZIHHE0xMSaCiBqrYjDMUA_heW5FBT4IcJh8XSknWPwp7RMYR54MokfC-HtDCrfQqX8b3kNsVeIstZdlgCgYiYlL2fE-NC'
-  })
+  const user = sharedUser
 
   // ── Order Steps ──
   // state: 'done' | 'active' | 'pending'
@@ -38,20 +36,32 @@ export function useUserOrders() {
   const shipping = ref({
     name:    'Tuân Nguyễn Đình',
     phone:   '+84 123 456 789',
-    address: 'số 208 Nguyễn Hữu Cảnh, phường 22, Quận 9\nHo Chi Minh City, 70000\nVietnam'
+    address: 'Căn 48b Chung cư Royal City\n72A Nguyễn Trãi, quận Thanh Xuân\nHa Noi\nVietnam'
   })
 
   // ── Active Order ──
-  const activeOrder = ref([
-    {
-      id: 1,
-      name:  'Drip Lab Coffee Beans',
-      qty:   2,
-      price: '$45.00',
-      badge: 'Freshly Roasted',
-      img:   'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7'
+ const activeOrder = ref([
+  {
+    id: 1,
+    name:  'DL-8080-41',
+    price: '$45.00',
+    receiptData: {
+      id: '#DL-8080-41',
+      date: '30/03/2026',
+      total: '$45.00',
+      subtotal: '$42.86',
+      tax: '$2.14',
+      items: [
+        {
+          name: 'Drip Lab Coffee Beans',
+          qty: 2,
+          price: '$45.00',
+          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7'
+        }
+      ]
     }
-  ])
+  }
+])
 
   // ── Receipts ──
   const receipts = ref([

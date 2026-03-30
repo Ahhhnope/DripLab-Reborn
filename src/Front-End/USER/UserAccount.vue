@@ -40,13 +40,19 @@
           <div class="profile-pic-row">
             <div class="avatar-edit">
               <img :src="user.avatar" alt="Profile" class="profile-img" />
-              <button class="edit-avatar-btn">
-                <span class="material-symbols-outlined">Edit</span>
+              <button class="edit-avatar-btn" @click="triggerFileInput">
+                <span class="material-symbols-outlined">edit</span>
               </button>
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                style="display: none"
+                @change="onAvatarChange"
+              />
             </div>
             <div>
               <p class="pic-label">Ảnh đại diện</p>
-              <p class="pic-hint">PNG, JPG or GIF. Max 2MB.</p>
             </div>
           </div>
 
@@ -135,18 +141,16 @@
 import { useUserAccount } from "../JS-USER/UserAccount.JS";
 
 const {
-  user,
-  form,
-  passwordForm,
-  addresses,
-  orders,
-  navItems,
-  activeTab,
-  goTo,
-  saveProfile,
-  savePassword,
-  logout,
-} = useUserAccount();
+  user, form, passwordForm,
+  addresses, orders,
+  navItems, activeTab,
+  fileInput,
+  triggerFileInput,
+  onAvatarChange,
+  setTab,
+  saveProfile, savePassword,
+  goTo, logout
+} = useUserAccount()
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>
