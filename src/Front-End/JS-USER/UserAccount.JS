@@ -52,51 +52,50 @@ export function useUserAccount() {
 
   
   
-function onAvatarChange(event) {
-  const file = event.target.files[0]
-  if (!file) return
+  function onAvatarChange(event) {
+    const file = event.target.files[0]
+    if (!file) return
 
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
-    return
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      
+      user.value.avatar = e.target.result
+      pendingAvatar.value = e.target.result
+    }
+    reader.readAsDataURL(file)
   }
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    
-    user.value.avatar = e.target.result
-    pendingAvatar.value = e.target.result
-  }
-  reader.readAsDataURL(file)
-}
+
+  const pendingAvatar = ref(null)
 
 
-const pendingAvatar = ref(null)
+  function saveProfile() {
+      saveUserProfile({
+        name:   form.value.name,
+        email:  form.value.email,
+        phone:  form.value.phone,
+        avatar: pendingAvatar.value || user.value.avatar
+      })
+      pendingAvatar.value = null
+      alert('Lưu thành công!')
 
-
-function saveProfile() {
-    saveUserProfile({
-      name:   form.value.name,
+    // Lưu vào localStorage để giữ sau reload
+    localStorage.setItem('userProfile', JSON.stringify({
+      name:   user.value.name,
       email:  form.value.email,
       phone:  form.value.phone,
-      avatar: pendingAvatar.value || user.value.avatar
-    })
-    pendingAvatar.value = null
+      avatar: user.value.avatar
+    }))
+
     alert('Lưu thành công!')
+
+    // Khi có backend: await axios.put('/api/user/profile', { ...form.value, avatar: user.value.avatar })
   }
-
-  // Lưu vào localStorage để giữ sau reload
-  localStorage.setItem('userProfile', JSON.stringify({
-    name:   user.value.name,
-    email:  form.value.email,
-    phone:  form.value.phone,
-    avatar: user.value.avatar
-  }))
-
-  alert('Lưu thành công!')
-
-  // Khi có backend: await axios.put('/api/user/profile', { ...form.value, avatar: user.value.avatar })
-}
 
   function savePassword() {
     if (!passwordForm.value.current || !passwordForm.value.newPass) {
@@ -130,4 +129,5 @@ function saveProfile() {
     triggerFileInput, onAvatarChange,
     setTab, saveProfile, savePassword,
     goTo, logout
+  }
 }
