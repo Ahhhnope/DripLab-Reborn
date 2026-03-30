@@ -37,15 +37,14 @@ const routes = [
                 component: UserStores
             },
             {
-<<<<<<< HEAD
                 path: '/account/receipts',
                 component: UserReceipts
-            }
-=======
+            },
+            {
                 path: '/homepage',
                 component: InterfaceHomePage
             },
->>>>>>> 01e5d3ce446a06f1ec1eac817d6da236e3bd3d0a
+
         ]
     }
 ]
