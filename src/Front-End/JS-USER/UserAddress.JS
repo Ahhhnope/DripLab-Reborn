@@ -8,9 +8,9 @@ export function useUserAddress() {
   const currentRoute = '/account/address'
 
   const navItems = [
-    { id: 'account',  label: 'Tài khoản',        icon: 'person',      route: '/account' },
+    { id: 'account',  label: 'Tài Khoản',        icon: 'person',      route: '/account' },
     { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa chỉ',         icon: 'location_on', route: '/account/address' },
+    { id: 'address',  label: 'Địa Chỉ',         icon: 'location_on', route: '/account/address' },
     { id: 'orders',   label: 'Đơn hàng của tôi',          icon: 'package',     route: '/account/orders' },
   ]
 

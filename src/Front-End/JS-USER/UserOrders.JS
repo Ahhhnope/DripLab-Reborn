@@ -10,7 +10,7 @@ export function useUserOrders() {
   const navItems = [
     { id: 'account',  label: 'Tài Khoản',        icon: 'person',      route: '/account' },
     { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa chỉ',         icon: 'location_on', route: '/account/address' },
+    { id: 'address',  label: 'Địa Chỉ',         icon: 'location_on', route: '/account/address' },
     { id: 'orders',   label: 'Đơn hàng của tôi',          icon: 'package',     route: '/account/orders' },
   ]
 
@@ -64,7 +64,7 @@ export function useUserOrders() {
 ])
 
   // ── Receipts ──
-  const receipts = ref([
+  const allReceipts = ref([
     {
       id: '#DL-9283-01', category: 'Coffee Equipment',
       date: '12/10/2023', total: '$128',
@@ -78,19 +78,50 @@ export function useUserOrders() {
       id: '#DL-8122-42', category: 'Artisan Beans',
       date: '28/09/2023', total: '$45.00',
       subtotal: '$42.86', tax: '$2.14',
-      items: [
-        { name: 'Artisan Blend Beans', qty: 1, price: '$45.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }
-      ]
+      items: [{ name: 'Artisan Blend Beans', qty: 1, price: '$45.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
     },
     {
       id: '#DL-7501-19', category: 'Monthly Subscription',
       date: '01/09/2023', total: '$32.00',
       subtotal: '$30.48', tax: '$1.52',
-      items: [
-        { name: 'Monthly Subscription Box', qty: 1, price: '$32.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }
-      ]
-    }
+      items: [{ name: 'Monthly Subscription Box', qty: 1, price: '$32.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
+    },
+    {
+      id: '#DL-6401-08', category: 'Coffee Gear',
+      date: '15/08/2023', total: '$67.00',
+      subtotal: '$63.81', tax: '$3.19',
+      items: [{ name: 'Pour Over Kit', qty: 1, price: '$67.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
+    },
+    {
+      id: '#DL-5309-33', category: 'Artisan Beans',
+      date: '02/07/2023', total: '$28.00',
+      subtotal: '$26.67', tax: '$1.33',
+      items: [{ name: 'Single Origin Kenya', qty: 1, price: '$28.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
+    },
+    {
+      id: '#DL-4201-17', category: 'Coffee Equipment',
+      date: '18/06/2023', total: '$95.00',
+      subtotal: '$90.48', tax: '$4.52',
+      items: [{ name: 'Gooseneck Kettle', qty: 1, price: '$95.00', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
+    },
   ])
+  
+  const visibleCount = ref(3)
+
+  const receipts = computed(() =>
+    allReceipts.value.slice(0, visibleCount.value)
+  )
+
+  const hasMore = computed(() =>
+    visibleCount.value < allReceipts.value.length
+  )
+
+  function loadMore() {
+    visibleCount.value = Math.min(
+      visibleCount.value + 3,
+      allReceipts.value.length
+    )
+  }
 
   const showModal      = ref(false)
   const selectedReceipt = ref(null)
@@ -108,7 +139,8 @@ export function useUserOrders() {
     user, navItems, currentRoute,
     orderSteps, progressWidth,
     shipping, activeOrder,
-    receipts, showModal, selectedReceipt,
+    receipts, hasMore, loadMore,
+    showModal, selectedReceipt,
     openModal, closeModal,
     goTo, logout
   }

@@ -154,10 +154,13 @@
             </table>
           </div>
 
+          
           <div class="receipts-footer">
-            <button class="load-more-btn" @click="goTo('/account/receipts')">
+            <button v-if="hasMore" class="load-more-btn" @click="loadMore">
+              <span class="material-symbols-outlined">expand_more</span>
               Xem thêm lịch sử đơn hàng
             </button>
+            <p v-else class="no-more-text">Đã hiển thị tất cả đơn hàng</p>
           </div>
         </section>
       </main>
@@ -220,20 +223,13 @@
 import { useUserOrders } from "../JS-USER/UserOrders.JS";
 
 const {
-  user,
-  navItems,
-  currentRoute,
-  orderSteps,
-  progressWidth,
-  shipping,
-  activeOrder,
-  receipts,
-  showModal,
-  selectedReceipt,
-  openModal,
-  closeModal,
-  goTo,
-  logout,
+  user, navItems, currentRoute,
+  orderSteps, progressWidth,
+  shipping, activeOrder,
+  receipts, hasMore, loadMore,
+  showModal, selectedReceipt,
+  openModal, closeModal,
+  goTo, logout
 } = useUserOrders();
 </script>
 
