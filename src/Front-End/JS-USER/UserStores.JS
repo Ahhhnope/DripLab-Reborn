@@ -40,7 +40,7 @@ export default {
     // Mở Google Maps — địa chỉ The Coffee House Tô Hiến Thành
     openMaps() {
       window.open(
-        "https://www.google.com/maps/search/?api=1&query=200+T%C3%B4+Hi%E1%BA%BFn+Th%C3%A0nh+Hai+B%C3%A0+Tr%C6%B0ng+H%C3%A0+N%E1%BB%99i",
+        "https://maps.app.goo.gl/5jWiczqwrb4JGXt77",
         "_blank"
       );
     },

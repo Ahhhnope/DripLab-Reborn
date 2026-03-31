@@ -1,7 +1,6 @@
 <script setup>
 import InterfaceHeader from './InterfaceHeader.vue'
 import InterfaceFooter from './InterfaceFooter.vue'
-import Homepage from './Homepage.vue';
 </script>
 
 <template>
