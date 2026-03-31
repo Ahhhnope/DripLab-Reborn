@@ -45,26 +45,18 @@
             <div class="form-grid single-col">
               <div class="form-group">
                 <label>Địa chỉ đường phố</label>
-                <input v-model="addressForm.street" type="text" placeholder="số 208 Nguyễn Hữu Cảnh, phường 22" />
+                <input v-model="addressForm.street" type="text" placeholder=" 72A Nguyễn Trãi, phường Thượng Đình, quận Thanh Xuân" />
               </div>
               <div class="form-group">
                 <label>Căn hộ, phòng, v.v. (Tùy chọn)</label>
-                <input v-model="addressForm.apt" type="text" placeholder="Căn 48b Vinhomes Central Park" />
+                <input v-model="addressForm.apt" type="text" placeholder="Căn 48b Chung cư Royal City" />
               </div>
             </div>
 
             <div class="form-grid three-col">
               <div class="form-group">
                 <label>Thành phố</label>
-                <input v-model="addressForm.city" type="text" placeholder="Hồ chí Minh" />
-              </div>
-              <div class="form-group">
-                <label>Quận</label>
-                <input v-model="addressForm.state" type="text" placeholder="Quận 9" />
-              </div>
-              <div class="form-group">
-                <label>Mã Zip</label>
-                <input v-model="addressForm.zip" type="text" placeholder="70000" />
+                <input v-model="addressForm.city" type="text" placeholder="Hà Nội" />
               </div>
             </div>
 

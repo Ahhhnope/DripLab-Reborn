@@ -1,0 +1,311 @@
+/* ── Base ───────────────────────────────────────────────────────────────────── */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Epilogue', sans-serif;
+}
+
+.section-gap  { margin-bottom: 30px; }
+.special-gap  { margin-bottom: 40px; }
+
+/* ── Slider ─────────────────────────────────────────────────────────────────── */
+.slider-wrapper {
+  position: relative;
+  overflow: hidden;
+  background: #1a0e08;
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide {
+  min-width: 100%;
+  height: 580px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  flex-shrink: 0;
+  text-decoration: none;
+  display: block;
+}
+
+/* Slide caption */
+.slide-caption {
+  position: absolute;
+  bottom: 5rem;
+  left: 5%;
+  color: #fff;
+  z-index: 5;
+}
+
+.slide-caption-title {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 900;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  margin-bottom: 0.75rem;
+}
+
+.slide-caption-cta {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1.25rem;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  border-radius: 0.4rem;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+
+.slide:hover .slide-caption-cta {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Prev / Next buttons */
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 48px;
+  width: 48px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10;
+}
+
+.slider-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.slider-btn-left  { left: 1.5rem; }
+.slider-btn-right { right: 1.5rem; }
+
+/* Dots */
+.slider-dots {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1.5px solid rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: all 0.35s ease;
+  padding: 0;
+}
+
+.dot.active {
+  background: #fff;
+  width: 28px;
+  border-color: #fff;
+}
+
+/* Progress bar */
+.slider-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  z-index: 10;
+}
+
+.slider-progress-bar {
+  height: 100%;
+  background: rgba(255,255,255,0.75);
+  width: 0%;
+  animation: progressFill linear forwards;
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* ── Enjoy ──────────────────────────────────────────────────────────────────── */
+.enjoy-section {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.enjoy-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  color: #1a0e08;
+}
+
+.enjoy-subtitle {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: #8a6f5a;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+/* ── Bento ──────────────────────────────────────────────────────────────────── */
+.bento-section {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .bento-section { grid-template-columns: 1fr 1fr; }
+}
+
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  display: block;
+  text-decoration: none;
+}
+
+.bento-card img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.7s ease;
+  display: block;
+}
+
+.bento-card:hover img { transform: scale(1.08); }
+
+.bento-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.2),
+    transparent
+  );
+}
+
+.bento-title {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.bento-overlay-2 { overflow: hidden; }
+
+.bento-sub {
+  margin-top: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 400;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.35s ease;
+}
+
+.bento-card:hover .bento-sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Split Sections ─────────────────────────────────────────────────────────── */
+.split-section {
+  width: 100%;
+  background-color: #b8a48a;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .split-section { flex-direction: row; }
+  .split-reverse { flex-direction: row-reverse; }
+}
+
+.split-img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (min-width: 768px) {
+  .split-img {
+    width: 50%;
+    height: 420px;
+  }
+}
+
+.split-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.split-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  color: #2a1a0e;
+  line-height: 1.2;
+}
+
+/* ── Section Button ─────────────────────────────────────────────────────────── */
+.section-btn {
+  margin-top: 1.5rem;
+  padding: 0.75rem 2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #3d2b1f;
+  background-color: transparent;
+  border: 1.5px solid rgba(61, 43, 31, 0.4);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.section-btn:hover {
+  background-color: #3d2b1f;
+  color: #fff;
+  border-color: #3d2b1f;
+}

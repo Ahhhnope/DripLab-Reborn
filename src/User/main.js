@@ -5,18 +5,28 @@ import { createPinia } from 'pinia'
 import './main.css'
 
 import InterfaceHomePage from '../Front-End/USER/InterfaceHomePage.vue'
+import Homepage from '../Front-End/USER/Homepage.vue'
 import UserAccount from '../Front-End/USER/UserAccount.vue'
 import UserChangePassword from '../Front-End/USER/UserChangePassword.vue'
 import UserAddress from '../Front-End/USER/UserAddress.vue'
 import UserOrders from '../Front-End/USER/UserOrders.vue'
 import UserStores from '../Front-End/USER/UserStores.vue'
+<<<<<<< HEAD
 import MenuView from '../Front-End/USER/MenuView.vue'
 import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
+=======
+import UserReceipts from '../Front-End/USER/UserReceipts.vue'
+
+//Uy quyen
+import LoginAcc from '../Front-End/Authorization/Login.vue'
+import RegisterAcc from '../Front-End/Authorization/Register.vue'
+>>>>>>> 03c9ccb9e2ba668cd883bad3ec10f427e3bca010
 
 const routes = [
     {
         path: '/',
         component: InterfaceHomePage,
+        redirect: '/homepage',
         children: [
             {
                 path: '/account',
@@ -47,8 +57,24 @@ const routes = [
                 path: '/stores',
                 component: UserStores
             },
+            {
+                path: '/account/receipts',
+                component: UserReceipts
+            },
+            {
+                path: '/homepage',
+                component: Homepage
+            },
         ]
-    }
+    },
+    {
+        path: '/login',
+        component: LoginAcc
+    },
+    {
+        path: '/register',
+        component: RegisterAcc
+    },
 ]
 
 const router = createRouter({

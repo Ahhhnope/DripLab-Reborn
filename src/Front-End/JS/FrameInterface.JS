@@ -38,6 +38,7 @@ export function useAdminMenu() {
                                 { id: 323, label: 'Kem béo', path: '/SanPhamkemBeo' },
                                 { id: 324, label: 'Kem lạnh', path: '/SanPhamKem' },
                                 { id: 325, label: 'Cách thức', path: '/QuanLyCachThuc' },
+                                { id: 326, label: 'Topping', path: '/QuanLyTopping' },
                             ] 
                         },
                     ]

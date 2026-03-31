@@ -1,43 +1,127 @@
 <script setup>
 import { useHeader } from '../JS-USER/InterfaceHeader.js'
-import '../CSS-USER/InterfaceHeader.CSS'
 
-const { navItems, goToLogin, goToCart } = useHeader()
+const {
+  goToLogin,
+  goToRegister,
+  goToCart,
+  showMenuDropdown,
+  showUserDropdown,
+  activeMenuOption,
+  onMenuEnter,
+  onMenuLeave,
+  onDropdownEnter,
+  onDropdownLeave,
+  setActiveOption,
+  toggleUserDropdown,
+  closeUserDropdown,
+} = useHeader()
 </script>
 
 <template>
-  <div class="header-wrapper">
+  <header class="header-wrapper">
     <div class="header-inner">
 
+      <!-- Logo -->
       <RouterLink to="/homepage" class="header-logo">
         <img src="../IMG/DripLab_Logo.png" alt="Drip Lab" />
       </RouterLink>
 
+      <!-- Nav -->
       <nav class="header-nav">
-        <RouterLink
-          v-for="item in navItems"
-          :key="item.path"
-          :to="item.path"
+
+        <!-- MENU with hover dropdown -->
+        <div
+          class="menu-wrapper"
+          @mouseenter="onMenuEnter"
+          @mouseleave="onMenuLeave"
         >
-          {{ item.label }}
-        </RouterLink>
+          <span class="nav-link menu-trigger" :class="{ 'nav-active': showMenuDropdown }">MENU</span>
+
+          <Transition name="menu-drop">
+            <div
+              v-if="showMenuDropdown"
+              class="menu-dropdown"
+              @mouseenter="onDropdownEnter"
+              @mouseleave="onDropdownLeave"
+            >
+              <RouterLink
+                to="/menu"
+                class="menu-option"
+                :class="{ 'option-active': activeMenuOption === 'buy' }"
+                @click="setActiveOption('buy')"
+              >
+                <i class='bx bxs-cart'></i>
+                <span>BUY NOW</span>
+              </RouterLink>
+
+              <RouterLink
+                to="/brewing"
+                class="menu-option"
+                :class="{ 'option-active': activeMenuOption === 'custom' }"
+                @click="setActiveOption('custom')"
+              >
+                <i class='bx bxs-coffee-togo'></i>
+                <span>CUSTOMIZE</span>
+              </RouterLink>
+            </div>
+          </Transition>
+        </div>
+
+        <RouterLink to="/about"  class="nav-link">ABOUT US</RouterLink>
+        <RouterLink to="/news"   class="nav-link">NEWS</RouterLink>
+        <RouterLink to="/stores" class="nav-link">STORES</RouterLink>
       </nav>
 
+      <!-- Actions -->
       <div class="header-actions">
-        <button @click="goToLogin">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-        </button>
-        <button @click="goToCart">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm5.625 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-        </button>
-      </div>
 
+        <!-- User icon + dropdown -->
+        <div class="user-wrapper" v-click-outside="closeUserDropdown">
+          <button class="action-btn" @click="toggleUserDropdown" aria-label="Account">
+            <i class='bx bxs-user'></i>
+          </button>
+
+          <Transition name="user-drop">
+            <div v-if="showUserDropdown" class="user-dropdown">
+
+              <div class="ud-header">
+                <span>Thông Tin Tài Khoản</span>
+              </div>
+
+              <div class="ud-profile">
+                <div class="ud-avatar">
+                  <img src="../IMG/DELLBIETNOIGI.jpg" alt="Avatar" />
+                </div>
+                <p class="ud-name">Nguyễn Văn A</p>
+                <p class="ud-email">abc@gmail.com</p>
+              </div>
+
+              <div class="ud-divider"></div>
+
+              <div class="ud-actions">
+                <button class="ud-btn ud-login" @click="goToLogin">
+                  <span class="material-symbols-outlined">login</span>
+                  <span>Login</span>
+                </button>
+                <button class="ud-btn ud-register" @click="goToRegister">
+                  <span class="material-symbols-outlined">person_add</span>
+                  <span>Đăng ký</span>
+                </button>
+              </div>
+
+            </div>
+          </Transition>
+        </div>
+
+        <!-- Cart -->
+        <button class="action-btn" @click="goToCart" aria-label="Cart">
+          <i class='bx bxs-shopping-bag'></i>
+        </button>
+
+      </div>
     </div>
-  </div>
+  </header>
 </template>
+
+<style src="../CSS-USER/InterfaceHeader.CSS"></style>

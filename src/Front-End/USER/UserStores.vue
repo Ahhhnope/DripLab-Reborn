@@ -1,34 +1,10 @@
 <template>
   <div class="stores-page">
 
-    <!-- ===== LƯỚI ẢNH ===== -->
-    <section class="photo-grid">
-      <!-- Ảnh lớn trái (chiếm 2 hàng) -->
-      <div class="photo-item photo-big">
-        <div class="photo-bg"
-          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACiqIMCNghyhx1mxHuryYcVP3lKk_IqXozA7gJ3BbRb7Znx1uaBGTq0f2ILd5hK3MEgScOUbV1bcDkt-NysEDEwAish075vvb06TmJrWz7FIHKeCl8xe-zCw_Uh5QLmT3DknFeb5VHrlXY_C5acuKXWc74sfdhThFkCBFla4f36cdi2uQtVMYw4porXzCqYvjTvKFLxc9rd2C3MO4vXFeW2QDV2-GE8h5hCT3Y_HMvE7unt38cyFhul-BRNT0H98sA5FHApHKSASvl')">
-        </div>
-      </div>
-
-      <!-- Ảnh nhỏ trên phải -->
-      <div class="photo-item">
-        <div class="photo-bg"
-          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBQ5L7Po32mSj8zVOrFXqbcsLLiZTLSggn56XvGRzXc9GLOCRLcUekG7cepjE9MwyzELJj_p4ZSQfCgsglHYL_unAnvZjg3jUg8vgz-vEDOPyvY4SgRg06o30XwXVG5TKXomFhhZqsw3QQgC2LG0BWKeVwfE9t2uIUvzVgy8TBOxOun3zi7T0ZAdJ68fgeeui25G9d0pVyUHZhq5usEdLldVCMzNLazgqZ5cXaXumu-VxloVog9mBkglSAqOFKOf-muqArHNGMRIhiH')">
-        </div>
-      </div>
-
-      <!-- Ảnh nhỏ trên phải 2 -->
-      <div class="photo-item">
-        <div class="photo-bg"
-          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0sA_9dNVPBdE1ieXwfKaEQno3wmpiJpK44_fkSLnCeOZ8_tO53Q5xkuW-NjeVqlnCEsgXnPpeGJX8dTC3H1M9BtyJMUqK3ePhWr4VvMZ-6WUpu9hogG8WmkT7fLufAUISy5QQ4Rks3Nk9_CXYCaJlQhaLNTAse1E3l53-24-5tytFMw_TRSpZWxnQF0qY5EJSuhO6IjHdGlBElmpNsXf_Tc22EjZsmzq7LOUbyaulplX1lv_PzTKXiy9h3oj_7G3R_SjySbGjaA1N')">
-        </div>
-      </div>
-
-      <!-- Ảnh rộng dưới phải (chiếm 2 cột) -->
-      <div class="photo-item photo-wide">
-        <div class="photo-bg"
-          style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDZttY2fDqUalM3AU8m23UAlZz8oOplihStoqiNaKM2PmBCIKkC370YgxtlguTPtWoF8b5vvmXLdts1beCoNeJkwXqKOr2YEqR2zxmlr6c9kgrA6in2yGCytK3_iHvYdm1b4kLIBPKqLfCVy6nADtCHj3QuwSItB0g3Pb3M5Cs2FqDiY_1_o9lHyTFYgr8X55ReUdmPr68ttG6qasd8BoQma4wIhv2t2E6L8JVPxs3G7GVqtXc9CkAMH26YKq3gQ25xNmzGSIeJpuul')">
-        </div>
+    <!-- ===== ẢNH ĐƠN ===== -->
+    <section class="photo-single">
+      <div class="photo-bg"
+        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACiqIMCNghyhx1mxHuryYcVP3lKk_IqXozA7gJ3BbRb7Znx1uaBGTq0f2ILd5hK3MEgScOUbV1bcDkt-NysEDEwAish075vvb06TmJrWz7FIHKeCl8xe-zCw_Uh5QLmT3DknFeb5VHrlXY_C5acuKXWc74sfdhThFkCBFla4f36cdi2uQtVMYw4porXzCqYvjTvKFLxc9rd2C3MO4vXFeW2QDV2-GE8h5hCT3Y_HMvE7unt38cyFhul-BRNT0H98sA5FHApHKSASvl')">
       </div>
     </section>
 
@@ -38,8 +14,8 @@
       <!-- CỘT TRÁI: Thông tin cửa hàng -->
       <div class="info-col">
         <div class="store-title-block">
-          <h2 class="store-name">The Roastery - Soho</h2>
-          <p class="store-sub">Signature Roastery &amp; Tasting Room</p>
+          <h2 class="store-name">The Coffee House - Hà Nội</h2>
+          <p class="store-sub">Rang Xay Đặc Trưng &amp; Phòng Thử Nghiệm</p>
         </div>
 
         <div class="info-list">
@@ -48,7 +24,7 @@
             <span class="material-symbols-outlined icon-gold">location_on</span>
             <div>
               <h4 class="info-label">ĐỊA CHỈ</h4>
-              <p class="info-text">123 Coffee Lane, New York, NY 10012</p>
+              <p class="info-text">200 Tô Hiến Thành, Hai Bà Trưng, Hà Nội</p>
             </div>
           </div>
 
@@ -93,11 +69,11 @@
           <div class="rating-score">
             <div class="score-number">4.8</div>
             <div class="score-stars">
-              <span class="material-symbols-outlined star-gold">star</span>
-              <span class="material-symbols-outlined star-gold">star</span>
-              <span class="material-symbols-outlined star-gold">star</span>
-              <span class="material-symbols-outlined star-gold">star</span>
-              <span class="material-symbols-outlined star-gold">star_half</span>
+              <span class="material-symbols-outlined star-gold star-filled">star</span>
+              <span class="material-symbols-outlined star-gold star-filled">star</span>
+              <span class="material-symbols-outlined star-gold star-filled">star</span>
+              <span class="material-symbols-outlined star-gold star-filled">star</span>
+              <span class="material-symbols-outlined star-gold star-filled">star_half</span>
             </div>
             <p class="score-count">128 ĐÁNH GIÁ</p>
           </div>

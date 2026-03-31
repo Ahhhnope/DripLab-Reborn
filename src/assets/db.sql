@@ -84,6 +84,7 @@ create table orders (
 	tax_amount float,
 	final_price float,
 	note nvarchar(100),
+	status nvarchar(20) default N'Chưa giải quyết',
 	created_at date default getdate(),
 	updated_at date default getdate(),
 	customer_id int foreign key references customers (id)
@@ -131,5 +132,9 @@ insert into toppings (name, price) values
 (N'Kem béo', 6000),
 (N'Whipping cream', 8000)
 
-select * from carts
+insert into orders (order_number, customer_name, customer_phone, customer_address, original_price, discount_amount, shipping_fee, tax_amount, final_price, note, customer_id) values
+('1', 'customer name', '0123456789', 'customer address', 260000, 0, 20000, 26000, (260000-20000-26000), 'this is a test lmao', 1)
 
+select * from carts
+select * from orders
+select ci1_0.id,ci1_0.cart_id,ci1_0.product_id,ci1_0.quantity from cart_items ci1_0 where ci1_0.cart_id=1

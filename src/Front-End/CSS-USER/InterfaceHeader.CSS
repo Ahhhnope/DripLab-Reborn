@@ -1,3 +1,6 @@
+/* ==============================
+   HEADER WRAPPER
+============================== */
 .header-wrapper {
   position: fixed;
   top: 0;
@@ -19,6 +22,9 @@
   justify-content: space-between;
 }
 
+/* ==============================
+   LOGO
+============================== */
 .header-logo {
   display: flex;
   align-items: center;
@@ -31,34 +37,124 @@
   object-fit: contain;
 }
 
+/* ==============================
+   NAV
+============================== */
 .header-nav {
   display: flex;
   align-items: center;
   gap: 40px;
 }
 
-.header-nav a {
+.nav-link {
   text-decoration: none;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   color: #3C2A21;
   text-transform: uppercase;
   transition: color 0.2s;
+  cursor: pointer;
+  user-select: none;
 }
 
-.header-nav a:hover,
-.header-nav a.router-link-active {
+.nav-link:hover,
+.nav-link.router-link-active,
+.nav-link.nav-active {
   color: #8B5E3C;
 }
 
+/* ==============================
+   MENU WRAPPER + DROPDOWN
+============================== */
+.menu-wrapper {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  background-color: #2b2420;
+  border: 1.5px solid rgba(180, 130, 80, 0.25);
+  border-radius: 18px;
+  padding: 10px;
+  min-width: 210px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
+
+.menu-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e8ddd0;
+
+  background-color: #352e28;
+  border: 1.5px solid rgba(180, 130, 80, 0.18);
+
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.menu-option i {
+  font-size: 17px;
+  color: #c4a882;
+  transition: color 0.18s;
+}
+
+/* Hover: sáng nhẹ, border nổi hơn */
+.menu-option:hover {
+  background-color: #443a32;
+  border-color: rgba(180, 130, 80, 0.4);
+  color: #fff;
+}
+
+.menu-option:hover i {
+  color: #d4b896;
+}
+
+/* Active sau khi click: xanh lá */
+.menu-option.option-active {
+  background-color: #3b6349;
+  border-color: #4a7a5a;
+  color: #fff;
+}
+
+.menu-option.option-active i {
+  color: #a8d4b8;
+}
+
+.menu-option.option-active:hover {
+  background-color: #4a7a5a;
+}
+
+/* ==============================
+   HEADER ACTIONS
+============================== */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-.header-actions button {
+.action-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -66,14 +162,187 @@
   color: #3C2A21;
   display: flex;
   align-items: center;
+  font-size: 22px;
+  line-height: 1;
   transition: color 0.2s;
 }
 
-.header-actions button:hover {
+.action-btn:hover {
   color: #8B5E3C;
 }
 
-.header-actions button svg {
-  width: 22px;
-  height: 22px;
+/* ==============================
+   USER DROPDOWN
+============================== */
+.user-wrapper {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+
+  background-color: #2b2420;
+  border: 1.5px solid rgba(180, 130, 80, 0.22);
+  border-radius: 18px;
+  overflow: hidden;
+  min-width: 270px;
+
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 200;
+}
+
+/* Gradient header — xanh sang vàng nâu */
+.ud-header {
+  background: linear-gradient(135deg, #4a6a3a 0%, #8B7240 100%);
+  padding: 16px 22px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* Avatar + tên + email */
+.ud-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 22px 18px;
+  gap: 6px;
+}
+
+.ud-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid rgba(180, 130, 80, 0.35);
+  margin-bottom: 6px;
+}
+
+.ud-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ud-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.ud-email {
+  font-size: 12px;
+  color: #a89880;
+  margin: 0;
+}
+
+.ud-divider {
+  height: 1px;
+  background: rgba(180, 130, 80, 0.18);
+  margin: 0 18px;
+}
+
+/* Action row */
+.ud-actions {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.ud-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 10px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.ud-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.ud-login {
+  background-color: #352e28;
+  border-color: rgba(180, 130, 80, 0.25);
+  color: #e8ddd0;
+}
+
+.ud-login:hover {
+  background-color: #443a32;
+  border-color: rgba(180, 130, 80, 0.45);
+  color: #fff;
+}
+
+.ud-register {
+  background-color: #3b6349;
+  border-color: #4a7a5a;
+  color: #fff;
+}
+
+.ud-register:hover {
+  background-color: #4a7a5a;
+}
+
+/* ==============================
+   ANIMATIONS
+   — dùng opacity + translateY
+     giống style gốc HTML/CSS
+============================== */
+
+/* Menu dropdown */
+.menu-drop-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.menu-drop-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.menu-drop-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+}
+.menu-drop-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-6px);
+}
+.menu-drop-enter-to,
+.menu-drop-leave-from {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* User dropdown */
+.user-drop-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.user-drop-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.user-drop-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.user-drop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.user-drop-enter-to,
+.user-drop-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }

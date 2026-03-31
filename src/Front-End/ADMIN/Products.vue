@@ -77,7 +77,7 @@ onMounted(() => {
                     <td>{{ drink.basePrice }}</td>
 
                     <td>
-                        <button @click="openEdit(drink)">Update</button>
+                        <button @click="openEdit(drink)">Update</button> | 
                         <button @click="removeDrink(drink.id)">Xóa</button>
                     </td>
 
