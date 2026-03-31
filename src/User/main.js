@@ -12,6 +12,10 @@ import UserOrders from '../Front-End/USER/UserOrders.vue'
 import UserStores from '../Front-End/USER/UserStores.vue'
 import UserReceipts from '../Front-End/USER/UserReceipts.vue'
 
+//Uy quyen
+import LoginAcc from '../Front-End/Authorization/Login.vue'
+import RegisterAcc from '../Front-End/Authorization/Register.vue'
+
 const routes = [
     {
         path: '/',
@@ -46,9 +50,16 @@ const routes = [
                 path: '/homepage',
                 component: Homepage
             },
-
         ]
-    }
+    },
+    {
+        path: '/login',
+        component: LoginAcc
+    },
+    {
+        path: '/register',
+        component: RegisterAcc
+    },
 ]
 
 const router = createRouter({
