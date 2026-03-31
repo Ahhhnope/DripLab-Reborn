@@ -4,15 +4,15 @@
 /* ===== MÀU SẮC ===== */
 :root {
   --gold: #e0c076;
-  /* màu vàng chủ đạo từ HTML gốc */
   --coffee: #3E2723;
-  /* nâu đậm */
   --bg: #f8f7f6;
-  /* nền sáng */
   --text: #3E2723;
   --text-soft: rgba(62, 39, 35, 0.6);
   --border: rgba(62, 39, 35, 0.1);
   --white: #ffffff;
+
+  /* Font màu nâu đậm theo hình 3 */
+  --font-dark: #3b2210;
 }
 
 /* ===== TỔNG QUÁT ===== */
@@ -21,57 +21,31 @@
   min-height: 100vh;
   padding: 32px 80px 60px;
   font-family: 'Manrope', 'Georgia', sans-serif;
-  color: var(--text);
+  color: var(--font-dark);
 }
 
 /* ===================================
-   LƯỚI ẢNH 4 Ô
-   Giống HTML gốc: grid-cols-4, grid-rows-2
-   - Ảnh lớn: col-span-2 row-span-2 (trái)
-   - Ảnh nhỏ: 1 ô (trên phải)
-   - Ảnh nhỏ: 1 ô (trên phải)
-   - Ảnh rộng: col-span-2 (dưới phải)
+   ẢNH ĐƠN — full width, chiều cao cố định
    =================================== */
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 12px;
-  height: 500px;
-  border-radius: 16px;
+.photo-single {
+  width: 100%;
+  height: 460px;
+  border-radius: 20px;
   overflow: hidden;
   margin-bottom: 40px;
 }
 
-.photo-item {
-  overflow: hidden;
-  border-radius: 16px;
-  position: relative;
-}
-
-/* Ảnh lớn: chiếm 2 cột x 2 hàng */
-.photo-big {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-/* Ảnh rộng dưới: chiếm 2 cột, hàng 2 */
-.photo-wide {
-  grid-column: span 2;
-}
-
-/* Background ảnh với hover zoom */
 .photo-bg {
   width: 100%;
   height: 100%;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s ease;
 }
 
-.photo-item:hover .photo-bg {
-  transform: scale(1.05);
+.photo-single:hover .photo-bg {
+  transform: scale(1.04);
 }
 
 /* ===================================
@@ -93,10 +67,11 @@
 
 .store-name {
   font-family: 'Noto Serif', serif;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--font-dark);
   margin: 0 0 6px;
+  letter-spacing: -0.3px;
 }
 
 .store-sub {
@@ -131,18 +106,19 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--text);
+  color: var(--font-dark);
   margin: 0 0 6px;
 }
 
 .info-text {
   font-size: 14px;
-  color: rgba(62, 39, 35, 0.8);
+  color: var(--font-dark);
   margin: 0 0 2px;
   display: flex;
   justify-content: space-between;
   width: 220px;
   gap: 8px;
+  opacity: 0.85;
 }
 
 /* Tags tiện ích */
@@ -154,8 +130,8 @@
 }
 
 .tag {
-  background: rgba(62, 39, 35, 0.05);
-  color: var(--text);
+  background: rgba(62, 39, 35, 0.07);
+  color: var(--font-dark);
   font-size: 12px;
   font-weight: 600;
   padding: 4px 12px;
@@ -179,6 +155,7 @@
   cursor: pointer;
   transition: opacity 0.2s;
   box-shadow: 0 4px 16px rgba(224, 192, 118, 0.3);
+  font-family: 'Manrope', sans-serif;
 }
 
 .btn-directions:hover {
@@ -188,8 +165,6 @@
 /* ===================================
    CỘT PHẢI — ĐÁNH GIÁ
    =================================== */
-
-/* Hàng tổng điểm: điểm to + đường kẻ + thanh + nút */
 .rating-row {
   display: flex;
   align-items: center;
@@ -200,7 +175,6 @@
   flex-wrap: wrap;
 }
 
-/* Khối điểm to */
 .rating-score {
   text-align: center;
   flex-shrink: 0;
@@ -210,7 +184,7 @@
   font-family: 'Noto Serif', serif;
   font-size: 56px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--font-dark);
   line-height: 1;
 }
 
@@ -221,9 +195,12 @@
   margin: 4px 0;
 }
 
+/* Ngôi sao đậm hơn — dùng font-variation-settings để filled */
 .star-gold {
   color: var(--gold);
-  font-size: 20px;
+  font-size: 22px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+  -webkit-text-stroke: 0.5px var(--gold);
 }
 
 .score-count {
@@ -234,7 +211,6 @@
   margin: 4px 0 0;
 }
 
-/* Đường kẻ dọc */
 .divider-v {
   width: 1px;
   height: 64px;
@@ -242,7 +218,6 @@
   flex-shrink: 0;
 }
 
-/* Thanh điểm */
 .rating-bars {
   display: flex;
   flex-direction: column;
@@ -266,7 +241,7 @@
 .bar-track {
   flex: 1;
   height: 6px;
-  background: rgba(62, 39, 35, 0.05);
+  background: rgba(62, 39, 35, 0.07);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -277,7 +252,6 @@
   border-radius: 999px;
 }
 
-/* Nút "Đánh Giá Cửa Hàng" - viền, góc phải */
 .btn-rate {
   display: flex;
   align-items: center;
@@ -293,6 +267,7 @@
   margin-left: auto;
   transition: all 0.2s;
   white-space: nowrap;
+  font-family: 'Manrope', sans-serif;
 }
 
 .btn-rate:hover {
@@ -321,7 +296,7 @@
 .wr-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--font-dark);
   margin: 0;
 }
 
@@ -331,18 +306,17 @@
 }
 
 .wr-star {
-  font-size: 22px;
+  font-size: 24px;
   color: rgba(62, 39, 35, 0.2);
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color 0.15s, font-variation-settings 0.15s;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-.wr-star.active {
-  color: var(--gold);
-}
-
+.wr-star.active,
 .wr-star:hover {
   color: var(--gold);
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
 }
 
 .wr-textarea {
@@ -353,7 +327,7 @@
   padding: 14px;
   font-size: 14px;
   font-family: inherit;
-  color: var(--text);
+  color: var(--font-dark);
   resize: vertical;
   box-sizing: border-box;
 }
@@ -379,6 +353,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.2s;
+  font-family: 'Manrope', sans-serif;
 }
 
 .btn-submit:hover {
@@ -416,7 +391,6 @@
   gap: 12px;
 }
 
-/* Avatar tròn màu vàng nhạt */
 .ri-avatar {
   width: 40px;
   height: 40px;
@@ -434,7 +408,7 @@
 .ri-name {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--font-dark);
   margin: 0 0 4px;
 }
 
@@ -443,13 +417,18 @@
   gap: 1px;
 }
 
+/* Ngôi sao bình luận — đậm, filled */
 .ri-star {
-  font-size: 16px;
+  font-size: 17px;
   color: var(--gold);
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
+  -webkit-text-stroke: 0.3px var(--gold);
 }
 
 .ri-star.dim {
   color: rgba(62, 39, 35, 0.15);
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+  -webkit-text-stroke: none;
 }
 
 .ri-date {
@@ -464,7 +443,8 @@
 .ri-text {
   font-size: 14px;
   line-height: 1.7;
-  color: rgba(62, 39, 35, 0.8);
+  color: var(--font-dark);
+  opacity: 0.82;
   margin: 0;
 }
 
@@ -483,10 +463,11 @@
   text-transform: uppercase;
   cursor: pointer;
   transition: color 0.2s;
+  font-family: 'Manrope', sans-serif;
 }
 
 .btn-load-more:hover {
-  color: var(--coffee);
+  color: var(--font-dark);
 }
 
 /* ===================================
@@ -497,13 +478,8 @@
     padding: 24px 20px 40px;
   }
 
-  .photo-grid {
-    grid-template-columns: 1fr 1fr;
-    height: 300px;
-  }
-
-  .photo-wide {
-    grid-column: span 2;
+  .photo-single {
+    height: 280px;
   }
 
   .detail-section {

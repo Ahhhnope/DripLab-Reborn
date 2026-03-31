@@ -71,8 +71,6 @@
   position: relative;
 }
 
-/* Dropdown box — giống hình 2:
-   nhỏ gọn, bo góc nhiều, border nâu mờ, KHÔNG có mũi tên */
 .menu-dropdown {
   position: absolute;
   top: calc(100% + 14px);
@@ -95,7 +93,6 @@
   z-index: 200;
 }
 
-/* Mỗi option — bo góc 12px, border nâu mờ, KHÔNG màu xanh sẵn */
 .menu-option {
   display: flex;
   align-items: center;
