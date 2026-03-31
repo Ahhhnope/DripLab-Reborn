@@ -4,6 +4,7 @@ import App from './App.vue'
 import './main.css'
 
 import InterfaceHomePage from '../Front-End/USER/InterfaceHomePage.vue'
+import Homepage from '../Front-End/USER/Homepage.vue'
 import UserAccount from '../Front-End/USER/UserAccount.vue'
 import UserChangePassword from '../Front-End/USER/UserChangePassword.vue'
 import UserAddress from '../Front-End/USER/UserAddress.vue'
@@ -15,6 +16,7 @@ const routes = [
     {
         path: '/',
         component: InterfaceHomePage,
+        redirect: '/homepage',
         children: [
             {
                 path: '/account',
@@ -42,7 +44,7 @@ const routes = [
             },
             {
                 path: '/homepage',
-                component: InterfaceHomePage
+                component: Homepage
             },
 
         ]
