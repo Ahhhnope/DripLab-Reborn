@@ -105,7 +105,7 @@ export function useMenuView() {
     {
       id: 'cold-brew-normal',
       brand: 'Drip Lab',
-      name: 'Cold Brew Nguyên Bản',
+      name: 'Cold Brew ',
       price: 50000,
       isHot: true,
       isNew: false,

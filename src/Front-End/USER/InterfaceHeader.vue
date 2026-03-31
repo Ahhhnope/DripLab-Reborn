@@ -8,6 +8,7 @@ const {
   showMenuDropdown,
   showUserDropdown,
   activeMenuOption,
+  activeUserAction,
   onMenuEnter,
   onMenuLeave,
   onDropdownEnter,
@@ -100,11 +101,19 @@ const {
               <div class="ud-divider"></div>
 
               <div class="ud-actions">
-                <button class="ud-btn ud-login" @click="goToLogin">
+                <button
+                  class="ud-btn ud-login"
+                  :class="{ 'option-active': activeUserAction === 'login' }"
+                  @click="goToLogin"
+                >
                   <span class="material-symbols-outlined">login</span>
                   <span>Login</span>
                 </button>
-                <button class="ud-btn ud-register" @click="goToRegister">
+                <button
+                  class="ud-btn ud-register"
+                  :class="{ 'option-active': activeUserAction === 'register' }"
+                  @click="goToRegister"
+                >
                   <span class="material-symbols-outlined">person_add</span>
                   <span>Đăng ký</span>
                 </button>

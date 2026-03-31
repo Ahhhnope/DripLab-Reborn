@@ -5,14 +5,13 @@ export function useHeader() {
   const router = useRouter()
 
   // ==============================
-  // MENU DROPDOWN — hover với delay mượt
+  // MENU DROPDOWN
   // ==============================
   const showMenuDropdown = ref(false)
-  const activeMenuOption = ref(null) 
+  const activeMenuOption = ref(null)
   let menuEnterTimer = null
   let menuLeaveTimer = null
 
-  // Hover vào nav "MENU" → chờ 120ms rồi mở
   function onMenuEnter() {
     clearTimeout(menuLeaveTimer)
     menuEnterTimer = setTimeout(() => {
@@ -31,22 +30,21 @@ export function useHeader() {
     clearTimeout(menuLeaveTimer)
   }
 
-  // Chuột rời dropdown → đóng sau 150ms
   function onDropdownLeave() {
     menuLeaveTimer = setTimeout(() => {
       showMenuDropdown.value = false
     }, 150)
   }
 
-  // Click option → highlight xanh
   function setActiveOption(name) {
     activeMenuOption.value = name
   }
 
   // ==============================
-  // USER DROPDOWN — click toggle
+  // USER DROPDOWN
   // ==============================
   const showUserDropdown = ref(false)
+  const activeUserAction = ref(null)
 
   function toggleUserDropdown() {
     showUserDropdown.value = !showUserDropdown.value
@@ -60,11 +58,13 @@ export function useHeader() {
   // NAVIGATION
   // ==============================
   function goToLogin() {
+    activeUserAction.value = 'login'
     closeUserDropdown()
     router.push('/login')
   }
 
   function goToRegister() {
+    activeUserAction.value = 'register'
     closeUserDropdown()
     router.push('/register')
   }
@@ -73,10 +73,21 @@ export function useHeader() {
     router.push('/cart')
   }
 
+  // ==============================
+  // AUTO RESET SAU MỖI NAVIGATE
+  // ==============================
+  router.afterEach(() => {
+    activeMenuOption.value = null
+    activeUserAction.value = null
+    showMenuDropdown.value = false
+    showUserDropdown.value = false
+  })
+
   return {
     showMenuDropdown,
     showUserDropdown,
     activeMenuOption,
+    activeUserAction,
     onMenuEnter,
     onMenuLeave,
     onDropdownEnter,
