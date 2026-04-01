@@ -13,11 +13,8 @@ import UserOrders from '../Front-End/USER/UserOrders.vue'
 import UserStores from '../Front-End/USER/UserStores.vue'
 import MenuView from '../Front-End/USER/MenuView.vue'
 import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
-<<<<<<< HEAD
 import UserReceipts from '../Front-End/USER/UserReceipts.vue'
 import AboutUS from '../Front-End/USER/AboutUS.vue'
-=======
->>>>>>> 1974f5bc07ae0d19294bcff6c62cc5ac911fae11
 
 //Uy quyen
 import LoginAcc from '../Front-End/Authorization/Login.vue'
