@@ -56,7 +56,7 @@
             <div class="form-grid three-col">
               <div class="form-group">
                 <label>Thành phố</label>
-                <input v-model="addressForm.city" type="text" placeholder="Hà Nội" />
+                <input value="Hà Nội" readonly />
               </div>
             </div>
 
