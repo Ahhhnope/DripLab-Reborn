@@ -939,3 +939,112 @@
   .order-grid { grid-template-columns: 1fr; }
   .card { padding: 20px; }
 }
+
+/* ── Filter Panel ── */
+.filter-panel {
+  padding: 18px 24px;
+  background: #faf9f9;
+  border-bottom: 1px solid #f1f5f9;
+  border-top: 1px solid #f1f5f9;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  .filter-row { grid-template-columns: 1fr 1fr; }
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  color: #181311;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: #bd490f;
+  box-shadow: 0 0 0 2px rgba(189,73,15,0.08);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.filter-apply-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: #bd490f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.filter-apply-btn:hover { background: #a33d0c; }
+
+.filter-reset-btn {
+  padding: 9px 18px;
+  background: white;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-reset-btn:hover {
+  border-color: #bd490f;
+  color: #bd490f;
+}
+
+/* Empty result */
+.empty-result {
+  text-align: center;
+  padding: 40px !important;
+  color: #9ca3af;
+}
+
+.empty-result .material-symbols-outlined {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.empty-result p {
+  font-size: 13.5px;
+  font-weight: 600;
+}

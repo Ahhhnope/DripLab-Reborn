@@ -9,7 +9,6 @@ import UserChangePassword from '../Front-End/USER/UserChangePassword.vue'
 import UserAddress from '../Front-End/USER/UserAddress.vue'
 import UserOrders from '../Front-End/USER/UserOrders.vue'
 import UserStores from '../Front-End/USER/UserStores.vue'
-import UserReceipts from '../Front-End/USER/UserReceipts.vue'
 
 const routes = [
     {
@@ -35,10 +34,6 @@ const routes = [
             {
                 path: '/stores',
                 component: UserStores
-            },
-            {
-                path: '/account/receipts',
-                component: UserReceipts
             },
             {
                 path: '/homepage',
