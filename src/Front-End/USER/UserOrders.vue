@@ -74,6 +74,7 @@
             </div>
           </section>
 
+          <!-- Active Order Items -->
           <section class="card">
             <h3 class="card-title">Các mục đơn hàng đang hoạt động</h3>
             <div
@@ -83,10 +84,37 @@
             >
               <div class="active-order-info">
                 <h4>Mã đơn hàng: {{ item.name }}</h4>
-                <div class="active-order-bottom">
-                  <div>
-                    <p class="active-order-price">{{ item.price }}</p>
+                <div class="active-drink-list">
+                  <div
+                    v-for="(drink, i) in item.receiptData.items"
+                    :key="i"
+                    class="active-drink-row"
+                  >
+                    <div class="active-drink-img">
+                      <img :src="drink.img" :alt="drink.name" />
+                    </div>
+                    <div class="active-drink-info">
+                      <p class="active-drink-name">{{ drink.name }}</p>
+                      <p class="active-drink-qty">Số lượng: x{{ drink.qty }}</p>
+                      <div class="item-options">
+                        <span class="option-tag sugar">
+                          <span class="material-symbols-outlined"
+                            >nutrition</span
+                          >
+                          Đường: {{ drink.sugar }}%
+                        </span>
+                        <span class="option-tag ice">
+                          <span class="material-symbols-outlined">ac_unit</span>
+                          Đá: {{ drink.ice }}%
+                        </span>
+                      </div>
+                    </div>
+                    <p class="active-drink-price">{{ drink.price }}</p>
                   </div>
+                </div>
+
+                <div class="active-order-bottom">
+                  <p class="active-order-price">Tổng: {{ item.price }}</p>
                   <button
                     class="view-detail-btn"
                     @click="openModal(item.receiptData)"
@@ -240,7 +268,18 @@
             <div class="modal-product-info">
               <h4>{{ item.name }}</h4>
               <p>Số lượng: x{{ item.qty }}</p>
+              <div class="item-options">
+                <span class="option-tag sugar">
+                  <span class="material-symbols-outlined">nutrition</span>
+                  Đường: {{ item.sugar }}%
+                </span>
+                <span class="option-tag ice">
+                  <span class="material-symbols-outlined">ac_unit</span>
+                  Đá: {{ item.ice }}%
+                </span>
+              </div>
             </div>
+
             <p class="modal-product-price">{{ item.price }}</p>
           </div>
         </div>
@@ -266,20 +305,34 @@
 </template>
 
 <script setup>
-import { useUserOrders } from '../JS-USER/UserOrders.JS'
+import { useUserOrders } from "../JS-USER/UserOrders.JS";
 
 const {
-  user, navItems, currentRoute,
-  orderSteps, progressWidth,
-  shipping, activeOrder,
-  receipts, hasMore, loadMore,
-  searchId, filterCategory, filterFromDate, filterToDate,
-  showFilter, categoryOptions,
-  applyFilter, resetFilter,
-  showModal, selectedReceipt,
-  openModal, closeModal,
-  goTo, logout
-} = useUserOrders()
+  user,
+  navItems,
+  currentRoute,
+  orderSteps,
+  progressWidth,
+  shipping,
+  activeOrder,
+  receipts,
+  hasMore,
+  loadMore,
+  searchId,
+  filterCategory,
+  filterFromDate,
+  filterToDate,
+  showFilter,
+  categoryOptions,
+  applyFilter,
+  resetFilter,
+  showModal,
+  selectedReceipt,
+  openModal,
+  closeModal,
+  goTo,
+  logout,
+} = useUserOrders();
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>

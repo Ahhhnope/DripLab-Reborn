@@ -2,6 +2,19 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { sharedUser } from './Useruser.JS'
 
+import matchaNong      from '../IMG/Matcha-latte.png'
+import matchaLatte     from '../IMG/Matcha_tea.jpg'
+import capuchino       from '../IMG/flat-white.jpg'
+import mocha           from '../IMG/mocha.jpg'
+import geisha          from '../IMG/geisha.png'
+import phinden         from '../IMG/phin_den.jpg'
+import phinnau         from '../IMG/phin_nau.jpg'
+import coldbrew        from '../IMG/Cold Brew.jpg'
+import coldbrewmatong  from '../IMG/cold_brew_mat_ong.jpg'
+import coldbrewvaihong from '../IMG/cold_brew_vai_hong.jpg'
+import bacsiu          from '../IMG/bac_xiu.jpg'
+import latte           from '../IMG/coffee_latte.jpg'
+
 export function useUserOrders() {
   const router = useRouter()
   const currentRoute = '/account/orders'
@@ -36,62 +49,106 @@ export function useUserOrders() {
   })
 
   const activeOrder = ref([
-    {
-      id: 1,
-      name:  'DL-8080-41',
-      price: '450.000 VNĐ',
-      receiptData: {
-        id: '#DL-8080-41', date: '30/03/2026',
-        total: '450.000 VNĐ', subtotal: '428.600 VNĐ', tax: '21.400 VNĐ',
-        items: [{
-          name: 'Cà phê hạt Drip Lab', qty: 2, price: '450.000 VNĐ',
-          img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7'
-        }]
-      }
-    }
-  ])
-
-  const allReceipts = ref([
-    {
-      id: '#DL-9283-01', category: 'Thiết bị cà phê',
-      date: '12/10/2023', total: '1.280.000 VNĐ',
-      subtotal: '1.219.050 VNĐ', tax: '60.950 VNĐ',
+  {
+    id: 1,
+    name: 'DL-8080-41',
+    price: '193.000 VNĐ',
+    receiptData: {
+      id: '#DL-8080-41',
+      date: '30/03/2026',
+      total: '193.000 VNĐ',
+      subtotal: '183.810 VNĐ',
+      tax: '9.190 VNĐ',
       items: [
-        { name: 'Ethiopian Yirgacheffe', qty: 1, price: '245.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' },
-        { name: 'Bình pha V60',          qty: 1, price: '350.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }
+        {
+          name: 'Cold Brew Mật Ong',
+          qty: 1,
+          price: '55.000 VNĐ',
+          sugar: 75,
+          ice: 100,
+          img: coldbrewmatong
+        },
+        {
+          name: 'Matcha Latte',
+          qty: 2,
+          price: '98.000 VNĐ',
+          sugar: 50,
+          ice: 50,
+          img: matchaLatte
+        },
+        {
+          name: 'Bạc Xỉu Kem Xốp',
+          qty: 1,
+          price: '40.000 VNĐ',
+          sugar: 100,
+          ice: 25,
+          img: bacsiu
+        }
       ]
-    },
-    {
-      id: '#DL-8122-42', category: 'Cà phê thủ công',
-      date: '28/09/2023', total: '450.000 VNĐ',
-      subtotal: '428.600 VNĐ', tax: '21.400 VNĐ',
-      items: [{ name: 'Cà phê Artisan Blend', qty: 1, price: '450.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
-    },
-    {
-      id: '#DL-7501-19', category: 'Gói đăng ký hàng tháng',
-      date: '01/09/2023', total: '320.000 VNĐ',
-      subtotal: '304.800 VNĐ', tax: '15.200 VNĐ',
-      items: [{ name: 'Hộp đăng ký hàng tháng', qty: 1, price: '320.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
-    },
-    {
-      id: '#DL-6401-08', category: 'Dụng cụ cà phê',
-      date: '15/08/2023', total: '670.000 VNĐ',
-      subtotal: '638.100 VNĐ', tax: '31.900 VNĐ',
-      items: [{ name: 'Bộ dụng cụ Pour Over', qty: 1, price: '670.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
-    },
-    {
-      id: '#DL-5309-33', category: 'Cà phê thủ công',
-      date: '02/07/2023', total: '280.000 VNĐ',
-      subtotal: '266.700 VNĐ', tax: '13.300 VNĐ',
-      items: [{ name: 'Cà phê Single Origin Kenya', qty: 1, price: '280.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
-    },
-    {
-      id: '#DL-4201-17', category: 'Thiết bị cà phê',
-      date: '18/06/2023', total: '950.000 VNĐ',
-      subtotal: '904.800 VNĐ', tax: '45.200 VNĐ',
-      items: [{ name: 'Ấm cổ ngỗng Gooseneck', qty: 1, price: '950.000 VNĐ', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBYF3ymhvLzgh6BuIPZVCkkrYZEk8qLLyQCrQg0gDcX4HzlNsmQvgVTFvcSS41XxWzzaXhdYh5Fmx9yWUUR63_HpQbx7TjamJ9i-9gmcYtn1lMLCZ216G4k68yraLLheA-AjyHl5gSPAstIMGf9zFxKnCYe278OWG86ti1M9r8bofaVfaVO1Lv2w-hWZCzeU2AU5aFFEpYZZEzvwXUkcAogawDETbmi34D4jGjJvLJZjuTzkaymn1VRcPESonSf3TywrX9n0NU746m7' }]
-    },
-  ])
+    }
+  }
+])
+
+const allReceipts = ref([
+  {
+    id: '#DL-9283-01', category: 'Matcha & Latte',
+    date: '12/10/2023', total: '98.000 VNĐ',
+    subtotal: '93.350 VNĐ', tax: '4.650 VNĐ',
+    items: [
+      { name: 'Matcha Nóng',  qty: 1, price: '49.000 VNĐ', sugar: 75,  ice: 0,   img: matchaNong },
+      { name: 'Matcha Latte', qty: 1, price: '49.000 VNĐ', sugar: 100, ice: 50,  img: matchaLatte }
+    ]
+  },
+  {
+    id: '#DL-8122-42', category: 'Cold Brew',
+    date: '28/09/2023', total: '160.000 VNĐ',
+    subtotal: '152.380 VNĐ', tax: '7.620 VNĐ',
+    items: [
+      { name: 'Cold Brew',          qty: 1, price: '50.000 VNĐ', sugar: 50,  ice: 100, img: coldbrew },
+      { name: 'Cold Brew Mật Ong',  qty: 1, price: '55.000 VNĐ', sugar: 75,  ice: 75,  img: coldbrewmatong },
+      { name: 'Cold Brew Vải Hồng', qty: 1, price: '55.000 VNĐ', sugar: 100, ice: 50,  img: coldbrewvaihong }
+    ]
+  },
+  {
+    id: '#DL-7501-19', category: 'Cà phê Phin',
+    date: '01/09/2023', total: '58.000 VNĐ',
+    subtotal: '55.240 VNĐ', tax: '2.760 VNĐ',
+    items: [
+      { name: 'Cà phê Phin Đen', qty: 1, price: '29.000 VNĐ', sugar: 0,   ice: 0,   img: phinden },
+      { name: 'Cà phê Phin Nâu', qty: 1, price: '29.000 VNĐ', sugar: 50,  ice: 25,  img: phinnau }
+    ]
+  },
+  {
+    id: '#DL-6401-08', category: 'Đặc biệt',
+    date: '15/08/2023', total: '130.000 VNĐ',
+    subtotal: '123.810 VNĐ', tax: '6.190 VNĐ',
+    items: [
+      { name: 'Geisha',       qty: 1, price: '35.000 VNĐ', sugar: 75,  ice: 75,  img: geisha },
+      { name: 'Mocha',        qty: 1, price: '35.000 VNĐ', sugar: 100, ice: 100, img: mocha },
+      { name: 'Caffee Latte', qty: 1, price: '60.000 VNĐ', sugar: 50,  ice: 50,  img: latte }
+    ]
+  },
+  {
+    id: '#DL-5309-33', category: 'Kem & Bạc Xỉu',
+    date: '02/07/2023', total: '110.000 VNĐ',
+    subtotal: '104.760 VNĐ', tax: '5.240 VNĐ',
+    items: [
+      { name: 'Bạc Xỉu Kem Xốp', qty: 1, price: '40.000 VNĐ', sugar: 100, ice: 25,  img: bacsiu },
+      { name: 'Capuchino',        qty: 2, price: '70.000 VNĐ', sugar: 75,  ice: 0,   img: capuchino }
+    ]
+  },
+  {
+    id: '#DL-4201-17', category: 'Combo Mix',
+    date: '18/06/2023', total: '183.000 VNĐ',
+    subtotal: '174.290 VNĐ', tax: '8.710 VNĐ',
+    items: [
+      { name: 'Matcha Nóng',      qty: 1, price: '49.000 VNĐ', sugar: 75,  ice: 0,   img: matchaNong },
+      { name: 'Cold Brew',        qty: 1, price: '50.000 VNĐ', sugar: 50,  ice: 100, img: coldbrew },
+      { name: 'Bạc Xỉu Kem Xốp', qty: 1, price: '40.000 VNĐ', sugar: 100, ice: 25,  img: bacsiu },
+      { name: 'Caffee Latte',     qty: 1, price: '60.000 VNĐ', sugar: 50,  ice: 50,  img: latte }
+    ]
+  },
+])
 
   // ── Filter state ──
   const searchId       = ref('')

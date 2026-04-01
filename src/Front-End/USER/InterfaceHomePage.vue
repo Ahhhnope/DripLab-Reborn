@@ -13,7 +13,6 @@ import InterfaceFooter from './InterfaceFooter.vue'
         </main>
 
         <InterfaceFooter />
-
     </div>
 </template>
 

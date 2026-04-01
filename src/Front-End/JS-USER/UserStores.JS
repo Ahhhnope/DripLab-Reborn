@@ -10,24 +10,24 @@ export default {
       reviews: [
         {
           id: 1,
-          initials: "JS",
-          name: "James Sutherland",
+          initials: "NT",
+          name: "Nguyễn Thanh",
           stars: 5,
           date: "2 ngày trước",
           text: "Không khí ở đây tuyệt vời. Tôi đặc biệt thích ly pour-over từ cà phê Ethiopia single-origin. Nhân viên rất chuyên nghiệp và am hiểu về cà phê. Góc yên tĩnh lý tưởng để đọc sách buổi sáng.",
         },
         {
           id: 2,
-          initials: "EM",
-          name: "Elena Martinez",
+          initials: "LH",
+          name: "Lê Hoàng",
           stars: 4,
           date: "1 tuần trước",
-          text: "Latte art đẹp lắm! Hơi đông vào cuối tuần nhưng chờ xứng đáng vì chất lượng rang xay rất tốt. Tôi gợi ý dòng blend đặc trưng của Soho nếu bạn thích vị bùi bùi.",
+          text: "Latte art đẹp lắm! Hơi đông vào cuối tuần nhưng chờ xứng đáng vì chất lượng rang xay rất tốt. Tôi gợi ý dòng blend đặc trưng nếu bạn thích vị bùi bùi.",
         },
         {
           id: 3,
-          initials: "DK",
-          name: "David Kim",
+          initials: "PD",
+          name: "Phạm Dũng",
           stars: 5,
           date: "2 tuần trước",
           text: "Cold brew ngon nhất khu vực, không chỗ nào bì được. Thiết kế industrial chic rất thu hút. Tôi hay ngồi ở dãy ghế cạnh cửa sổ để ngắm phố.",
@@ -37,10 +37,10 @@ export default {
   },
 
   methods: {
-    // Mở Google Maps — thay link bằng địa chỉ thật
+    // Mở Google Maps — địa chỉ The Coffee House Tô Hiến Thành
     openMaps() {
       window.open(
-        "https://www.google.com/maps/search/?api=1&query=123+Coffee+Lane+New+York+NY+10012",
+        "https://maps.app.goo.gl/5jWiczqwrb4JGXt77",
         "_blank"
       );
     },
