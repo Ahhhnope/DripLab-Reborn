@@ -266,6 +266,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   transition: background 0.18s ease, border-color 0.18s ease;
+  white-space: nowrap;
 }
 
 .ud-btn .material-symbols-outlined {
@@ -285,16 +286,18 @@
 }
 
 .ud-register {
-  background-color: #3b6349;
-  border-color: #4a7a5a;
-  color: #fff;
+  background-color: #352e28;
+  border-color: rgba(180, 130, 80, 0.25);
+  color: #e8ddd0;
 }
 
 .ud-register:hover {
-  background-color: #4a7a5a;
+  background-color: #443a32;
+  border-color: rgba(180, 130, 80, 0.45);
+  color: #fff;
 }
 
-/* Active state cho ud-btn khi vừa click — tự reset sau navigate */
+
 .ud-btn.option-active {
   background-color: #3b6349;
   border-color: #4a7a5a;
@@ -312,17 +315,21 @@
 .menu-drop-enter-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
+
 .menu-drop-leave-active {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
+
 .menu-drop-enter-from {
   opacity: 0;
   transform: translateX(-50%) translateY(-10px);
 }
+
 .menu-drop-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(-6px);
 }
+
 .menu-drop-enter-to,
 .menu-drop-leave-from {
   opacity: 1;
@@ -332,17 +339,21 @@
 .user-drop-enter-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
+
 .user-drop-leave-active {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
+
 .user-drop-enter-from {
   opacity: 0;
   transform: translateY(-10px);
 }
+
 .user-drop-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }
+
 .user-drop-enter-to,
 .user-drop-leave-from {
   opacity: 1;
