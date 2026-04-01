@@ -9,7 +9,7 @@
             <img :src="user.avatar" alt="Avatar" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.name }}</h2>
-          <p class="sidebar-role">Premium Member</p>
+          <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
 
         <nav class="sidebar-nav">
@@ -25,7 +25,7 @@
 
           <a class="nav-item logout" @click="logout">
             <span class="material-symbols-outlined">logout</span>
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </a>
         </nav>
       </aside>
@@ -56,7 +56,7 @@
             <div class="form-grid three-col">
               <div class="form-group">
                 <label>Thành phố</label>
-                <input v-model="addressForm.city" type="text" placeholder="Hà Nội" />
+                <input value="Hà Nội" readonly />
               </div>
             </div>
 

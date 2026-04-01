@@ -5,10 +5,10 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
+            <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.name }}</h2>
-          <p class="sidebar-role">Premium Member</p>
+          <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
 
         <nav class="sidebar-nav">
@@ -21,19 +21,17 @@
             <span class="material-symbols-outlined">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
           </a>
-
           <div class="nav-divider"></div>
-
           <a class="nav-item logout" @click="logout">
             <span class="material-symbols-outlined">logout</span>
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </a>
         </nav>
       </aside>
 
       <!-- Main Content -->
       <main class="account-main">
-        <!-- Current Order Status -->
+        <!-- Trạng thái đơn hàng -->
         <section class="card">
           <h3 class="card-title">Trạng thái đơn hàng hiện tại</h3>
           <div class="order-steps">
@@ -55,9 +53,8 @@
           </div>
         </section>
 
-        <!-- Shipping + Active Order -->
+        <!-- Địa chỉ + Đơn hàng đang hoạt động -->
         <div class="order-grid">
-          <!-- Shipping Address -->
           <section class="card">
             <h3 class="card-title">
               <span class="material-symbols-outlined title-icon"
@@ -79,7 +76,7 @@
 
           <!-- Active Order Items -->
           <section class="card">
-            <h3 class="card-title">Đơn hàng đang hoạt động</h3>
+            <h3 class="card-title">Các mục đơn hàng đang hoạt động</h3>
             <div
               v-for="item in activeOrder"
               :key="item.id"
@@ -87,10 +84,37 @@
             >
               <div class="active-order-info">
                 <h4>Mã đơn hàng: {{ item.name }}</h4>
-                <div class="active-order-bottom">
-                  <div>
-                    <p class="active-order-price">{{ item.price }}</p>
+                <div class="active-drink-list">
+                  <div
+                    v-for="(drink, i) in item.receiptData.items"
+                    :key="i"
+                    class="active-drink-row"
+                  >
+                    <div class="active-drink-img">
+                      <img :src="drink.img" :alt="drink.name" />
+                    </div>
+                    <div class="active-drink-info">
+                      <p class="active-drink-name">{{ drink.name }}</p>
+                      <p class="active-drink-qty">Số lượng: x{{ drink.qty }}</p>
+                      <div class="item-options">
+                        <span class="option-tag sugar">
+                          <span class="material-symbols-outlined"
+                            >nutrition</span
+                          >
+                          Đường: {{ drink.sugar }}%
+                        </span>
+                        <span class="option-tag ice">
+                          <span class="material-symbols-outlined">ac_unit</span>
+                          Đá: {{ drink.ice }}%
+                        </span>
+                      </div>
+                    </div>
+                    <p class="active-drink-price">{{ drink.price }}</p>
                   </div>
+                </div>
+
+                <div class="active-order-bottom">
+                  <p class="active-order-price">Tổng: {{ item.price }}</p>
                   <button
                     class="view-detail-btn"
                     @click="openModal(item.receiptData)"
@@ -103,14 +127,61 @@
           </section>
         </div>
 
-        <!-- Receipts Table -->
+        <!-- Hóa đơn -->
         <section class="card receipts-card">
           <div class="receipts-header">
             <h3 class="card-title">Hóa đơn của tôi</h3>
-            <button class="filter-btn">
+            <button class="filter-btn" @click="showFilter = !showFilter">
               <span class="material-symbols-outlined">filter_list</span>
               Lọc
             </button>
+          </div>
+
+          <div v-if="showFilter" class="filter-panel">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label>Tìm theo mã</label>
+                <input
+                  v-model="searchId"
+                  type="text"
+                  placeholder="VD: #DL-9283"
+                />
+              </div>
+
+              <div class="filter-group">
+                <label>Danh mục</label>
+                <select v-model="filterCategory">
+                  <option value="">Tất cả</option>
+                  <option
+                    v-for="cat in categoryOptions"
+                    :key="cat"
+                    :value="cat"
+                  >
+                    {{ cat }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label>Từ ngày</label>
+                <input type="date" v-model="filterFromDate" />
+              </div>
+
+              <div class="filter-group">
+                <label>Đến ngày</label>
+                <input type="date" v-model="filterToDate" />
+              </div>
+            </div>
+
+            <div class="filter-actions">
+              <button class="filter-apply-btn" @click="applyFilter">
+                <span class="material-symbols-outlined">search</span>
+                Áp dụng
+              </button>
+              <button class="filter-reset-btn" @click="resetFilter">
+                Xóa bộ lọc
+              </button>
+            </div>
           </div>
 
           <div class="receipts-table-wrapper">
@@ -124,6 +195,12 @@
                 </tr>
               </thead>
               <tbody>
+                <tr v-if="receipts.length === 0">
+                  <td colspan="4" class="empty-result">
+                    <span class="material-symbols-outlined">search_off</span>
+                    <p>Không tìm thấy đơn hàng phù hợp</p>
+                  </td>
+                </tr>
                 <tr
                   v-for="receipt in receipts"
                   :key="receipt.id"
@@ -154,7 +231,6 @@
             </table>
           </div>
 
-          
           <div class="receipts-footer">
             <button v-if="hasMore" class="load-more-btn" @click="loadMore">
               <span class="material-symbols-outlined">expand_more</span>
@@ -192,14 +268,25 @@
             <div class="modal-product-info">
               <h4>{{ item.name }}</h4>
               <p>Số lượng: x{{ item.qty }}</p>
+              <div class="item-options">
+                <span class="option-tag sugar">
+                  <span class="material-symbols-outlined">nutrition</span>
+                  Đường: {{ item.sugar }}%
+                </span>
+                <span class="option-tag ice">
+                  <span class="material-symbols-outlined">ac_unit</span>
+                  Đá: {{ item.ice }}%
+                </span>
+              </div>
             </div>
+
             <p class="modal-product-price">{{ item.price }}</p>
           </div>
         </div>
 
         <div class="modal-summary">
           <div class="summary-row">
-            <span>Tổng phụ</span>
+            <span>Tạm tính</span>
             <span>{{ selectedReceipt.subtotal }}</span>
           </div>
           <div class="summary-row">
@@ -207,12 +294,10 @@
             <span>{{ selectedReceipt.tax }}</span>
           </div>
           <div class="summary-row total-row">
-            <span>Tổng giá tiền</span>
+            <span>Tổng cộng</span>
             <span class="total-price">{{ selectedReceipt.total }}</span>
           </div>
-          <button class="modal-close-main-btn" @click="closeModal">
-            Close Details
-          </button>
+          <button class="modal-close-main-btn" @click="closeModal">Đóng</button>
         </div>
       </div>
     </div>
@@ -223,13 +308,30 @@
 import { useUserOrders } from "../JS-USER/UserOrders.JS";
 
 const {
-  user, navItems, currentRoute,
-  orderSteps, progressWidth,
-  shipping, activeOrder,
-  receipts, hasMore, loadMore,
-  showModal, selectedReceipt,
-  openModal, closeModal,
-  goTo, logout
+  user,
+  navItems,
+  currentRoute,
+  orderSteps,
+  progressWidth,
+  shipping,
+  activeOrder,
+  receipts,
+  hasMore,
+  loadMore,
+  searchId,
+  filterCategory,
+  filterFromDate,
+  filterToDate,
+  showFilter,
+  categoryOptions,
+  applyFilter,
+  resetFilter,
+  showModal,
+  selectedReceipt,
+  openModal,
+  closeModal,
+  goTo,
+  logout,
 } = useUserOrders();
 </script>
 
