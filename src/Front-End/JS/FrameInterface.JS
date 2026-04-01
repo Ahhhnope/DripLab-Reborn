@@ -50,7 +50,7 @@ export function useAdminMenu() {
         {
             title: 'Quản lý hệ thống',
             items: [
-                { id: 4, label: 'Tin tức', icon: NewspaperIcon, path: '/QuanLyTinTuc' },
+
                 { id: 5, label: 'Khuyến mãi', icon: TicketIcon, path: '/QuanLyKhuyenMai' },
                 { 
                     id: 8, label: 'Tài khoản', icon: UserCircleIcon,
