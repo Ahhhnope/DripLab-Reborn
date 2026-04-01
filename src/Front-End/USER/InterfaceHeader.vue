@@ -69,7 +69,7 @@ const {
           </Transition>
         </div>
 
-        <RouterLink to="/about"  class="nav-link">Về Chúng Tôi</RouterLink>
+        <RouterLink to="/AboutUS"  class="nav-link">Về Chúng Tôi</RouterLink>
         <RouterLink to="/voucher"   class="nav-link">Khuyến Mãi</RouterLink>
         <RouterLink to="/stores" class="nav-link">Cửa hàng</RouterLink>
       </nav>
