@@ -14,7 +14,7 @@
       <!-- CỘT TRÁI: Thông tin cửa hàng -->
       <div class="info-col">
         <div class="store-title-block">
-          <h2 class="store-name">The Coffee House - Hà Nội</h2>
+          <h2 class="store-name">Drip Lab - Hà Nội</h2>
           <p class="store-sub">Rang Xay Đặc Trưng &amp; Phòng Thử Nghiệm</p>
         </div>
 

@@ -37,7 +37,7 @@ const {
           @mouseenter="onMenuEnter"
           @mouseleave="onMenuLeave"
         >
-          <span class="nav-link menu-trigger" :class="{ 'nav-active': showMenuDropdown }">MENU</span>
+          <span class="nav-link menu-trigger" :class="{ 'nav-active': showMenuDropdown }">Thực đơn</span>
 
           <Transition name="menu-drop">
             <div
@@ -53,7 +53,7 @@ const {
                 @click="setActiveOption('buy')"
               >
                 <i class='bx bxs-cart'></i>
-                <span>BUY NOW</span>
+                <span>Mua Ngay</span>
               </RouterLink>
 
               <RouterLink
@@ -63,15 +63,15 @@ const {
                 @click="setActiveOption('custom')"
               >
                 <i class='bx bxs-coffee-togo'></i>
-                <span>CUSTOMIZE</span>
+                <span>Tự Pha Chế</span>
               </RouterLink>
             </div>
           </Transition>
         </div>
 
-        <RouterLink to="/about"  class="nav-link">ABOUT US</RouterLink>
-        <RouterLink to="/news"   class="nav-link">NEWS</RouterLink>
-        <RouterLink to="/stores" class="nav-link">STORES</RouterLink>
+        <RouterLink to="/about"  class="nav-link">Về Chúng Tôi</RouterLink>
+        <RouterLink to="/voucher"   class="nav-link">Khuyến Mãi</RouterLink>
+        <RouterLink to="/stores" class="nav-link">Cửa hàng</RouterLink>
       </nav>
 
       <!-- Actions -->
@@ -107,7 +107,7 @@ const {
                   @click="goToLogin"
                 >
                   <span class="material-symbols-outlined">login</span>
-                  <span>Login</span>
+                  <span>Đăng nhập</span>
                 </button>
                 <button
                   class="ud-btn ud-register"
