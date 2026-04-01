@@ -1,0 +1,1070 @@
+/* ============================================================
+   cart.css – Giao diện Giỏ Hàng Cà Phê
+   Design: Warm luxury / refined Vietnamese café aesthetic
+   ✅ FIXED: Removed body reset, removed .app-header (dùng layout wrapper)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --cream: #f4ede0;
+  --cream-light: #faf6ef;
+  --warm-white: #fffdf9;
+  --espresso: #231009;
+  --dark-brown: #3a1a08;
+  --medium-brown: #6b3a22;
+  --caramel: #c47d2b;
+  --caramel-light: #e09940;
+  --gold: #d4a017;
+  --gold-faint: #f5e8c8;
+  --text-main: #231009;
+  --text-secondary: #6b4e35;
+  --text-muted: #a08060;
+  --border: #e2d0b8;
+  --border-light: #ede5d8;
+  --card-bg: #ffffff;
+  --shadow-sm: 0 2px 12px rgba(35,16,9,0.07);
+  --shadow-md: 0 6px 28px rgba(35,16,9,0.11);
+  --shadow-lg: 0 16px 56px rgba(35,16,9,0.18);
+  --radius-card: 20px;
+  --radius-btn: 12px;
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Reset chỉ trong scope cart ── */
+.cart-page *, .cart-page *::before, .cart-page *::after {
+  box-sizing: border-box;
+}
+
+/* ================================================================
+   ✅ CART PAGE WRAPPER — thay thế body reset
+   Bọc toàn bộ content trang cart trong <div class="cart-page">
+   ================================================================ */
+.cart-page {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background-color: var(--cream);
+  color: var(--text-main);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 5% 0%, rgba(196,125,43,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 80% at 95% 100%, rgba(35,16,9,0.08) 0%, transparent 55%);
+  line-height: 1.6;
+}
+
+/* ================================================================
+   MAIN LAYOUT
+   ================================================================ */
+.cart-layout {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px 24px 80px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 36px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================================================
+   LEFT COLUMN – CART ITEMS
+   ================================================================ */
+.cart-section-header {
+  margin-bottom: 28px;
+}
+
+.cart-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--espresso);
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+.cart-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cart-count {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Select all */
+.select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 16px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  user-select: none;
+}
+
+.select-all-label:hover {
+  border-color: var(--caramel);
+  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+  background: var(--cream-light);
+}
+
+/* ── Custom checkbox ── */
+.custom-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  background: #fff;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.custom-checkbox:checked {
+  background: var(--caramel);
+  border-color: var(--caramel);
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 6px;
+  width: 5px; height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+/* ── Custom radio ── */
+.custom-radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  background: #fff;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.custom-radio:checked {
+  border-color: var(--caramel);
+}
+
+.custom-radio:checked::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--caramel);
+}
+
+/* ── Cart list ── */
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Cart card ── */
+.cart-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: 28px 110px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid transparent;
+  transition: box-shadow var(--transition), border-color var(--transition), transform var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.cart-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: linear-gradient(180deg, var(--caramel), var(--gold));
+  border-radius: var(--radius-card) 0 0 var(--radius-card);
+  transition: width var(--transition);
+}
+
+.cart-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.cart-card.is-selected {
+  border-color: var(--caramel);
+}
+
+.cart-card.is-selected::before {
+  width: 4px;
+}
+
+/* Card sections */
+.card-radio-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image-wrap {
+  width: 110px;
+  height: 110px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--cream);
+}
+
+.card-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.cart-card:hover .card-image-wrap img {
+  transform: scale(1.06);
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--espresso);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+/* Tags */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.tag-topping {
+  background: #fff8ed;
+  border-color: #f0d08a;
+  color: #8a6010;
+}
+
+.tag-sugar {
+  background: #f0f8ff;
+  border-color: #b8d8f0;
+  color: #3a6a8a;
+}
+
+.tag-ice {
+  background: #f0fcff;
+  border-color: #a8e0f0;
+  color: #2a7090;
+}
+
+.card-specs {
+  display: flex;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.card-spec {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.spec-icon { font-size: 0.9rem; }
+
+/* Card right */
+.card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  min-width: 140px;
+}
+
+.card-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--caramel);
+  white-space: nowrap;
+}
+
+/* Quantity control */
+.qty-control {
+  display: flex;
+  align-items: center;
+  background: var(--cream-light);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.qty-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--medium-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+
+.qty-btn:hover {
+  background: var(--caramel);
+  color: #fff;
+}
+
+.qty-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.qty-btn:disabled:hover {
+  background: transparent;
+  color: var(--medium-brown);
+}
+
+.qty-value {
+  width: 36px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--espresso);
+  border-left: 1px solid var(--border-light);
+  border-right: 1px solid var(--border-light);
+  padding: 6px 0;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Delete button */
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #b0937a;
+  padding: 5px 8px;
+  border-radius: 8px;
+  transition: background var(--transition), color var(--transition);
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.delete-btn:hover {
+  background: #fff0ef;
+  color: #d93025;
+}
+
+/* Empty state */
+.empty-cart {
+  text-align: center;
+  padding: 100px 20px;
+  color: var(--text-muted);
+}
+
+.empty-cart .empty-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 14px;
+  opacity: 0.6;
+}
+
+.empty-cart p {
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* ================================================================
+   RIGHT COLUMN – ORDER SUMMARY
+   ================================================================ */
+.order-summary-box {
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 28px 26px;
+  box-shadow: var(--shadow-md);
+  border: 1.5px solid var(--border-light);
+  position: sticky;
+  top: 84px; /* 64px header + 20px gap */
+}
+
+.summary-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--espresso);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Selected items preview */
+.selected-preview {
+  margin-bottom: 18px;
+  min-height: 40px;
+}
+
+.preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--border-light);
+  font-size: 0.86rem;
+  gap: 12px;
+}
+
+.preview-item:last-child { border-bottom: none; }
+
+.preview-name {
+  color: var(--text-main);
+  font-weight: 500;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.preview-qty {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.preview-price {
+  color: var(--caramel);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+  font-style: italic;
+  padding: 14px 0;
+}
+
+/* Summary rows */
+.summary-rows {
+  border-top: 1.5px solid var(--border-light);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.87rem;
+  color: var(--text-muted);
+  margin-bottom: 9px;
+}
+
+.summary-row.total {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--espresso);
+  margin-top: 12px;
+  margin-bottom: 0;
+  padding-top: 12px;
+  border-top: 1.5px solid var(--border);
+}
+
+.summary-row.total .amount {
+  color: var(--caramel);
+}
+
+/* Checkout button */
+.btn-checkout {
+  width: 100%;
+  margin-top: 22px;
+  background: var(--espresso);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 16px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 4px 18px rgba(35,16,9,0.25);
+}
+
+.btn-checkout:hover:not(:disabled) {
+  background: var(--dark-brown);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(35,16,9,0.35);
+}
+
+.btn-checkout:disabled {
+  background: #c8bfb5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ================================================================
+   CONFIRM DELETE DIALOG
+   ================================================================ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,6,2,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease;
+}
+
+.confirm-dialog {
+  background: var(--warm-white);
+  border-radius: 20px;
+  padding: 36px 32px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  animation: slideUp 0.25s ease;
+}
+
+.confirm-icon { font-size: 2.4rem; margin-bottom: 10px; }
+
+.confirm-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--espresso);
+  margin-bottom: 8px;
+}
+
+.confirm-msg {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.confirm-product-name {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.btn-cancel:hover {
+  background: var(--cream);
+  border-color: var(--caramel);
+}
+
+.btn-confirm-delete {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: #d93025;
+  border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.btn-confirm-delete:hover {
+  background: #b71c1c;
+  transform: translateY(-1px);
+}
+
+/* ================================================================
+   ORDER REVIEW MODAL
+   ================================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,6,2,0.65);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-box {
+  background: var(--warm-white);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 24px 28px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  background: var(--warm-white);
+  z-index: 2;
+  border-radius: 24px 24px 0 0;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--espresso);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), color var(--transition);
+}
+
+.modal-close-btn:hover {
+  background: var(--cream);
+  color: var(--espresso);
+}
+
+.modal-body {
+  padding: 24px 28px;
+  flex: 1;
+}
+
+/* Modal sections */
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--caramel);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+
+/* Modal order items */
+.modal-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border-light);
+  gap: 12px;
+}
+
+.modal-order-item:last-child { border-bottom: none; }
+
+.moi-info { flex: 1; }
+
+.moi-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--espresso);
+  margin-bottom: 3px;
+}
+
+.moi-detail {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.moi-price {
+  font-weight: 700;
+  color: var(--caramel);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Coupon input */
+.coupon-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 11px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  background: var(--card-bg);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.coupon-input:focus {
+  border-color: var(--caramel);
+  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+}
+
+.coupon-input::placeholder {
+  text-transform: none;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+.btn-apply-coupon {
+  padding: 11px 18px;
+  background: var(--gold-faint);
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--dark-brown);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+  white-space: nowrap;
+}
+
+.btn-apply-coupon:hover {
+  background: var(--caramel);
+  color: #fff;
+  border-color: var(--caramel);
+  transform: translateY(-1px);
+}
+
+.coupon-feedback {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  display: inline-block;
+}
+
+.coupon-feedback.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.coupon-feedback.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Payment method */
+.payment-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.payment-option {
+  border: 2px solid var(--border-light);
+  border-radius: 14px;
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-option:hover {
+  border-color: var(--caramel-light);
+  background: var(--cream-light);
+}
+
+.payment-option.active {
+  border-color: var(--caramel);
+  background: #fff8ec;
+  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+}
+
+.payment-icon { font-size: 1.8rem; }
+
+.payment-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.payment-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+/* Modal footer */
+.modal-footer {
+  padding: 18px 28px 24px;
+  border-top: 1.5px solid var(--border-light);
+  background: var(--cream-light);
+  border-radius: 0 0 24px 24px;
+  position: sticky;
+  bottom: 0;
+}
+
+.grand-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.gt-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.gt-amount {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--caramel);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-place-order {
+  width: 100%;
+  background: var(--espresso);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 17px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 4px 20px rgba(35,16,9,0.3);
+}
+
+.btn-place-order:hover {
+  background: var(--dark-brown);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(35,16,9,0.4);
+}
+
+.modal-terms {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+/* ================================================================
+   SUCCESS MODAL
+   ================================================================ */
+.success-modal {
+  background: var(--warm-white);
+  border-radius: 24px;
+  padding: 50px 36px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.success-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.success-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--espresso);
+  margin-bottom: 8px;
+}
+
+.success-order-id {
+  display: inline-block;
+  background: var(--gold-faint);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 4px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--dark-brown);
+  margin-bottom: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.success-msg {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.btn-success-ok {
+  padding: 13px 36px;
+  background: var(--espresso);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.btn-success-ok:hover {
+  background: var(--dark-brown);
+  transform: translateY(-1px);
+}
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Vue transitions */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.slide-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.slide-leave-active { transition: all 0.2s ease; }
+.slide-enter-from { opacity: 0; transform: translateY(20px); }
+.slide-leave-to { opacity: 0; transform: translateX(-20px); }
+
+/* Scrollbar */
+.modal-box::-webkit-scrollbar { width: 6px; }
+.modal-box::-webkit-scrollbar-track { background: transparent; }
+.modal-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

@@ -4,9 +4,12 @@
     display: flex;
     flex-direction: column;
     background-color: #FAF7F0;
+    isolation: isolate;
 }
 
 .user-content {
     flex: 1;
     margin-top: 64px;
+    position: relative;
+    z-index: 0;
 }
