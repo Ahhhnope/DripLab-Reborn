@@ -1,10 +1,10 @@
 /* ============================================================
    cart.css – Giao diện Giỏ Hàng Cà Phê
    Design: Warm luxury / refined Vietnamese café aesthetic
-   ✅ FIXED: Removed body reset, removed .app-header (dùng layout wrapper)
+   Font: Manrope + Georgia
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 /* ── CSS Variables ── */
 :root {
@@ -24,31 +24,32 @@
   --border: #e2d0b8;
   --border-light: #ede5d8;
   --card-bg: #ffffff;
-  --shadow-sm: 0 2px 12px rgba(35,16,9,0.07);
-  --shadow-md: 0 6px 28px rgba(35,16,9,0.11);
-  --shadow-lg: 0 16px 56px rgba(35,16,9,0.18);
+  --shadow-sm: 0 2px 12px rgba(35, 16, 9, 0.07);
+  --shadow-md: 0 6px 28px rgba(35, 16, 9, 0.11);
+  --shadow-lg: 0 16px 56px rgba(35, 16, 9, 0.18);
   --radius-card: 20px;
   --radius-btn: 12px;
   --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Reset chỉ trong scope cart ── */
-.cart-page *, .cart-page *::before, .cart-page *::after {
+.cart-page *,
+.cart-page *::before,
+.cart-page *::after {
   box-sizing: border-box;
 }
 
 /* ================================================================
-   ✅ CART PAGE WRAPPER — thay thế body reset
-   Bọc toàn bộ content trang cart trong <div class="cart-page">
+   CART PAGE WRAPPER
    ================================================================ */
 .cart-page {
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   background-color: var(--cream);
   color: var(--text-main);
   min-height: 100vh;
   background-image:
-    radial-gradient(ellipse 80% 60% at 5% 0%, rgba(196,125,43,0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 80% at 95% 100%, rgba(35,16,9,0.08) 0%, transparent 55%);
+    radial-gradient(ellipse 80% 60% at 5% 0%, rgba(196, 125, 43, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 80% at 95% 100%, rgba(35, 16, 9, 0.08) 0%, transparent 55%);
   line-height: 1.6;
 }
 
@@ -79,7 +80,7 @@
 }
 
 .cart-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 2.4rem;
   font-weight: 900;
   color: var(--espresso);
@@ -120,7 +121,7 @@
 
 .select-all-label:hover {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+  box-shadow: 0 0 0 3px rgba(196, 125, 43, 0.12);
   background: var(--cream-light);
 }
 
@@ -146,8 +147,10 @@
 .custom-checkbox:checked::after {
   content: '';
   position: absolute;
-  top: 3px; left: 6px;
-  width: 5px; height: 9px;
+  top: 3px;
+  left: 6px;
+  width: 5px;
+  height: 9px;
   border: 2px solid #fff;
   border-top: none;
   border-left: none;
@@ -175,8 +178,10 @@
 .custom-radio:checked::after {
   content: '';
   position: absolute;
-  top: 3px; left: 3px;
-  width: 10px; height: 10px;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--caramel);
 }
@@ -207,7 +212,9 @@
 .cart-card::before {
   content: '';
   position: absolute;
-  left: 0; top: 0; bottom: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: 0;
   background: linear-gradient(180deg, var(--caramel), var(--gold));
   border-radius: var(--radius-card) 0 0 var(--radius-card);
@@ -260,7 +267,7 @@
 }
 
 .card-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--espresso);
@@ -320,7 +327,9 @@
   font-weight: 400;
 }
 
-.spec-icon { font-size: 0.9rem; }
+.spec-icon {
+  font-size: 0.9rem;
+}
 
 /* Card right */
 .card-right {
@@ -332,7 +341,7 @@
 }
 
 .card-price {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--caramel);
@@ -406,7 +415,7 @@
   padding: 5px 8px;
   border-radius: 8px;
   transition: background var(--transition), color var(--transition);
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
 }
 
 .delete-btn:hover {
@@ -443,11 +452,11 @@
   box-shadow: var(--shadow-md);
   border: 1.5px solid var(--border-light);
   position: sticky;
-  top: 84px; /* 64px header + 20px gap */
+  top: 84px;
 }
 
 .summary-heading {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--espresso);
@@ -475,7 +484,9 @@
   gap: 12px;
 }
 
-.preview-item:last-child { border-bottom: none; }
+.preview-item:last-child {
+  border-bottom: none;
+}
 
 .preview-name {
   color: var(--text-main);
@@ -520,7 +531,7 @@
 }
 
 .summary-row.total {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--espresso);
@@ -543,7 +554,7 @@
   border: none;
   border-radius: var(--radius-btn);
   padding: 16px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -553,13 +564,13 @@
   justify-content: center;
   gap: 10px;
   transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-  box-shadow: 0 4px 18px rgba(35,16,9,0.25);
+  box-shadow: 0 4px 18px rgba(35, 16, 9, 0.25);
 }
 
 .btn-checkout:hover:not(:disabled) {
   background: var(--dark-brown);
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(35,16,9,0.35);
+  box-shadow: 0 8px 28px rgba(35, 16, 9, 0.35);
 }
 
 .btn-checkout:disabled {
@@ -574,7 +585,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15,6,2,0.6);
+  background: rgba(15, 6, 2, 0.6);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -595,10 +606,13 @@
   animation: slideUp 0.25s ease;
 }
 
-.confirm-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.confirm-icon {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
 
 .confirm-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--espresso);
@@ -629,7 +643,7 @@
   border: 1.5px solid var(--border);
   background: transparent;
   border-radius: 10px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -648,7 +662,7 @@
   border: none;
   background: #d93025;
   border-radius: 10px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: #fff;
@@ -667,7 +681,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15,6,2,0.65);
+  background: rgba(15, 6, 2, 0.65);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -704,7 +718,7 @@
 }
 
 .modal-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.25rem;
   font-weight: 900;
   color: var(--espresso);
@@ -771,12 +785,16 @@
   gap: 12px;
 }
 
-.modal-order-item:last-child { border-bottom: none; }
+.modal-order-item:last-child {
+  border-bottom: none;
+}
 
-.moi-info { flex: 1; }
+.moi-info {
+  flex: 1;
+}
 
 .moi-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-weight: 700;
   font-size: 0.98rem;
   color: var(--espresso);
@@ -807,7 +825,7 @@
   padding: 11px 16px;
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   color: var(--text-main);
   background: var(--card-bg);
@@ -819,7 +837,7 @@
 
 .coupon-input:focus {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+  box-shadow: 0 0 0 3px rgba(196, 125, 43, 0.12);
 }
 
 .coupon-input::placeholder {
@@ -833,7 +851,7 @@
   background: var(--gold-faint);
   border: 1.5px solid var(--gold);
   border-radius: 10px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--dark-brown);
@@ -873,6 +891,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
 .payment-option {
@@ -896,10 +915,12 @@
 .payment-option.active {
   border-color: var(--caramel);
   background: #fff8ec;
-  box-shadow: 0 0 0 3px rgba(196,125,43,0.12);
+  box-shadow: 0 0 0 3px rgba(196, 125, 43, 0.12);
 }
 
-.payment-icon { font-size: 1.8rem; }
+.payment-icon {
+  font-size: 1.8rem;
+}
 
 .payment-label {
   font-size: 0.82rem;
@@ -913,7 +934,316 @@
   margin-top: -4px;
 }
 
-/* Modal footer */
+/* ================================================================
+   TRANSFER – Giống MoMo bên CounterOrder
+   ================================================================ */
+.transfer-section {
+  margin-top: 4px;
+}
+
+/* Header chuyển khoản */
+.transfer-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #e8f4fd, #f0f8ff);
+  border-radius: 12px;
+  padding: 14px 18px;
+  border: 1px solid #b8d8f0;
+  margin-bottom: 16px;
+}
+
+.transfer-header-icon {
+  font-size: 2.4rem;
+  flex-shrink: 0;
+}
+
+.transfer-brand {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin: 0;
+}
+
+.transfer-amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--caramel);
+  margin: 2px 0 0;
+  font-family: 'Georgia', 'Manrope', serif;
+  letter-spacing: -0.5px;
+}
+
+.transfer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transfer-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Input SĐT */
+.transfer-input-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  background: white;
+  height: 48px;
+}
+
+.transfer-input-wrap.loading {
+  border-color: #bbb;
+}
+
+.transfer-input-wrap.found {
+  border-color: #4caf50;
+}
+
+.transfer-input-wrap.error {
+  border-color: #e53935;
+}
+
+.transfer-input-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  background: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.transfer-input {
+  flex: 1;
+  padding: 0 12px;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  background: transparent;
+  height: 100%;
+  font-family: 'Manrope', 'Georgia', sans-serif;
+}
+
+/* Icon trạng thái */
+.transfer-status-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.transfer-status-icon.green {
+  color: #4caf50;
+}
+
+.transfer-status-icon.red {
+  color: #e53935;
+}
+
+.transfer-status-icon.spin {
+  color: var(--caramel);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card tên tìm thấy */
+.transfer-found-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f1f8e9;
+  border: 1px solid #c5e1a5;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.transfer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--caramel), var(--gold));
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Manrope', 'Georgia', sans-serif;
+}
+
+.transfer-found-info {
+  flex: 1;
+}
+
+.transfer-found-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.transfer-found-phone {
+  font-size: 12px;
+  color: #888;
+  margin: 2px 0 0;
+}
+
+.transfer-verified {
+  font-size: 11px;
+  color: #2e7d32;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.transfer-error-msg {
+  font-size: 13px;
+  color: #c62828;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Bước 2: Xử lý */
+.transfer-processing-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--caramel);
+  background: var(--gold-faint);
+  border-radius: 8px;
+  padding: 10px 16px;
+}
+
+.transfer-processing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--caramel);
+  animation: pulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
+}
+
+/* Card xác nhận */
+.transfer-confirm-card {
+  background: var(--cream-light);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.transfer-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.transfer-confirm-label {
+  color: var(--text-muted);
+}
+
+.transfer-confirm-val {
+  color: var(--espresso);
+  font-weight: 600;
+  text-align: right;
+  max-width: 240px;
+}
+
+.transfer-confirm-val.bold {
+  font-weight: 800;
+}
+
+.transfer-confirm-val.blue {
+  color: var(--caramel);
+  font-size: 16px;
+}
+
+/* Footer buttons chuyển khoản */
+.transfer-footer-btns {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.btn-back-transfer {
+  flex: 0 0 auto;
+  padding: 17px 20px;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  font-family: 'Manrope', 'Georgia', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+
+.btn-back-transfer:hover {
+  background: var(--cream);
+  border-color: var(--caramel);
+}
+
+/* Slide down transition */
+.slide-down-enter-active {
+  transition: all 0.25s ease;
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.slide-down-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================================================================
+   MODAL FOOTER
+   ================================================================ */
 .modal-footer {
   padding: 18px 28px 24px;
   border-top: 1.5px solid var(--border-light);
@@ -939,7 +1269,7 @@
 }
 
 .gt-amount {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.8rem;
   font-weight: 900;
   color: var(--caramel);
@@ -953,20 +1283,26 @@
   border: none;
   border-radius: 14px;
   padding: 17px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-  box-shadow: 0 4px 20px rgba(35,16,9,0.3);
+  box-shadow: 0 4px 20px rgba(35, 16, 9, 0.3);
 }
 
-.btn-place-order:hover {
+.btn-place-order:hover:not(:disabled) {
   background: var(--dark-brown);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(35,16,9,0.4);
+  box-shadow: 0 8px 30px rgba(35, 16, 9, 0.4);
+}
+
+.btn-place-order:disabled {
+  background: #c8bfb5;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .modal-terms {
@@ -997,7 +1333,7 @@
 }
 
 .success-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.6rem;
   font-weight: 900;
   color: var(--espresso);
@@ -1030,7 +1366,7 @@
   color: #fff;
   border: none;
   border-radius: 12px;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
@@ -1046,25 +1382,66 @@
    ANIMATIONS
    ================================================================ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Vue transitions */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
 
-.slide-enter-active { transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.slide-leave-active { transition: all 0.2s ease; }
-.slide-enter-from { opacity: 0; transform: translateY(20px); }
-.slide-leave-to { opacity: 0; transform: translateX(-20px); }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slide-leave-active {
+  transition: all 0.2s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
 
 /* Scrollbar */
-.modal-box::-webkit-scrollbar { width: 6px; }
-.modal-box::-webkit-scrollbar-track { background: transparent; }
-.modal-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.modal-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
