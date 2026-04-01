@@ -418,3 +418,388 @@
 .confirm-topping-btn:hover {
   background: #16a34a !important;
 }
+
+/* ── Discount Select ── */
+.discount-select {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  background: white;
+  color: #374151;
+  transition: border-color 0.2s;
+}
+
+.discount-select:focus { border-color: #4caf50; }
+
+/* ── Payment Popup ── */
+.payment-popup {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  width: 420px;
+  max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  color: #1f2937;
+}
+
+.payment-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 18px;
+  color: #111827;
+}
+
+.payment-methods {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.payment-method-item {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.payment-method-item.active {
+  border-color: #4caf50;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.momo-tab-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.payment-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #374151;
+}
+
+.summary-row.highlight strong { color: #4caf50; font-size: 15px; }
+
+.inline-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.inline-input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  width: 120px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.inline-input-suffix {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.cash-insufficient {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.payment-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover { background: #f9fafb; }
+
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4caf50;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-confirm:hover { background: #3e8e41; }
+.btn-confirm.disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-confirm.momo-btn { background: #ae2070; }
+.btn-confirm.momo-btn:hover { background: #8f1a5c; }
+
+/* ── MoMo ── */
+.momo-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fdf0f7;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.momo-logo { width: 44px; height: 44px; object-fit: contain; }
+.momo-brand { font-size: 12px; color: #ae2070; font-weight: 700; }
+.momo-amount { font-size: 18px; font-weight: 800; color: #111827; }
+
+.momo-body { display: flex; flex-direction: column; gap: 12px; }
+.momo-label { font-size: 13px; font-weight: 700; color: #374151; }
+
+.momo-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: border-color 0.2s;
+}
+
+.momo-input-wrap.found   { border-color: #4caf50; }
+.momo-input-wrap.error   { border-color: #ef4444; }
+.momo-input-wrap.loading { border-color: #f59e0b; }
+
+.momo-input-prefix { font-size: 13px; color: #6b7280; white-space: nowrap; }
+
+.momo-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.momo-status-icon { font-size: 16px; font-weight: 700; }
+.momo-status-icon.green { color: #4caf50; }
+.momo-status-icon.red   { color: #ef4444; }
+.momo-status-icon.spin  { color: #f59e0b; animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.momo-found-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.momo-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #ae2070;
+  color: white;
+  font-weight: 800;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.momo-found-name  { font-size: 13px; font-weight: 700; color: #111827; }
+.momo-found-phone { font-size: 12px; color: #6b7280; }
+.momo-verified    { font-size: 11px; font-weight: 700; color: #4caf50; margin-left: auto; }
+.momo-error-msg   { font-size: 12px; color: #ef4444; font-weight: 600; }
+
+.momo-processing-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ae2070;
+}
+
+.momo-processing-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ae2070;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.momo-confirm-card {
+  background: #fdf0f7;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.momo-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.momo-confirm-label { color: #6b7280; }
+.momo-confirm-val   { font-weight: 700; color: #111827; }
+.momo-confirm-val.bold { font-weight: 800; }
+.momo-confirm-val.pink { color: #ae2070; }
+
+/* Slide animation */
+.slide-down-enter-active, .slide-down-leave-active { transition: all 0.3s ease; }
+.slide-down-enter-from, .slide-down-leave-to { opacity: 0; transform: translateY(-8px); }
+
+/* ── Success Popup ── */
+.success-popup {
+  background: #fff;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 95vw;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  color: #1f2937;
+}
+
+.success-header {
+  background: #ae2070;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.success-header--cash { background: #4caf50; }
+.success-header-title { font-size: 14px; font-weight: 700; color: white; }
+
+.success-body { padding: 24px; }
+
+.success-icon-wrap { display: flex; justify-content: center; margin-bottom: 12px; }
+
+.success-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: #4caf50;
+  color: white;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(76,175,80,0.3);
+}
+
+.success-title  { text-align: center; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.success-amount { text-align: center; font-size: 24px; font-weight: 800; color: #4caf50; margin-bottom: 16px; }
+
+.success-info {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.success-receipt {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.success-receipt-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.success-receipt-header--cash { background: none; }
+
+.receipt-logo  { width: 28px; height: 28px; object-fit: contain; }
+.receipt-label { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.success-row.b span:last-child { font-weight: 700; }
+
+.tx-id { font-size: 11px; color: #9ca3af; }
+.tx-id.pink { color: #ae2070; }
+
+.receipt-divider { height: 1px; background: #e5e7eb; margin: 10px 0; }
+
+.cash-need   { color: #111827; font-weight: 800 !important; }
+.cash-change { color: #4caf50; font-weight: 800 !important; }
+
+.success-close-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ae2070;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.success-close-btn--cash { background: #4caf50; }
+.success-close-btn:hover { opacity: 0.9; }
