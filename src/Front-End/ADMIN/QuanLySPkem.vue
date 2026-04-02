@@ -29,9 +29,9 @@
           <tr v-for="(row, i) in pagedRows" :key="row.id">
             <td>{{ pageStart + i + 1 }}</td>
             <td><span class="badge-id">{{ row.id }}</span></td>
-            <td>{{ row.tenLoai }}</td>
-            <td class="price">{{ fmtPrice(row.gia) }}</td>
-            <td class="date-cell">{{ fmtDate(row.ngayTao) }}</td>
+            <td>{{ row.name }}</td>
+            <td class="price">{{ fmtPrice(row.price) }}</td>
+            <td class="date-cell">{{ fmtDate(row.createdAt) }}</td>
             <td>
               <div class="action-buttons">
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
@@ -48,7 +48,8 @@
       </tbody>
     </table>
     <div class="pgbar">
-      <div class="pginfo" v-if="filtered.length > 0">Hiển thị {{ pageStart + 1 }}–{{ Math.min(pageStart + PAGE_SIZE, filtered.length) }} / {{ filtered.length }} mục</div>
+      <div class="pginfo" v-if="filtered.length > 0">        Hiển thị {{ (currentPage - 1) * PAGE_SIZE + 1 }}–{{ Math.min(currentPage * PAGE_SIZE, filtered.length) }} / {{ filtered.length }} dòng
+</div>
       <div class="pgctrl" v-if="totalPages > 1">
         <button class="pb" :disabled="currentPage === 1" @click="currentPage--">&#8249;</button>
         <button v-for="p in totalPages" :key="p" class="pb" :class="{ on: p === currentPage }" @click="currentPage = p">{{ p }}</button>
@@ -90,9 +91,32 @@
   </div>
 </template>
 
-<script setup>
+<!-- <script setup>
 import useKemLanh from '../JS/KemLanh.JS'
 const { search, currentPage, PAGE_SIZE, filtered, totalPages, pageStart, pagedRows, ghostCount, fmtPrice, fmtDate, showForm, isEditing, inputName, form, openAdd, openEdit, submitForm, showConfirm, deleteTarget, openConfirm, doDelete, toastShow, toastMsg, toastType, showToast } = useKemLanh()
 const handleSubmit = () => { const r = submitForm(); if (r.error) showToast(r.error, 'err'); if (r.success) showToast('✅ ' + r.success, 'ok') }
-const handleDelete = () => { const r = doDelete(); if (r.success) showToast('🗑 ' + r.success, 'ok') }
+const handleDelete = () => { const r = doDelete(); if (r.success) showToast('🗑 ' + r.success, 'ok') } 
+</script> -->
+<script setup>
+import { useIngredients } from '../JS/UseIngridients';
+
+const {
+  search, currentPage, PAGE_SIZE, pageStart,
+  filtered, totalPages, pagedRows,
+  fmtPrice, fmtDate,
+  showForm, isEditing, inputName, form,
+  openAdd, openEdit, submitForm,
+  showConfirm, deleteTarget, openConfirm, doDelete,
+  toastShow, toastMsg, toastType, showToast
+} = useIngredients('ice-creams', 'KEM');
+
+const handleSubmit = async () => {
+  const result = await submitForm();
+  showToast(result.error || result.success, result.error ? 'error' : 'ok');
+};
+
+const handleDelete = async () => {
+  const result = await doDelete();
+  showToast(result.error || result.success, result.error ? 'error' : 'ok');
+};
 </script>

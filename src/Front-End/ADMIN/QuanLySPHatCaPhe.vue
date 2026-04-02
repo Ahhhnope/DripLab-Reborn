@@ -50,19 +50,28 @@
 
         <template v-else>
           <tr v-for="(row, i) in pagedRows" :key="row.id">
-            <td>{{ pageStart + i + 1 }}</td>
+
+            <td>{{ (currentPage - 1) * PAGE_SIZE + i + 1 }}</td>
+
             <td><span class="badge-id">{{ row.id }}</span></td>
-            <td>{{ row.tenLoai }}</td>
-            <td class="price">{{ fmtPrice(row.gia) }}</td>
-            <td class="date-cell">{{ fmtDate(row.ngayTao) }}</td>
+
+            <td> {{ row.name }} </td>
+
+            <td class="price">{{ fmtPrice(row.price) }}</td>
+
+            <td class="date-cell">{{ fmtDate(row.createdAt) }}</td>
+
             <td>
               <div class="action-buttons">
+
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
+
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                   </svg>
+
                 </button>
                 <button class="delete-btn" title="Xóa" @click="openConfirm(row)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -87,7 +96,7 @@
     <!-- PAGINATION -->
     <div class="pgbar">
       <div class="pginfo" v-if="filtered.length > 0">
-        Hiển thị {{ pageStart + 1 }}–{{ Math.min(pageStart + PAGE_SIZE, filtered.length) }} / {{ filtered.length }} mục
+        Hiển thị {{ (currentPage - 1) * PAGE_SIZE + 1 }}–{{ Math.min(currentPage * PAGE_SIZE, filtered.length) }} / {{ filtered.length }} dòng
       </div>
       <div class="pgctrl" v-if="totalPages > 1">
         <button class="pb" :disabled="currentPage === 1" @click="currentPage--">&#8249;</button>
@@ -176,7 +185,7 @@
   </div>
 </template>
 
-<script setup>
+<!-- <script setup>
 import useHatCaPhe from '../JS/HatCaPhe.JS'
 
 const {
@@ -199,4 +208,28 @@ const handleDelete = () => {
   const result = doDelete()
   if (result.success) showToast('🗑 ' + result.success, 'ok')
 }
+
+</script> -->
+<script setup>
+import { useIngredients } from '../JS/UseIngridients';
+
+const {
+  search, currentPage, PAGE_SIZE, pageStart,
+  filtered, totalPages, pagedRows,
+  fmtPrice, fmtDate,
+  showForm, isEditing, inputName, form,
+  openAdd, openEdit, submitForm,
+  showConfirm, deleteTarget, openConfirm, doDelete,
+  toastShow, toastMsg, toastType, showToast
+} = useIngredients('coffee-beans', 'HCF');
+
+const handleSubmit = async () => {
+  const result = await submitForm();
+  showToast(result.error || result.success, result.error ? 'error' : 'ok');
+};
+
+const handleDelete = async () => {
+  const result = await doDelete();
+  showToast(result.error || result.success, result.error ? 'error' : 'ok');
+};
 </script>

@@ -2,7 +2,33 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { createPinia } from 'pinia'
+import axios from 'axios'
 import './main.css'
+import { useAuthStore } from '../Front-End/Authorization/Auth'
+
+//gate boiz
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Token is invalid or expired lmao
+      const authStore = useAuthStore()
+      authStore.logout()
+    }
+    return Promise.reject(error)
+  }
+)
+
+
+//Holy maccaroni that sa lot ta spaghet
 
 import InterfaceHomePage from '../Front-End/USER/InterfaceHomePage.vue'
 import Homepage from '../Front-End/USER/Homepage.vue'
@@ -19,9 +45,11 @@ import Voucher from '../Front-End/USER/Voucher.vue'
 
 import Brewing from '../Front-End/USER/Brewing.vue'
 
-//Uy quyen
+//Uy quyen login
 import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
+
+
 
 const routes = [
     {
@@ -31,7 +59,23 @@ const routes = [
         children: [
             {
                 path: '/account',
-                component: UserAccount
+                component: UserAccount,
+                meta: {requireAuth: true}
+            },
+            {
+                path: '/account/password',
+                component: UserChangePassword,
+                meta: {requireAuth: true}
+            },
+            {
+                path: '/account/address',
+                component: UserAddress,
+                meta: {requireAuth: true}
+            },
+            {
+                path: '/account/orders',
+                component: UserOrders,
+                meta: {requireAuth: true}
             },
             {
                 path: '/brewing',
@@ -43,18 +87,6 @@ const routes = [
             },
             {
                 path: 'product/:id', name: 'user-product', component: ProductDetailView
-            },
-            {
-                path: '/account/password',
-                component: UserChangePassword
-            },
-            {
-                path: '/account/address',
-                component: UserAddress
-            },
-            {
-                path: '/account/orders',
-                component: UserOrders
             },
             {
                 path: '/stores',
@@ -70,7 +102,8 @@ const routes = [
             },
             {
                 path: '/cart',
-                component: CartView
+                component: CartView,
+                meta: {requireAuth: true}
             },
             {
                 path: '/voucher',
@@ -93,8 +126,34 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from, next) => {
+  // Check if a user exists in this localhost's storage
+  const isAuthenticated = !!localStorage.getItem('user')
+
+  if (to.meta.requireAuth && !isAuthenticated) {
+    next('/login')
+  } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
+    next('/homepage')
+  } else {
+    next()
+  }
+})
+
+
 const app = createApp(App)
 const pinia = createPinia()
+
+
+const authStore = useAuthStore(pinia)
+
+//check user status before startup
+const savedUser = localStorage.getItem('user')
+const savedToken = localStorage.getItem('token')
+
+if (savedUser && savedToken) {
+  authStore.setUser(JSON.parse(savedUser), savedToken)
+}
+
 
 app.use(pinia)
 app.use(router)

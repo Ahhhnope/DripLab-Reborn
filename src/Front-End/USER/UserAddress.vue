@@ -76,13 +76,26 @@
 
 <script setup>
 import { useUserAddress } from '../JS-USER/UserAddress.JS'
+import { useAuthStore } from "../Authorization/Auth";
+import { useRouter } from "vue-router";
 
 const {
-  user, addressForm,
+  addressForm,
   navItems, currentRoute,
   message, messageType,
-  saveAddress, goTo, logout
+  saveAddress, goTo
 } = useUserAddress()
+
+
+const auth = useAuthStore();
+const router = useRouter();
+
+const user = auth.user;
+
+const logout = () => {
+  auth.logout();
+  router.push('/login');
+};
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>
