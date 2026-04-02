@@ -1,8 +1,6 @@
 import { ref, computed } from 'vue'
 
-// ─────────────────────────────────────────────
 // HELPER: lấy đường dẫn ảnh từ thư mục IMG
-// ─────────────────────────────────────────────
 function getImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
@@ -42,12 +40,12 @@ function genTxId() {
 export function useCounterOrder() {
 
     /* ══════════════════════════════════════════
-       1. SẢN PHẨM — tìm kiếm, hiển thị
+       1. San Pham — tìm kiếm, hiển thị
     ══════════════════════════════════════════ */
     const searchText = ref('')
 
     const allProducts = ref([
-        { id: 0, name: 'CUSTOM', image: getImg('DripLab_Logo.png'), price: 0 },
+        { id: 0, name: 'CUSTOM', image: getImg('nahhh.jpg'), price: 0 },
         { id: 1, name: 'Matcha Tea', image: getImg('Matcha-latte.png'), price: 45000 },
         { id: 2, name: 'Classic Latte', image: getImg('classic-latte.png'), price: 45000 },
         { id: 3, name: 'Robusta', image: getImg('arabica.png'), price: 45000 },
@@ -113,7 +111,7 @@ export function useCounterOrder() {
     }
 
     /* ══════════════════════════════════════════
-       4. MÃ GIẢM GIÁ
+       4. MÃ GIẢM GIÁ - KM
     ══════════════════════════════════════════ */
     const discountInput = ref('')
     const appliedCode = ref('')

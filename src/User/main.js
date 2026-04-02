@@ -41,6 +41,9 @@ import MenuView from '../Front-End/USER/MenuView.vue'
 import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
 import AboutUS from '../Front-End/USER/AboutUS.vue'
 import CartView from '../Front-End/USER/Cart.vue'
+import Voucher from '../Front-End/USER/Voucher.vue'
+
+import Brewing from '../Front-End/USER/Brewing.vue'
 
 //Uy quyen login
 import LoginAcc from '../Front-End/Authorization/Login.vue'
@@ -75,6 +78,10 @@ const routes = [
                 meta: {requireAuth: true}
             },
             {
+                path: '/brewing',
+                component: Brewing
+            },
+            {
                 path: '/menu',
                 component: MenuView
             },
@@ -97,6 +104,10 @@ const routes = [
                 path: '/cart',
                 component: CartView,
                 meta: {requireAuth: true}
+            },
+            {
+                path: '/voucher',
+                component: Voucher
             },
         ]
     },

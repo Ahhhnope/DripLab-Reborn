@@ -15,6 +15,12 @@ import coldbrewmatong from '../IMG/cold_brew_mat_ong.jpg'
 import coldbrewvaihong from '../IMG/cold_brew_vai_hong.jpg'
 import bacsiu from '../IMG/bac_xiu.jpg'
 import latte from '../IMG/coffee_latte.jpg'
+import trasenvang from '../IMG/tra-sen-vang.jpg'
+import trathachdao from '../IMG/tra-thach-dao.jpg'
+import trathachvai from '../IMG/tra-vai.jpg'
+import traxanhdaudo from '../IMG/tra-xanh-dau-do.jpg'
+import tragung from '../IMG/tra-gung.jpg'
+import hongtra from '../IMG/hong-tra-sua.jpg'
 
 const route = useRoute()
 const router = useRouter()
@@ -89,6 +95,12 @@ const products = [
   { id: 'cold-brew-mat-ong', name: 'Cold Brew Mật Ong', price: 55000, imageUrl: coldbrewmatong },
   { id: 'cold-brew-vai-hong', name: 'Cold Brew Vải Hồng', price: 55000, imageUrl: coldbrewvaihong },
   { id: 'caffee-latte', name: 'Caffee Latte', price: 60000, imageUrl: latte },
+  { id: 'tra-sen-vang', name: 'Trà Sen Vàng', price: 45000, imageUrl: trasenvang },
+  { id: 'tra-thach-sao', name: 'Trà Thạch Đào', price: 45000, imageUrl: trathachdao },
+  { id: 'tra-thach-vai', name: 'Trà Thạch Vải', price: 45000, imageUrl: trathachvai },
+  { id: 'tra-xanh-dau-do', name: 'Trà Xanh Đậu Đỏ', price: 49000, imageUrl: traxanhdaudo },
+  { id: 'tra-gung', name: 'Trà Gừng', price: 49000, imageUrl: tragung },
+  { id: 'hong-tra-sua', name: 'Hồng Trà Sữa', price: 49000, imageUrl: hongtra },
 ]
 
 // Lấy sản phẩm dựa trên ID trên URL (mặc định về món đầu tiên nếu sai)
@@ -262,8 +274,7 @@ function addToCart() {
     <div class="mx-auto max-w-6xl px-4 py-6">
       <button
         class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-300/50 text-slate-500 transition hover:bg-slate-300"
-        @click="router.back()"
-      >
+        @click="router.back()">
         <span class="text-xl leading-none -translate-y-px">‹</span>
       </button>
     </div>
@@ -272,18 +283,11 @@ function addToCart() {
       <div class="grid grid-cols-1 gap-10 md:grid-cols-12">
         <!-- LEFT IMAGE -->
         <div class="relative md:col-span-5">
-          <div
-            class="sticky top-10 cursor-pointer overflow-hidden rounded-2xl shadow-lg"
-            @click="showPreview = true"
-          >
-            <img
-              v-if="product"
-              :src="product.imageUrl"
-              class="aspect-4/5 w-full object-cover"
-              alt="Product Image"
-            />
+          <div class="sticky top-10 cursor-pointer overflow-hidden rounded-2xl shadow-lg" @click="showPreview = true">
+            <img v-if="product" :src="product.imageUrl" class="aspect-4/5 w-full object-cover" alt="Product Image" />
 
-            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
+            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent">
+            </div>
 
             <div class="pointer-events-none absolute bottom-0 left-0 right-0 p-6">
               <h1 class="text-2xl font-bold leading-tight text-white drop-shadow-md md:text-3xl">
@@ -311,21 +315,12 @@ function addToCart() {
                 <div>
                   <div class="mb-3 text-sm font-bold text-slate-700">MỨC ĐƯỜNG</div>
                   <div class="space-y-2">
-                    <label
-                      v-for="it in sugarItems"
-                      :key="it.id"
-                      class="flex items-start gap-3 rounded-xl p-3"
-                      :class="isOptionDisabled('sugar', it.id, 1)
-                        ? 'cursor-not-allowed opacity-50'
-                        : 'cursor-pointer hover:bg-slate-50'"
-                    >
-                      <input
-                        type="checkbox"
-                        class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
-                        :checked="isChecked('sugar', it.id)"
-                        :disabled="isOptionDisabled('sugar', it.id, 1)"
-                        @change="toggleWithLock('sugar', it.id, 1, 'Mức đường: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')"
-                      />
+                    <label v-for="it in sugarItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="isOptionDisabled('sugar', it.id, 1)
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'cursor-pointer hover:bg-slate-50'">
+                      <input type="checkbox" class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
+                        :checked="isChecked('sugar', it.id)" :disabled="isOptionDisabled('sugar', it.id, 1)"
+                        @change="toggleWithLock('sugar', it.id, 1, 'Mức đường: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')" />
                       <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-800">{{ it.label }}</span>
                         <span class="mt-0.5 text-xs font-medium text-slate-400">0đ</span>
@@ -338,21 +333,12 @@ function addToCart() {
                 <div>
                   <div class="mb-3 text-sm font-bold text-slate-700">MỨC ĐÁ</div>
                   <div class="space-y-2">
-                    <label
-                      v-for="it in iceItems"
-                      :key="it.id"
-                      class="flex items-start gap-3 rounded-xl p-3"
-                      :class="isOptionDisabled('ice', it.id, 1)
-                        ? 'cursor-not-allowed opacity-50'
-                        : 'cursor-pointer hover:bg-slate-50'"
-                    >
-                      <input
-                        type="checkbox"
-                        class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
-                        :checked="isChecked('ice', it.id)"
-                        :disabled="isOptionDisabled('ice', it.id, 1)"
-                        @change="toggleWithLock('ice', it.id, 1, 'Mức đá: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')"
-                      />
+                    <label v-for="it in iceItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="isOptionDisabled('ice', it.id, 1)
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'cursor-pointer hover:bg-slate-50'">
+                      <input type="checkbox" class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
+                        :checked="isChecked('ice', it.id)" :disabled="isOptionDisabled('ice', it.id, 1)"
+                        @change="toggleWithLock('ice', it.id, 1, 'Mức đá: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')" />
                       <div class="flex flex-col">
                         <span class="text-sm font-semibold text-slate-800">{{ it.label }}</span>
                         <span class="mt-0.5 text-xs font-medium text-slate-400">0đ</span>
@@ -371,26 +357,16 @@ function addToCart() {
               </div>
 
               <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                <label
-                  v-for="it in g.items"
-                  :key="it.id"
-                  class="flex items-start gap-3 rounded-xl p-3"
-                  :class="g.type === 'multi' && isOptionDisabled(g.id, it.id, g.max)
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'cursor-pointer hover:bg-slate-50'"
-                >
-                  <input
-                    :type="g.type === 'single' ? 'radio' : 'checkbox'"
-                    :name="g.id"
-                    class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
-                    :checked="isChecked(g.id, it.id)"
-                    :disabled="g.type === 'multi' ? isOptionDisabled(g.id, it.id, g.max) : false"
-                    @change="
+                <label v-for="it in g.items" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="g.type === 'multi' && isOptionDisabled(g.id, it.id, g.max)
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer hover:bg-slate-50'">
+                  <input :type="g.type === 'single' ? 'radio' : 'checkbox'" :name="g.id"
+                    class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]" :checked="isChecked(g.id, it.id)"
+                    :disabled="g.type === 'multi' ? isOptionDisabled(g.id, it.id, g.max) : false" @change="
                       g.type === 'single'
                         ? selectSingle(g.id, it.id)
                         : toggleWithLock(g.id, it.id, g.max, 'Topping tối đa 3 loại. Bỏ bớt để chọn loại khác.')
-                    "
-                  />
+                      " />
 
                   <div class="flex flex-col">
                     <span class="text-sm font-semibold text-slate-800">{{ it.label }}</span>
@@ -406,25 +382,20 @@ function addToCart() {
           <!-- BOTTOM BAR -->
           <div class="mt-8 flex items-center justify-between border-t border-slate-100 pt-8">
             <div class="flex items-center gap-3">
-              <button
-                @click="qty = Math.max(1, qty - 1)"
-                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200"
-              >
+              <button @click="qty = Math.max(1, qty - 1)"
+                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">
                 −
               </button>
               <span class="w-6 text-center text-base font-semibold text-slate-900">{{ qty }}</span>
-              <button
-                @click="qty++"
-                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200"
-              >
+              <button @click="qty++"
+                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">
                 +
               </button>
             </div>
 
             <button
               class="rounded-lg bg-[#126b23] px-8 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-[#0f541b]"
-              @click="addToCart"
-            >
+              @click="addToCart">
               Thêm vào giỏ • +{{ formatVnd(lineTotal) }}
             </button>
           </div>
@@ -433,17 +404,13 @@ function addToCart() {
     </div>
 
     <!-- MODAL PREVIEW -->
-    <div
-      v-if="showPreview && product?.imageUrl"
+    <div v-if="showPreview && product?.imageUrl"
       class="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm transition-all"
-      @click.self="closePreview"
-    >
+      @click.self="closePreview">
       <div class="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-transparent">
         <button
           class="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 font-bold text-slate-900 hover:bg-white"
-          @click="closePreview"
-          aria-label="Đóng"
-        >
+          @click="closePreview" aria-label="Đóng">
           ✕
         </button>
         <img :src="product.imageUrl" alt="" class="max-h-[85vh] w-full rounded-2xl object-contain shadow-2xl" />
@@ -451,15 +418,14 @@ function addToCart() {
     </div>
 
     <!-- ✅ NOTIFICATION MODAL (GIỐNG ẢNH MẪU) -->
-    <div
-      v-if="notice.open"
+    <div v-if="notice.open"
       class="fixed inset-0 z-120 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
-      @click.self="closeNotice"
-    >
+      @click.self="closeNotice">
       <div class="w-full max-w-lg rounded-[28px] bg-[#FFF9F1] p-8 shadow-2xl ring-1 ring-black/5 text-center">
         <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-white shadow-sm">
           <span class="text-3xl">
-            {{ notice.type === 'success' ? '🎉' : notice.type === 'warning' ? '⚠️' : notice.type === 'error' ? '❌' : 'ℹ️' }}
+            {{ notice.type === 'success' ? '🎉' : notice.type === 'warning' ? '⚠️' : notice.type === 'error' ? '❌' :
+            'ℹ️' }}
           </span>
         </div>
 
@@ -467,7 +433,8 @@ function addToCart() {
           {{ notice.title }}
         </div>
 
-        <div v-if="notice.code" class="mt-4 inline-flex items-center justify-center rounded-xl border border-[#E0B37A] bg-[#FFF1DD] px-4 py-2 text-sm font-bold text-[#4B2E1E]">
+        <div v-if="notice.code"
+          class="mt-4 inline-flex items-center justify-center rounded-xl border border-[#E0B37A] bg-[#FFF1DD] px-4 py-2 text-sm font-bold text-[#4B2E1E]">
           Mã đơn: {{ notice.code }}
         </div>
 
@@ -477,8 +444,7 @@ function addToCart() {
 
         <button
           class="mx-auto mt-7 inline-flex min-w-40 items-center justify-center rounded-2xl bg-[#2B1B14] px-6 py-3 text-base font-bold text-white hover:bg-[#3A241B]"
-          @click="closeNotice"
-        >
+          @click="closeNotice">
           {{ notice.buttonText }}
         </button>
       </div>
