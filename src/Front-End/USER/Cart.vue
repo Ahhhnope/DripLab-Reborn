@@ -15,7 +15,7 @@
             <span class="cart-count">{{ cartItems.length }} sản phẩm</span>
 
             <!-- Chọn tất cả -->
-            <label class="select-all-label">
+            <label v-if="cartItems.length > 0" class="select-all-label">
               <input type="checkbox" class="custom-checkbox" :checked="isAllSelected"
                 :indeterminate.prop="isSomeSelected && !isAllSelected" @change="toggleSelectAll" />
               Chọn tất cả
@@ -114,7 +114,7 @@
             </div>
             <div class="summary-row">
               <span>Phí giao hàng</span>
-              <span>{{ selectedSubtotal >= 100000 ? 'Miễn phí' : formatVND(20000) }}</span>
+              <span>{{ selectedSubtotal >= 100000 ? formatVND(20000) : 'Miễn phí' }}</span>
             </div>
             <div class="summary-row total">
               <span>Tổng cộng</span>

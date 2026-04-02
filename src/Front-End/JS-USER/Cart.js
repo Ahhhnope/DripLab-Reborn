@@ -161,6 +161,13 @@ export default {
     isSomeSelected() {
       return this.selectedIds.length > 0 && this.selectedIds.length < this.cartItems.length;
     },
+
+    shippingFee() {
+      return this.selectedSubtotal >= 100000 ? 20000 : 0;
+    },
+    totalPrice() {
+      return this.selectedSubtotal + this.shippingFee;
+    },
   },
 
   methods: {
@@ -194,17 +201,17 @@ export default {
 
     // ── Delete ──
     confirmDelete(item) { this.deleteTarget = item; },
-    cancelDelete()      { this.deleteTarget = null; },
+    cancelDelete() { this.deleteTarget = null; },
     executeDelete() {
       if (!this.deleteTarget) return;
       const id = this.deleteTarget.id;
-      this.cartItems    = this.cartItems.filter(i => i.id !== id);
-      this.selectedIds  = this.selectedIds.filter(s => s !== id);
+      this.cartItems = this.cartItems.filter(i => i.id !== id);
+      this.selectedIds = this.selectedIds.filter(s => s !== id);
       this.deleteTarget = null;
     },
 
     // ── Order modal ──
-    openOrderModal()  {
+    openOrderModal() {
       if (this.selectedItems.length) {
         this.resetTransfer();
         this.showOrderModal = true;
@@ -218,39 +225,39 @@ export default {
       const code = this.couponCode.toUpperCase();
       if (code === 'CAFE10') {
         this.couponDiscount = Math.round(this.selectedSubtotal * 0.1);
-        this.couponApplied  = true;
-        this.couponMessage  = `✓ Giảm 10% đơn hàng! (-${this.formatVND(this.couponDiscount)})`;
+        this.couponApplied = true;
+        this.couponMessage = `✓ Giảm 10% đơn hàng! (-${this.formatVND(this.couponDiscount)})`;
       } else if (code === 'FREESHIP') {
         this.couponDiscount = 20000;
-        this.couponApplied  = true;
-        this.couponMessage  = `✓ Miễn phí vận chuyển! (-${this.formatVND(20000)})`;
+        this.couponApplied = true;
+        this.couponMessage = `✓ Miễn phí vận chuyển! (-${this.formatVND(20000)})`;
       } else {
         this.couponDiscount = 0;
-        this.couponApplied  = false;
-        this.couponMessage  = 'Mã giảm giá không hợp lệ.';
+        this.couponApplied = false;
+        this.couponMessage = 'Mã giảm giá không hợp lệ.';
       }
     },
     removeCoupon() {
-      this.couponCode     = '';
-      this.couponApplied  = false;
+      this.couponCode = '';
+      this.couponApplied = false;
       this.couponDiscount = 0;
-      this.couponMessage  = '';
+      this.couponMessage = '';
     },
 
     // ── Chuyển khoản – giống MoMo CounterOrder ──
     resetTransfer() {
-      this.transferPhone   = '';
-      this.transferName    = '';
-      this.transferStep    = 1;
-      this.transferError   = '';
+      this.transferPhone = '';
+      this.transferName = '';
+      this.transferStep = 1;
+      this.transferError = '';
       this.transferLoading = false;
     },
 
     onTransferPhoneInput(e) {
       const clean = e.target.value.replace(/\D/g, '').slice(0, 10);
-      this.transferPhone   = clean;
-      this.transferError   = '';
-      this.transferName    = '';
+      this.transferPhone = clean;
+      this.transferError = '';
+      this.transferName = '';
       this.transferLoading = false;
 
       if (clean.length === 10) {
@@ -258,10 +265,10 @@ export default {
         setTimeout(() => {
           this.transferLoading = false;
           if (TRANSFER_ACCOUNTS[clean]) {
-            this.transferName  = TRANSFER_ACCOUNTS[clean];
+            this.transferName = TRANSFER_ACCOUNTS[clean];
             this.transferError = '';
           } else {
-            this.transferName  = '';
+            this.transferName = '';
             this.transferError = 'Không tìm thấy tài khoản ngân hàng';
           }
         }, 900);
@@ -285,15 +292,15 @@ export default {
       this.isPlacingOrder = true;
 
       setTimeout(() => {
-        this.lastOrderId      = 'ORD-' + Date.now();
-        this.showOrderModal   = false;
-        const orderedIds      = this.selectedItems.map(i => i.id);
-        this.cartItems        = this.cartItems.filter(i => !orderedIds.includes(i.id));
-        this.selectedIds      = [];
+        this.lastOrderId = 'ORD-' + Date.now();
+        this.showOrderModal = false;
+        const orderedIds = this.selectedItems.map(i => i.id);
+        this.cartItems = this.cartItems.filter(i => !orderedIds.includes(i.id));
+        this.selectedIds = [];
         this.removeCoupon();
         this.resetTransfer();
         this.showSuccessModal = true;
-        this.isPlacingOrder   = false;
+        this.isPlacingOrder = false;
       }, 800);
     },
 
