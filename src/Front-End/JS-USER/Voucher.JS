@@ -15,7 +15,7 @@ export function useVoucher() {
     },
     {
       id: 2,
-      code: 'Giảm 50K',
+      code: 'Giảm    50K',
       discount: 'Giảm 50.000đ',
       expiry: '12/4/2026',
       minOrder: '500.000 đ',
