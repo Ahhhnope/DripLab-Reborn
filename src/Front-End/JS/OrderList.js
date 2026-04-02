@@ -42,7 +42,7 @@ export function useOrderList() {
       shippingType: "Đang xử lý",
       status: "processing",
       qty: 5,
-      pay: 1450374,
+      pay: 218000,
       deadline: "06/03/2026 14:05:07",
 
       // CHI TIẾT MẪU
@@ -52,7 +52,7 @@ export function useOrderList() {
         { id: "p2", name: "Cà phê sữa", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
         { id: "p3", name: "Trà đào", qty: 3, total: 120000, options: ["Size L"] },
       ],
-      subtotal: 1500000,
+      subtotal: 267626,
       discount: 49626,
     },
     {
@@ -71,8 +71,8 @@ export function useOrderList() {
         { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
         { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
       ],
-      subtotal: 1500000,
-      discount: 49626,
+      subtotal: 218000,
+      discount: 18000,
     },
     {
       id: 4,
@@ -80,7 +80,7 @@ export function useOrderList() {
       shippingType: "Đã giao",
       status: "delivered",
       qty: 5,
-      pay: 500000,
+      pay: 218000,
       deadline: "08/03/2026 14:05:07",
 
       // CHI TIẾT MẪU
@@ -90,8 +90,8 @@ export function useOrderList() {
         { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
         { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
       ],
-      subtotal: 1500000,
-      discount: 49626,
+      subtotal: 300000,
+      discount: 82000,
     },
     {
       id: 5,
@@ -99,18 +99,18 @@ export function useOrderList() {
       shippingType: "Đã huỷ",
       status: "cancelled",
       qty: 5,
-      pay: 100000,
+      pay: 220000,
       deadline: "08/03/2026 14:05:07",
 
       // CHI TIẾT MẪU
       customer: { name: "Trần Văn Nam", phone: "0912xxxxxx" },
       createdAt: "06/03/2026 13:10",
       itemsDetail: [
-        { id: "p2", name: "Moka", qty: 2, total: 98000, options: ["Ít đá", "Thêm sữa"] },
+        { id: "p2", name: "Moka", qty: 2, total: 100000, options: ["Ít đá", "Thêm sữa"] },
         { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
       ],
-      subtotal: 1500000,
-      discount: 49626,
+      subtotal: 300000,
+      discount: 80000,
     },
   ]);
 
