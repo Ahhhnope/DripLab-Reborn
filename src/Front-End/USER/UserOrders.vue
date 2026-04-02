@@ -306,9 +306,10 @@
 
 <script setup>
 import { useUserOrders } from "../JS-USER/UserOrders.JS";
+import { useAuthStore } from "../Authorization/Auth";
+import { useRouter } from "vue-router";
 
 const {
-  user,
   navItems,
   currentRoute,
   orderSteps,
@@ -331,8 +332,19 @@ const {
   openModal,
   closeModal,
   goTo,
-  logout,
 } = useUserOrders();
+
+
+
+const auth = useAuthStore();
+const router = useRouter();
+
+const user = auth.user;
+
+const logout = () => {
+  auth.logout();
+  router.push('/login');
+};
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>

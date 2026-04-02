@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 export function useRegister() {
   const router = useRouter()
@@ -54,6 +55,21 @@ export function useRegister() {
       return
     }
     isLoading.value = true
+    try {
+        await axios.post('http://localhost:8080/api/auth/register', {
+            fullName: name.value,
+            email: email.value,
+            phone: phone.value,
+            password: password.value
+        });
+        
+        step.value = 2; // Show success screen in Register.vue
+    } catch (err) {
+        // Reads from CustomErrorDetails.java
+        errorMsg.value = err.response?.data?.message || 'Đăng ký thất bại';
+    } finally {
+        isLoading.value = false;
+    }
     await new Promise(r => setTimeout(r, 1600))
     isLoading.value = false
     step.value = 2
