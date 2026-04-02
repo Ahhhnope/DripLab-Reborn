@@ -15,6 +15,7 @@ import MenuView from '../Front-End/USER/MenuView.vue'
 import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
 import AboutUS from '../Front-End/USER/AboutUS.vue'
 import CartView from '../Front-End/USER/Cart.vue'
+import Brewing from '../Front-End/USER/Brewing.vue'
 
 //Uy quyen
 import LoginAcc from '../Front-End/Authorization/Login.vue'
@@ -29,6 +30,10 @@ const routes = [
             {
                 path: '/account',
                 component: UserAccount
+            },
+            {
+                path: '/brewing',
+                component: Brewing
             },
             {
                 path: '/menu',
