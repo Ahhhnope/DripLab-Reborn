@@ -20,7 +20,7 @@
             <div class="stat-value">{{ activeCount }}</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">TỔNG SỐ MÃ</div>
+            <div class="stat-label">TỔNG SỐ KHUYẾN MÃI </div>
             <div class="stat-value">{{ totalCount }}</div>
           </div>
         </div>

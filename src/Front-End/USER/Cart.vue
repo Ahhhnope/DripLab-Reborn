@@ -15,7 +15,7 @@
             <span class="cart-count">{{ cartItems.length }} sản phẩm</span>
 
             <!-- Chọn tất cả -->
-            <label class="select-all-label">
+            <label v-if="cartItems.length > 0" class="select-all-label">
               <input type="checkbox" class="custom-checkbox" :checked="isAllSelected"
                 :indeterminate.prop="isSomeSelected && !isAllSelected" @change="toggleSelectAll" />
               Chọn tất cả
@@ -26,7 +26,8 @@
         <!-- Danh sách sản phẩm -->
         <transition-group name="slide" tag="div" class="cart-list">
           <div v-for="item in cartItems" :key="item.id" class="cart-card"
-            :class="{ 'is-selected': selectedIds.includes(item.id) }">
+            :class="{ 'is-selected': selectedIds.includes(item.id) }" @click="toggleSelect(item.id)">
+
             <!-- Radio chọn -->
             <div class="card-radio-wrap">
               <input type="checkbox" class="custom-radio" :checked="selectedIds.includes(item.id)"
@@ -67,13 +68,13 @@
               </div>
 
               <div class="qty-control">
-                <button class="qty-btn" :disabled="item.quantity <= 1" @click="decreaseQty(item)"
+                <button class="qty-btn" :disabled="item.quantity <= 1" @click.stop="decreaseQty(item)"
                   aria-label="Giảm số lượng">−</button>
                 <span class="qty-value">{{ item.quantity }}</span>
-                <button class="qty-btn" @click="increaseQty(item)" aria-label="Tăng số lượng">+</button>
+                <button class="qty-btn" @click.stop="increaseQty(item)" aria-label="Tăng số lượng">+</button>
               </div>
 
-              <button class="delete-btn" @click="confirmDelete(item)">
+              <button class="delete-btn" @click.stop="confirmDelete(item)">
                 🗑 Xóa
               </button>
             </div>
@@ -114,7 +115,7 @@
             </div>
             <div class="summary-row">
               <span>Phí giao hàng</span>
-              <span>{{ selectedSubtotal >= 100000 ? 'Miễn phí' : formatVND(20000) }}</span>
+              <span>{{ selectedSubtotal >= 100000 ? formatVND(20000) : 'Miễn phí' }}</span>
             </div>
             <div class="summary-row total">
               <span>Tổng cộng</span>

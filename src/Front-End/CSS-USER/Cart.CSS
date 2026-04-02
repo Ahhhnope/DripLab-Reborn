@@ -44,6 +44,10 @@
   line-height: 1.6;
 }
 
+.cart-card {
+  cursor: pointer;
+}
+
 /* ================================================================
    MAIN LAYOUT
    ================================================================ */
@@ -56,6 +60,13 @@
   gap: 36px;
   align-items: start;
 }
+
+aside {
+  align-self: flex-start;
+  position: sticky;
+  top: 84px;
+}
+
 
 @media (max-width: 900px) {
   .cart-layout {
@@ -437,8 +448,6 @@
   padding: 28px 26px;
   box-shadow: var(--shadow-md);
   border: 1.5px solid var(--border-light);
-  position: sticky;
-  top: 84px;
 }
 
 .summary-heading {
