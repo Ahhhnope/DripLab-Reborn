@@ -46,14 +46,21 @@ export function useCounterOrder() {
 
     const allProducts = ref([
         { id: 0, name: 'CUSTOM', image: getImg('nahhh.jpg'), price: 0 },
-        { id: 1, name: 'Matcha Tea', image: getImg('Matcha-latte.png'), price: 45000 },
-        { id: 2, name: 'Classic Latte', image: getImg('classic-latte.png'), price: 45000 },
-        { id: 3, name: 'Robusta', image: getImg('arabica.png'), price: 45000 },
-        { id: 4, name: 'Oolong', image: getImg('oolong.png'), price: 45000 },
-        { id: 5, name: 'Milk', image: getImg('milk.jpg'), price: 45000 },
-        { id: 6, name: 'Hojicha', image: getImg('Hojicha-roasted.png'), price: 45000 },
-        { id: 7, name: 'Geisha', image: getImg('geisha.png'), price: 45000 },
-        { id: 8, name: 'Moka', image: getImg('moka.jpg'), price: 45000 },
+        { id: 1, name: 'Bạc xỉu kem xốp', image: getImg('bacxiukemxop.jpg'), price: 40000 },
+        { id: 2, name: 'Cà phê phin đen', image: getImg('cfphin.jpg'), price: 29000 },
+        { id: 3, name: 'Cà phê phin nâu', image: getImg('cfphinnau.png'), price: 29000 },
+        { id: 4, name: 'Cafee latte', image: getImg('cflatte.jpg'), price: 60000 },
+        { id: 5, name: 'Capuchino', image: getImg('capu.jpg'), price: 35000 },
+        { id: 6, name: 'Geisha', image: getImg('geisha.jpg'), price: 35000 },
+        { id: 7, name: 'Hồng trà sữa', image: getImg('tsua.png'), price: 35000 },
+        { id: 8, name: 'Matcha Latte', image: getImg('matchalatte.jpg'), price: 49000 },
+        { id: 9, name: 'Matcha nóng', image: getImg('matchanong.jpg'), price: 49000 },
+        { id: 10, name: 'Mocha', image: getImg('mocha.png'), price: 35000 },
+        { id: 11, name: 'Trà gừng mật ong', image: getImg('tragungmo.jpg'), price: 49000 },
+        { id: 12, name: 'Trà sen vàng', image: getImg('tra-sen-vang.jpg'), price: 45000 },
+        { id: 13, name: 'Trà thạch đào', image: getImg('tradao.jpg'), price: 45000 },
+        { id: 14, name: 'Trà thạch vải', image: getImg('travai.jpg'), price: 45000 },
+        { id: 15, name: 'Trà xanh đậu đỏ', image: getImg('tra-xanh-dau-do.jpg'), price: 49000 },
     ])
 
     const products = ref([...allProducts.value])
