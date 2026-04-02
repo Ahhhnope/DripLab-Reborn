@@ -1,60 +1,67 @@
 <template>
   <div class="about-container">
-    <!-- SECTION 1 -->
-    <div class="about-top">
-      <h2 class="section-label">Thông tin về chúng tôi</h2>
 
-      <div class="about-image">
-        <img :src="aboutTopImg" />
+    <!-- HERO SECTION -->
+    <div class="about-hero">
+      <img :src="heroImg" class="about-hero__img" alt="Drip Lab Coffee" />
+      <div class="about-hero__overlay">
+        <p class="about-hero__label">Thông tin về chúng tôi</p>
+        <h1 class="about-hero__title">CÂU CHUYỆN THƯƠNG HIỆU</h1>
       </div>
+    </div>
 
-      <h1 class="philosophy-title">Triết Lý Drip Lab</h1>
-
-      <p class="philosophy-text">
-        Drip Lab là nơi cà phê gặp gỡ sự sáng tạo và cá tính. Đây là nền tảng duy nhất
-        cho phép bạn tự tạo đồ uống theo phong cách riêng, pha trộn hương vị theo cách
-        của bạn và tạo nên một trải nghiệm hoàn toàn khác biệt. Không menu nhàm chán,
-        chỉ có gu của bạn. ☕🔥
+    <!-- PHILOSOPHY SECTION -->
+    <div class="about-philosophy">
+      <h2 class="about-philosophy__title">TRIẾT LÝ CÀ PHÊ HIỆN ĐẠI</h2>
+      <p class="about-philosophy__text">
+        Tại Drip Lab - Coffee, chúng tôi áp dụng phương pháp sáng tạo tái hiện nét đẹp của cà phê truyền thống,
+        khơi tạo nên một nền văn hóa cà phê hiện đại. Được pha chế từ hạt cà phê nguyên chất với cam kết vì trải nghiệm,
+        chúng tôi mang đến hành trình thưởng thức theo hướng kết nối tinh hoa di sản với khẩu vị hiện đại.
       </p>
     </div>
 
-    <!-- SECTION 2 -->
-    <div class="about-bottom">
-      <div class="about-bottom-left">
-        <img :src="aboutBottomImg" />
-      </div>
-
-      <div class="about-bottom-right">
-        <h2>Thông tin về chúng tôi</h2>
-
-        <p>
-          Drip Lab là nền tảng cà phê hiện đại dành cho giới trẻ yêu thích sáng tạo,
-          phong cách và trải nghiệm độc đáo. Không chỉ là nơi đặt đồ uống, Drip Lab còn
-          là không gian nơi mỗi ly cà phê thể hiện cá tính riêng của bạn.
+    <!-- HERITAGE SECTION -->
+    <div class="about-heritage">
+      <img :src="heritageImg" class="about-heritage__img" alt="Di sản cà phê" />
+      <div class="about-heritage__content">
+        <h2 class="about-heritage__title">DI SẢN TOÀN CẦU</h2>
+        <p class="about-heritage__text">
+          Cửa hàng Drip Lab - Coffee đầu tiên khai trương tại Việt Nam với tầm nhìn mang lại
+          một trải nghiệm cà phê hoàn toàn mới. Lấy cảm hứng từ văn hóa cà phê đặc sắc,
+          Drip Lab dần mở rộng dấu ấn của mình, trở thành một trong những thương hiệu
+          cà phê sáng tạo hàng đầu.
         </p>
-
-        <p v-if="showFull">
-          Từ những hương vị cà phê đậm đà đến các loại topping đa dạng, tất cả đều được
-          thiết kế để phù hợp với phong cách sống năng động. Điểm khác biệt lớn nhất của
-          Drip Lab là khả năng tùy chỉnh đồ uống theo ý thích.
-
-          Bạn có thể tự chọn nguyên liệu, điều chỉnh tỉ lệ và thử nghiệm nhiều cách pha
-          chế khác nhau để tạo ra ly cà phê hoàn hảo nhất.
-
-          Với Drip Lab, uống cà phê không chỉ là thưởng thức mà còn là trải nghiệm sáng tạo.
-        </p>
-
-        <span class="read-more" @click="toggleText">
-          {{ showFull ? 'Thu gọn' : 'Đọc thêm' }}
-        </span>
       </div>
     </div>
+
+    <!-- VISION SECTION -->
+    <div class="about-vision">
+      <div class="about-vision__content">
+        <h2 class="about-vision__title">TẦM NHÌN THƯƠNG HIỆU</h2>
+        <p class="about-vision__subtitle">DRIP LAB TOGETHER!</p>
+      </div>
+      <img :src="visionImg" class="about-vision__img" alt="Tầm nhìn Drip Lab" />
+    </div>
+
+    <!-- GOAL SECTION -->
+    <div class="about-goal">
+      <img :src="goalImg" class="about-goal__img" alt="Mục tiêu Drip Lab" />
+      <div class="about-goal__overlay">
+        <h2 class="about-goal__title">MỤC TIÊU</h2>
+        <p class="about-goal__text">
+          Phục vụ những người yêu cà phê tại khắp nơi,<br />
+          tạo ra hàng nghìn cơ hội trải nghiệm sáng tạo,<br />
+          và cung cấp hàng triệu ly cà phê mỗi năm.
+        </p>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import { useAboutUS } from '../JS-USER/AboutUS.js'
-const { showFull, toggleText, aboutTopImg, aboutBottomImg } = useAboutUS()
+const { heroImg, heritageImg, visionImg, goalImg } = useAboutUS()
 </script>
 
 <style src="../CSS-USER/AboutUS.css"></style>
