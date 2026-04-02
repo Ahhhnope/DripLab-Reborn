@@ -1,11 +1,3 @@
-/* ============================================================
-   cart.css – Giao diện Giỏ Hàng Cà Phê
-   Design: Warm luxury / refined Vietnamese café aesthetic
-   Font: Manrope + Georgia
-   ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
-
 /* ── CSS Variables ── */
 :root {
   --cream: #f4ede0;
@@ -43,7 +35,6 @@
    CART PAGE WRAPPER
    ================================================================ */
 .cart-page {
-  font-family: 'Manrope', 'Georgia', sans-serif;
   background-color: var(--cream);
   color: var(--text-main);
   min-height: 100vh;
@@ -80,9 +71,6 @@
 }
 
 .cart-title {
-  font-family: 'Georgia', 'Manrope', serif;
-  font-size: 2.4rem;
-  font-weight: 900;
   color: var(--espresso);
   line-height: 1.1;
   margin-bottom: 14px;
@@ -267,7 +255,6 @@
 }
 
 .card-name {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--espresso);
@@ -341,7 +328,6 @@
 }
 
 .card-price {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--caramel);
@@ -456,7 +442,6 @@
 }
 
 .summary-heading {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--espresso);
@@ -531,7 +516,6 @@
 }
 
 .summary-row.total {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--espresso);
@@ -554,7 +538,6 @@
   border: none;
   border-radius: var(--radius-btn);
   padding: 16px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -612,7 +595,6 @@
 }
 
 .confirm-title {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--espresso);
@@ -643,7 +625,6 @@
   border: 1.5px solid var(--border);
   background: transparent;
   border-radius: 10px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -662,7 +643,6 @@
   border: none;
   background: #d93025;
   border-radius: 10px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: #fff;
@@ -718,7 +698,6 @@
 }
 
 .modal-title {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.25rem;
   font-weight: 900;
   color: var(--espresso);
@@ -794,7 +773,6 @@
 }
 
 .moi-name {
-  font-family: 'Georgia', 'Manrope', serif;
   font-weight: 700;
   font-size: 0.98rem;
   color: var(--espresso);
@@ -851,7 +829,6 @@
   background: var(--gold-faint);
   border: 1.5px solid var(--gold);
   border-radius: 10px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--dark-brown);
@@ -934,9 +911,8 @@
   margin-top: -4px;
 }
 
-/* ================================================================
-   TRANSFER – Giống MoMo bên CounterOrder
-   ================================================================ */
+
+
 .transfer-section {
   margin-top: 4px;
 }
@@ -970,7 +946,6 @@
   font-weight: 800;
   color: var(--caramel);
   margin: 2px 0 0;
-  font-family: 'Georgia', 'Manrope', serif;
   letter-spacing: -0.5px;
 }
 
@@ -1035,7 +1010,6 @@
   letter-spacing: 1px;
   background: transparent;
   height: 100%;
-  font-family: 'Manrope', 'Georgia', sans-serif;
 }
 
 /* Icon trạng thái */
@@ -1090,7 +1064,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-family: 'Manrope', 'Georgia', sans-serif;
 }
 
 .transfer-found-info {
@@ -1212,7 +1185,6 @@
   background: transparent;
   border: 1.5px solid var(--border);
   border-radius: 14px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-secondary);
@@ -1269,7 +1241,6 @@
 }
 
 .gt-amount {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.8rem;
   font-weight: 900;
   color: var(--caramel);
@@ -1283,7 +1254,6 @@
   border: none;
   border-radius: 14px;
   padding: 17px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -1333,7 +1303,6 @@
 }
 
 .success-title {
-  font-family: 'Georgia', 'Manrope', serif;
   font-size: 1.6rem;
   font-weight: 900;
   color: var(--espresso);
@@ -1366,7 +1335,6 @@
   color: #fff;
   border: none;
   border-radius: 12px;
-  font-family: 'Manrope', 'Georgia', sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;

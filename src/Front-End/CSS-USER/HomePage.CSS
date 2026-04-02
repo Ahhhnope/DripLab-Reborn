@@ -1,4 +1,4 @@
-/* ── Base ───────────────────────────────────────────────────────────────────── */
+
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -9,7 +9,6 @@
 .section-gap  { margin-bottom: 30px; }
 .special-gap  { margin-bottom: 40px; }
 
-/* ── Slider ─────────────────────────────────────────────────────────────────── */
 .slider-wrapper {
   position: relative;
   overflow: hidden;

@@ -29,7 +29,7 @@ export default {
           id: 1,
           productId: 101,
           name: 'Cà Phê Trứng Hà Nội',
-          image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&q=80',
+          image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80',
           basePrice: 55000,
           quantity: 1,
           toppings: ['Trân châu', 'Thạch cafe'],
