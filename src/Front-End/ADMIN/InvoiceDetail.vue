@@ -60,7 +60,6 @@
                   >
                     <div class="col-span-8">
                       <div class="font-bold text-stone-800">{{ item.qty }}x {{ item.name }}</div>
-                      <!-- ✅ Sugar & Ice tags -->
                       <div v-if="item.sugar != null || item.ice != null" class="mt-2 flex flex-wrap gap-1">
                         <span v-if="item.sugar != null"
                           class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
