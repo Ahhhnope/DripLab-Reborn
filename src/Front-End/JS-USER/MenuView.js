@@ -10,6 +10,13 @@ import phinden from '../IMG/phin_den.jpg'
 import phinnau from '../IMG/phin_nau.jpg'
 import bacsiu from '../IMG/bac_xiu.jpg'
 import latte from '../IMG/coffee_latte.jpg'
+import trasenvang from '../IMG/tra-sen-vang.jpg'
+import trathachdao from '../IMG/tra-thach-dao.jpg'
+import trathachvai from '../IMG/tra-vai.jpg'
+import traxanhdaudo from '../IMG/tra-xanh-dau-do.jpg'
+import tragung from '../IMG/tra-gung.jpg'
+import hongtra from '../IMG/hong-tra-sua.jpg'
+
 
 export function useMenuView() {
   const router = useRouter()
@@ -43,6 +50,12 @@ export function useMenuView() {
 
     { id: 'matcha-latte', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Latte', price: 49000, isHot: true, isNew: false, imageUrl: matchaLatte },
     { id: 'matcha-nong', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Nóng', price: 49000, isHot: true, isNew: false, imageUrl: matchaNong },
+    { id: 'tra-sen-vang', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Sen Vàng', price: 45000, isHot: true, isNew: false, imageUrl: trasenvang },
+    { id: 'tra-thach-dao', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Thạch Đào', price: 45000, isHot: true, isNew: false, imageUrl: trathachdao },
+    { id: 'tra-thach-vai', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Thạch Vải', price: 45000, isHot: true, isNew: false, imageUrl: trathachvai },
+    { id: 'tra-xanh-dau-do', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Xanh Đậu Đỏ', price: 49000, isHot: true, isNew: false, imageUrl: traxanhdaudo },
+    { id: 'tra-gung', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà gừng mật ong', price: 49000, isHot: true, isNew: false, imageUrl: tragung },
+    { id: 'hong-tra-sua', categoryId: 'tea', brand: 'DRIP LAB', name: 'Hồng Trà Sữa', price: 49000, isHot: true, isNew: false, imageUrl: hongtra },
   ])
 
   function formatVnd(v) {
@@ -86,10 +99,11 @@ export function useMenuView() {
   }
 
   function openFromImage(p) {
+    window.scrollTo(0,0);
+    
     router.push({
       name: 'user-product',
       params: { id: p.id },
-      query: { preview: '1' },
     })
   }
 
