@@ -33,16 +33,16 @@ export function useMenuView() {
   const activeSort = ref('name_asc')
 
   const products = ref([
-    { id: 'phin-den', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Cà phê Phin Đen', price: 29000, isHot: true, isNew: false, imageUrl: phinden },
-    { id: 'phin-nau', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Cà phê Phin Nâu', price: 29000, isHot: false, isNew: false, imageUrl: phinnau },
-    { id: 'bac-xiu', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Bạc Xỉu Kem Xốp', price: 40000, isHot: false, isNew: true, imageUrl: bacsiu },
-    { id: 'capuchino', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Capuchino', price: 35000, isHot: false, isNew: false, imageUrl: capuchino },
-    { id: 'mocha', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Mocha', price: 35000, isHot: false, isNew: true, imageUrl: mocha },
-    { id: 'geisha', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Geisha', price: 35000, isHot: true, isNew: false, imageUrl: geisha },
-    { id: 'caffee-latte', categoryId: 'coffee', brand: 'DRIP LABB', name: 'Caffee Latte', price: 60000, isHot: false, isNew: true, imageUrl: latte },
+    { id: 'phin-den', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Cà phê Phin Đen', price: 29000, isHot: true, isNew: false, imageUrl: phinden },
+    { id: 'phin-nau', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Cà phê Phin Nâu', price: 29000, isHot: false, isNew: false, imageUrl: phinnau },
+    { id: 'bac-xiu', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Bạc Xỉu Kem Xốp', price: 40000, isHot: false, isNew: true, imageUrl: bacsiu },
+    { id: 'capuchino', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Capuchino', price: 35000, isHot: false, isNew: false, imageUrl: capuchino },
+    { id: 'mocha', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Mocha', price: 35000, isHot: false, isNew: true, imageUrl: mocha },
+    { id: 'geisha', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Geisha', price: 35000, isHot: true, isNew: false, imageUrl: geisha },
+    { id: 'caffee-latte', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Caffee Latte', price: 60000, isHot: false, isNew: true, imageUrl: latte },
 
-    { id: 'matcha-latte', categoryId: 'tea', brand: 'DRIP LABB', name: 'Matcha Latte', price: 49000, isHot: true, isNew: false, imageUrl: matchaLatte },
-    { id: 'matcha-nong', categoryId: 'tea', brand: 'DRIP LABB', name: 'Matcha Nóng', price: 49000, isHot: true, isNew: false, imageUrl: matchaNong },
+    { id: 'matcha-latte', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Latte', price: 49000, isHot: true, isNew: false, imageUrl: matchaLatte },
+    { id: 'matcha-nong', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Nóng', price: 49000, isHot: true, isNew: false, imageUrl: matchaNong },
   ])
 
   function formatVnd(v) {
