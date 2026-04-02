@@ -31,13 +31,48 @@ function closePreview() {
   router.replace({ query: { ...route.query, preview: undefined } })
 }
 
-// --- 3. TOAST (THÔNG BÁO) ---
-const toast = ref('')
+// --- 3. NOTIFICATION MODAL (THAY TOAST) ---
+const notice = reactive({
+  open: false,
+  type: 'info', // 'success' | 'warning' | 'error' | 'info'
+  title: '',
+  message: '',
+  code: '',
+  buttonText: 'Hoàn tất',
+  autoCloseMs: 0,
+})
 
-function showToast(msg) {
-  toast.value = msg
-  clearTimeout(showToast._t)
-  showToast._t = setTimeout(() => (toast.value = ''), 1800)
+function closeNotice() {
+  notice.open = false
+  notice.autoCloseMs = 0
+}
+
+function showNotice({
+  type = 'info',
+  title = 'Thông báo',
+  message = '',
+  code = '',
+  buttonText = 'Hoàn tất',
+  autoCloseMs = 0,
+}) {
+  notice.type = type
+  notice.title = title
+  notice.message = message
+  notice.code = code
+  notice.buttonText = buttonText
+  notice.autoCloseMs = autoCloseMs
+  notice.open = true
+
+  if (autoCloseMs && autoCloseMs > 0) {
+    clearTimeout(showNotice._t)
+    showNotice._t = setTimeout(() => {
+      closeNotice()
+    }, autoCloseMs)
+  }
+}
+
+function genOrderCode() {
+  return `ORD-${Date.now()}`
 }
 
 // --- 4. DATA SẢN PHẨM ĐÃ ĐỒNG BỘ VỚI MENUVIEW.JS ---
@@ -92,7 +127,7 @@ const toppingGroup = {
   id: 'topping',
   title: 'TOPPING',
   type: 'multi',
-  max: 3, // ✅ tối đa 3 topping
+  max: 3,
   items: [
     { id: 'top_1', label: 'Trân châu Đen', priceDelta: 5000 },
     { id: 'top_2', label: 'Trân Châu Ngọc Trai', priceDelta: 5000 },
@@ -105,15 +140,14 @@ const toppingGroup = {
   ],
 }
 
-// giữ loop cho các group còn lại (Cốc + Topping)
 const groups = computed(() => [cupGroup, toppingGroup])
 
 // --- 6. SELECTIONS ---
 const selections = reactive({
-  cup: new Set(['cup_plastic']), // mặc định cốc nhựa
-  sugar: new Set(),              // lock max 1
-  ice: new Set(),                // lock max 1
-  topping: new Set(),            // lock max 3
+  cup: new Set(['cup_plastic']),
+  sugar: new Set(),
+  ice: new Set(),
+  topping: new Set(),
 })
 
 const qty = ref(1)
@@ -135,13 +169,11 @@ function selectSingle(groupId, itemId) {
  * - sugar: max 1
  * - ice: max 1
  * - topping: max 3
- * Đã chọn đủ max => disable các item khác (nhưng vẫn cho bỏ chọn item đang chọn)
  */
 function isOptionDisabled(groupId, itemId, max) {
   const set = selections[groupId]
   const checked = set?.has?.(itemId) || false
-  if (checked) return false // vẫn cho click để bỏ chọn
-
+  if (checked) return false
   const count = set ? set.size : 0
   return count >= max
 }
@@ -149,25 +181,35 @@ function isOptionDisabled(groupId, itemId, max) {
 function toggleWithLock(groupId, itemId, max, msgWhenBlocked) {
   const set = selections[groupId] || (selections[groupId] = new Set())
 
-  // bỏ chọn
   if (set.has(itemId)) {
     set.delete(itemId)
     return
   }
 
-  // chặn chọn thêm
   if (set.size >= max) {
-    showToast(msgWhenBlocked)
+    // ✅ cảnh báo dạng modal (auto close)
+    showNotice({
+      type: 'warning',
+      title: 'Thông báo',
+      message: msgWhenBlocked,
+      autoCloseMs: 1600,
+      buttonText: 'Đã hiểu',
+    })
     return
   }
 
   set.add(itemId)
 }
 
-// validate bắt buộc chọn đủ 1 đường + 1 đá
 function validateSugarIce() {
   if ((selections.sugar?.size || 0) !== 1 || (selections.ice?.size || 0) !== 1) {
-    showToast('Vui lòng chọn đúng 1 mức đường và 1 mức đá.')
+    showNotice({
+      type: 'warning',
+      title: 'Thiếu lựa chọn',
+      message: 'Vui lòng chọn đúng 1 mức đường và 1 mức đá.',
+      autoCloseMs: 0,
+      buttonText: 'Hoàn tất',
+    })
     return false
   }
   return true
@@ -177,25 +219,21 @@ function validateSugarIce() {
 const lineTotal = computed(() => {
   let optionPrice = 0
 
-  // sugar
   selections.sugar.forEach((id) => {
     const item = sugarItems.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
 
-  // ice
   selections.ice.forEach((id) => {
     const item = iceItems.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
 
-  // cup
   selections.cup.forEach((id) => {
     const item = cupGroup.items.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
 
-  // topping
   selections.topping.forEach((id) => {
     const item = toppingGroup.items.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
@@ -208,7 +246,14 @@ function addToCart() {
   if (!validateSugarIce()) return
 
   // TODO: sau này bạn thay bằng Pinia cart.addLine(...)
-  showToast('Đã thêm vào giỏ hàng!')
+  showNotice({
+    type: 'success',
+    title: 'Đặt hàng thành công!',
+    code: genOrderCode(),
+    message: 'Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.',
+    buttonText: 'Hoàn tất',
+    autoCloseMs: 0,
+  })
 }
 </script>
 
@@ -254,8 +299,7 @@ function addToCart() {
         <!-- RIGHT OPTIONS -->
         <div class="pb-10 md:col-span-7">
           <div class="space-y-8">
-
-            <!-- ✅ MỨC ĐƯỜNG - MỨC ĐÁ (LOCK 1 + 1) -->
+            <!-- MỨC ĐƯỜNG - MỨC ĐÁ -->
             <div class="border-b border-slate-100 pb-8">
               <div class="mb-6 flex items-center gap-2">
                 <span class="text-base font-bold uppercase tracking-wide text-slate-800">MỨC ĐƯỜNG - MỨC ĐÁ</span>
@@ -319,7 +363,7 @@ function addToCart() {
               </div>
             </div>
 
-            <!-- ✅ CỐC + TOPPING -->
+            <!-- CỐC + TOPPING -->
             <div v-for="g in groups" :key="g.id" class="border-b border-slate-100 pb-8 last:border-0">
               <div class="mb-6 flex items-center gap-2">
                 <span class="text-base font-bold uppercase tracking-wide text-slate-800">{{ g.title }}</span>
@@ -406,12 +450,38 @@ function addToCart() {
       </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- ✅ NOTIFICATION MODAL (GIỐNG ẢNH MẪU) -->
     <div
-      v-if="toast"
-      class="fixed bottom-6 left-1/2 z-120 -translate-x-1/2 rounded-full bg-black/80 px-4 py-2 text-sm text-white"
+      v-if="notice.open"
+      class="fixed inset-0 z-120 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
+      @click.self="closeNotice"
     >
-      {{ toast }}
+      <div class="w-full max-w-lg rounded-[28px] bg-[#FFF9F1] p-8 shadow-2xl ring-1 ring-black/5 text-center">
+        <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-white shadow-sm">
+          <span class="text-3xl">
+            {{ notice.type === 'success' ? '🎉' : notice.type === 'warning' ? '⚠️' : notice.type === 'error' ? '❌' : 'ℹ️' }}
+          </span>
+        </div>
+
+        <div class="text-3xl font-extrabold text-[#4B2E1E]">
+          {{ notice.title }}
+        </div>
+
+        <div v-if="notice.code" class="mt-4 inline-flex items-center justify-center rounded-xl border border-[#E0B37A] bg-[#FFF1DD] px-4 py-2 text-sm font-bold text-[#4B2E1E]">
+          Mã đơn: {{ notice.code }}
+        </div>
+
+        <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-[#7A5A43]">
+          {{ notice.message }}
+        </p>
+
+        <button
+          class="mx-auto mt-7 inline-flex min-w-40 items-center justify-center rounded-2xl bg-[#2B1B14] px-6 py-3 text-base font-bold text-white hover:bg-[#3A241B]"
+          @click="closeNotice"
+        >
+          {{ notice.buttonText }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
