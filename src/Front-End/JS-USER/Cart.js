@@ -1,8 +1,22 @@
 // ============================================================
-//  CartApp.js – Logic chính của Giỏ Hàng
+//  Cart.js – Logic chính của Giỏ Hàng
 //  Dữ liệu mock nằm trực tiếp trong data() để test
 //  Khi có backend: thay cartItems bằng kết quả gọi API
 // ============================================================
+
+// SDT
+const TRANSFER_ACCOUNTS = {
+  '0901234567': 'NGUYEN VAN AN',
+  '0912345678': 'TRAN THI BINH',
+  '0923456789': 'LE HOANG MINH',
+  '0934567890': 'PHAM THI LAN',
+  '0945678901': 'HOANG VAN TUAN',
+  '0956789012': 'NGO THI HUONG',
+  '0967890123': 'VU QUOC BAO',
+  '0978901234': 'DANG THI MAI',
+  '0989012345': 'BUI VAN KHANH',
+  '0990123456': 'DO THI NGOC',
+}
 
 export default {
   name: 'CartApp',
@@ -108,6 +122,13 @@ export default {
       // ── Thanh toán ──
       paymentMethod: 'COD',
 
+      // ── Chuyển khoản (giống MoMo CounterOrder) ──
+      transferPhone: '',
+      transferName: '',
+      transferStep: 1,       // 1 = nhập SĐT, 2 = xác nhận
+      transferError: '',
+      transferLoading: false,
+
       // ── Trạng thái ──
       isPlacingOrder: false,
 
@@ -183,7 +204,12 @@ export default {
     },
 
     // ── Order modal ──
-    openOrderModal()  { if (this.selectedItems.length) this.showOrderModal = true; },
+    openOrderModal()  {
+      if (this.selectedItems.length) {
+        this.resetTransfer();
+        this.showOrderModal = true;
+      }
+    },
     closeOrderModal() { this.showOrderModal = false; },
 
     // ── Coupon (mock) ──
@@ -211,12 +237,53 @@ export default {
       this.couponMessage  = '';
     },
 
+    // ── Chuyển khoản – giống MoMo CounterOrder ──
+    resetTransfer() {
+      this.transferPhone   = '';
+      this.transferName    = '';
+      this.transferStep    = 1;
+      this.transferError   = '';
+      this.transferLoading = false;
+    },
+
+    onTransferPhoneInput(e) {
+      const clean = e.target.value.replace(/\D/g, '').slice(0, 10);
+      this.transferPhone   = clean;
+      this.transferError   = '';
+      this.transferName    = '';
+      this.transferLoading = false;
+
+      if (clean.length === 10) {
+        this.transferLoading = true;
+        setTimeout(() => {
+          this.transferLoading = false;
+          if (TRANSFER_ACCOUNTS[clean]) {
+            this.transferName  = TRANSFER_ACCOUNTS[clean];
+            this.transferError = '';
+          } else {
+            this.transferName  = '';
+            this.transferError = 'Không tìm thấy tài khoản ngân hàng';
+          }
+        }, 900);
+      }
+    },
+
+    confirmTransferReceiver() {
+      if (!this.transferName) return;
+      this.transferStep = 2;
+    },
+
+    backTransfer() {
+      this.transferStep = 1;
+    },
+
     // ── Place order (mock) ──
     placeOrder() {
       if (this.isPlacingOrder) return;
+      // Nếu chọn chuyển khoản mà chưa xác nhận người nhận
+      if (this.paymentMethod === 'TRANSFER' && this.transferStep < 2) return;
       this.isPlacingOrder = true;
 
-      // Giả lập delay gọi API 800ms
       setTimeout(() => {
         this.lastOrderId      = 'ORD-' + Date.now();
         this.showOrderModal   = false;
@@ -224,6 +291,7 @@ export default {
         this.cartItems        = this.cartItems.filter(i => !orderedIds.includes(i.id));
         this.selectedIds      = [];
         this.removeCoupon();
+        this.resetTransfer();
         this.showSuccessModal = true;
         this.isPlacingOrder   = false;
       }, 800);

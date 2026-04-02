@@ -48,7 +48,7 @@
                 {{ invoice.receive_type }}
               </span>
             </td>
-            <td>{{ invoice.final_price.toLocaleString('vi-VN') }} VND</td>
+            <td>{{ invoice.final_price.toLocaleString('vi-VN') }} đ</td>
             <td>
               <button class="view-btn" @click="openInvoice(invoice)">Xem thêm</button>
             </td>
