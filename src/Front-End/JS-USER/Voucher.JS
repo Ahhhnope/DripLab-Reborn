@@ -6,7 +6,7 @@ export function useVoucher() {
   const vouchers = ref([
     {
       id: 1,
-      code: 'WELCOME10',
+      code: 'WELCOME 10',
       discount: 'Giảm 10%',
       expiry: '12/4/2026',
       minOrder: '1.000.000 đ',
@@ -15,7 +15,7 @@ export function useVoucher() {
     },
     {
       id: 2,
-      code: 'SAVE50K',
+      code: 'Giảm 50K',
       discount: 'Giảm 50.000đ',
       expiry: '12/4/2026',
       minOrder: '500.000 đ',
@@ -24,7 +24,7 @@ export function useVoucher() {
     },
     {
       id: 3,
-      code: 'RUN20',
+      code: 'SALE 20',
       discount: 'Giảm 20%',
       expiry: '2/4/2026',
       minOrder: '2.000.000 đ',
@@ -33,7 +33,7 @@ export function useVoucher() {
     },
     {
       id: 4,
-      code: 'FREESHIP30',
+      code: 'FREESHIP 30',
       discount: 'Giảm 30.000đ',
       expiry: '28/3/2026',
       minOrder: '300.000 đ',
@@ -63,7 +63,7 @@ export function useVoucher() {
     vouchers.value.filter((v) => v.status === 'used' || v.status === 'expired')
   )
 
-  const totalCount = computed(() => vouchers.value.length)
+  const totalCount = computed(() => activeVouchers.value.length)
   const activeCount = computed(() => activeVouchers.value.length)
   const usedCount = computed(() => usedExpiredVouchers.value.length)
 
