@@ -4,7 +4,12 @@
 
     <OrderStatusTab v-model="activeTab" />
     <OrderFilter @apply="applyFilter" />
-    <OrderTable :items="items" @view="onView" @confirm="onConfirm" @cancel="onCancel" />
+    <OrderTable :items="items"
+      @view="onView" 
+      @edit-saved="handleEditSaved"
+      @delete-confirmed="handleDeleteConfirmed"
+      @confirm="onConfirm"
+      @cancel="onCancel" />
 
     <OrderDetailModal
       v-model:open="detailOpen"
@@ -36,3 +41,13 @@ function onView(row) {
 function onConfirm(row) { console.log("confirm", row); }
 function onCancel(row) { console.log("cancel", row); }
 </script>
+
+<style scoped>
+.page-title {
+  text-align: left;      /* Căn giữa chữ */
+  font-size: 28px;         /* Làm chữ to ra (bạn có thể thay đổi số này) */
+  font-weight: bold;       /* In đậm chữ cho giống tiêu đề */
+  margin-bottom: 20px;     /* Tạo khoảng cách với phần bộ lọc phía dưới */
+  color: #333;             /* Màu chữ (tuỳ chọn) */
+}
+</style>
