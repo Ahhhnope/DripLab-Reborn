@@ -16,7 +16,7 @@ export async function addDrink(drink) {
 };
 
 export async function updateDrink(drink) {
-  await fetch(`${API}/api/drinks/${drink.id}`, {
+  await fetch(`${API}/api/drinks/update/${drink.id}`, {
     method: "PUT",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify(drink)
@@ -24,7 +24,7 @@ export async function updateDrink(drink) {
 };
 
 export async function deleteDrink(id) {
-  await fetch(`${API}/api/drinks/${id}`, {
+  await fetch(`${API}/api/drinks/remove/${id}`, {
     method: "DELETE"
   });
 };

@@ -37,8 +37,8 @@ export function useCounterOrder() {
     onMounted(async () => {
         try {
             const [drinkRes, toppingRes] = await Promise.all([
-                api.get('/api/drinks'),
-                api.get('/api/ingredients/toppings')
+                api.get('/drinks'),
+                api.get('/ingredients/toppings')
             ]);
             drinks.value = drinkRes.data;
             toppings.value = toppingRes.data;

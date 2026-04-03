@@ -12,7 +12,7 @@ export function useIngredients(type, prefix) {
   const fetchIngredients = async () => {
     loading.value = true
     try {
-      const response = await api.get(`/api/ingredients/${type}`)
+      const response = await api.get(`/ingredients/${type}`)
       data.value = response.data
     } catch (e) {
       console.error("Connection Error:", e)
