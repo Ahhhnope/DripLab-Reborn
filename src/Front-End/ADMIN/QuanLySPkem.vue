@@ -108,7 +108,7 @@ const {
   openAdd, openEdit, submitForm,
   showConfirm, deleteTarget, openConfirm, doDelete,
   toastShow, toastMsg, toastType, showToast
-} = useIngredients('ice-creams', 'KEM');
+} = useIngredients('ice-creams', 'K');
 
 const handleSubmit = async () => {
   const result = await submitForm();

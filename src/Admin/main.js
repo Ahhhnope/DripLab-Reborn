@@ -32,7 +32,6 @@ const routes = [
     {
         path: '/',
         component: FrameInterface,
-        meta: {requiresAdmin: true},
         children: [
             { path: 'QuanLyDonTaiQuay', component: CounterOrder },
             { path: 'AdminPOS', component: AdminPOScustom },
@@ -59,15 +58,6 @@ const router = createRouter({
     routes,
 });
 
-
-router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    if (!user || user.role !== 'ADMIN') return next('/login');
-  }
-  next();
-});
 
 
 
