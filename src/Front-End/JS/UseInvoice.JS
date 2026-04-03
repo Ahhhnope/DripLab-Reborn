@@ -1,5 +1,5 @@
 import { ref } from "vue"
-import axios from "axios"
+import api from "../../api/axios"
 
 const invoices         = ref([])
 const filteredInvoices = ref([])
@@ -12,7 +12,7 @@ const toDate        = ref("")
 
 async function loadInvoices() {
   try {
-    const res = await axios.get("http://localhost:8080/invoices")
+    const res = await api.get("/api/invoices")
     invoices.value         = res.data
     filteredInvoices.value = res.data
   } catch (err) {

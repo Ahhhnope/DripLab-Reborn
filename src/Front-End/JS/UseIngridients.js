@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
-import axios from 'axios'
+import api from '../../api/axios'
 
 const API_BASE = 'http://localhost:8080/api/ingredients'
 const PAGE_SIZE = 5
@@ -12,7 +12,7 @@ export function useIngredients(type, prefix) {
   const fetchIngredients = async () => {
     loading.value = true
     try {
-      const response = await axios.get(`${API_BASE}/${type}`)
+      const response = await api.get(`/api/ingredients/${type}`)
       data.value = response.data
     } catch (e) {
       console.error("Connection Error:", e)

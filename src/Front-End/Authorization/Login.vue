@@ -1,5 +1,5 @@
 <script setup>
-import { useLogin } from '../Authorization/Login.JS'
+import { useLogin } from '../Authorization/Login.js'
 
 const {
   identifier,

@@ -7,25 +7,6 @@ import './main.css'
 import { useAuthStore } from '../Front-End/Authorization/Auth'
 
 //gate boiz
-axios.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-axios.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 401) {
-      // Token is invalid or expired lmao
-      const authStore = useAuthStore()
-      authStore.logout()
-    }
-    return Promise.reject(error)
-  }
-)
 
 
 //Holy maccaroni that sa lot ta spaghet
@@ -50,6 +31,12 @@ import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
 
 
+
+
+const app = createApp(App)
+
+const pinia = createPinia()
+app.use(pinia)
 
 const routes = [
     {
@@ -127,34 +114,20 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  // Check if a user exists in this localhost's storage
-  const isAuthenticated = !!localStorage.getItem('user')
+    const auth = useAuthStore()
+    
+    const isAuthenticated = !!auth.token && !!auth.user
 
-  if (to.meta.requireAuth && !isAuthenticated) {
-    next('/login')
-  } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
-    next('/homepage')
-  } else {
-    next()
-  }
+    if (to.meta.requireAuth && !isAuthenticated) {
+        next('/login')
+    } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
+        next('/homepage')
+    } else {
+        next()
+    }
 })
 
 
-const app = createApp(App)
-const pinia = createPinia()
 
-
-const authStore = useAuthStore(pinia)
-
-//check user status before startup
-const savedUser = localStorage.getItem('user')
-const savedToken = localStorage.getItem('token')
-
-if (savedUser && savedToken) {
-  authStore.setUser(JSON.parse(savedUser), savedToken)
-}
-
-
-app.use(pinia)
 app.use(router)
 app.mount('#app')

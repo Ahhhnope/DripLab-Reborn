@@ -25,12 +25,14 @@ import QuanLySPkem from '@/Front-End/ADMIN/QuanLySPkem.vue'
 import QuanLySPKemBeo from '@/Front-End/ADMIN/QuanLySPKemBeo.vue'
 import Toppings from '../Front-End/ADMIN/Toppings.vue'
 import AdminDashboard from '../Front-End/ADMIN/AdminDashboard.vue'
+import Login from '../Front-End/Authorization/Login.vue'
 
 const pinia = createPinia();
 const routes = [
     {
         path: '/',
         component: FrameInterface,
+        meta: {requiresAdmin: true},
         children: [
             { path: 'QuanLyDonTaiQuay', component: CounterOrder },
             { path: 'AdminPOS', component: AdminPOScustom },
@@ -48,13 +50,25 @@ const routes = [
             { path: 'QuanLyTopping', component: Toppings },
             { path: 'Dashboard', component: AdminDashboard },
         ]
-    }
+    },
+    { path: '/login', component: Login },
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
 });
+
+
+router.beforeEach((to, from, next) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (!user || user.role !== 'ADMIN') return next('/login');
+  }
+  next();
+});
+
 
 
 createApp(App).use(pinia).use(router).mount('#app')

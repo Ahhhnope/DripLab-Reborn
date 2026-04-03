@@ -8,7 +8,7 @@ const error = ref(null); // Add this
 
 onMounted(async () => {
     try {
-        const res = await api.get('/admin/stats/dashboard-stats');
+        const res = await api.get('/api/admin/stats/dashboard-stats');
         console.log("API Response:", res.data); // Look for this in F12 Console!
         stats.value = res.data;
     } catch (err) {
@@ -41,7 +41,7 @@ onMounted(async () => {
 
     <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
        <h3 class="text-lg font-bold mb-4 text-stone-800">Biểu đồ doanh thu</h3>
-       <div class="h-[400px]">
+       <div class="h-100">
         <DashboardChart v-if="stats.chartData" :apiData="stats.chartData" />
        </div>
     </div>
