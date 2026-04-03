@@ -1,108 +1,283 @@
+/* ==============================
+   ABOUT US — DRIP LAB COFFEE
+   Dark / Cinematic Style
+============================== */
+
 .about-container {
   width: 100%;
-  background: #f6f4f1;
-  padding: 60px 0;
-  font-family: 'Segoe UI', sans-serif;
+  background: #f8f6f2;
+  font-family: 'Segoe UI', 'Inter', sans-serif;
+  color: #1a1a1a;
+  overflow-x: hidden;
 }
 
-/* ===== SECTION 1 ===== */
-.about-top {
-  width: 75%;
-  margin: auto;
-  text-align: center;
-}
-
-.section-label {
-  text-align: left;
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 25px;
-  color: #5a3e2b;
-}
-
-.about-image img {
+/* ===== HERO SECTION ===== */
+.about-hero {
+  position: relative;
   width: 100%;
-  max-width: 750px;   
-  height: 350px;     
-  object-fit: cover;  
-  border-radius: 14px;
+  height: 560px;
+  overflow: hidden;
+}
+
+.about-hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
-  margin: auto;
+  filter: brightness(0.55);
 }
 
-/* Title */
-.philosophy-title {
-  font-size: 32px;
-  margin-top: 35px;
-  color: #7a7a7a;
-  font-weight: 700;
-}
-
-/* Text dưới title */
-.philosophy-text {
-  width: 60%;
-  margin: 15px auto 0;
-  color: #9a9a9a;
-  line-height: 1.8;
-  font-size: 14px;
-}
-
-/* ===== SECTION 2 ===== */
-.about-bottom {
-  width: 75%;
-  margin: 80px auto 0;
+.about-hero__overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 60px;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 60px;
 }
 
-.about-bottom-left img {
-  width: 100%;
-  max-width: 420px;
-  border-radius: 14px;
+.about-hero__label {
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 12px;
 }
 
-/* RIGHT TEXT */
-.about-bottom-right {
-  flex: 1;
+.about-hero__title {
+  font-size: 52px;
+  font-weight: 900;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  line-height: 1.1;
+  margin: 0;
 }
 
-.about-bottom-right h2 {
+/* ===== PHILOSOPHY SECTION ===== */
+.about-philosophy {
+  max-width: 860px;
+  margin: 80px auto;
+  text-align: center;
+  padding: 0 30px;
+}
+
+.about-philosophy__title {
   font-size: 30px;
-  margin-bottom: 20px;
-  color: #7a7a7a;
-  font-weight: 700;
+  font-weight: 800;
+  color: #1a2a4a;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
 }
 
-.about-bottom-right p {
-  color: #9a9a9a;
-  line-height: 1.8;
+.about-philosophy__text {
   font-size: 15px;
-  margin-bottom: 10px;
+  line-height: 2;
+  color: #555;
 }
 
-/* READ MORE */
-.read-more {
-  color: #ff7a00;
-  cursor: pointer;
-  font-weight: 600;
-  display: inline-block;
-  margin-top: 10px;
+/* ===== HERITAGE SECTION ===== */
+.about-heritage {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 460px;
+  background: #1a2a4a;
+  overflow: hidden;
 }
+
+.about-heritage__img {
+  width: 55%;
+  height: 460px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  flex-shrink: 0;
+}
+
+.about-heritage__content {
+  flex: 1;
+  padding: 60px 70px;
+  color: #fff;
+}
+
+.about-heritage__title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 28px;
+}
+
+.about-heritage__text {
+  font-size: 15px;
+  line-height: 2;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== VISION SECTION ===== */
+.about-vision {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 480px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.about-vision__content {
+  flex: 1;
+  padding: 60px 80px;
+}
+
+.about-vision__title {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #1a2a4a;
+  margin-bottom: 16px;
+}
+
+.about-vision__subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.about-vision__img {
+  width: 52%;
+  height: 480px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ===== GOAL SECTION ===== */
+.about-goal {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  overflow: hidden;
+}
+
+.about-goal__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: brightness(0.4);
+}
+
+.about-goal__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 80px;
+  color: #fff;
+  max-width: 700px;
+}
+
+.about-goal__title {
+  font-size: 36px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: #ffffff;
+  margin-bottom: 28px;
+}
+
+.about-goal__text {
+  font-size: 17px;
+  line-height: 2.1;
+  color: rgba(255, 255, 255, 0.85);
+}
+
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .about-bottom {
+@media (max-width: 992px) {
+  .about-hero {
+    height: 400px;
+  }
+
+  .about-hero__title {
+    font-size: 34px;
+  }
+
+  .about-hero__overlay {
+    padding: 36px 30px;
+  }
+
+  .about-heritage {
     flex-direction: column;
-    text-align: center;
   }
 
-  .philosophy-text {
-    width: 90%;
+  .about-heritage__img {
+    width: 100%;
+    height: 300px;
   }
 
-  .about-top,
-  .about-bottom {
+  .about-heritage__content {
+    padding: 40px 30px;
+  }
+
+  .about-vision {
+    flex-direction: column-reverse;
+  }
+
+  .about-vision__img {
+    width: 100%;
+    height: 320px;
+  }
+
+  .about-vision__content {
+    padding: 40px 30px;
+  }
+
+  .about-info {
+    flex-direction: column;
     width: 90%;
+    gap: 36px;
+  }
+
+  .about-info__img {
+    width: 100%;
+    height: 260px;
+  }
+
+  .about-goal__overlay {
+    padding: 0 30px;
+  }
+
+  .about-goal__title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-philosophy {
+    margin: 50px auto;
+  }
+
+  .about-philosophy__title {
+    font-size: 22px;
+  }
+
+  .about-heritage__title,
+  .about-vision__title {
+    font-size: 22px;
+  }
+
+  .about-info__title {
+    font-size: 22px;
   }
 }

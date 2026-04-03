@@ -73,6 +73,12 @@ export function useHeader() {
     router.push('/cart')
   }
 
+  function goToAccount() {
+    activeUserAction.value = 'account'
+    closeUserDropdown()
+    router.push('/account')
+  }
+
   // ==============================
   // AUTO RESET SAU MỖI NAVIGATE
   // ==============================
@@ -98,5 +104,6 @@ export function useHeader() {
     goToLogin,
     goToRegister,
     goToCart,
+    goToAccount,
   }
 }

@@ -5,6 +5,7 @@ const {
   goToLogin,
   goToRegister,
   goToCart,
+  goToAccount,
   showMenuDropdown,
   showUserDropdown,
   activeMenuOption,
@@ -88,6 +89,14 @@ const {
 
               <div class="ud-header">
                 <span>Thông Tin Tài Khoản</span>
+                <button
+                  class="ud-settings-btn"
+                  :class="{ 'option-active': activeUserAction === 'account' }"
+                  @click="goToAccount"
+                  aria-label="Cài đặt tài khoản"
+                >
+                  <span class="material-symbols-outlined">settings</span>
+                </button>
               </div>
 
               <div class="ud-profile">

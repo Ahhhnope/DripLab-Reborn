@@ -1,4 +1,6 @@
+<!-- Brewing.vue (đã thêm popup thông báo khi “Thêm vào giỏ hàng”) -->
 <script setup>
+import { ref, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useBrewing } from '../JS-USER/Brewing.js'
  
 const {
@@ -12,10 +14,49 @@ const {
   price, formatVnd,
   notice,
 } = useBrewing()
- 
-function addToCart() {
-  alert(`Đã thêm vào giỏ: ${formatVnd(price.value)}`)
+
+// ─────────────────────────────────────────────────────────────
+// Popup thông báo “đã thêm vào giỏ” (giống mẫu ảnh)
+// ─────────────────────────────────────────────────────────────
+const cartPopupOpen = ref(false)
+const orderCode = ref('')
+const popupBackdropEl = ref(null)
+
+function makeOrderCode() {
+  // ORD- + epoch ms (đủ giống mẫu, bạn có thể thay bằng mã backend)
+  return `ORD-${Date.now()}`
 }
+
+function openCartPopup() {
+  orderCode.value = makeOrderCode()
+  cartPopupOpen.value = true
+  document.documentElement.classList.add('no-scroll')
+}
+
+watch(cartPopupOpen, async (v) => {
+  if (v) {
+    await nextTick()
+    popupBackdropEl.value?.focus?.()
+  }
+})
+
+function closeCartPopup() {
+  cartPopupOpen.value = false
+  document.documentElement.classList.remove('no-scroll')
+}
+
+function addToCart() {
+  // TODO: chỗ này bạn gắn logic “thêm vào giỏ” thật (store/pinia/localStorage/api)
+  openCartPopup()
+}
+
+function onPopupKeydown(e) {
+  if (e.key === 'Escape') closeCartPopup()
+}
+
+onBeforeUnmount(() => {
+  document.documentElement.classList.remove('no-scroll')
+})
 </script>
  
 <template>
@@ -98,11 +139,6 @@ function addToCart() {
                     <rect x="0" y="0" width="200" height="300"
                       :fill="cupLayers.bean.show ? 'rgba(30,12,4,0.08)' : 'rgba(220,210,200,0.10)'"
                     />
- 
-                    <!--
-                      Mỗi layer: rect chiếm toàn bộ chiều cao vùng lỏng (244px từ y=28→272)
-                      scaleY từ bottom → tạo hiệu ứng "đổ vào cốc từ dưới lên"
-                    -->
  
                     <!-- LAYER 1: Bean (đáy) -->
                     <rect
@@ -290,7 +326,7 @@ function addToCart() {
               </div>
             </div>
  
-            <!-- Thông báo -->
+            <!-- Thông báo nhỏ -->
             <div v-if="notice" class="cup-notice">{{ notice }}</div>
  
             <!-- Nút hành động -->
@@ -456,6 +492,43 @@ function addToCart() {
  
       </div>
     </main>
+
+    <!-- ══════════════════════════════════════════
+         POPUP THÔNG BÁO “THÊM VÀO GIỎ”
+         - click nền đen để đóng
+         - nhấn ESC để đóng
+    ══════════════════════════════════════════ -->
+    <transition name="cart-pop">
+      <div
+        v-if="cartPopupOpen"
+        ref="popupBackdropEl"
+        class="cart-pop__backdrop"
+        role="dialog"
+        aria-modal="true"
+        @click.self="closeCartPopup"
+        @keydown="onPopupKeydown"
+        tabindex="-1"
+      >
+        <div class="cart-pop__card">
+          <div class="cart-pop__icon" aria-hidden="true">
+            <span class="cart-pop__icon-inner">🎉</span>
+          </div>
+
+          <h3 class="cart-pop__title">Đặt hàng thành công!</h3>
+
+          <div class="cart-pop__order">
+            Mã đơn: <b>{{ orderCode }}</b>
+          </div>
+
+          <p class="cart-pop__desc">
+            Đã thêm vào giỏ hàng với tổng tiền <b>{{ formatVnd(price) }}</b>.
+            Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.
+          </p>
+
+          <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
  

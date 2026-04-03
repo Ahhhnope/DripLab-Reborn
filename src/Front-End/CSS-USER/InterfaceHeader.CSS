@@ -201,6 +201,43 @@
   letter-spacing: 0.12em;
   color: #fff;
   text-transform: uppercase;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ==============================
+   SETTINGS (GEAR) BUTTON
+============================== */
+.ud-settings-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: color 0.18s ease, background 0.18s ease, transform 0.25s ease;
+  line-height: 1;
+}
+
+.ud-settings-btn .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.ud-settings-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  transform: rotate(45deg);
+}
+
+.ud-settings-btn.option-active {
+  color: #a8d4b8;
+  background: rgba(168, 212, 184, 0.15);
+  transform: rotate(90deg);
 }
 
 .ud-profile {
