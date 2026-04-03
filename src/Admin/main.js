@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 
@@ -8,7 +9,7 @@ import './main.css'
 // Import các Component chính
 import FrameInterface from '@/Front-End/ADMIN/FrameInterface.vue'
 import CounterOrder from '@/Front-End/ADMIN/CounterOrder.vue'
-import AdminPOS from '@/Front-End/ADMIN/AdminPOS.vue'
+import AdminPOScustom from '@/Front-End/ADMIN/AdminPOScustom.vue'
 import AdminInvoice from '@/Front-End/ADMIN/AdminInvoice.vue'
 import KhuyenMai from '@/Front-End/ADMIN/KhuyenMai.vue'
 import OrderList from '@/Front-End/ADMIN/OrderList.vue'
@@ -23,14 +24,16 @@ import QuanLySPHatCaPhe from '@/Front-End/ADMIN/QuanLySPHatCaPhe.vue'
 import QuanLySPkem from '@/Front-End/ADMIN/QuanLySPkem.vue'
 import QuanLySPKemBeo from '@/Front-End/ADMIN/QuanLySPKemBeo.vue'
 import Toppings from '../Front-End/ADMIN/Toppings.vue'
+import AdminDashboard from '../Front-End/ADMIN/AdminDashboard.vue'
 
+const pinia = createPinia();
 const routes = [
     {
         path: '/',
         component: FrameInterface,
         children: [
             { path: 'QuanLyDonTaiQuay', component: CounterOrder },
-            { path: 'AdminPOS', component: AdminPOS },
+            { path: 'AdminPOS', component: AdminPOScustom },
             { path: 'QuanLyHoaDon', component: AdminInvoice },
             { path: 'QuanLyKhuyenMai', component: KhuyenMai },
             { path: 'QuanLyDonHang', component: OrderList },
@@ -43,6 +46,7 @@ const routes = [
             { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe },
             { path: 'QuanLyCachThuc', component: QuanLySPCachThuc },
             { path: 'QuanLyTopping', component: Toppings },
+            { path: 'Dashboard', component: AdminDashboard },
         ]
     }
 ]
@@ -52,4 +56,5 @@ const router = createRouter({
     routes,
 });
 
-createApp(App).use(router).mount('#app')
+
+createApp(App).use(pinia).use(router).mount('#app')

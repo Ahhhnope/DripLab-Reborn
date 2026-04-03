@@ -19,7 +19,7 @@ export function useAdminMenu() {
         {
             title: 'Báo cáo & Phân tích',
             items: [
-                { id: 1, label: 'Thống kê', icon: ChartBarIcon, path: '/' },
+                { id: 1, label: 'Thống kê', icon: ChartBarIcon, path: '/Dashboard' },
             ]
         },
         {

@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import { useCounterOrder } from "../JS/CounterOrder.JS";
+import { useCounterOrder } from "../JS/CounterOrder.service.js";
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
@@ -15,7 +15,7 @@ const {
   momoPhone, momoName, momoStep, momoError, momoLoading,
   onMomoPhoneInput, confirmMomoReceiver, backMomo,
   showPopup, selectedProduct, toppingList, selectedToppings, selectedSize, selectedQty,
-  openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
+  openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder, receiptData
 } = useCounterOrder()
 
 function handleProductClick(product) {
@@ -46,7 +46,7 @@ function handleProductClick(product) {
         </div>
         <div class="product-grid">
           <div v-for="product in products" :key="product.id" class="product-card" @click="handleProductClick(product)">
-            <img :src="product.image" :alt="product.name" class="product-img" />
+            <img :src="product.imageUrl" :alt="product.name" class="product-img" />
             <p class="product-name" :class="{ bold: product.id === 0 }">{{ product.name }}</p>
           </div>
         </div>
@@ -133,10 +133,12 @@ function handleProductClick(product) {
           <div class="size-col">
             <p class="popup-label">Size</p>
             <div class="size-group">
-              <button class="size-btn" :class="{ selected: selectedSize === 'M' }"
-                @click="selectedSize = 'M'">M</button>
-              <button class="size-btn" :class="{ selected: selectedSize === 'L' }"
-                @click="selectedSize = 'L'">L</button>
+              <button class="size-btn" :class="{ selected: selectedSize === 1 }"
+                @click="selectedSize = 1">S</button>
+              <button class="size-btn" :class="{ selected: selectedSize === 2 }"
+                @click="selectedSize = 2">M</button>
+              <button class="size-btn" :class="{ selected: selectedSize === 3 }"
+                @click="selectedSize = 3">L</button>
             </div>
           </div>
           <div class="qty-col">
@@ -302,7 +304,7 @@ function handleProductClick(product) {
             <div class="success-icon">✓</div>
           </div>
           <h2 class="success-title">Giao dịch thành công</h2>
-          <p class="success-amount">{{ finalPrice.toLocaleString() }}đ</p>
+          <p class="success-amount">{{ receiptData.finalPrice.toLocaleString() }}đ</p>
 
           <!-- ── TIỀN MẶT: bố cục mới ── -->
           <template v-if="paymentMethod === 'cash'">
@@ -325,7 +327,7 @@ function handleProductClick(product) {
               <div class="receipt-divider"></div>
               <div class="success-row b">
                 <span>Số tiền thanh toán</span>
-                <span class="cash-need">{{ finalPrice.toLocaleString() }} VNĐ</span>
+                <span class="cash-need">{{ receiptData.finalPrice.toLocaleString() }} VNĐ</span>
               </div>
               <div class="success-row b">
                 <span>Khách đưa</span>
@@ -333,7 +335,7 @@ function handleProductClick(product) {
               </div>
               <div class="success-row b">
                 <span>Tiền thừa trả khách</span>
-                <span class="cash-change">{{ changeAmount.toLocaleString() }} VNĐ</span>
+                <span class="cash-change">{{ receiptData.change.toLocaleString() }} VNĐ</span>
               </div>
             </div>
           </template>

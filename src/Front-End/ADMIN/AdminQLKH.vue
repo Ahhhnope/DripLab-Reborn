@@ -32,7 +32,7 @@
           <td>{{ index + 1 }}</td>
           <td>{{ cus.id }}</td>
           <td>{{ cus.name }}</td>
-          <td>{{ cus.username }}</td>
+          <td>{{ cus.username }}</td> <!-- that's email my dude ;-; -->
           <td>{{ cus.password }}</td>
           <td>{{ cus.phone }}</td>
           <td>{{ cus.address }}</td>
