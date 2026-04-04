@@ -48,7 +48,7 @@ export async function updateDrink(drink) {
 }
 
 
-// ---- Upload ảnh ----
+//Upload ảnh
 export async function uploadImage(file) {
   const formData = new FormData();
   formData.append("file", file);
@@ -60,7 +60,7 @@ export async function uploadImage(file) {
   return data.imageUrl; // trả về "/IMG/uuid.jpg"
 }
 
-// ---- Thành phần ----
+//Thành phần
 export async function getCoffeeBeans() {
   const res = await fetch(`${API}/api/ingredients/coffee-beans`);
   return await res.json();
