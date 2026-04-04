@@ -1,128 +1,74 @@
 import { ref, computed } from 'vue'
 
 export function useVoucher() {
-  const activeTab = ref('available') // 'available' | 'used'
 
-  const vouchers = ref([
-    {
-      id: 1,
-      code: 'WELCOME 10',
-      discount: 'Giảm 10%',
-      expiry: '12/4/2026',
-      minOrder: '1.000.000 đ',
-      status: 'active', // active | used | expired
-      type: 'percent',
-    },
-    {
-      id: 2,
-      code: 'Giảm    50K',
-      discount: 'Giảm 50.000đ',
-      expiry: '12/4/2026',
-      minOrder: '500.000 đ',
-      status: 'active',
-      type: 'fixed',
-    },
-    {
-      id: 3,
-      code: 'SALE 20',
-      discount: 'Giảm 20%',
-      expiry: '2/4/2026',
-      minOrder: '2.000.000 đ',
-      status: 'active',
-      type: 'percent',
-    },
-    {
-      id: 4,
-      code: 'FREESHIP 30',
-      discount: 'Giảm 30.000đ',
-      expiry: '28/3/2026',
-      minOrder: '300.000 đ',
-      status: 'active',
-      type: 'fixed',
-    },
-    {
-      id: 5,
-      code: 'SUMMER15',
-      discount: 'Giảm 15%',
-      expiry: '1/1/2026',
-      minOrder: '800.000 đ',
-      status: 'used',
-      type: 'percent',
-    },
-  ])
-
+  const activeTab = ref('available')
+  const vouchers = ref([])
   const copiedCode = ref(null)
-  const toastMessage = ref('')
   const showToast = ref(false)
+  const toastMessage = ref('')
 
-  const activeVouchers = computed(() =>
-    vouchers.value.filter((v) => v.status === 'active')
-  )
+  // Gọi API lấy danh sách voucher
+  async function loadVouchers() {
+    const now = new Date()
+    const data = await fetch('/api/promo-codes').then(r => r.json())
 
-  const usedExpiredVouchers = computed(() =>
-    vouchers.value.filter((v) => v.status === 'used' || v.status === 'expired')
-  )
+    vouchers.value = data.map(v => ({
+      id: v.id,
+      rawCode: v.code,
+      code: v.code,
+      discount: v.category === 'PHẦN TRĂM'
+        ? `Giảm ${v.value}%`
+        : `Giảm ${(+v.value).toLocaleString('vi-VN')}đ`,
+      expiry: new Date(v.endDate).toLocaleDateString('vi-VN'),
+      minOrder: '—',
+      // active = còn dùng được, expired = hết hạn hoặc hết lượt
+      status: (!v.status || v.quantity <= 0 || new Date(v.endDate) < now)
+        ? 'expired'
+        : 'active'
+    }))
+  }
 
-  const totalCount = computed(() => activeVouchers.value.length)
-  const activeCount = computed(() => activeVouchers.value.length)
-  const usedCount = computed(() => usedExpiredVouchers.value.length)
-
+  // Tab "Đang khả dụng" hoặc "Đã dùng và hết hạn"
   const displayedVouchers = computed(() =>
-    activeTab.value === 'available' ? activeVouchers.value : usedExpiredVouchers.value
+    vouchers.value.filter(v =>
+      activeTab.value === 'available'
+        ? v.status === 'active'
+        : v.status !== 'active'
+    )
   )
 
-  function setTab(tab) {
-    activeTab.value = tab
-  }
+  const activeCount = computed(() => vouchers.value.filter(v => v.status === 'active').length)
+  const totalCount = computed(() => vouchers.value.length)
+  const usedCount = computed(() => totalCount.value - activeCount.value)
 
-  function triggerToast(msg) {
-    toastMessage.value = msg
+  function setTab(t) { activeTab.value = t }
+
+  // User bấm "Sao chép mã" → gọi API giảm quantity trên DB
+  async function copyCode(v) {
+    await navigator.clipboard.writeText(v.rawCode).catch(() => { })
+
+    copiedCode.value = v.id
+    toastMessage.value = `Đã sao chép: ${v.rawCode}`
     showToast.value = true
-    setTimeout(() => {
+
+    // Báo backend giảm quantity
+    await fetch(`/api/promo-codes/use/${v.id}`, { method: 'PUT' })
+
+    setTimeout(async () => {
+      copiedCode.value = null
       showToast.value = false
-    }, 2500)
+      await loadVouchers() // Refresh lại để đồng bộ DB
+    }, 2000)
   }
 
-  async function copyCode(voucher) {
-    try {
-      await navigator.clipboard.writeText(voucher.code)
-    } catch {
-      // fallback
-      const el = document.createElement('textarea')
-      el.value = voucher.code
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
-    }
-
-    copiedCode.value = voucher.id
-
-    // Move to used
-    const idx = vouchers.value.findIndex((v) => v.id === voucher.id)
-    if (idx !== -1) {
-      setTimeout(() => {
-        vouchers.value[idx].status = 'used'
-        copiedCode.value = null
-      }, 800)
-    }
-
-    triggerToast(`Đã sao chép mã: ${voucher.code}`)
-  }
+  // Chạy ngay khi component mount
+  loadVouchers()
 
   return {
-    activeTab,
-    vouchers,
-    activeVouchers,
-    usedExpiredVouchers,
-    displayedVouchers,
-    totalCount,
-    activeCount,
-    usedCount,
-    copiedCode,
-    showToast,
-    toastMessage,
-    setTab,
-    copyCode,
+    activeTab, displayedVouchers,
+    activeCount, totalCount, usedCount,
+    copiedCode, showToast, toastMessage,
+    setTab, copyCode
   }
 }
