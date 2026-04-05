@@ -226,11 +226,22 @@ export function useCounterOrder() {
 
     // --- Computed Logic ---
     const products = computed(() => {
-        if (!searchText.value.trim()) return drinks.value;
-        return drinks.value.filter(d => 
-            d.name.toLowerCase().includes(searchText.value.toLowerCase())
-        );
+        const list = !searchText.value.trim() 
+            ? drinks.value 
+            : drinks.value.filter(d => 
+                d.name.toLowerCase().includes(searchText.value.toLowerCase())
+            );
+
+        return list.map(product => ({
+            ...product,
+            // Map the SQL column 'image_url' to the template's 'imageUrl'
+            imageUrl: getImg(product.imageUrl)
+        }));
     });
+
+    function getImg(filename) {
+        return new URL('../IMG/MistakesWereMade.jpg', import.meta.url).href
+    }
 
     const orderedItems = computed(() => {
         return cartStore.items.map(item => {
