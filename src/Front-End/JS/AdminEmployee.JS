@@ -71,6 +71,7 @@ function closePopup() { showPopup.value = false }
 
 async function saveEmployee() {
   if (isEditing.value) {
+    //update
     const i = currentIndex.value
     employees.value[i].name     = form.value.name
     employees.value[i].username = form.value.username
@@ -85,6 +86,8 @@ async function saveEmployee() {
     })
 
   } else {
+
+    //add
     const newId  = "NV_" + String(employees.value.length + 1).padStart(2, "0")
     const newEmp = {
       id:        newId,
@@ -96,7 +99,15 @@ async function saveEmployee() {
     employees.value.push(newEmp)
 
     // Khi có backend: bỏ comment dòng dưới
-    // await axios.post("http://localhost:8080/employees", newEmp)
+    const res = await api.post('/workers/add', {
+      fullName: newEmp.name,
+      account: newEmp.username,
+      password: newEmp.password,
+    })
+
+    newEmp.id = res.data.id
+    newEmp.name = res.data.fullName
+    newEmp.username = res.data.account
   }
 
   showPopup.value = false

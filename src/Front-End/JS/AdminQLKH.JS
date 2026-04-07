@@ -69,25 +69,25 @@ function openAdd() {
 function closePopup() { showPopup.value = false }
 
 async function saveCustomer() {
-  const res = await api.post('/customers/add', {
-    fullName: form.value.name,
-    phone: form.value.phone,
-    address: form.value.address,
-  })
-  customers.value.push(res.data)
-  showPopup.value = false
-  syncFiltered()
-}
+    const res = await api.post('/customers/add', {
+      fullName: form.value.name,
+      phone: form.value.phone,
+      address: form.value.address,
+    })
+    customers.value.push(res.data)
+    showPopup.value = false
+    syncFiltered()
+  }
 
-async function deleteCustomer(index) {
-  // const c         = filteredCustomers.value[index]
-  // const realIndex = customers.value.findIndex(e => e.id === c.id)
-  // if (realIndex !== -1) {
-  //   customers.value.splice(realIndex, 1)
-  // }
-  // syncFiltered()
-  await api.delete('/customers/remove')
-}
+  async function deleteCustomer(index) {
+    const c = filteredCustomers.value[index]
+    await api.delete(`/customers/remove/${c.id}`)
+    const realIndex = customers.value.findIndex(e => e.id === c.id)
+    if (realIndex !== -1) {
+      customers.value.splice(realIndex, 1)
+    }
+    syncFiltered()
+  }
 
 export default function useCustomer() {
   return {
