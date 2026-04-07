@@ -32,8 +32,8 @@
                 <span v-for="(tp, i) in item.toppings" :key="i" class="tag tag-topping">🧋 {{ tp }}</span>
               </div>
               <div class="card-specs">
-                <span class="card-spec"><span class="spec-icon">🍬</span><span>Đường: <strong>{{ item.sugar }}</strong></span></span>
-                <span class="card-spec"><span class="spec-icon">🧊</span><span>Đá: <strong>{{ item.ice }}</strong></span></span>
+                <span class="card-spec">Đường: <strong>{{ item.sugar }}</strong></span>
+                <span class="card-spec">Đá: <strong>{{ item.ice }}</strong></span>
               </div>
             </div>
             <div class="card-right">
@@ -57,7 +57,7 @@
       <!-- ── RIGHT: ĐƠN HÀNG ── -->
       <aside>
         <div class="order-summary-box">
-          <div class="summary-heading">📋 Tóm tắt đơn hàng</div>
+          <div class="summary-heading">Tóm tắt đơn hàng</div>
           <div class="selected-preview">
             <template v-if="selectedItems.length > 0">
               <div v-for="item in selectedItems" :key="item.id" class="preview-item">
@@ -224,7 +224,7 @@
               <!-- COD -->
               <template v-if="paymentMethod === 'COD'">
                 <button class="btn-place-order" @click="placeOrder" :disabled="isPlacingOrder">
-                  {{ isPlacingOrder ? '⏳ Đang xử lý...' : '✓ Xác nhận đặt hàng' }}
+                  {{ isPlacingOrder ? 'Đang xử lý...' : '✓ Xác nhận đặt hàng' }}
                 </button>
               </template>
 
@@ -238,7 +238,7 @@
               <!-- MoMo bước 2 -->
               <template v-else-if="paymentMethod === 'MOMO' && momoStep === 2">
                 <button class="btn-place-order btn-momo" @click="placeOrder" :disabled="isPlacingOrder">
-                  {{ isPlacingOrder ? '⏳ Đang xử lý...' : 'Xác nhận thanh toán' }}
+                  {{ isPlacingOrder ? 'Đang xử lý...' : 'Xác nhận thanh toán' }}
                 </button>
               </template>
 
@@ -255,10 +255,9 @@
       <transition name="fade">
         <div v-if="showSuccessModal" class="modal-overlay">
           <div class="success-modal">
-            <span class="success-icon">🎉</span>
             <div class="success-title">Đặt hàng thành công!</div>
             <div class="success-order-id">Mã đơn: {{ lastOrderId }}</div>
-            <p class="success-msg">Cảm ơn bạn đã tin tưởng Cà Phê Nhà! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể ☕</p>
+            <p class="success-msg">Cảm ơn bạn đã tin tưởng Cà Phê Nhà! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể</p>
             <button class="btn-success-ok" @click="closeSuccessModal">Hoàn tất</button>
           </div>
         </div>

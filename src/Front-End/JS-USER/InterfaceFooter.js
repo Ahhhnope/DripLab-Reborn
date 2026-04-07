@@ -1,9 +1,9 @@
 export function useFooter() {
   const connectLinks = [
-    { label: 'MENU',     path: '/menu' },
-    { label: 'ABOUT US', path: '/about' },
-    { label: 'NEWS',     path: '/news' },
-    { label: 'STORES',   path: '/stores' },
+    { label: 'Thực Đơn',     path: '/menu' },
+    { label: 'Về Chúng Tôi', path: '/about' },
+    { label: 'Khuyến Mãi',     path: '/news' },
+    { label: 'Cửa Hàng',   path: '/stores' },
   ]
 
   const socialLinks = [
