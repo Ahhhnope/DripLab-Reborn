@@ -3,10 +3,10 @@ import api from '../../api/axios.js'
 
 export function useVoucher() {
 
-  const activeTab    = ref('available')
-  const vouchers     = ref([])
-  const copiedCode   = ref(null)
-  const showToast    = ref(false)
+  const activeTab = ref('available')
+  const vouchers = ref([])
+  const copiedCode = ref(null)
+  const showToast = ref(false)
   const toastMessage = ref('')
 
   async function loadVouchers() {
@@ -15,13 +15,13 @@ export function useVoucher() {
       const now = new Date()
 
       vouchers.value = res.data.map(v => ({
-        id:       v.id,
-        rawCode:  v.code,
-        code:     v.code,
+        id: v.id,
+        rawCode: v.code,
+        code: v.code,
         discount: v.category === 'PHẦN TRĂM'
           ? 'Giảm ' + v.value + '%'
           : 'Giảm ' + (+v.value).toLocaleString('vi-VN') + 'đ',
-        expiry:   v.endDate
+        expiry: v.endDate
           ? new Date(v.endDate).toLocaleDateString('vi-VN')
           : 'Không giới hạn',
         minOrder: '—',
@@ -44,8 +44,8 @@ export function useVoucher() {
   )
 
   const activeCount = computed(() => vouchers.value.filter(v => v.status === 'active').length)
-  const totalCount  = computed(() => vouchers.value.length)
-  const usedCount   = computed(() => totalCount.value - activeCount.value)
+  const totalCount = computed(() => vouchers.value.length)
+  const usedCount = computed(() => totalCount.value - activeCount.value)
 
   function setTab(t) { activeTab.value = t }
 
@@ -61,9 +61,9 @@ export function useVoucher() {
       document.body.removeChild(el)
     }
 
-    copiedCode.value   = v.id
+    copiedCode.value = v.id
     toastMessage.value = 'Đã sao chép: ' + v.rawCode
-    showToast.value    = true
+    showToast.value = true
 
     try {
       await api.put('/promo-codes/use/' + v.id)
@@ -73,7 +73,7 @@ export function useVoucher() {
 
     setTimeout(async () => {
       copiedCode.value = null
-      showToast.value  = false
+      showToast.value = false
       await loadVouchers()
     }, 2000)
   }
