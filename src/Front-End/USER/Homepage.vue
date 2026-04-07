@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import imgBg     from '../IMG/anh-1.jpg'
-import imgBanner from '../IMG/CoffeeBanner1.jpg'
-import imgShop   from '../IMG/coffeeShop.jpg'
+import imgBg     from '../IMG/Banner1.png'
+import imgBanner from '../IMG/Banner2.png'
+import imgShop   from '../IMG/Banner3.png'
 
 const autoPlayMs = 4500
 
@@ -93,20 +93,20 @@ onUnmounted(() => clearInterval(timer))
 
       <!-- ENJOY -->
       <section class="enjoy-section section-gap">
-        <h2 class="enjoy-title">Enjoy with Drip Lab</h2>
+        <h2 class="enjoy-title">Thưởng thức tại Drip Lab</h2>
         <p class="enjoy-subtitle">
-          Discover our curated selection and bespoke brewing experiences designed for the modern connoisseur.
+          Khám phá những thức uống mới mẻ, đặc sắc, sáng tạo chỉ có tại Drip Lab. Hãy để chúng tôi mang đến cho bạn trải nghiệm cà phê độc đáo và khó quên!
         </p>
       </section>
 
       <!-- BENTO -->
       <section class="bento-section special-gap">
         <RouterLink class="bento-card group" to="/menu">
-          <img src="../IMG/anh-1.jpg" alt="Coffee & Tea" />
+          <img src="../IMG/cfntea.jpg" alt="Coffee & Tea" />
           <div class="bento-overlay">
-            <h3 class="bento-title">Coffee &amp; Tea</h3>
+            <h3 class="bento-title">Cà phê &amp; Trà</h3>
             <div class="bento-overlay-2">
-              <p class="bento-sub">Taste the coffee through your veins</p>
+              <p class="bento-sub">Thưởng thức menu đồ uống đặc sắc của Drip Lab</p>
             </div>
           </div>
         </RouterLink>
@@ -114,9 +114,9 @@ onUnmounted(() => clearInterval(timer))
         <RouterLink class="bento-card group" to="/brewing">
           <img src="../IMG/CustomCoffee.png" alt="Custom Coffee" />
           <div class="bento-overlay">
-            <h3 class="bento-title">Custom Your Own Coffee</h3>
+            <h3 class="bento-title">Sáng tạo thức uống</h3>
             <div class="bento-overlay-2">
-              <p class="bento-sub">Coffee comes with your taste</p>
+              <p class="bento-sub">Tự "cook" đồ uống của bạn!</p>
             </div>
           </div>
         </RouterLink>
@@ -126,20 +126,20 @@ onUnmounted(() => clearInterval(timer))
       <section class="split-section section-gap">
         <img class="split-img" src="../IMG/coffeeShop.jpg" alt="Coffee Shop" />
         <div class="split-content">
-          <h3 class="split-title">Discover nearby<br />Drip Lab</h3>
+          <h3 class="split-title">Khám phá quán xá <br/> xung quanh!!</h3>
           <RouterLink to="/stores">
-            <button class="section-btn">Explore Now</button>
+            <button class="section-btn">Xem ngay</button>
           </RouterLink>
         </div>
       </section>
 
       <!-- NEWS -->
       <section class="split-section split-reverse section-gap">
-        <img class="split-img" src="../IMG/CoffeeBanner1.jpg" alt="News" />
+        <img class="split-img" src="../IMG/cp2.png" alt="News" />
         <div class="split-content">
-          <h2 class="split-title">News in Drip Lab</h2>
+          <h2 class="split-title">Khuyến mãi tại Drip Lab</h2>
           <RouterLink to="/news">
-            <button class="section-btn">Check Now</button>
+            <button class="section-btn">Xem ngay</button>
           </RouterLink>
         </div>
       </section>

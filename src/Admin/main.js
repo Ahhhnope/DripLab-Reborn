@@ -61,22 +61,27 @@ const router = createRouter({
 });
 
 
+  router.beforeEach((to, from, next) => {
+      const auth = useAuthStore();
+      const isAuthenticated = !!localStorage.getItem('token');
 
-router.beforeEach((to, from, next) => {
-    const auth = useAuthStore();
-    const isAuthenticated = localStorage.getItem('token');
+      // not ADMIN → off to user app
+      if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
+        window.location.href('http://localhost:5173' + to.fullPath);
+        return
+      }
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
-        next({ path: '/login' });
-    }
-
-    else if ((to.path === '/login' && isAuthenticated) || to.path === '/') {
-        next('/Dashboard');
-    }
-
-    else {
-        next();
-    }
-});
+      // needs auth but not logged in
+      if (to.meta.requiresAuth && !isAuthenticated) {
+          next('/login');
+      }
+      // logged in but hitting /login
+      else if (to.path === '/login' && isAuthenticated) {
+          next('/Dashboard');
+      }
+      else {
+          next();
+      }
+  });
 
 createApp(App).use(pinia).use(router).mount('#app')

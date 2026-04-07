@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import api from '../../api/axios.js'
 
 export function useVoucher() {
 
@@ -8,28 +9,32 @@ export function useVoucher() {
   const showToast = ref(false)
   const toastMessage = ref('')
 
-  // Gọi API lấy danh sách voucher
   async function loadVouchers() {
-    const now = new Date()
-    const data = await fetch('/api/promo-codes').then(r => r.json())
+    try {
+      const res = await api.get('/promo-codes')
+      const now = new Date()
 
-    vouchers.value = data.map(v => ({
-      id: v.id,
-      rawCode: v.code,
-      code: v.code,
-      discount: v.category === 'PHẦN TRĂM'
-        ? `Giảm ${v.value}%`
-        : `Giảm ${(+v.value).toLocaleString('vi-VN')}đ`,
-      expiry: new Date(v.endDate).toLocaleDateString('vi-VN'),
-      minOrder: '—',
-      // active = còn dùng được, expired = hết hạn hoặc hết lượt
-      status: (!v.status || v.quantity <= 0 || new Date(v.endDate) < now)
-        ? 'expired'
-        : 'active'
-    }))
+      vouchers.value = res.data.map(v => ({
+        id: v.id,
+        rawCode: v.code,
+        code: v.code,
+        discount: v.category === 'PHẦN TRĂM'
+          ? 'Giảm ' + v.value + '%'
+          : 'Giảm ' + (+v.value).toLocaleString('vi-VN') + 'đ',
+        expiry: v.endDate
+          ? new Date(v.endDate).toLocaleDateString('vi-VN')
+          : 'Không giới hạn',
+        minOrder: '—',
+        status: (v.status && v.quantity > 0 && new Date(v.endDate) >= now)
+          ? 'active'
+          : (v.quantity <= 0 ? 'used' : 'expired')
+      }))
+    } catch (err) {
+      console.error('[Voucher] loadVouchers lỗi:', err.response?.status, err.message)
+      vouchers.value = []
+    }
   }
 
-  // Tab "Đang khả dụng" hoặc "Đã dùng và hết hạn"
   const displayedVouchers = computed(() =>
     vouchers.value.filter(v =>
       activeTab.value === 'available'
@@ -44,25 +49,35 @@ export function useVoucher() {
 
   function setTab(t) { activeTab.value = t }
 
-  // User bấm "Sao chép mã" → gọi API giảm quantity trên DB
   async function copyCode(v) {
-    await navigator.clipboard.writeText(v.rawCode).catch(() => { })
+    try {
+      await navigator.clipboard.writeText(v.rawCode)
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = v.rawCode
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+    }
 
     copiedCode.value = v.id
-    toastMessage.value = `Đã sao chép: ${v.rawCode}`
+    toastMessage.value = 'Đã sao chép: ' + v.rawCode
     showToast.value = true
 
-    // Báo backend giảm quantity
-    await fetch(`/api/promo-codes/use/${v.id}`, { method: 'PUT' })
+    try {
+      await api.put('/promo-codes/use/' + v.id)
+    } catch (err) {
+      console.warn('[Voucher] /use lỗi:', err.response?.status)
+    }
 
     setTimeout(async () => {
       copiedCode.value = null
       showToast.value = false
-      await loadVouchers() // Refresh lại để đồng bộ DB
+      await loadVouchers()
     }, 2000)
   }
 
-  // Chạy ngay khi component mount
   loadVouchers()
 
   return {

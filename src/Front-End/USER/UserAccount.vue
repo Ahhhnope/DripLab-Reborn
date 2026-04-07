@@ -5,7 +5,7 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
+            <!-- <img :src="user.avatar" alt="Avatar" class="avatar-img" /> -->
           </div>
           <h2 class="sidebar-name">{{ user.name }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
@@ -39,7 +39,7 @@
 
           <div class="profile-pic-row">
             <div class="avatar-edit">
-              <img :src="user.avatar" alt="Profile" class="profile-img" />
+              <!-- <img :src="user.avatar" alt="Profile" class="profile-img" /> -->
               <button class="edit-avatar-btn" @click="triggerFileInput">
                 <span class="material-symbols-outlined">edit</span>
               </button>
@@ -142,17 +142,17 @@ import { useUserAccount } from "../JS-USER/UserAccount.JS";
 import { useAuthStore } from "../Authorization/Auth";
 import { useRouter } from "vue-router";
 
-const {
-  form, passwordForm,
-  addresses, orders,
-  navItems, activeTab,
-  fileInput,
-  triggerFileInput,
-  onAvatarChange,
-  setTab,
-  saveProfile, savePassword,
-  goTo
-} = useUserAccount()
+// const {
+//   form, passwordForm,
+//   addresses, orders,
+//   navItems, activeTab,
+//   fileInput,
+//   triggerFileInput,
+//   onAvatarChange,
+//   setTab,
+//   saveProfile, savePassword,
+//   goTo
+// } = useUserAccount()
 
 const auth = useAuthStore();
 const router = useRouter();

@@ -1,5 +1,5 @@
 import { ref } from "vue"
-import axios from "axios"
+import api from "../../api/axios"
 
 const customers = ref([])
 const filteredCustomers = ref([])
@@ -16,7 +16,7 @@ const form = ref({
 // ── Load data ──
 async function loadCustomers() {
   try {
-    const res = await axios.get("http://localhost:8080/customers")
+    const res = await api.get("/customers")
     customers.value         = res.data
     filteredCustomers.value = res.data
   } catch (err) {
@@ -69,29 +69,25 @@ function openAdd() {
 function closePopup() { showPopup.value = false }
 
 async function saveCustomer() {
-  const newId  = "KH_" + String(customers.value.length + 1).padStart(2, "0")
-  const newCus = {
-    id:        newId,
-    name:      form.value.name,
-    username:  form.value.username,
-    password:  form.value.password,
-    phone:     form.value.phone,
-    address:   form.value.address,
-    createdAt: new Date().toLocaleDateString("vi-VN")
+    const res = await api.post('/customers/add', {
+      fullName: form.value.name,
+      phone: form.value.phone,
+      address: form.value.address,
+    })
+    customers.value.push(res.data)
+    showPopup.value = false
+    syncFiltered()
   }
-  customers.value.push(newCus)
-  showPopup.value = false
-  syncFiltered()
-}
 
-async function deleteCustomer(index) {
-  const c         = filteredCustomers.value[index]
-  const realIndex = customers.value.findIndex(e => e.id === c.id)
-  if (realIndex !== -1) {
-    customers.value.splice(realIndex, 1)
+  async function deleteCustomer(index) {
+    const c = filteredCustomers.value[index]
+    await api.delete(`/customers/remove/${c.id}`)
+    const realIndex = customers.value.findIndex(e => e.id === c.id)
+    if (realIndex !== -1) {
+      customers.value.splice(realIndex, 1)
+    }
+    syncFiltered()
   }
-  syncFiltered()
-}
 
 export default function useCustomer() {
   return {

@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../../api/axios'
 import { useAuthStore } from './Auth'
 
 export function useLogin() {
@@ -30,7 +30,7 @@ export function useLogin() {
     isLoading.value = true
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email: identifier.value,
         password: password.value
       })
@@ -42,11 +42,12 @@ export function useLogin() {
 
       // Optional: small delay so the user sees the "Brewing..." animation
       await new Promise(r => setTimeout(r, 800))
-      if (user && user.role && user.role.toUpperCase() === 'ADMIN') {
-          router.push('/Dashboard'); // Matches your route path in main.js
-      } else {
-          router.push('/homepage');
-      }
+
+      // if (user.role.toUpperCase() === 'ADMIN') {
+      //   router.push('/Dashboard');
+      // } else {
+      //     window.location.href = 'http://localhost:5173/homepage';
+      // }
     } catch (err) {
       errorMsg.value = err.response?.data?.message || 'Đăng nhập thất bại'
     } finally {

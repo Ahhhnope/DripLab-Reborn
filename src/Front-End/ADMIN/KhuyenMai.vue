@@ -33,17 +33,17 @@
         <table>
 
             <colgroup>
-                <col style="width: 40px"> <!-- checkbox -->
-                <col style="width: 50px"> <!-- STT -->
-                <col style="width: 120px"> <!-- Mã -->
-                <col style="width: 150px"> <!-- Tên -->
-                <col style="width: 100px"> <!-- Loại -->
-                <col style="width: 90px"> <!-- Giá trị -->
-                <col style="width: 80px"> <!-- Số lượng -->
-                <col style="width: 120px"> <!-- Ngày bắt đầu -->
-                <col style="width: 120px"> <!-- Ngày kết thúc -->
-                <col style="width: 100px"> <!-- Trạng thái -->
-                <col style="width: 140px"> <!-- Hành động -->
+                <col style="width: 40px">
+                <col style="width: 50px">
+                <col style="width: 120px">
+                <col style="width: 150px">
+                <col style="width: 100px">
+                <col style="width: 90px">
+                <col style="width: 80px">
+                <col style="width: 120px">
+                <col style="width: 120px">
+                <col style="width: 100px">
+                <col style="width: 140px">
             </colgroup>
 
             <thead>
@@ -54,7 +54,6 @@
                     <th>Tên</th>
                     <th>Loại</th>
                     <th>Giá trị</th>
-                    <th>Số lượng</th>
                     <th>Ngày bắt đầu</th>
                     <th>Ngày kết thúc</th>
                     <th>Trạng thái</th>
@@ -66,34 +65,27 @@
 
                 <tr v-for="(v, index) in paginatedVouchers" :key="v.id">
                     <td><input type="checkbox"></td>
-                    <td>{{ index + 1 }}</td>
+                    <td>{{ (currentPage - 1) * 8 + index + 1 }}</td>
                     <td>{{ v.code }}</td>
                     <td>{{ v.name }}</td>
                     <td>{{ v.type }}</td>
                     <td>{{ v.value }}</td>
-                    <td>{{ v.quantity }}</td>
                     <td>{{ v.start }}</td>
                     <td>{{ v.end }}</td>
-                    <td>{{ v.status }}</td>
+                    <td>
+                        <span :class="['status-badge', v.status === 'HOẠT ĐỘNG' ? 'active' : 'expired']">
+                            {{ v.status }}
+                        </span>
+                    </td>
                     <td class="action-buttons">
                         <button class="edit-btn" @click="editVoucher(v)">Sửa</button>
                         <button class="delete-btn" @click="deleteVoucher(v.id)">Xóa</button>
                     </td>
                 </tr>
 
-                <!-- Dòng trống đủ 11 td, không dùng colspan -->
                 <tr v-for="i in (8 - paginatedVouchers.length)" :key="'empty-' + i" class="empty-row">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td></td><td></td><td></td><td></td><td></td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
                 </tr>
 
             </tbody>
@@ -113,6 +105,66 @@
             <button @click="nextPage" :disabled="currentPage === totalPages">&gt;</button>
 
         </div>
+
+
+        <!-- ========== POPUP THÊM VOUCHER ========== -->
+        <div class="modal-overlay" v-if="showAddModal" @click.self="closeAddModal">
+            <div class="modal-box">
+
+                <h3>Thêm Voucher Mới</h3>
+
+                <div class="modal-form">
+
+                    <div class="form-group">
+                        <label>Mã khuyến mãi <span class="required">*</span></label>
+                        <input v-model="addForm.code" placeholder="VD: SUMMER20" style="text-transform:uppercase"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tên khuyến mãi <span class="required">*</span></label>
+                        <input v-model="addForm.name" placeholder="Nhập tên khuyến mãi" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Loại</label>
+                        <select v-model="addForm.category">
+                            <option value="PHẦN TRĂM">Phần trăm (%)</option>
+                            <option value="TRỪ TIỀN">Tiền mặt (VNĐ)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Giá trị <span class="required">*</span></label>
+                        <input v-model="addForm.value"
+                            :placeholder="addForm.category === 'PHẦN TRĂM' ? 'VD: 10 (= 10%)' : 'VD: 50000 (= 50.000đ)'"
+                            type="number" min="0" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Số lượng</label>
+                        <input type="number" v-model="addForm.quantity" min="1" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ngày bắt đầu <span class="required">*</span></label>
+                        <input type="date" v-model="addForm.start" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ngày kết thúc <span class="required">*</span></label>
+                        <input type="date" v-model="addForm.end" />
+                    </div>
+
+                </div>
+
+                <div class="modal-actions">
+                    <button class="save-btn" @click="saveAdd">Thêm</button>
+                    <button class="cancel-btn" @click="closeAddModal">Hủy</button>
+                </div>
+
+            </div>
+        </div>
+        <!-- =========================================== -->
 
 
         <!-- ========== POPUP SỬA VOUCHER ========== -->
@@ -135,7 +187,7 @@
 
                     <div class="form-group">
                         <label>Loại</label>
-                        <select v-model="editForm.type">
+                        <select v-model="editForm.category">
                             <option value="PHẦN TRĂM">Phần trăm (%)</option>
                             <option value="TRỪ TIỀN">Tiền mặt (VNĐ)</option>
                         </select>
@@ -144,11 +196,6 @@
                     <div class="form-group">
                         <label>Giá trị</label>
                         <input v-model="editForm.value" placeholder="VD: 10% hoặc 50000" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" v-model="editForm.quantity" min="1" />
                     </div>
 
                     <div class="form-group">
@@ -179,6 +226,13 @@
             </div>
         </div>
         <!-- ========================================= -->
+
+
+        <!-- ========== TOAST THÔNG BÁO ========== -->
+        <div class="toast-notification" :class="[toast.type, { show: toast.show }]">
+            {{ toast.message }}
+        </div>
+        <!-- ======================================= -->
 
     </div>
 

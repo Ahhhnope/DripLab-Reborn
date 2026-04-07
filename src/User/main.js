@@ -47,18 +47,22 @@ const routes = [
             {
                 path: '/account',
                 component: UserAccount,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/password',
                 component: UserChangePassword,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/address',
                 component: UserAddress,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/orders',
                 component: UserOrders,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/brewing',
@@ -86,6 +90,7 @@ const routes = [
             {
                 path: '/cart',
                 component: CartView,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/voucher',
@@ -108,6 +113,25 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from, next) => {
+    const auth = useAuthStore();
+    const isAuthenticated = localStorage.getItem('token');
+
+    // if is ADMIN then -> off to 5005 you go
+    if (auth.user && auth.user.role === 'ADMIN' && to.path !== '/login') {
+        window.location.href('http://localhost:5005' + to.fullPath);
+        return
+    }
+
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ path: '/login' });
+    }
+
+    else {
+        next();
+    }
+});
 
 
 

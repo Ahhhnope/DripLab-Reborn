@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../Authorization/Auth'
+
 // Import icon từ heroicons
 import { 
   HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon, 
@@ -63,8 +65,18 @@ export function useAdminMenu() {
         }
     ]
 
-    const logout = () => alert('Đăng xuất!')
 
+    //logout
+    const auth = useAuthStore();
+    const logout = () => {
+        auth.setUser(null, null)
+        localStorage.removeItem('token')
+        router.push('/login')
+    };
+
+
+
+    
     function clickMenu(item) {
         activeIndex.value = item.id
         if (item.children) {
