@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, patchProp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
@@ -26,13 +26,14 @@ import QuanLySPKemBeo from '@/Front-End/ADMIN/QuanLySPKemBeo.vue'
 import Toppings from '../Front-End/ADMIN/Toppings.vue'
 import AdminDashboard from '../Front-End/ADMIN/AdminDashboard.vue'
 import Login from '../Front-End/Authorization/Login.vue'
+import { useAuthStore } from '../Front-End/Authorization/Auth'
 
 const pinia = createPinia();
 const routes = [
     {
         path: '/',
         component: FrameInterface,
-        meta: {requiresAdmin: true},
+        meta: { requiresAuth: true },
         children: [
             { path: 'QuanLyDonTaiQuay', component: CounterOrder },
             { path: 'AdminPOS', component: AdminPOScustom },
@@ -60,15 +61,22 @@ const router = createRouter({
 });
 
 
+
 router.beforeEach((to, from, next) => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  
-  if (to.matched.some(record => record.meta.requiresAdmin)) {
-    if (!user || user.role !== 'ADMIN') return next('/login');
-  }
-  next();
+    const auth = useAuthStore();
+    const isAuthenticated = localStorage.getItem('token');
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ path: '/login' });
+    }
+
+    else if ((to.path === '/login' && isAuthenticated) || to.path === '/') {
+        next('/Dashboard');
+    }
+
+    else {
+        next();
+    }
 });
-
-
 
 createApp(App).use(pinia).use(router).mount('#app')

@@ -1,125 +1,144 @@
-import { ref, computed, onMounted, nextTick } from 'vue'
-import api from '../../api/axios'
+import { ref, computed, onMounted, nextTick } from "vue";
+import api from "../../api/axios";
 
-const API_BASE = 'http://localhost:8080/api/ingredients'
-const PAGE_SIZE = 5
+export function useIngredients(endpoint, idPrefix = "ITEM") {
+  // --- Data State ---
+  const rows = ref([]);
+  const search = ref("");
+  const currentPage = ref(1);
+  const PAGE_SIZE = 8;
 
-export function useIngredients(type, prefix) {
-  const data = ref([])
-  const loading = ref(false)
+  // --- UI State ---
+  const showForm = ref(false);
+  const isEditing = ref(false);
+  const showConfirm = ref(false);
+  const deleteTarget = ref(null);
+  const inputName = ref(null);
 
-  // ── API CALLS ─────────────────────────────────────
-  const fetchIngredients = async () => {
-    loading.value = true
+  // --- Toast State ---
+  const toastShow = ref(false);
+  const toastMsg = ref("");
+  const toastType = ref("ok");
+
+  // --- Form State ---
+  const form = ref({
+    id: "",
+    tenLoai: "",
+    gia: 0,
+    ngayTao: null,
+    ngayTaoDisp: ""
+  });
+
+  // --- Initialization ---
+  const fetchData = async () => {
     try {
-      const response = await api.get(`/api/ingredients/${type}`)
-      data.value = response.data
-    } catch (e) {
-      console.error("Connection Error:", e)
-    } finally {
-      loading.value = false
+      // Endpoint would be 'ice-creams' or 'toppings'
+      const res = await api.get(`/ingredients/${endpoint}`);
+      rows.value = res.data;
+    } catch (error) {
+      console.error(`Failed to fetch ${endpoint}:`, error);
+      showToast("Không thể kết nối máy chủ", "error");
     }
-  }
+  };
 
-  // ── Search & Pagination ───────────────────────────
-  const search = ref('')
-  const currentPage = ref(1)
+  onMounted(fetchData);
 
+  // --- Computed Logic ---
   const filtered = computed(() => {
-    const q = search.value.trim().toLowerCase()
-    // Matches 'name' from your Java DTO
-    return q ? data.value.filter(r => r.name?.toLowerCase().includes(q)) : data.value
-  })
+    if (!search.value.trim()) return rows.value;
+    return rows.value.filter(r =>
+      r.name.toLowerCase().includes(search.value.toLowerCase())
+    );
+  });
 
-  const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)))
-  const pageStart = computed(() => (currentPage.value - 1) * PAGE_SIZE)
+  const totalPages = computed(() => Math.ceil(filtered.value.length / PAGE_SIZE));
+  const pageStart = computed(() => (currentPage.value - 1) * PAGE_SIZE);
+  const pagedRows = computed(() => filtered.value.slice(pageStart.value, pageStart.value + PAGE_SIZE));
+  const ghostCount = computed(() => Math.max(0, PAGE_SIZE - pagedRows.value.length));
 
-  const pagedRows = computed(() => {
-    return filtered.value.slice(pageStart.value, pageStart.value + PAGE_SIZE)
-  })
+  // --- Formatting Helpers ---
+  const fmtPrice = (val) => new Intl.NumberFormat('vi-VN').format(val || 0) + ' đ';
+  const fmtDate = (val) => val ? new Date(val).toLocaleDateString('vi-VN') : "---";
 
-  // ── Helpers ───────────────────────────────────────
-  const fmtPrice = (v) => Number(v).toLocaleString('vi-VN') + ' ₫'
-  const fmtDate = (v) => v ? new Date(v).toLocaleDateString('vi-VN') : '—'
-
-  // ── Form Logic ────────────────────────────────────
-  const showForm = ref(false)
-  const isEditing = ref(false)
-  const inputName = ref(null)
-  const form = ref({ id: null, name: '', price: '' })
-
+  // --- Actions ---
   const openAdd = () => {
-    isEditing.value = false
-    form.value = { id: null, name: '', price: '' }
-    showForm.value = true
-    nextTick(() => inputName.value?.focus())
-  }
+    isEditing.value = false;
+    form.value = {
+      id: `${idPrefix}-${Date.now().toString().slice(-4)}`,
+      tenLoai: "",
+      gia: 0,
+      ngayTao: new Date().toISOString(),
+      ngayTaoDisp: new Date().toLocaleDateString('vi-VN')
+    };
+    showForm.value = true;
+    nextTick(() => inputName.value?.focus());
+  };
 
   const openEdit = (row) => {
-    isEditing.value = true
-    form.value = { ...row } 
-    showForm.value = true
-    nextTick(() => inputName.value?.focus())
-  }
+    isEditing.value = true;
+    form.value = {
+      id: row.id,
+      tenLoai: row.name,
+      gia: row.price,
+      ngayTao: row.createdAt,
+      ngayTaoDisp: new Date(row.createdAt).toLocaleDateString('vi-VN')
+    };
+    showForm.value = true;
+    nextTick(() => inputName.value?.focus());
+  };
 
   const submitForm = async () => {
-    if (!form.value.name?.trim() || !form.value.price) {
-      return { error: 'Vui lòng nhập đầy đủ thông tin!' }
-    }
-    try {
-      if (!isEditing.value) {
-        await axios.post(`${API_BASE}/add/${type}`, form.value)
-      } else {
-        await axios.put(`${API_BASE}/update/${type}/${form.value.id}`, form.value)
-      }
-      await fetchIngredients()
-      showForm.value = false
-      return { success: isEditing.value ? 'Cập nhật thành công!' : 'Thêm thành công!' }
-    } catch (e) {
-      return { error: 'Lỗi server khi lưu dữ liệu!' }
-    }
-  }
+    if (!form.value.tenLoai.trim()) return { error: "Vui lòng nhập tên!" };
+    
+    const payload = {
+      name: form.value.tenLoai,
+      price: parseFloat(form.value.gia)
+    };
 
-  // ── Delete Logic ──────────────────────────────────
-  const showConfirm = ref(false)
-  const deleteTarget = ref(null)
-  const openConfirm = (row) => { deleteTarget.value = row; showConfirm.value = true }
+    try {
+      if (isEditing.value) {
+        await api.put(`/ingredients/${endpoint}/${form.value.id}`, payload);
+      } else {
+        await api.post(`/ingredients/${endpoint}`, payload);
+      }
+      await fetchData();
+      showForm.value = false;
+      return { success: isEditing.value ? "Cập nhật thành công!" : "Thêm mới thành công!" };
+    } catch (error) {
+      return { error: error.response?.data?.message || "Thao tác thất bại" };
+    }
+  };
+
+  const openConfirm = (row) => {
+    deleteTarget.value = { id: row.id, tenLoai: row.name };
+    showConfirm.value = true;
+  };
 
   const doDelete = async () => {
     try {
-      await axios.delete(`${API_BASE}/remove/${type}/${deleteTarget.value.id}`)
-      showConfirm.value = false
-      await fetchIngredients()
-      return { success: 'Đã xóa thành công!' }
-    } catch (e) {
-      return { error: 'Lỗi khi xóa dữ liệu!' }
+      await api.delete(`/ingredients/${endpoint}/${deleteTarget.value.id}`);
+      await fetchData();
+      showConfirm.value = false;
+      return { success: "Đã xóa thành công!" };
+    } catch (error) {
+      return { error: "Không thể xóa mục này" };
     }
-  }
+  };
 
-  // ── Toast Logic ───────────────────────────────────
-  const toastShow = ref(false)
-  const toastMsg = ref('')
-  const toastType = ref('ok')
-  let toastTimer
-
-  const showToast = (msg, type = 'ok') => {
-    toastMsg.value = msg; toastType.value = type; toastShow.value = true
-    clearTimeout(toastTimer)
-    toastTimer = setTimeout(() => { toastShow.value = false }, 2800)
-  }
-
-  onMounted(fetchIngredients)
+  const showToast = (msg, type = "ok") => {
+    toastMsg.value = msg;
+    toastType.value = type === "error" ? "err" : "ok";
+    toastShow.value = true;
+    setTimeout(() => { toastShow.value = false; }, 3000);
+  };
 
   return {
     search, currentPage, PAGE_SIZE, pageStart,
-    filtered, totalPages, pagedRows,
+    filtered, totalPages, pagedRows, ghostCount,
     fmtPrice, fmtDate,
     showForm, isEditing, inputName, form,
     openAdd, openEdit, submitForm,
     showConfirm, deleteTarget, openConfirm, doDelete,
-    toastShow, toastMsg, toastType, showToast,
-  }
+    toastShow, toastMsg, toastType, showToast
+  };
 }
-
-// THIS PREVENTS VITE ERRORS
-export default useIngredients;

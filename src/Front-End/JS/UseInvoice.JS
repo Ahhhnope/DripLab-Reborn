@@ -12,7 +12,7 @@ const toDate        = ref("")
 
 async function loadInvoices() {
   try {
-    const res = await api.get("/api/invoices")
+    const res = await api.get("/invoices")
     invoices.value         = res.data
     filteredInvoices.value = res.data
   } catch (err) {

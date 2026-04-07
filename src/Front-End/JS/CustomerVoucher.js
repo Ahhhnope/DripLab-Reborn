@@ -1,223 +1,147 @@
+const API = '/api/promo-codes'
+
+// Chuyển data từ backend sang format hiển thị
+function format(v) {
+    const expired = !v.status || v.quantity <= 0 || new Date(v.endDate) < new Date()
+    return {
+        id:       v.id,
+        code:     v.code,
+        name:     v.name,
+        type:     v.category,
+        value:    v.category === 'PHẦN TRĂM'
+                    ? v.value + '%'
+                    : (+v.value).toLocaleString('vi-VN') + 'đ',
+        quantity: v.quantity,
+        start:    v.startDate?.split('T')[0] ?? '',
+        end:      v.endDate?.split('T')[0] ?? '',
+        status:   expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
+    }
+}
+
 export default {
 
-    data() {
-
-        return {
-
-            search: "",
-            status: "",
-            type: "",
-            fromDate: "",
-            toDate: "",
-
-            vouchers: [
-
-                {
-                    id: 1,
-                    code: "VOUCHER10",
-                    name: "Giảm 10%",
-                    type: "PHẦN TRĂM",
-                    value: "10%",
-                    quantity: 1,
-                    start: "2025-12-25",
-                    end: "2026-01-25",
-                    status: "HOẠT ĐỘNG"
-                },
-
-                {
-                    id: 2,
-                    code: "VIP30",
-                    name: "VIP giảm 30%",
-                    type: "PHẦN TRĂM",
-                    value: "30%",
-                    quantity: 1,
-                    start: "2025-12-22",
-                    end: "2026-01-22",
-                    status: "HOẠT ĐỘNG"
-                }
-
-            ],
-
-            filteredVouchers: [],
-
-            currentPage: 1,
-            perPage: 5,
-
-            // ── Modal state ──
-            showEditModal: false,
-            editForm: {
-                id: null,
-                code: "",
-                name: "",
-                type: "PHẦN TRĂM",
-                value: "",
-                quantity: 1,
-                start: "",
-                end: "",
-                status: "HOẠT ĐỘNG"
-            }
-
+    data: () => ({
+        search: '', status: '', type: '', fromDate: '', toDate: '',
+        vouchers: [],
+        filteredVouchers: [],
+        currentPage: 1,
+        showEditModal: false,
+        editForm: {
+            id: null, code: '', name: '',
+            category: 'PHẦN TRĂM', value: '',
+            quantity: 1, start: '', end: '',
+            status: 'HOẠT ĐỘNG'
         }
-
-    },
+    }),
 
     computed: {
         paginatedVouchers() {
             const start = (this.currentPage - 1) * 8
-            const end = start + 8
-            return this.filteredVouchers.slice(start, end)
+            return this.filteredVouchers.slice(start, start + 8)
         },
         totalPages() {
             return Math.max(1, Math.ceil(this.filteredVouchers.length / 8))
         }
     },
 
-
     methods: {
 
+        // Gọi API lấy danh sách
+        async loadVouchers() {
+            const data = await fetch(API).then(r => r.json())
+            this.vouchers = data.map(format)
+            this.filteredVouchers = [...this.vouchers]
+        },
 
+        // Lọc danh sách
         filterVoucher() {
-
-            this.filteredVouchers = this.vouchers.filter(v => {
-
-                const matchSearch =
-                    v.code.toLowerCase().includes(this.search.toLowerCase()) ||
-                    v.name.toLowerCase().includes(this.search.toLowerCase())
-
-                const matchStatus =
-                    !this.status || v.status === this.status
-
-                const matchType =
-                    !this.type || v.type === this.type
-
-                const matchDate =
-                    (!this.fromDate || new Date(v.start) >= new Date(this.fromDate)) &&
-                    (!this.toDate || new Date(v.end) <= new Date(this.toDate))
-
-                return matchSearch && matchStatus && matchType && matchDate
-
-            })
-
+            this.filteredVouchers = this.vouchers.filter(v =>
+                (v.code + v.name).toLowerCase().includes(this.search.toLowerCase()) &&
+                (!this.status   || v.status === this.status) &&
+                (!this.type     || v.type   === this.type)   &&
+                (!this.fromDate || v.start  >= this.fromDate) &&
+                (!this.toDate   || v.end    <= this.toDate)
+            )
             this.currentPage = 1
-
         },
 
-
+        // Xóa bộ lọc
         resetFilter() {
-
-            this.search = ""
-            this.status = ""
-            this.type = ""
-            this.fromDate = ""
-            this.toDate = ""
-
-            this.filteredVouchers = this.vouchers
-
+            this.search = ''; this.status = ''; this.type = ''
+            this.fromDate = ''; this.toDate = ''
+            this.filteredVouchers = [...this.vouchers]
             this.currentPage = 1
-
         },
 
-
-        addVoucher() {
-
-            const index = this.vouchers.length + 1
-
-            const newVoucher = {
-
-                id: "KM_" + String(index).padStart(2, '0'),
-                code: "NEW" + Math.floor(Math.random() * 1000),
-                name: "Voucher mới",
-                type: "PHẦN TRĂM",
-                value: "15%",
-                quantity: 1,
-                start: "2025-12-01",
-                end: "2026-01-01",
-                status: "HOẠT ĐỘNG"
-
-            }
-
-            this.vouchers.unshift(newVoucher)
-
-            this.filterVoucher()
-
-            this.currentPage = 1
-
+        // Thêm voucher mới
+        async addVoucher() {
+            await fetch(`${API}/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code:      'NEW' + ~~(Math.random() * 1000),
+                    name:      'Voucher mới',
+                    category:  'PHẦN TRĂM',
+                    value:     15,
+                    quantity:  1,
+                    startDate: new Date().toISOString(),
+                    endDate:   new Date(Date.now() + 30 * 864e5).toISOString(),
+                    status:    true
+                })
+            })
+            await this.loadVouchers()
         },
 
-
-        deleteVoucher(id) {
-
-            if (confirm("Bạn có chắc muốn xóa không?")) {
-
-                const index = this.vouchers.findIndex(v => v.id === id)
-
-                if (index !== -1) {
-                    this.vouchers.splice(index, 1)
-                }
-
-                this.filterVoucher()
-
-                if (this.currentPage > this.totalPages) {
-                    this.currentPage = this.totalPages || 1
-                }
-
-            }
-
+        // Xóa voucher
+        async deleteVoucher(id) {
+            if (!confirm('Xóa voucher này?')) return
+            await fetch(`${API}/remove/${id}`, { method: 'DELETE' })
+            await this.loadVouchers()
+            if (this.currentPage > this.totalPages) this.currentPage = this.totalPages
         },
 
-
-        // ── Mở popup, copy dữ liệu vào form ──
+        // Mở popup sửa
         editVoucher(v) {
-
-            this.editForm = { ...v }
+            this.editForm = {
+                id:       v.id,
+                code:     v.code,
+                name:     v.name,
+                category: v.type,
+                value:    parseFloat(v.value),
+                quantity: v.quantity,
+                start:    v.start,
+                end:      v.end,
+                status:   v.status
+            }
             this.showEditModal = true
-
         },
 
-
-        // ── Lưu chỉnh sửa vào mảng gốc ──
-        saveEdit() {
-
-            const index = this.vouchers.findIndex(v => v.id === this.editForm.id)
-
-            if (index !== -1) {
-                this.vouchers.splice(index, 1, { ...this.editForm })
-            }
-
-            this.filterVoucher()
-            this.closeModal()
-
-        },
-
-
-        // ── Đóng popup ──
-        closeModal() {
-
+        // Lưu sửa voucher
+        async saveEdit() {
+            const f = this.editForm
+            await fetch(`${API}/update/${f.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id:        f.id,
+                    code:      f.code,
+                    name:      f.name,
+                    category:  f.category,
+                    value:     +f.value,
+                    quantity:  +f.quantity,
+                    startDate: f.start ? new Date(f.start).toISOString() : null,
+                    endDate:   f.end   ? new Date(f.end).toISOString()   : null,
+                    status:    f.status === 'HOẠT ĐỘNG'
+                })
+            })
+            await this.loadVouchers()
             this.showEditModal = false
-
         },
 
-        prevPage() {
-            if (this.currentPage > 1) {
-                this.currentPage--
-            }
-        },
-
-        nextPage() {
-            if (this.currentPage < this.totalPages) {
-                this.currentPage++
-            }
-        },
-
-
+        closeModal() { this.showEditModal = false },
+        prevPage()   { this.currentPage-- },
+        nextPage()   { this.currentPage++ }
     },
 
-    mounted() {
-
-        this.filteredVouchers = this.vouchers
-
-    }
-
+    mounted() { this.loadVouchers() }
 }
-
-

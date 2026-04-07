@@ -8,7 +8,7 @@ const error = ref(null); // Add this
 
 onMounted(async () => {
     try {
-        const res = await api.get('/api/admin/stats/dashboard-stats');
+        const res = await api.get('/admin/stats/dashboard-stats');
         console.log("API Response:", res.data); // Look for this in F12 Console!
         stats.value = res.data;
     } catch (err) {

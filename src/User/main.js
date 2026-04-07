@@ -47,22 +47,18 @@ const routes = [
             {
                 path: '/account',
                 component: UserAccount,
-                meta: {requireAuth: true}
             },
             {
                 path: '/account/password',
                 component: UserChangePassword,
-                meta: {requireAuth: true}
             },
             {
                 path: '/account/address',
                 component: UserAddress,
-                meta: {requireAuth: true}
             },
             {
                 path: '/account/orders',
                 component: UserOrders,
-                meta: {requireAuth: true}
             },
             {
                 path: '/brewing',
@@ -90,7 +86,6 @@ const routes = [
             {
                 path: '/cart',
                 component: CartView,
-                meta: {requireAuth: true}
             },
             {
                 path: '/voucher',
@@ -113,19 +108,6 @@ const router = createRouter({
     routes
 })
 
-router.beforeEach((to, from, next) => {
-    const auth = useAuthStore()
-    
-    const isAuthenticated = !!auth.token && !!auth.user
-
-    if (to.meta.requireAuth && !isAuthenticated) {
-        next('/login')
-    } else if ((to.path === '/login' || to.path === '/register') && isAuthenticated) {
-        next('/homepage')
-    } else {
-        next()
-    }
-})
 
 
 

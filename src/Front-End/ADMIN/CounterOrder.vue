@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useCounterOrder } from "../JS/CounterOrder.service.js";
+// import { useCounterOrder } from '../JS/CounterOrder.JS';
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href

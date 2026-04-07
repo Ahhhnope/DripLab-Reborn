@@ -1,11 +1,8 @@
 // ============================================================
 //  Cart.js – Logic chính của Giỏ Hàng
-//  Dữ liệu mock nằm trực tiếp trong data() để test
-//  Khi có backend: thay cartItems bằng kết quả gọi API
 // ============================================================
 
-// SDT
-const TRANSFER_ACCOUNTS = {
+const MOMO_ACCOUNTS = {
   '0901234567': 'NGUYEN VAN AN',
   '0912345678': 'TRAN THI BINH',
   '0923456789': 'LE HOANG MINH',
@@ -23,116 +20,36 @@ export default {
 
   data() {
     return {
-      // ── MOCK DATA – thay bằng API call khi có backend ──
       cartItems: [
-        {
-          id: 1,
-          productId: 101,
-          name: 'Cà Phê Trứng Hà Nội',
-          image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80',
-          basePrice: 55000,
-          quantity: 1,
-          toppings: ['Trân châu', 'Thạch cafe'],
-          sugar: '70%',
-          ice: '50%',
-        },
-        {
-          id: 2,
-          productId: 102,
-          name: 'Bạc Xỉu Sài Gòn',
-          image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&q=80',
-          basePrice: 45000,
-          quantity: 2,
-          toppings: ['Sữa đặc thêm'],
-          sugar: '100%',
-          ice: '100%',
-        },
-        {
-          id: 3,
-          productId: 103,
-          name: 'Cold Brew Chanh Leo',
-          image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80',
-          basePrice: 65000,
-          quantity: 1,
-          toppings: [],
-          sugar: '50%',
-          ice: 'Không đá',
-        },
-        {
-          id: 4,
-          productId: 104,
-          name: 'Trà Sữa Matcha Đặc Biệt',
-          image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80',
-          basePrice: 60000,
-          quantity: 1,
-          toppings: ['Trân châu đen', 'Pudding trứng'],
-          sugar: '50%',
-          ice: '70%',
-        },
-        {
-          id: 5,
-          productId: 105,
-          name: 'Sinh Tố Bơ Sữa Tươi',
-          image: 'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=300&q=80',
-          basePrice: 50000,
-          quantity: 1,
-          toppings: ['Sữa đặc'],
-          sugar: '30%',
-          ice: '50%',
-        },
-        {
-          id: 6,
-          productId: 106,
-          name: 'Hồng Trà Vải Thiều',
-          image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80',
-          basePrice: 42000,
-          quantity: 3,
-          toppings: ['Thạch dừa'],
-          sugar: '70%',
-          ice: '100%',
-        },
-        {
-          id: 7,
-          productId: 107,
-          name: 'Cà Phê Muối Kem Béo',
-          image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&q=80',
-          basePrice: 58000,
-          quantity: 1,
-          toppings: ['Kem muối', 'Phô mai'],
-          sugar: '0%',
-          ice: 'Không đá',
-        },
+        { id: 1, productId: 101, name: 'Cà Phê Trứng Hà Nội', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80', basePrice: 55000, quantity: 1, toppings: ['Trân châu', 'Thạch cafe'], sugar: '70%', ice: '50%' },
+        { id: 2, productId: 102, name: 'Bạc Xỉu Sài Gòn', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=300&q=80', basePrice: 45000, quantity: 2, toppings: ['Sữa đặc thêm'], sugar: '100%', ice: '100%' },
+        { id: 3, productId: 103, name: 'Cold Brew Chanh Leo', image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300&q=80', basePrice: 65000, quantity: 1, toppings: [], sugar: '50%', ice: 'Không đá' },
+        { id: 4, productId: 104, name: 'Trà Sữa Matcha Đặc Biệt', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80', basePrice: 60000, quantity: 1, toppings: ['Trân châu đen', 'Pudding trứng'], sugar: '50%', ice: '70%' },
+        { id: 5, productId: 105, name: 'Sinh Tố Bơ Sữa Tươi', image: 'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=300&q=80', basePrice: 50000, quantity: 1, toppings: ['Sữa đặc'], sugar: '30%', ice: '50%' },
+        { id: 6, productId: 106, name: 'Hồng Trà Vải Thiều', image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80', basePrice: 42000, quantity: 3, toppings: ['Thạch dừa'], sugar: '70%', ice: '100%' },
+        { id: 7, productId: 107, name: 'Cà Phê Muối Kem Béo', image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&q=80', basePrice: 58000, quantity: 1, toppings: ['Kem muối', 'Phô mai'], sugar: '0%', ice: 'Không đá' },
       ],
 
-      // ── Trạng thái chọn ──
       selectedIds: [],
-
-      // ── Confirm xóa ──
       deleteTarget: null,
 
-      // ── Modal đặt hàng ──
       showOrderModal: false,
+      paymentMethod: 'COD',   // 'COD' | 'MOMO'
 
-      // ── Mã giảm giá ──
+      // Mã giảm giá
       couponCode: '',
       couponApplied: false,
       couponDiscount: 0,
       couponMessage: '',
 
-      // ── Thanh toán ──
-      paymentMethod: 'COD',
+      // MoMo
+      momoPhone: '',
+      momoName: '',
+      momoStep: 1,
+      momoError: '',
+      momoLoading: false,
 
-      // ── Chuyển khoản (giống MoMo CounterOrder) ──
-      transferPhone: '',
-      transferName: '',
-      transferStep: 1,       // 1 = nhập SĐT, 2 = xác nhận
-      transferError: '',
-      transferLoading: false,
-
-      // ── Trạng thái ──
       isPlacingOrder: false,
-
-      // ── Kết quả đặt hàng ──
       showSuccessModal: false,
       lastOrderId: '',
     };
@@ -140,13 +57,13 @@ export default {
 
   computed: {
     selectedItems() {
-      return this.cartItems.filter(item => this.selectedIds.includes(item.id));
+      return this.cartItems.filter(i => this.selectedIds.includes(i.id));
     },
     selectedSubtotal() {
-      return this.selectedItems.reduce((sum, item) => sum + item.basePrice * item.quantity, 0);
+      return this.selectedItems.reduce((s, i) => s + i.basePrice * i.quantity, 0);
     },
     shippingFee() {
-      if (this.selectedItems.length === 0) return 0;
+      if (!this.selectedItems.length) return 0;
       return this.selectedSubtotal >= 100000 ? 0 : 20000;
     },
     selectedTotal() {
@@ -161,45 +78,24 @@ export default {
     isSomeSelected() {
       return this.selectedIds.length > 0 && this.selectedIds.length < this.cartItems.length;
     },
-
-    shippingFee() {
-      return this.selectedSubtotal >= 100000 ? 20000 : 0;
-    },
-    totalPrice() {
-      return this.selectedSubtotal + this.shippingFee;
-    },
   },
 
   methods: {
-    // ── Format ──
     formatVND(amount) {
-      return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-        maximumFractionDigits: 0,
-      }).format(amount);
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(amount);
     },
 
-    // ── Selection ──
     toggleSelect(id) {
       const idx = this.selectedIds.indexOf(id);
-      if (idx === -1) this.selectedIds.push(id);
-      else this.selectedIds.splice(idx, 1);
+      idx === -1 ? this.selectedIds.push(id) : this.selectedIds.splice(idx, 1);
     },
     toggleSelectAll(e) {
       this.selectedIds = e.target.checked ? this.cartItems.map(i => i.id) : [];
     },
 
-    // ── Quantity ──
-    increaseQty(item) {
-      item.quantity++;
-    },
-    decreaseQty(item) {
-      if (item.quantity <= 1) return;
-      item.quantity--;
-    },
+    increaseQty(item) { item.quantity++; },
+    decreaseQty(item) { if (item.quantity > 1) item.quantity--; },
 
-    // ── Delete ──
     confirmDelete(item) { this.deleteTarget = item; },
     cancelDelete() { this.deleteTarget = null; },
     executeDelete() {
@@ -212,14 +108,18 @@ export default {
 
     // ── Order modal ──
     openOrderModal() {
-      if (this.selectedItems.length) {
-        this.resetTransfer();
-        this.showOrderModal = true;
-      }
+      if (!this.selectedItems.length) return;
+      this.paymentMethod = 'COD';
+      this.resetMomo();
+      this.showOrderModal = true;
     },
-    closeOrderModal() { this.showOrderModal = false; },
+    closeOrderModal() {
+      this.showOrderModal = false;
+      this.paymentMethod = 'COD';
+      this.resetMomo();
+    },
 
-    // ── Coupon (mock) ──
+    // ── Coupon ──
     applyCoupon() {
       if (!this.couponCode.trim()) return;
       const code = this.couponCode.toUpperCase();
@@ -238,59 +138,49 @@ export default {
       }
     },
     removeCoupon() {
-      this.couponCode = '';
-      this.couponApplied = false;
-      this.couponDiscount = 0;
-      this.couponMessage = '';
+      this.couponCode = ''; this.couponApplied = false;
+      this.couponDiscount = 0; this.couponMessage = '';
     },
 
-    // ── Chuyển khoản – giống MoMo CounterOrder ──
-    resetTransfer() {
-      this.transferPhone = '';
-      this.transferName = '';
-      this.transferStep = 1;
-      this.transferError = '';
-      this.transferLoading = false;
+    // ── MoMo flow ──
+    openMomoFlow() {
+      this.resetMomo();
+      this.paymentMethod = 'MOMO';
     },
-
-    onTransferPhoneInput(e) {
+    backToPaymentSelect() {
+      this.paymentMethod = 'COD';
+      this.resetMomo();
+    },
+    resetMomo() {
+      this.momoPhone = ''; this.momoName = '';
+      this.momoStep = 1; this.momoError = ''; this.momoLoading = false;
+    },
+    onMomoPhoneInput(e) {
       const clean = e.target.value.replace(/\D/g, '').slice(0, 10);
-      this.transferPhone = clean;
-      this.transferError = '';
-      this.transferName = '';
-      this.transferLoading = false;
-
+      this.momoPhone = clean;
+      this.momoError = ''; this.momoName = ''; this.momoLoading = false;
       if (clean.length === 10) {
-        this.transferLoading = true;
+        this.momoLoading = true;
         setTimeout(() => {
-          this.transferLoading = false;
-          if (TRANSFER_ACCOUNTS[clean]) {
-            this.transferName = TRANSFER_ACCOUNTS[clean];
-            this.transferError = '';
+          this.momoLoading = false;
+          if (MOMO_ACCOUNTS[clean]) {
+            this.momoName = MOMO_ACCOUNTS[clean]; this.momoError = '';
           } else {
-            this.transferName = '';
-            this.transferError = 'Không tìm thấy tài khoản ngân hàng';
+            this.momoName = ''; this.momoError = 'Không tìm thấy tên tài khoản';
           }
         }, 900);
       }
     },
-
-    confirmTransferReceiver() {
-      if (!this.transferName) return;
-      this.transferStep = 2;
+    confirmMomoReceiver() {
+      if (!this.momoName) return;
+      this.momoStep = 2;
     },
 
-    backTransfer() {
-      this.transferStep = 1;
-    },
-
-    // ── Place order (mock) ──
+    // ── Đặt hàng ──
     placeOrder() {
       if (this.isPlacingOrder) return;
-      // Nếu chọn chuyển khoản mà chưa xác nhận người nhận
-      if (this.paymentMethod === 'TRANSFER' && this.transferStep < 2) return;
+      if (this.paymentMethod === 'MOMO' && this.momoStep < 2) return;
       this.isPlacingOrder = true;
-
       setTimeout(() => {
         this.lastOrderId = 'ORD-' + Date.now();
         this.showOrderModal = false;
@@ -298,7 +188,8 @@ export default {
         this.cartItems = this.cartItems.filter(i => !orderedIds.includes(i.id));
         this.selectedIds = [];
         this.removeCoupon();
-        this.resetTransfer();
+        this.resetMomo();
+        this.paymentMethod = 'COD';
         this.showSuccessModal = true;
         this.isPlacingOrder = false;
       }, 800);
