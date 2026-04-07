@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-// ✅ 1. IMPORT ẢNH LOCAL GIỐNG HỆT MENUVIEW.JS
+// IMPORT ẢNH LOCAL
 import matchaNong from '../IMG/Matcha-latte.png'
 import matchaLatte from '../IMG/Matcha_tea.jpg'
 import capuchino from '../IMG/flat-white.jpg'
@@ -22,10 +22,16 @@ import traxanhdaudo from '../IMG/tra-xanh-dau-do.jpg'
 import tragung from '../IMG/tra-gung.jpg'
 import hongtra from '../IMG/hong-tra-sua.jpg'
 
+// ✅ IMPORT STORES — đường dẫn chỉnh cho khớp với project của bạn
+import { useCartStore } from '../../stores/cart.js'
+import { useAuthStore } from '../Authorization/Auth.js'
+
 const route = useRoute()
 const router = useRouter()
+const cartStore = useCartStore()
+const authStore = useAuthStore() // ✅ lấy user đang login
 
-// --- 2. LOGIC MODAL PREVIEW ---
+// --- LOGIC MODAL PREVIEW ---
 const showPreview = ref(false)
 
 watchEffect(() => {
@@ -37,20 +43,25 @@ function closePreview() {
   router.replace({ query: { ...route.query, preview: undefined } })
 }
 
-// --- 3. NOTIFICATION MODAL (THAY TOAST) ---
+// --- NOTIFICATION MODAL ---
 const notice = reactive({
   open: false,
-  type: 'info', // 'success' | 'warning' | 'error' | 'info'
+  type: 'info',
   title: '',
   message: '',
   code: '',
   buttonText: 'Hoàn tất',
   autoCloseMs: 0,
+  onClose: null,
 })
 
 function closeNotice() {
   notice.open = false
   notice.autoCloseMs = 0
+  if (typeof notice.onClose === 'function') {
+    notice.onClose()
+    notice.onClose = null
+  }
 }
 
 function showNotice({
@@ -60,6 +71,7 @@ function showNotice({
   code = '',
   buttonText = 'Hoàn tất',
   autoCloseMs = 0,
+  onClose = null,
 }) {
   notice.type = type
   notice.title = title
@@ -67,6 +79,7 @@ function showNotice({
   notice.code = code
   notice.buttonText = buttonText
   notice.autoCloseMs = autoCloseMs
+  notice.onClose = onClose
   notice.open = true
 
   if (autoCloseMs && autoCloseMs > 0) {
@@ -81,7 +94,7 @@ function genOrderCode() {
   return `ORD-${Date.now()}`
 }
 
-// --- 4. DATA SẢN PHẨM ĐÃ ĐỒNG BỘ VỚI MENUVIEW.JS ---
+// --- DATA SẢN PHẨM ---
 const products = [
   { id: 'matcha-latte', name: 'Matcha Latte', price: 49000, imageUrl: matchaLatte },
   { id: 'matcha-nong', name: 'Matcha Nóng', price: 49000, imageUrl: matchaNong },
@@ -103,11 +116,10 @@ const products = [
   { id: 'hong-tra-sua', name: 'Hồng Trà Sữa', price: 49000, imageUrl: hongtra },
 ]
 
-// Lấy sản phẩm dựa trên ID trên URL (mặc định về món đầu tiên nếu sai)
 const productId = computed(() => String(route.params.id || products[0]?.id || ''))
 const product = computed(() => products.find((p) => p.id === productId.value) || products[0])
 
-// --- 5. OPTIONS (TÁCH ĐƯỜNG/ĐÁ + LOCK) ---
+// --- OPTIONS ---
 const sugarItems = [
   { id: 'sugar_0', label: '0% đường', priceDelta: 0 },
   { id: 'sugar_30', label: '30% đường', priceDelta: 0 },
@@ -154,7 +166,7 @@ const toppingGroup = {
 
 const groups = computed(() => [cupGroup, toppingGroup])
 
-// --- 6. SELECTIONS ---
+// --- SELECTIONS ---
 const selections = reactive({
   cup: new Set(['cup_plastic']),
   sugar: new Set(),
@@ -176,12 +188,6 @@ function selectSingle(groupId, itemId) {
   selections[groupId] = new Set([itemId])
 }
 
-/**
- * LOCK RULE:
- * - sugar: max 1
- * - ice: max 1
- * - topping: max 3
- */
 function isOptionDisabled(groupId, itemId, max) {
   const set = selections[groupId]
   const checked = set?.has?.(itemId) || false
@@ -192,14 +198,11 @@ function isOptionDisabled(groupId, itemId, max) {
 
 function toggleWithLock(groupId, itemId, max, msgWhenBlocked) {
   const set = selections[groupId] || (selections[groupId] = new Set())
-
   if (set.has(itemId)) {
     set.delete(itemId)
     return
   }
-
   if (set.size >= max) {
-    // ✅ cảnh báo dạng modal (auto close)
     showNotice({
       type: 'warning',
       title: 'Thông báo',
@@ -209,7 +212,6 @@ function toggleWithLock(groupId, itemId, max, msgWhenBlocked) {
     })
     return
   }
-
   set.add(itemId)
 }
 
@@ -227,44 +229,75 @@ function validateSugarIce() {
   return true
 }
 
-// --- 7. TÍNH TIỀN ---
+// --- TÍNH TIỀN ---
 const lineTotal = computed(() => {
   let optionPrice = 0
-
   selections.sugar.forEach((id) => {
     const item = sugarItems.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
-
   selections.ice.forEach((id) => {
     const item = iceItems.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
-
   selections.cup.forEach((id) => {
     const item = cupGroup.items.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
-
   selections.topping.forEach((id) => {
     const item = toppingGroup.items.find((x) => x.id === id)
     if (item) optionPrice += item.priceDelta
   })
-
   return ((product.value?.price || 0) + optionPrice) * qty.value
 })
 
-function addToCart() {
+// ✅ ADD TO CART — truyền đúng userId từ authStore
+async function addToCart() {
   if (!validateSugarIce()) return
 
-  // TODO: sau này bạn thay bằng Pinia cart.addLine(...)
+  // ✅ Lấy userId từ authStore — chính là user.id trả về sau khi login
+  const userId = authStore.user?.id
+  if (!userId) {
+    showNotice({
+      type: 'warning',
+      title: 'Chưa đăng nhập',
+      message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.',
+      buttonText: 'Đóng',
+      onClose: () => router.push('/login'),
+    })
+    return
+  }
+
+  const payload = {
+    userId,                          // ✅ có userId → fetchUserCart sau khi add sẽ đúng
+    drinkId: product.value?.id,
+    quantity: qty.value,
+    sugar: [...selections.sugar][0],
+    ice: [...selections.ice][0],
+    cup: [...selections.cup][0],
+    toppingIds: [...selections.topping],
+  }
+
+  try {
+    await cartStore.addToCart(payload)
+  } catch (e) {
+    showNotice({
+      type: 'error',
+      title: 'Có lỗi xảy ra',
+      message: 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.',
+      buttonText: 'Đóng',
+    })
+    return
+  }
+
   showNotice({
     type: 'success',
-    title: 'Đặt hàng thành công!',
+    title: 'Thêm vào giỏ hàng thành công!',
     code: genOrderCode(),
     message: 'Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.',
     buttonText: 'Hoàn tất',
     autoCloseMs: 0,
+    onClose: () => router.push('/cart'), // ✅ chuyển sang giỏ hàng sau khi đóng
   })
 }
 </script>
@@ -285,10 +318,7 @@ function addToCart() {
         <div class="relative md:col-span-5">
           <div class="sticky top-10 cursor-pointer overflow-hidden rounded-2xl shadow-lg" @click="showPreview = true">
             <img v-if="product" :src="product.imageUrl" class="aspect-4/5 w-full object-cover" alt="Product Image" />
-
-            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent">
-            </div>
-
+            <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
             <div class="pointer-events-none absolute bottom-0 left-0 right-0 p-6">
               <h1 class="text-2xl font-bold leading-tight text-white drop-shadow-md md:text-3xl">
                 {{ product?.name }}
@@ -309,15 +339,13 @@ function addToCart() {
                 <span class="text-base font-bold uppercase tracking-wide text-slate-800">MỨC ĐƯỜNG - MỨC ĐÁ</span>
                 <span class="text-xs font-medium text-slate-400">• mỗi loại chọn 1</span>
               </div>
-
               <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <!-- SUGAR -->
                 <div>
                   <div class="mb-3 text-sm font-bold text-slate-700">MỨC ĐƯỜNG</div>
                   <div class="space-y-2">
-                    <label v-for="it in sugarItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="isOptionDisabled('sugar', it.id, 1)
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'cursor-pointer hover:bg-slate-50'">
+                    <label v-for="it in sugarItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3"
+                      :class="isOptionDisabled('sugar', it.id, 1) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-slate-50'">
                       <input type="checkbox" class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
                         :checked="isChecked('sugar', it.id)" :disabled="isOptionDisabled('sugar', it.id, 1)"
                         @change="toggleWithLock('sugar', it.id, 1, 'Mức đường: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')" />
@@ -328,14 +356,12 @@ function addToCart() {
                     </label>
                   </div>
                 </div>
-
                 <!-- ICE -->
                 <div>
                   <div class="mb-3 text-sm font-bold text-slate-700">MỨC ĐÁ</div>
                   <div class="space-y-2">
-                    <label v-for="it in iceItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="isOptionDisabled('ice', it.id, 1)
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'cursor-pointer hover:bg-slate-50'">
+                    <label v-for="it in iceItems" :key="it.id" class="flex items-start gap-3 rounded-xl p-3"
+                      :class="isOptionDisabled('ice', it.id, 1) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-slate-50'">
                       <input type="checkbox" class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
                         :checked="isChecked('ice', it.id)" :disabled="isOptionDisabled('ice', it.id, 1)"
                         @change="toggleWithLock('ice', it.id, 1, 'Mức đá: chỉ được chọn 1 mức. Bỏ chọn mức hiện tại để đổi.')" />
@@ -355,19 +381,14 @@ function addToCart() {
                 <span class="text-base font-bold uppercase tracking-wide text-slate-800">{{ g.title }}</span>
                 <span class="text-xs font-medium text-slate-400">• tối đa {{ g.max }}</span>
               </div>
-
               <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                <label v-for="it in g.items" :key="it.id" class="flex items-start gap-3 rounded-xl p-3" :class="g.type === 'multi' && isOptionDisabled(g.id, it.id, g.max)
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'cursor-pointer hover:bg-slate-50'">
+                <label v-for="it in g.items" :key="it.id" class="flex items-start gap-3 rounded-xl p-3"
+                  :class="g.type === 'multi' && isOptionDisabled(g.id, it.id, g.max) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-slate-50'">
                   <input :type="g.type === 'single' ? 'radio' : 'checkbox'" :name="g.id"
-                    class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]" :checked="isChecked(g.id, it.id)"
-                    :disabled="g.type === 'multi' ? isOptionDisabled(g.id, it.id, g.max) : false" @change="
-                      g.type === 'single'
-                        ? selectSingle(g.id, it.id)
-                        : toggleWithLock(g.id, it.id, g.max, 'Topping tối đa 3 loại. Bỏ bớt để chọn loại khác.')
-                      " />
-
+                    class="mt-1 h-4.5 w-4.5 cursor-pointer accent-[#126b23]"
+                    :checked="isChecked(g.id, it.id)"
+                    :disabled="g.type === 'multi' ? isOptionDisabled(g.id, it.id, g.max) : false"
+                    @change="g.type === 'single' ? selectSingle(g.id, it.id) : toggleWithLock(g.id, it.id, g.max, 'Topping tối đa 3 loại. Bỏ bớt để chọn loại khác.')" />
                   <div class="flex flex-col">
                     <span class="text-sm font-semibold text-slate-800">{{ it.label }}</span>
                     <span class="mt-0.5 text-xs font-medium text-slate-400">
@@ -383,16 +404,11 @@ function addToCart() {
           <div class="mt-8 flex items-center justify-between border-t border-slate-100 pt-8">
             <div class="flex items-center gap-3">
               <button @click="qty = Math.max(1, qty - 1)"
-                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">
-                −
-              </button>
+                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">−</button>
               <span class="w-6 text-center text-base font-semibold text-slate-900">{{ qty }}</span>
               <button @click="qty++"
-                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">
-                +
-              </button>
+                class="flex h-9 w-9 items-center justify-center rounded bg-slate-100 text-lg font-medium text-slate-600 transition hover:bg-slate-200">+</button>
             </div>
-
             <button
               class="rounded-lg bg-[#126b23] px-8 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-[#0f541b]"
               @click="addToCart">
@@ -410,38 +426,27 @@ function addToCart() {
       <div class="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-transparent">
         <button
           class="absolute right-3 top-3 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 font-bold text-slate-900 hover:bg-white"
-          @click="closePreview" aria-label="Đóng">
-          ✕
-        </button>
+          @click="closePreview" aria-label="Đóng">✕</button>
         <img :src="product.imageUrl" alt="" class="max-h-[85vh] w-full rounded-2xl object-contain shadow-2xl" />
       </div>
     </div>
 
-    <!-- ✅ NOTIFICATION MODAL (GIỐNG ẢNH MẪU) -->
+    <!-- NOTIFICATION MODAL -->
     <div v-if="notice.open"
       class="fixed inset-0 z-120 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
       @click.self="closeNotice">
       <div class="w-full max-w-lg rounded-[28px] bg-[#FFF9F1] p-8 shadow-2xl ring-1 ring-black/5 text-center">
         <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-white shadow-sm">
           <span class="text-3xl">
-            {{ notice.type === 'success' ? '🎉' : notice.type === 'warning' ? '⚠️' : notice.type === 'error' ? '❌' :
-            'ℹ️' }}
+            {{ notice.type === 'success' ? '🎉' : notice.type === 'warning' ? '⚠️' : notice.type === 'error' ? '❌' : 'ℹ️' }}
           </span>
         </div>
-
-        <div class="text-3xl font-extrabold text-[#4B2E1E]">
-          {{ notice.title }}
-        </div>
-
+        <div class="text-3xl font-extrabold text-[#4B2E1E]">{{ notice.title }}</div>
         <div v-if="notice.code"
           class="mt-4 inline-flex items-center justify-center rounded-xl border border-[#E0B37A] bg-[#FFF1DD] px-4 py-2 text-sm font-bold text-[#4B2E1E]">
           Mã đơn: {{ notice.code }}
         </div>
-
-        <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-[#7A5A43]">
-          {{ notice.message }}
-        </p>
-
+        <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-[#7A5A43]">{{ notice.message }}</p>
         <button
           class="mx-auto mt-7 inline-flex min-w-40 items-center justify-center rounded-2xl bg-[#2B1B14] px-6 py-3 text-base font-bold text-white hover:bg-[#3A241B]"
           @click="closeNotice">
