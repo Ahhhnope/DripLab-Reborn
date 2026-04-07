@@ -101,10 +101,10 @@ const {
 
               <div class="ud-profile">
                 <div class="ud-avatar">
-                  <img src="../IMG/DELLBIETNOIGI.jpg" alt="Avatar" />
+                  <img src="../IMG/LmaoUSSER.jpg" alt="Avatar" />
                 </div>
-                <p class="ud-name">Nguyễn Văn A</p>
-                <p class="ud-email">abc@gmail.com</p>
+                <p class="ud-name">DRIP LAB</p>
+                <p class="ud-email">contact@driplab.com</p>
               </div>
 
               <div class="ud-divider"></div>
