@@ -1,37 +1,73 @@
-.promo-page{
-    padding:30px 40px;
-    width:100%;
+.promo-page {
+    padding: 30px 40px;
+    width: 100%;
 }
 
 /* tiêu đề */
-.promo-page h2{
-    font-size:26px;
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:20px;
+.promo-page h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 20px;
 }
 
 /* filter */
-.filter{
-    background:#fff;
-    padding:16px;
-    border-radius:12px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.06);
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:20px;
+.filter {
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filter input,
+.filter select {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.filter input:focus,
+.filter select:focus {
+    outline: none;
+    border-color: #f97316;
+}
+
+/* BUTTON filter */
+.filter button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter button:nth-child(6) {
+    background: #f97316;
+    color: white;
+}
+
+.filter button:nth-child(7) {
+    background: #e5e7eb;
+}
+
+.filter button:nth-child(8) {
+    background: #22c55e;
+    color: white;
 }
 
 /* bảng */
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    /* border-radius:12px; lmao*/
-    overflow:hidden;
-    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 thead th,
@@ -44,7 +80,11 @@ tbody td {
     text-align: center;
 }
 
-/* Dòng trống giữ đúng chiều cao như dòng thật */
+tbody tr:hover {
+    background: #fafafa;
+}
+
+/* Dòng trống */
 .empty-row td {
     height: 42px;
     border-left: 1px solid #ddd;
@@ -53,121 +93,87 @@ tbody td {
     border-bottom: none;
 }
 
-/* body bảng */
-td{
-    padding:14px;
-    border-top:1px solid #eee;
-    color:#4b5563;
+/* Status badge trong bảng */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
-tbody tr:hover{
-    background:#fafafa;
+.status-badge.active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.expired {
+    background: #fee2e2;
+    color: #dc2626;
 }
 
 /* pagination */
-.pagination{
-    margin-top:16px;
-    display:flex;
-    gap:8px;
+.pagination {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
 }
 
-.pagination button{
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    background:#e5e7eb;
-    cursor:pointer;
+.pagination button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #e5e7eb;
+    cursor: pointer;
 }
 
-.pagination button:hover{
-    background:#f97316;
-    color:white;
+.pagination button:hover {
+    background: #f97316;
+    color: white;
 }
 
-
-/* FILTER BOX */
-
-.filter{
-background:white;
-padding:18px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.05);
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-margin-bottom:20px;
+.pagination button.active {
+    background: #4a90e2;
+    color: #fff;
+    font-weight: 700;
 }
 
-.filter input,
-.filter select{
-padding:8px 10px;
-border:1px solid #ddd;
-border-radius:6px;
-font-size:14px;
-color:#374151;
-}
-
-.filter input:focus,
-.filter select:focus{
-outline:none;
-border-color:#f97316;
-}
-
-
-/* BUTTON */
-
-.filter button{
-padding:8px 14px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-font-size:14px;
-}
-
-.filter button:nth-child(6){
-background:#f97316;
-color:white;
-}
-
-.filter button:nth-child(7){
-background:#e5e7eb;
-}
-
-.filter button:nth-child(8){
-background:#22c55e;
-color:white;
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* Nút hành động */
-.action-buttons{
-    display:flex;
-    gap:8px;
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
 }
 
-.edit-btn{
-    background:#3b82f6;
-    color:white;
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    cursor:pointer;
+.edit-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.edit-btn:hover{
-    background:#2563eb;
+.edit-btn:hover {
+    background: #2563eb;
 }
 
-.delete-btn{
-    background:#ef4444;
-    color:white;
-    border:none;
-    padding:6px 10px;
-    border-radius:6px;
-    cursor:pointer;
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
-.delete-btn:hover{
-    background:#dc2626;
+.delete-btn:hover {
+    background: #dc2626;
 }
 
 /* ── Modal overlay ── */
@@ -188,6 +194,8 @@ color:white;
     width: 480px;
     max-width: 95vw;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-box h3 {
@@ -212,6 +220,10 @@ color:white;
     font-size: 0.85rem;
     font-weight: 600;
     color: #555;
+}
+
+.form-group .required {
+    color: #ef4444;
 }
 
 .form-group input,
@@ -264,22 +276,33 @@ color:white;
     background: #c8c8c8;
 }
 
-/* Dòng trống giữ chiều cao cố định */
-.empty-row td {
-    height: 42px;
-    border: none;
+/* ── Toast thông báo ── */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    pointer-events: none;
 }
 
-/* Nút trang đang active */
-.pagination button.active {
-    background: #4a90e2;
-    color: #fff;
-    font-weight: 700;
-    border-color: #4a90e2;
+.toast-notification.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* Nút < > bị disabled */
-.pagination button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+.toast-notification.success {
+    background: #22c55e;
+}
+
+.toast-notification.error {
+    background: #ef4444;
 }

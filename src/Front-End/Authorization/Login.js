@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../../api/axios'
 import { useAuthStore } from './Auth'
 
 export function useLogin() {
@@ -30,7 +30,7 @@ export function useLogin() {
     isLoading.value = true
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await api.post('/auth/login', {
         email: identifier.value,
         password: password.value
       })
