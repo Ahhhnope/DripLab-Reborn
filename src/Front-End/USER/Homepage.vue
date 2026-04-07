@@ -114,7 +114,7 @@ onUnmounted(() => clearInterval(timer))
         <RouterLink class="bento-card group" to="/brewing">
           <img src="../IMG/CustomCoffee.png" alt="Custom Coffee" />
           <div class="bento-overlay">
-            <h3 class="bento-title">Sáng tạo thức uống</h3>
+            <h3 class="bento-title">Tự pha chế</h3>
             <div class="bento-overlay-2">
               <p class="bento-sub">Tự "cook" đồ uống của bạn!</p>
             </div>
@@ -135,7 +135,7 @@ onUnmounted(() => clearInterval(timer))
 
       <!-- NEWS -->
       <section class="split-section split-reverse section-gap">
-        <img class="split-img" src="../IMG/cp2.png" alt="News" />
+        <img class="split-img" src="../IMG/Couppp.png" alt="News" />
         <div class="split-content">
           <h2 class="split-title">Khuyến mãi tại Drip Lab</h2>
           <RouterLink to="/news">
