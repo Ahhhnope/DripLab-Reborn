@@ -1,18 +1,10 @@
 export function useFooter() {
   const connectLinks = [
-<<<<<<< HEAD
     { label: 'Thực đơn',     path: '/menu' },
     { label: 'Về chúng tôi', path: '/aboutus' },
     { label: 'Khuyến mãi',     path: '/voucher' },
     { label: 'Cửa hàng',   path: '/stores' },
-=======
-    { label: 'Thực Đơn',     path: '/menu' },
-    { label: 'Về Chúng Tôi', path: '/about' },
-    { label: 'Khuyến Mãi',     path: '/news' },
-    { label: 'Cửa Hàng',   path: '/stores' },
->>>>>>> e0ecf390e6f9fda16390b8a3a7e225c413af39ce
-  ]
-
+  ];
   const socialLinks = [
     {
       label: 'Instagram',
