@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../../api'
 
 export function useRegister() {
   const router = useRouter()
@@ -56,7 +56,7 @@ export function useRegister() {
     }
     isLoading.value = true
     try {
-        await axios.post('http://localhost:8080/api/auth/register', {
+        await api.post('/auth/register', {
             fullName: name.value,
             email: email.value,
             phone: phone.value,

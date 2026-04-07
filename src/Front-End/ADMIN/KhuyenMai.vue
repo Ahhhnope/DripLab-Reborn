@@ -54,7 +54,6 @@
                     <th>Tên</th>
                     <th>Loại</th>
                     <th>Giá trị</th>
-                    <th>Số lượng</th>
                     <th>Ngày bắt đầu</th>
                     <th>Ngày kết thúc</th>
                     <th>Trạng thái</th>
@@ -71,7 +70,6 @@
                     <td>{{ v.name }}</td>
                     <td>{{ v.type }}</td>
                     <td>{{ v.value }}</td>
-                    <td>{{ v.quantity }}</td>
                     <td>{{ v.start }}</td>
                     <td>{{ v.end }}</td>
                     <td>{{ v.status }}</td>
@@ -144,11 +142,6 @@
                     <div class="form-group">
                         <label>Giá trị</label>
                         <input v-model="editForm.value" placeholder="VD: 10% hoặc 50000" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Số lượng</label>
-                        <input type="number" v-model="editForm.quantity" min="1" />
                     </div>
 
                     <div class="form-group">

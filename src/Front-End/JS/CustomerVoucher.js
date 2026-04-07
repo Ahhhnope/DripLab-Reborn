@@ -29,7 +29,7 @@ export default {
         editForm: {
             id: null, code: '', name: '',
             category: 'PHẦN TRĂM', value: '',
-            quantity: 1, start: '', end: '',
+            start: '', end: '',
             status: 'HOẠT ĐỘNG'
         }
     }),
