@@ -10,11 +10,11 @@ const { connectLinks, socialLinks, year } = useFooter()
 
       <div class="footer-brand">
         <img src="../IMG/DripLab_Logo.png" alt="Drip Lab" />
-        <p>Drip Lab - Coffee for your fresh start every day.</p>
+        <p>Drip Lab - Khởi đầu sảng khoái cùng cà phê tại Lab!!.</p>
       </div>
 
       <div class="footer-col">
-        <h4>Connect</h4>
+        <h4>Liên kết</h4>
         <ul>
           <li v-for="link in connectLinks" :key="link.path">
             <RouterLink :to="link.path">{{ link.label }}</RouterLink>
@@ -23,16 +23,16 @@ const { connectLinks, socialLinks, year } = useFooter()
       </div>
 
       <div class="footer-col">
-        <h4>Contact Us</h4>
+        <h4>Liên hệ chúng tôi</h4>
         <p>
           Email: contact@driplab.com<br />
-          Hotline: 036 363 6767<br />
-          Place at: Vietnam
+          Số điện thoại: 036 363 6767<br />
+          Địa chỉ đặt tại: 200 Tô Hiến Thành, Hai Bà Trưng, Hà Nội
         </p>
       </div>
 
       <div class="footer-col">
-        <h4>Follow Us On</h4>
+        <h4>Theo dõi chúng tôi tại</h4>
         <div class="footer-social">
           <a v-for="s in socialLinks" :key="s.label" :href="s.href" :title="s.label" target="_blank">
             <svg viewBox="0 0 24 24" width="16" height="16">
@@ -44,7 +44,7 @@ const { connectLinks, socialLinks, year } = useFooter()
 
     </div>
     <div class="footer-bottom">
-      <p>© {{ year }} Drip Lab. Space for coffee heads.</p>
+      <p>© {{ year }} Drip Lab. Không gian dành cho người yêu cà phê.</p>
     </div>
   </footer>
 </template>
