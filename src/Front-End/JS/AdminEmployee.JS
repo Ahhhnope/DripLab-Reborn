@@ -109,12 +109,7 @@ async function deleteEmployee(index) {
   if (realIndex !== -1) {
     employees.value.splice(realIndex, 1)
 
-    // Khi có backend: bỏ comment dòng dưới
-    await api.post('/workers/add', {
-      fullName: newEmp.name,
-      account: newEmp.username,
-      password: newEmp.password,
-    })
+    await api.delete(`/workers/remove/${emp.id}`)
   }
   syncFiltered()
 }
