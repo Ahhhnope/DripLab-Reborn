@@ -108,6 +108,24 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from, next) => {
+    const auth = useAuthStore();
+    const isAuthenticated = localStorage.getItem('token');
+
+    // if is ADMIN then -> off to 5005 you go
+    if (auth.user && auth.user.role === 'ADMIN' && to.path !== '/login') {
+        return next('http://localhost:5005' + to.fullPath);
+    }
+
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ path: '/login' });
+    }
+
+    else {
+        next();
+    }
+});
 
 
 

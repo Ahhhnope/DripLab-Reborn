@@ -66,11 +66,16 @@ router.beforeEach((to, from, next) => {
     const auth = useAuthStore();
     const isAuthenticated = localStorage.getItem('token');
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
-        next({ path: '/login' });
+    // if is not ADMIN then -> off to 5173 you go
+    if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
+        return next('http://localhost:5173' + to.fullPath);
     }
 
-    else if ((to.path === '/login' && isAuthenticated) || to.path === '/') {
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next('/login');
+    }
+
+    else if (to.meta.requiresAuth && isAuthenticated) {
         next('/Dashboard');
     }
 
