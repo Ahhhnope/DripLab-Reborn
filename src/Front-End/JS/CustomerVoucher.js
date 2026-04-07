@@ -1,6 +1,7 @@
-const API = '/api/promo-codes'
+import api from '../../api/axios.js'
 
-// Chuyển data từ backend sang format hiển thị
+const API = '/promo-codes'
+
 function format(v) {
     const expired = !v.status || v.quantity <= 0 || new Date(v.endDate) < new Date()
     return {
@@ -13,7 +14,7 @@ function format(v) {
                     : (+v.value).toLocaleString('vi-VN') + 'đ',
         quantity: v.quantity,
         start:    v.startDate?.split('T')[0] ?? '',
-        end:      v.endDate?.split('T')[0] ?? '',
+        end:      v.endDate?.split('T')[0]   ?? '',
         status:   expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
     }
 }
@@ -25,13 +26,20 @@ export default {
         vouchers: [],
         filteredVouchers: [],
         currentPage: 1,
+
         showEditModal: false,
         editForm: {
-            id: null, code: '', name: '',
-            category: 'PHẦN TRĂM', value: '',
-            start: '', end: '',
-            status: 'HOẠT ĐỘNG'
-        }
+            id: null, code: '', name: '', category: 'PHẦN TRĂM',
+            value: '', quantity: 1, start: '', end: '', status: 'HOẠT ĐỘNG'
+        },
+
+        showAddModal: false,
+        addForm: {
+            code: '', name: '', category: 'PHẦN TRĂM',
+            value: '', quantity: 1, start: '', end: ''
+        },
+
+        toast: { show: false, message: '', type: 'success' }
     }),
 
     computed: {
@@ -46,14 +54,19 @@ export default {
 
     methods: {
 
-        // Gọi API lấy danh sách
         async loadVouchers() {
-            const data = await fetch(API).then(r => r.json())
-            this.vouchers = data.map(format)
-            this.filteredVouchers = [...this.vouchers]
+            try {
+                const res = await api.get(API)
+                this.vouchers = res.data.map(format)
+                this.filteredVouchers = [...this.vouchers]
+            } catch (e) {
+                const msg = e.response
+                    ? 'Lỗi ' + e.response.status + ': ' + (e.response.data?.message || 'Không thể tải voucher')
+                    : 'Không thể kết nối server'
+                this.showToast(msg, 'error')
+            }
         },
 
-        // Lọc danh sách
         filterVoucher() {
             this.filteredVouchers = this.vouchers.filter(v =>
                 (v.code + v.name).toLowerCase().includes(this.search.toLowerCase()) &&
@@ -65,7 +78,6 @@ export default {
             this.currentPage = 1
         },
 
-        // Xóa bộ lọc
         resetFilter() {
             this.search = ''; this.status = ''; this.type = ''
             this.fromDate = ''; this.toDate = ''
@@ -73,74 +85,84 @@ export default {
             this.currentPage = 1
         },
 
-        // Thêm voucher mới
-        async addVoucher() {
-            await fetch(`${API}/add`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    code:      'NEW' + ~~(Math.random() * 1000),
-                    name:      'Voucher mới',
-                    category:  'PHẦN TRĂM',
-                    value:     15,
-                    quantity:  1,
-                    startDate: new Date().toISOString(),
-                    endDate:   new Date(Date.now() + 30 * 864e5).toISOString(),
+        addVoucher() {
+            this.addForm = { code: '', name: '', category: 'PHẦN TRĂM', value: '', quantity: 1, start: '', end: '' }
+            this.showAddModal = true
+        },
+
+        async saveAdd() {
+            const f = this.addForm
+            if (!f.code || !f.name || !f.value || !f.start || !f.end) {
+                this.showToast('Vui lòng điền đầy đủ thông tin!', 'error')
+                return
+            }
+            try {
+                await api.post(API + '/add', {
+                    code:      f.code.toUpperCase().trim(),
+                    name:      f.name,
+                    category:  f.category,
+                    value:     parseFloat(f.value),
+                    quantity:  parseInt(f.quantity),
+                    startDate: f.start ? new Date(f.start).toISOString() : null,
+                    endDate:   f.end   ? new Date(f.end).toISOString()   : null,
                     status:    true
                 })
-            })
-            await this.loadVouchers()
+                await this.loadVouchers()
+                this.showAddModal = false
+                this.showToast('Thêm voucher thành công!', 'success')
+            } catch (e) {
+                this.showToast('Lỗi khi thêm: ' + (e.response?.data?.message || e.message), 'error')
+            }
         },
 
-        // Xóa voucher
         async deleteVoucher(id) {
             if (!confirm('Xóa voucher này?')) return
-            await fetch(`${API}/remove/${id}`, { method: 'DELETE' })
-            await this.loadVouchers()
-            if (this.currentPage > this.totalPages) this.currentPage = this.totalPages
+            try {
+                await api.delete(API + '/remove/' + id)
+                await this.loadVouchers()
+                if (this.currentPage > this.totalPages) this.currentPage = this.totalPages
+                this.showToast('Đã xóa voucher!', 'success')
+            } catch (e) {
+                this.showToast('Lỗi khi xóa: ' + (e.response?.data?.message || e.message), 'error')
+            }
         },
 
-        // Mở popup sửa
         editVoucher(v) {
             this.editForm = {
-                id:       v.id,
-                code:     v.code,
-                name:     v.name,
-                category: v.type,
-                value:    parseFloat(v.value),
-                quantity: v.quantity,
-                start:    v.start,
-                end:      v.end,
-                status:   v.status
+                id: v.id, code: v.code, name: v.name, category: v.type,
+                value: parseFloat(v.value), quantity: v.quantity,
+                start: v.start, end: v.end, status: v.status
             }
             this.showEditModal = true
         },
 
-        // Lưu sửa voucher
         async saveEdit() {
             const f = this.editForm
-            await fetch(`${API}/update/${f.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id:        f.id,
-                    code:      f.code,
-                    name:      f.name,
-                    category:  f.category,
-                    value:     +f.value,
-                    quantity:  +f.quantity,
+            try {
+                await api.put(API + '/update/' + f.id, {
+                    id: f.id, code: f.code, name: f.name, category: f.category,
+                    value: parseFloat(f.value), quantity: parseInt(f.quantity),
                     startDate: f.start ? new Date(f.start).toISOString() : null,
                     endDate:   f.end   ? new Date(f.end).toISOString()   : null,
-                    status:    f.status === 'HOẠT ĐỘNG'
+                    status: f.status === 'HOẠT ĐỘNG'
                 })
-            })
-            await this.loadVouchers()
-            this.showEditModal = false
+                await this.loadVouchers()
+                this.showEditModal = false
+                this.showToast('Cập nhật thành công!', 'success')
+            } catch (e) {
+                this.showToast('Lỗi khi cập nhật: ' + (e.response?.data?.message || e.message), 'error')
+            }
         },
 
-        closeModal() { this.showEditModal = false },
-        prevPage()   { this.currentPage-- },
-        nextPage()   { this.currentPage++ }
+        closeModal()    { this.showEditModal = false },
+        closeAddModal() { this.showAddModal  = false },
+        prevPage()      { this.currentPage-- },
+        nextPage()      { this.currentPage++ },
+
+        showToast(message, type = 'success') {
+            this.toast = { show: true, message, type }
+            setTimeout(() => { this.toast.show = false }, 3500)
+        }
     },
 
     mounted() { this.loadVouchers() }
