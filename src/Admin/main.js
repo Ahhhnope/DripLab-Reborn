@@ -67,7 +67,8 @@ const router = createRouter({
 
       // not ADMIN → off to user app
       if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
-          return next('http://localhost:5173' + to.fullPath);
+        window.location.href('http://localhost:5173' + to.fullPath);
+        return
       }
 
       // needs auth but not logged in

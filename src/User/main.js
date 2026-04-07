@@ -119,7 +119,8 @@ router.beforeEach((to, from, next) => {
 
     // if is ADMIN then -> off to 5005 you go
     if (auth.user && auth.user.role === 'ADMIN' && to.path !== '/login') {
-        return next('http://localhost:5005' + to.fullPath);
+        window.location.href('http://localhost:5005' + to.fullPath);
+        return
     }
 
 
