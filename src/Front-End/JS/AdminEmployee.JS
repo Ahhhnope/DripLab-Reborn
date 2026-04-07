@@ -1,5 +1,5 @@
 import { ref } from "vue"
-import axios from "axios"
+import api from '../../api/axios'
 
 const employees = ref([])
 const filteredEmployees = ref([])
@@ -15,7 +15,7 @@ const form = ref({ name: "", username: "", password: "", newPassword: "" })
 // ── Load data ──
 async function loadEmployees() {
   try {
-    const res = await axios.get("http://localhost:8080/employees")
+    const res = await api.get('/workers')
     employees.value         = res.data
     filteredEmployees.value = res.data
   } catch (err) {
@@ -78,8 +78,11 @@ async function saveEmployee() {
       employees.value[i].password = form.value.newPassword
     }
 
-    // Khi có backend: bỏ comment dòng dưới
-    // await axios.put(`http://localhost:8080/employees/${employees.value[i].id}`, employees.value[i])
+    await api.put(`/workers/update/${employees.value[i].id}`, {
+      fullName: employees.value[i].name,
+      account: employees.value[i].username,
+      password: form.value.newPassword || employees.value[i].password,
+    })
 
   } else {
     const newId  = "NV_" + String(employees.value.length + 1).padStart(2, "0")
@@ -107,7 +110,11 @@ async function deleteEmployee(index) {
     employees.value.splice(realIndex, 1)
 
     // Khi có backend: bỏ comment dòng dưới
-    // await axios.delete(`http://localhost:8080/employees/${emp.id}`)
+    await api.post('/workers/add', {
+      fullName: newEmp.name,
+      account: newEmp.username,
+      password: newEmp.password,
+    })
   }
   syncFiltered()
 }

@@ -47,18 +47,22 @@ const routes = [
             {
                 path: '/account',
                 component: UserAccount,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/password',
                 component: UserChangePassword,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/address',
                 component: UserAddress,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/account/orders',
                 component: UserOrders,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/brewing',
@@ -86,6 +90,7 @@ const routes = [
             {
                 path: '/cart',
                 component: CartView,
+                meta: {requiresAuth: true}
             },
             {
                 path: '/voucher',
