@@ -42,11 +42,12 @@ export function useLogin() {
 
       // Optional: small delay so the user sees the "Brewing..." animation
       await new Promise(r => setTimeout(r, 800))
-      if (user && user.role && user.role.toUpperCase() === 'ADMIN') {
-          router.push('/Dashboard'); // Matches your route path in main.js
-      } else {
-          router.push('/homepage');
-      }
+
+      // if (user.role.toUpperCase() === 'ADMIN') {
+      //   router.push('/Dashboard');
+      // } else {
+      //     window.location.href = 'http://localhost:5173/homepage';
+      // }
     } catch (err) {
       errorMsg.value = err.response?.data?.message || 'Đăng nhập thất bại'
     } finally {
