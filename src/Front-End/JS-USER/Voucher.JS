@@ -25,9 +25,9 @@ export function useVoucher() {
           ? new Date(v.endDate).toLocaleDateString('vi-VN')
           : 'Không giới hạn',
         minOrder: '—',
-        status: (v.status && v.quantity > 0 && new Date(v.endDate) >= now)
+        status: v.status && new Date(v.endDate) >= now
           ? 'active'
-          : (v.quantity <= 0 ? 'used' : 'expired')
+          : 'expired'
       }))
     } catch (err) {
       console.error('[Voucher] loadVouchers lỗi:', err.response?.status, err.message)
@@ -64,12 +64,6 @@ export function useVoucher() {
     copiedCode.value = v.id
     toastMessage.value = 'Đã sao chép: ' + v.rawCode
     showToast.value = true
-
-    try {
-      await api.put('/promo-codes/use/' + v.id)
-    } catch (err) {
-      console.warn('[Voucher] /use lỗi:', err.response?.status)
-    }
 
     setTimeout(async () => {
       copiedCode.value = null
