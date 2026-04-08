@@ -152,7 +152,7 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.basePrice?.toLocaleString('vi-VN') }}₫</td>
                     <td>
                         <button class="btn-edit" @click="openEdit(drink)">Sửa</button>
-                        <button class="btn-delete" @click="removeDrink(drink.id)">Xóa</button>
+                        <button class="btn-delete" @click="removeDrink(drink.id)">Hết hàng</button>
                     </td>
                 </tr>
             </tbody>
