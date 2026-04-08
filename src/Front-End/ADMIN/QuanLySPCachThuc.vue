@@ -96,14 +96,14 @@ const { search, currentPage, PAGE_SIZE, filtered, totalPages, pageStart, pagedRo
 const handleSubmit = () => { const r = submitForm(); if (r.error) showToast(r.error, 'err'); if (r.success) showToast('✅ ' + r.success, 'ok') }
 const handleDelete = () => { const r = doDelete(); if (r.success) showToast('🗑 ' + r.success, 'ok') }
 </script> -->
-```
+<!-- ```
 
 ---
 
 Copy vào đúng chỗ:
 ```
 src/Front-End/JS/     ← Sua.JS, KemBeo.JS, KemLanh.JS, CachThuc.JS
-src/Front-End/ADMIN/  ← QuanLySPSua.vue, QuanLySPKemBeo.vue, QuanLySPkem.vue, QuanLySPCachThuc.vue
+src/Front-End/ADMIN/  ← QuanLySPSua.vue, QuanLySPKemBeo.vue, QuanLySPkem.vue, QuanLySPCachThuc.vue -->
 
 
 

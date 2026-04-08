@@ -85,10 +85,8 @@ async function saveDrink(drink) {
 }
 
 async function toggleDrink(id) {
-    if (confirm("Xác nhận xóa sản phẩm này?")) {
-        await toggleDrinks(id);
-        loadDrinks();
-    }
+    await toggleDrinks(id);
+    loadDrinks();
 }
 
 async function handleImageUpload(event, target) {
@@ -152,10 +150,12 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.name }}</td>
                     <td>{{ drink.category }}</td>
                     <td>{{ drink.basePrice?.toLocaleString('vi-VN') }}₫</td>
-                    <td>{{ drink.active ? 'Bật' : 'Tắt'}}</td>
+                    <td>{{ drink.active ? 'Đang bán' : 'Đã Tắt'}}</td> 
                     <td>
                         <button class="btn-edit" @click="openEdit(drink)">Sửa</button>
-                        <button class="btn-delete" @click="toggleDrink(drink.id)"></button>
+                        <button class="btn-delete" @click="toggleDrink(drink.id)">
+                            {{ drink.active ? 'Tắt' : 'Bật' }}
+                        </button>
                     </td>
                 </tr>
             </tbody>
