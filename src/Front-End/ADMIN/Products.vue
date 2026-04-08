@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import {
-    getDrinks, addDrink, updateDrink,
+    getDrinks, addDrink, updateDrink, toggleDrinks,
     getCoffeeBeans, getMilks, getHeavyCreams, getIceCreams, getInstructions,
     uploadImage
 } from "../JS/ApiStuff";
 
 const drinks = ref([]);
+
 const showAddModal = ref(false);
 const showEditModal = ref(false);
 const selectedDrink = ref(null);
@@ -83,11 +84,9 @@ async function saveDrink(drink) {
     loadDrinks();
 }
 
-async function removeDrink(id) {
-    if (confirm("Xác nhận xóa sản phẩm này?")) {
-        await deleteDrink(id);
-        loadDrinks();
-    }
+async function toggleDrink(id) {
+    await toggleDrinks(id);
+    loadDrinks();
 }
 
 async function handleImageUpload(event, target) {
@@ -136,6 +135,7 @@ const pagedDrinks = computed(() => {
                     <th>Tên</th>
                     <th>Danh mục</th>
                     <th>Giá</th>
+                    <th>Trạng thái</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -150,9 +150,16 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.name }}</td>
                     <td>{{ drink.category }}</td>
                     <td>{{ drink.basePrice?.toLocaleString('vi-VN') }}₫</td>
+                    <td>{{ drink.active ? 'Đang bán' : 'Đã Tắt'}}</td> 
                     <td>
                         <button class="btn-edit" @click="openEdit(drink)">Sửa</button>
+<<<<<<< HEAD
                         <button class="btn-delete" @click="removeDrink(drink.id)">Hết hàng</button>
+=======
+                        <button class="btn-delete" @click="toggleDrink(drink.id)">
+                            {{ drink.active ? 'Tắt' : 'Bật' }}
+                        </button>
+>>>>>>> ad2540a82ca0b4ef844ad5a076925030707a4b96
                     </td>
                 </tr>
             </tbody>

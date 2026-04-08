@@ -138,7 +138,7 @@ onUnmounted(() => clearInterval(timer))
         <img class="split-img" src="../IMG/Couppp.png" alt="News" />
         <div class="split-content">
           <h2 class="split-title">Khuyến mãi tại Drip Lab</h2>
-          <RouterLink to="/news">
+          <RouterLink to="/Voucher">
             <button class="section-btn">Xem ngay</button>
           </RouterLink>
         </div>

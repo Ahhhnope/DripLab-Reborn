@@ -20,7 +20,7 @@
             <div class="stat-value">{{ activeCount }}</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">TỔNG SỐ KHUYẾN MÃI </div>
+            <div class="stat-label">TỔNG SỐ KHUYẾN MÃI</div>
             <div class="stat-value">{{ totalCount }}</div>
           </div>
         </div>
@@ -47,24 +47,6 @@
 
     </div>
 
-    <!-- ===== TABS ===== -->
-    <div class="voucher-tabs">
-      <button
-        class="tab-btn"
-        :class="activeTab === 'available' ? 'active' : 'inactive'"
-        @click="setTab('available')"
-      >
-        Đang khả dụng
-      </button>
-      <button
-        class="tab-btn"
-        :class="activeTab === 'used' ? 'active' : 'inactive'"
-        @click="setTab('used')"
-      >
-        Đã dùng và hết hạn
-      </button>
-    </div>
-
     <!-- ===== VOUCHER GRID ===== -->
     <div class="voucher-grid">
       <template v-if="displayedVouchers.length > 0">
@@ -72,7 +54,6 @@
           v-for="voucher in displayedVouchers"
           :key="voucher.id"
           class="voucher-card"
-          :class="{ 'is-used': voucher.status !== 'active' }"
         >
           <!-- LEFT: Code -->
           <div class="voucher-card-left">
@@ -84,25 +65,13 @@
           <div class="voucher-card-right">
             <div class="voucher-top-row">
               <div class="voucher-discount">{{ voucher.discount }}</div>
-              <span
-                class="voucher-status-badge"
-                :class="voucher.status"
-              >
-                {{
-                  voucher.status === 'active'
-                    ? 'Hiện Tại '
-                    : voucher.status === 'used'
-                    ? 'ĐÃ DÙNG'
-                    : 'HẾT HẠN'
-                }}
-              </span>
+              <span class="voucher-status-badge active">Hiện Tại</span>
             </div>
             <div class="voucher-meta">
               Hạn dùng đến {{ voucher.expiry }}.<br />
               Đơn tối thiểu {{ voucher.minOrder }}.
             </div>
             <button
-              v-if="voucher.status === 'active'"
               class="copy-btn"
               :class="{ copied: copiedCode === voucher.id }"
               @click="copyCode(voucher)"
@@ -116,7 +85,7 @@
 
       <div v-else class="voucher-empty">
         <div class="voucher-empty-icon">🎟️</div>
-        <p>Không có mã voucher nào ở đây.</p>
+        <p>Không có mã voucher nào khả dụng.</p>
       </div>
     </div>
 
@@ -133,15 +102,12 @@
 import { useVoucher } from '../JS-USER/Voucher.JS'
 
 const {
-  activeTab,
   displayedVouchers,
   totalCount,
   activeCount,
-  usedCount,
   copiedCode,
   showToast,
   toastMessage,
-  setTab,
   copyCode,
 } = useVoucher()
 </script>
