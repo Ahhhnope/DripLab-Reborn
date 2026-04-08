@@ -1,4 +1,5 @@
-<style scoped src="../CSS/QLHatCF.CSS"></style>
+<style scoped src="../CSS/QLCachThuc.css">
+</style>
 
 <template>
   <div class="hcf-container">
@@ -16,22 +17,24 @@
     <table>
       <thead>
         <tr>
-          <th>STT</th><th>ID</th><th>Tên cách thức</th>
-          <th>Giá (VNĐ)</th><th>Ngày tạo</th><th>Thao tác</th>
+          <th>STT</th>
+          <th>ID</th>
+          <th>Tên cách thức</th>
+          <th>Nội dung</th>
+          <th>Thao tác</th>
         </tr>
       </thead>
       <tbody>
         <template v-if="filtered.length === 0">
           <tr><td colspan="6" class="empty-td"><div class="empty-icon">☕</div><div>Không có dữ liệu</div></td></tr>
-          <tr v-for="g in PAGE_SIZE" :key="'eg'+g" class="ghost-row"><td colspan="6"></td></tr>
+          <tr v-for="g in PAGE_SIZE" :key="'eg'+g" class="ghost-row"><td colspan="5"></td></tr>
         </template>
         <template v-else>
           <tr v-for="(row, i) in pagedRows" :key="row.id">
             <td>{{ pageStart + i + 1 }}</td>
             <td><span class="badge-id">{{ row.id }}</span></td>
             <td>{{ row.name }}</td>
-            <td class="price">{{ fmtPrice(row.price) }}</td>
-            <td class="date-cell">{{ fmtDate(row.createdAt) }}</td>
+            <td class="price">{{ row.instructions }}</td>
             <td>
               <div class="action-buttons">
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
@@ -64,8 +67,8 @@
         <div class="form-grid">
           <div class="form-group"><label>Mã ID <em>(tự động)</em></label><input :value="form.id" readonly /></div>
           <div class="form-group"><label>Ngày tạo <em>(tự động)</em></label><input :value="form.ngayTaoDisp" readonly /></div>
-          <div class="form-group full"><label>Tên cách thức</label><input ref="inputName" v-model="form.tenLoai" placeholder="VD: Cold brew, Pour over..." @keyup.enter="handleSubmit" /></div>
-          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.gia" type="number" placeholder="VD: 5000" min="0" @keyup.enter="handleSubmit" /></div>
+          <div class="form-group full"><label>Tên cách thức</label><input ref="inputName" v-model="form.name" placeholder="VD: Cold brew, Pour over..." @keyup.enter="handleSubmit" /></div>
+          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.instructions" type="number" placeholder="lmao" min="0" @keyup.enter="handleSubmit" /></div>
         </div>
         <div class="popup-actions">
           <button class="cancel-btn" @click="showForm = false">Hủy</button>
@@ -90,43 +93,124 @@
   </div>
 </template>
 
-<!-- <script setup>
-import useCachThuc from '../JS/CachThuc.JS'
-const { search, currentPage, PAGE_SIZE, filtered, totalPages, pageStart, pagedRows, ghostCount, fmtPrice, fmtDate, showForm, isEditing, inputName, form, openAdd, openEdit, submitForm, showConfirm, deleteTarget, openConfirm, doDelete, toastShow, toastMsg, toastType, showToast } = useCachThuc()
-const handleSubmit = () => { const r = submitForm(); if (r.error) showToast(r.error, 'err'); if (r.success) showToast('✅ ' + r.success, 'ok') }
-const handleDelete = () => { const r = doDelete(); if (r.success) showToast('🗑 ' + r.success, 'ok') }
-</script> -->
-<!-- ```
-
----
-
-Copy vào đúng chỗ:
-```
-src/Front-End/JS/     ← Sua.JS, KemBeo.JS, KemLanh.JS, CachThuc.JS
-src/Front-End/ADMIN/  ← QuanLySPSua.vue, QuanLySPKemBeo.vue, QuanLySPkem.vue, QuanLySPCachThuc.vue -->
-
-
-
 <script setup>
-// import { useIngredients } from '../JS/UseIngridients';
+import { ref, computed, onMounted } from 'vue'
+import api from '../../api/axios'
 
-// const {
-//   search, currentPage, PAGE_SIZE, pageStart,
-//   filtered, totalPages, pagedRows,
-//   fmtPrice, fmtDate,
-//   showForm, isEditing, inputName, form,
-//   openAdd, openEdit, submitForm,
-//   showConfirm, deleteTarget, openConfirm, doDelete,
-//   toastShow, toastMsg, toastType, showToast
-// } = useIngredients('instructions', 'CT');
+// state
+const rows = ref([])
+const search = ref('')
+const currentPage = ref(1)
+const PAGE_SIZE = 5
 
-// const handleSubmit = async () => {
-//   const result = await submitForm();
-//   showToast(result.error || result.success, result.error ? 'error' : 'ok');
-// };
+// form
+const showForm = ref(false)
+const isEditing = ref(false)
+const form = ref({
+  id: null,
+  name: '',
+  instructions: ''
+})
 
-// const handleDelete = async () => {
-//   const result = await doDelete();
-//   showToast(result.error || result.success, result.error ? 'error' : 'ok');
-// };
+// delete
+const showConfirm = ref(false)
+const deleteTarget = ref(null)
+
+// toast
+const toastShow = ref(false)
+const toastMsg = ref('')
+const toastType = ref('')
+
+// ================= LOAD =================
+const loadData = async () => {
+  const res = await api.get('/instructions');
+  rows.value = res.data
+}
+
+onMounted(loadData)
+
+// ================= FILTER =================
+const filtered = computed(() => {
+  return rows.value.filter(r =>
+    r.name?.toLowerCase().includes(search.value.toLowerCase())
+  )
+})
+
+const totalPages = computed(() =>
+  Math.ceil(filtered.value.length / PAGE_SIZE)
+)
+
+const pageStart = computed(() =>
+  (currentPage.value - 1) * PAGE_SIZE
+)
+
+const pagedRows = computed(() =>
+  filtered.value.slice(pageStart.value, pageStart.value + PAGE_SIZE)
+)
+
+const ghostCount = computed(() =>
+  PAGE_SIZE - pagedRows.value.length
+)
+
+// ================= ACTIONS =================
+const openAdd = () => {
+  isEditing.value = false
+  form.value = { id: null, name: '', price: 0 }
+  showForm.value = true
+}
+
+const openEdit = (row) => {
+  isEditing.value = true
+  form.value = { ...row }
+  showForm.value = true
+}
+
+const handleSubmit = async () => {
+  try {
+    if (isEditing.value) {
+      await api.put(`instructions/update/${form.value.id}`, form.value);
+    } else {
+      await api.post('instructiions/add', form.value);
+    }
+
+    showForm.value = false
+    await loadData()
+    showToast('Success', 'ok')
+  } catch (e) {
+    console.error(e)
+    showToast('Error', 'err')
+  }
+}
+
+const openConfirm = (row) => {
+  deleteTarget.value = row
+  showConfirm.value = true
+}
+
+const handleDelete = async () => {
+  try {
+    await api.delete(`instructions/remove/${deleteTarget.value.id}`);
+    showConfirm.value = false
+    await loadData()
+    showToast('Deleted', 'ok')
+  } catch (e) {
+    console.error(e)
+    showToast('Error', 'err')
+  }
+}
+
+// ================= UTILS =================
+const fmtPrice = (p) => p?.toLocaleString('vi-VN') + ' đ'
+
+const fmtDate = (d) => {
+  if (!d) return ''
+  return new Date(d).toLocaleDateString('vi-VN')
+}
+
+const showToast = (msg, type) => {
+  toastMsg.value = msg
+  toastType.value = type
+  toastShow.value = true
+  setTimeout(() => (toastShow.value = false), 2000)
+}
 </script>
