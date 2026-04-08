@@ -9,7 +9,8 @@ export default defineConfig({
     port: 5005,
     strictPort: true,
     fs: {
-      allow: ['..']
+      strict: false,
+      allow: ['..'],
     }
   },
   resolve: {

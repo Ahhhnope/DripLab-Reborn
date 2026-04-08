@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { createPinia } from 'pinia'
-import axios from 'axios'
 import './main.css'
 import { useAuthStore } from '../Front-End/Authorization/Auth'
 
@@ -113,27 +112,36 @@ const router = createRouter({
     routes
 })
 
-router.beforeEach((to, from, next) => {
-    const auth = useAuthStore();
-    const isAuthenticated = localStorage.getItem('token');
+const auth = useAuthStore();
 
-    // if is ADMIN then -> off to 5005 you go
-    if (auth.user && auth.user.role === 'ADMIN' && to.path !== '/login') {
-        window.location.href('http://localhost:5005' + to.fullPath);
-        return
+// Initialize auth in background (don't block app mounting)
+auth.init();
+
+app.use(router);
+app.mount('#app');
+
+router.beforeEach(async (to, from, next) => {
+    const auth = useAuthStore();
+
+    // Wait for auth initialization if not done yet
+    if (!auth.isInitialized) {
+        await auth.init();
     }
 
+    //redirect "admin" to admin site
+    if (auth.user && auth.user.role === 'ADMIN') {
+        window.location.replace('http://localhost:5005/');
+        return;
+    }
 
-    if (to.meta.requiresAuth && !isAuthenticated) {
+    //need auth -> redirect to login
+    if (to.meta.requiresAuth && !auth.user) {
         next({ path: '/login' });
     }
-
-    else {
+    //already logged in - redirect away from login
+    else if (auth.user && to.path === '/login') {
+        next({ path: '/homepage' });
+    } else {
         next();
     }
 });
-
-
-
-app.use(router)
-app.mount('#app')

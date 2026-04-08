@@ -142,17 +142,17 @@ import { useUserAccount } from "../JS-USER/UserAccount.JS";
 import { useAuthStore } from "../Authorization/Auth";
 import { useRouter } from "vue-router";
 
-// const {
-//   form, passwordForm,
-//   addresses, orders,
-//   navItems, activeTab,
-//   fileInput,
-//   triggerFileInput,
-//   onAvatarChange,
-//   setTab,
-//   saveProfile, savePassword,
-//   goTo
-// } = useUserAccount()
+const {
+  form, passwordForm,
+  addresses, orders,
+  navItems, activeTab,
+  fileInput,
+  triggerFileInput,
+  onAvatarChange,
+  setTab,
+  saveProfile, savePassword,
+  goTo
+} = useUserAccount()
 
 const auth = useAuthStore();
 const router = useRouter();

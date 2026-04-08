@@ -1,4 +1,4 @@
-import { createApp, patchProp } from 'vue'
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
@@ -60,28 +60,39 @@ const router = createRouter({
     routes,
 });
 
+const app = createApp(App);
+app.use(pinia);
+const auth = useAuthStore();
 
-  router.beforeEach((to, from, next) => {
-      const auth = useAuthStore();
-      const isAuthenticated = !!localStorage.getItem('token');
+// Initialize auth in background (don't block app mounting)
+auth.init();
 
-      // not ADMIN → off to user app
-      if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
-        window.location.href('http://localhost:5173' + to.fullPath);
-        return
-      }
+app.use(router);
+app.mount('#app');
 
-      // needs auth but not logged in
-      if (to.meta.requiresAuth && !isAuthenticated) {
-          next('/login');
-      }
-      // logged in but hitting /login
-      else if (to.path === '/login' && isAuthenticated) {
-          next('/Dashboard');
-      }
-      else {
-          next();
-      }
-  });
+router.beforeEach(async (to, from, next) => {
+    const auth = useAuthStore();
 
-createApp(App).use(pinia).use(router).mount('#app')
+    // Wait for auth initialization if not done yet
+    if (!auth.isInitialized) {
+        await auth.init();
+    }
+
+    //non-ADMIN → redirect to user site
+    if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
+        window.location.replace('http://localhost:5173/homepage');
+        return;
+    }
+
+    //need login
+    if (to.meta.requiresAuth && !auth.user) {
+        next('/login');
+    }
+
+    //already logged in - redirect away from login
+    else if (auth.user && to.path === '/login') {
+        next('/Dashboard');
+    } else {
+        next();
+    }
+});

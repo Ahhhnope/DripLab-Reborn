@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-
+import api from '../../api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
   const getSavedUser = () => {
     const saved = localStorage.getItem('user');
-    if (!saved || saved === "undefined") return null; // Catch the "undefined" string
+    if (!saved || saved === "undefined") {
+      return null;
+    }
     try {
       return JSON.parse(saved);
     } catch (e) {
@@ -15,21 +17,43 @@ export const useAuthStore = defineStore('auth', () => {
   };
 
   const user = ref(getSavedUser());
-  const token = ref(localStorage.getItem('token') || '');
+  // Token is now stored in httpOnly cookie, not in frontend storage
+  const token = ref('');
+  const isInitialized = ref(false);
 
-  function setUser(userData, newToken) {
+  function setUser(userData) {
     user.value = userData;
-    token.value = newToken;
     localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', newToken);
   }
 
-  function logout() {
-    user.value = null;
-    token.value = '';
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+  async function logout() {
+    try {
+      // Call backend to clear the cookie
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Even if the logout call fails, still clear local state
+      console.error('Logout error:', error);
+    } finally {
+      user.value = null;
+      token.value = '';
+      localStorage.removeItem('user');
+    }
   }
 
-  return { user, token, setUser, logout };
+  // THE INIT THE GOOD SHIT
+  async function init() {
+    try {
+      const response = await api.get('/users/me');
+      setUser(response.data);
+      return true; // authenticated
+    } catch (error) {
+      // No valid session (401 or other error ult)
+      logout();
+      return false; // not authenticated
+    } finally {
+      isInitialized.value = true;
+    }
+  }
+
+  return { user, token, setUser, logout, init, isInitialized };
 });
