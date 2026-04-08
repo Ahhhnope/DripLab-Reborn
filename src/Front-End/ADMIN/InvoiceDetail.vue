@@ -74,7 +74,9 @@
                       </div>
                     </div>
                     <div class="col-span-1 text-center font-bold text-stone-400">x{{ item.qty }}</div>
-                    <div class="col-span-3 text-right font-bold text-[#3C2A21]">—</div>
+                    <div class="col-span-3 text-right font-bold text-[#3C2A21]">
+                      {{ (item.price * item.qty).toLocaleString('vi-VN') }} đ
+                    </div>
                   </div>
                 </div>
 

@@ -61,7 +61,6 @@ export function useOrderList() {
         discount:    o.discountAmount ?? 0,
       }));
 
-      console.log("itemsDetail", allItems.value[0].itemsDetail);
     } catch (e) {
       console.error('loadOrders error:', e.response?.status, e.response?.data);
     }
