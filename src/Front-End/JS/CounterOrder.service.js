@@ -64,8 +64,8 @@ export function useCounterOrder() {
         }));
     });
 
-    function getImg(filename) {
-        return new URL('../IMG/MistakesWereMade.jpg', import.meta.url).href
+    function getImg(fileName) {
+        return new URL(`./`, import.meta.url).href
     }
 
     const orderedItems = computed(() => {

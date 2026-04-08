@@ -20,12 +20,12 @@ async function loadEmployees() {
     filteredEmployees.value = res.data
   } catch (err) {
     console.warn("Không kết nối được backend, dùng data mẫu")
-    const sample = [
-      { id: "NV_01", name: "Americano", username: "abc123", password: "Lmao", createdAt: "20/02/2020" },
-      { id: "NV_02", name: "Robusta",   username: "kikiki", password: "Lol",  createdAt: "04/01/2026" }
-    ]
-    employees.value         = sample
-    filteredEmployees.value = sample
+    // const sample = [
+    //   { id: "NV_01", name: "Americano", username: "abc123", password: "Lmao", createdAt: "20/02/2020" },
+    //   { id: "NV_02", name: "Robusta",   username: "kikiki", password: "Lol",  createdAt: "04/01/2026" }
+    // ]
+    // employees.value         = sample
+    // filteredEmployees.value = sample
   }
 }
 

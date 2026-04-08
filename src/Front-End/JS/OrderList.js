@@ -1,4 +1,5 @@
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import api from "../../api/axios";
 
 export function useOrderList() {
   const activeTab = ref("all");
@@ -10,130 +11,69 @@ export function useOrderList() {
     toDate: null,
   });
 
-  const allItems = ref([
-    {
-      id: 1,
-      code: "719523346",
-      shippingType: "COD",
-      status: "pending",
-      qty: 1,
-      pay: 55000,
-      deadline: "Hôm nay 09:28:00",
-      customer: {
-        name: "Nguyễn Văn A",
-        phone: "0909123456",
-        address: "123 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM",
-        note: "Giao trước 12h, gọi điện trước khi đến",
-      },
-      createdAt: "Hôm nay 13:36",
-      itemsDetail: [
-        { id: "p1", name: "Matcha Tea", qty: 1, total: 55000, options: ["1x Topping 1", "2x Topping 2", "1x Size L"] },
-      ],
-      subtotal: 55000,
-      shippingFee: 0,
-      discount: 0,
-    },
-    {
-      id: 2,
-      code: "750602738",
-      shippingType: "Chuyển khoản",
-      status: "processing",
-      qty: 5,
-      pay: 218000,
-      deadline: "06/03/2026 14:05:07",
-      customer: {
-        name: "Trần Thị B",
-        phone: "0912345678",
-        address: "456 Lê Lợi, Phường Bến Thành, Quận 1, TP.HCM",
-        note: "",
-      },
-      createdAt: "06/03/2026 13:10",
-      itemsDetail: [
-        { id: "p2", name: "Cà phê sữa", qty: 2, total: 98000,  options: ["Ít đá", "Thêm sữa"] },
-        { id: "p3", name: "Trà đào",    qty: 3, total: 120000, options: ["Size L"] },
-      ],
-      subtotal: 267626,
-      shippingFee: 15000,
-      discount: 49626,
-    },
-    {
-      id: 3,
-      code: "751602731",
-      shippingType: "Ví điện tử",
-      status: "shipping",
-      qty: 5,
-      pay: 200000,
-      deadline: "08/03/2026 14:05:07",
-      customer: {
-        name: "Trần Văn E",
-        phone: "0912987654",
-        address: "789 Điện Biên Phủ, Phường 15, Bình Thạnh, TP.HCM",
-        note: "Để đồ trước cửa",
-      },
-      createdAt: "06/03/2026 13:10",
-      itemsDetail: [
-        { id: "p2", name: "Moka",    qty: 2, total: 98000,  options: ["Ít đá", "Thêm sữa"] },
-        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
-      ],
-      subtotal: 218000,
-      shippingFee: 0,
-      discount: 18000,
-    },
-    {
-      id: 4,
-      code: "771602731",
-      shippingType: "Thẻ tín dụng",
-      status: "delivered",
-      qty: 5,
-      pay: 218000,
-      deadline: "08/03/2026 14:05:07",
-      customer: {
-        name: "Lê Thị C",
-        phone: "0938111222",
-        address: "12 Võ Văn Tần, Phường 6, Quận 3, TP.HCM",
-        note: "",
-      },
-      createdAt: "06/03/2026 13:10",
-      itemsDetail: [
-        { id: "p2", name: "Moka",    qty: 2, total: 98000,  options: ["Ít đá", "Thêm sữa"] },
-        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
-      ],
-      subtotal: 300000,
-      shippingFee: 0,
-      discount: 82000,
-    },
-    {
-      id: 5,
-      code: "781602731",
-      shippingType: "COD",
-      status: "cancelled",
-      qty: 5,
-      pay: 220000,
-      deadline: "08/03/2026 14:05:07",
-      customer: {
-        name: "Trần Văn Nam",
-        phone: "0977333444",
-        address: "99 Trần Hưng Đạo, Phường Cầu Ông Lãnh, Quận 1, TP.HCM",
-        note: "",
-      },
-      createdAt: "06/03/2026 13:10",
-      itemsDetail: [
-        { id: "p2", name: "Moka",    qty: 2, total: 100000, options: ["Ít đá", "Thêm sữa"] },
-        { id: "p3", name: "Hojicha", qty: 3, total: 120000, options: ["Size L"] },
-      ],
-      subtotal: 300000,
-      shippingFee: 0,
-      discount: 80000,
-    },
-  ]);
+  const allItems = ref([])
+
+
+  function mapStatus(s) {
+    if (!s) return 'pending';
+    const map = {
+      'Chờ xác nhận':      'pending',
+      'Đang xử lý':        'processing',
+      'Đang vận chuyển':   'shipping',
+      'Đã giao':           'delivered',
+      'Đã huỷ':            'cancelled',
+    };
+    return map[s] ?? s.toLowerCase();
+  }
+
+  async function loadOrders() {
+    try {
+      const res = await api.get('/orders');
+      allItems.value = res.data.map(o => ({
+        id:           o.id,
+        code:         String(o.orderNumber ?? o.id),
+        shippingType: o.paymentMethod ?? 'COD',
+        status:       mapStatus(o.status),
+        qty:          (o.items ?? []).reduce((sum, i) => sum + (i.quantity ?? 1), 0),
+        pay:          o.finalPrice ?? 0,
+        deadline:  o.orderDate ? new Date(o.orderDate).toLocaleString('vi-VN') : '-',
+        createdAt: o.createdAt ? new Date(o.createdAt).toLocaleString('vi-VN') : '-',
+        note:      o.note ?? '',
+        customer: {
+          id:      o.customer?.id       ?? null,
+          name:    o.customer?.fullName ?? o.customer?.name ?? '-',  // ✅ try fullName first
+          phone:   o.customer?.phone    ?? '-',
+          address: o.shippingAddress    ?? '-',
+        },
+        // damn....
+        itemsDetail: (o.items ?? []).map(i => ({
+          id:      i.id,
+          name:    i.drink?.name ?? '-',
+          qty:     i.quantity    ?? 1,
+          total:   (i.basePriceAtPurchase ?? 0) * (i.quantity ?? 1),
+          options: [
+            i.size?.name ? `Size ${i.size.name}` : null,
+            ...(i.orderItemToppings ?? []).map(t => t.topping?.name).filter(Boolean),
+          ].filter(Boolean),
+        })),
+        subtotal:    o.originalPrice  ?? 0,
+        shippingFee: o.shippingFee    ?? 0,
+        discount:    o.discountAmount ?? 0,
+      }));
+
+      console.log("itemsDetail", allItems.value[0].itemsDetail);
+    } catch (e) {
+      console.error('loadOrders error:', e.response?.status, e.response?.data);
+    }
+  }
+
 
   const items = computed(() => {
-    const k      = filter.value.keyword.trim().toLowerCase();
-    const status = filter.value.status;
-    return allItems.value.filter((x) => {
-      const okTab     = activeTab.value === "all" ? true : x.status === activeTab.value;
-      const okStatus  = status === "all"          ? true : x.status === status;
-      const okKeyword = !k                        ? true : String(x.code).toLowerCase().includes(k);
+    const k = filter.value.keyword.trim().toLowerCase();
+    return allItems.value.filter(x => {
+      const okTab     = activeTab.value === "all" || x.status === activeTab.value;
+      const okStatus  = filter.value.status === "all" || x.status === filter.value.status;
+      const okKeyword = !k || String(x.code).toLowerCase().includes(k);
       return okTab && okStatus && okKeyword;
     });
   });
@@ -142,5 +82,6 @@ export function useOrderList() {
     filter.value = payload;
   }
 
-  return { activeTab, filter, allItems, items, applyFilter };
+  onMounted(loadOrders);
+  return { activeTab, filter, allItems, items, applyFilter, loadOrders, mapStatus };
 }

@@ -23,6 +23,10 @@ function handleProductClick(product) {
   if (product.id === 0) router.push('/AdminPOS')
   else openPopup(product)
 }
+
+function getImg(fileName) {
+  return fileName
+}
 </script>
 
 <style scoped src="../CSS/CounterOrder.CSS"></style>
@@ -47,7 +51,8 @@ function handleProductClick(product) {
         </div>
         <div class="product-grid">
           <div v-for="product in products" :key="product.id" class="product-card" @click="handleProductClick(product)">
-            <img :src="product.imageUrl" :alt="product.name" class="product-img" />
+            <!-- <img :src="product.imageUrl" :alt="product.name" class="product-img" /> -->
+            <img :src="getImg(product.imageUrl)" class="product-img" :alt="product.name" />
             <p class="product-name" :class="{ bold: product.id === 0 }">{{ product.name }}</p>
           </div>
         </div>

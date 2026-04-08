@@ -24,9 +24,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(emp, index) in filteredEmployees" :key="emp.id">
-          <td>{{ emp.name }}</td>
-          <td>{{ emp.username }}</td>
+        <tr v-for="(emp, index) in employees" :key="emp.id">
+          <td>{{ emp.fullName }}wat</td>
+          <td>{{ emp.account }}</td>
           <td>{{ emp.password }}</td>
           <td>
             <div class="action-buttons">
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import useEmployee from "../JS/AdminEmployee.JS";
 
 const {
@@ -88,6 +88,7 @@ const {
   form,
   closePopup,
   saveEmployee,
+  employees
 } = useEmployee();
 
 onMounted(() => loadEmployees());

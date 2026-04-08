@@ -216,22 +216,38 @@ export default {
       this.momoStep = 2
     },
 
-    placeOrder() {
-      if (this.isPlacingOrder) return
-      if (this.paymentMethod === 'MOMO' && this.momoStep < 2) return
-      this.isPlacingOrder = true
-      setTimeout(() => {
-        this.lastOrderId = 'ORD-' + Date.now()
-        this.showOrderModal = false
-        const orderedIds = this.selectedItems.map((i) => i.id)
-        this.cartStore.items = this.cartStore.items.filter((i) => !orderedIds.includes(i.id))
-        this.selectedIds = []
-        this.removeCoupon()
-        this.resetMomo()
-        this.paymentMethod = 'COD'
-        this.showSuccessModal = true
-        this.isPlacingOrder = false
-      }, 800)
+    async placeOrder() {
+      if (this.isPlacingOrder) return;
+      if (this.paymentMethod === 'MOMO' && this.momoStep < 2) return;
+      this.isPlacingOrder = true;
+      try {
+        const api = (await import('../../api/axios')).default;
+        const userId = this.authStore.user?.id;
+
+        const res = await api.post('/orders/add', null, {
+          params: {
+            userId: userId,
+            note:   this.paymentMethod === 'MOMO'
+                      ? `MoMo - ${this.momoPhone}`
+                      : 'COD',
+          }
+        });
+
+        this.lastOrderId = res.data.orderNumber ?? res.data.id;
+
+        const orderedIds = this.selectedItems.map(i => i.id);
+        this.cartStore.items = this.cartStore.items.filter(i => !orderedIds.includes(i.id));
+        this.selectedIds = [];
+        this.removeCoupon();
+        this.resetMomo();
+        this.paymentMethod = 'COD';
+        this.showOrderModal = false;
+        this.showSuccessModal = true;
+      } catch (e) {
+        alert('Đặt hàng thất bại: ' + (e.response?.data?.message || e.message));
+      } finally {
+        this.isPlacingOrder = false;
+      }
     },
 
     closeSuccessModal() {
