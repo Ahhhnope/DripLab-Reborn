@@ -3,23 +3,12 @@ import { ref } from 'vue'
 import api from '../../api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
-  const getSavedUser = () => {
-    const saved = localStorage.getItem('user');
-    if (!saved || saved === "undefined") {
-      return null;
-    }
-    try {
-      return JSON.parse(saved);
-    } catch (e) {
-      console.error("Failed to parse user from localStorage", e);
-      return null;
-    }
-  };
-
-  const user = ref(getSavedUser());
+  // Start with null - we'll load from server via init()
+  const user = ref(null);
   // Token is now stored in httpOnly cookie, not in frontend storage
   const token = ref('');
   const isInitialized = ref(false);
+  let initPromise = null; // Prevent duplicate calls
 
   function setUser(userData) {
     user.value = userData;
@@ -40,19 +29,28 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // THE INIT THE GOOD SHIT
+  // Initialize auth state - can be called multiple times safely
   async function init() {
-    try {
-      const response = await api.get('/users/me');
-      setUser(response.data);
-      return true; // authenticated
-    } catch (error) {
-      // No valid session (401 or other error ult)
-      logout();
-      return false; // not authenticated
-    } finally {
-      isInitialized.value = true;
+    // If already initialized or initialization in progress, return existing promise
+    if (isInitialized.value || initPromise) {
+      return initPromise;
     }
+
+    initPromise = (async () => {
+      try {
+        const response = await api.get('/users/me');
+        setUser(response.data);
+        isInitialized.value = true;
+        return true; // authenticated
+      } catch (error) {
+        // No valid session (401 or other error)
+        logout();
+        isInitialized.value = true;
+        return false; // not authenticated
+      }
+    })();
+
+    return initPromise;
   }
 
   return { user, token, setUser, logout, init, isInitialized };

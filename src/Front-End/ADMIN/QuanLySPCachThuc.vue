@@ -108,25 +108,25 @@ src/Front-End/ADMIN/  ← QuanLySPSua.vue, QuanLySPKemBeo.vue, QuanLySPkem.vue, 
 
 
 <script setup>
-import { useIngredients } from '../JS/UseIngridients';
+// import { useIngredients } from '../JS/UseIngridients';
 
-const {
-  search, currentPage, PAGE_SIZE, pageStart,
-  filtered, totalPages, pagedRows,
-  fmtPrice, fmtDate,
-  showForm, isEditing, inputName, form,
-  openAdd, openEdit, submitForm,
-  showConfirm, deleteTarget, openConfirm, doDelete,
-  toastShow, toastMsg, toastType, showToast
-} = useIngredients('instructions', 'CT');
+// const {
+//   search, currentPage, PAGE_SIZE, pageStart,
+//   filtered, totalPages, pagedRows,
+//   fmtPrice, fmtDate,
+//   showForm, isEditing, inputName, form,
+//   openAdd, openEdit, submitForm,
+//   showConfirm, deleteTarget, openConfirm, doDelete,
+//   toastShow, toastMsg, toastType, showToast
+// } = useIngredients('instructions', 'CT');
 
-const handleSubmit = async () => {
-  const result = await submitForm();
-  showToast(result.error || result.success, result.error ? 'error' : 'ok');
-};
+// const handleSubmit = async () => {
+//   const result = await submitForm();
+//   showToast(result.error || result.success, result.error ? 'error' : 'ok');
+// };
 
-const handleDelete = async () => {
-  const result = await doDelete();
-  showToast(result.error || result.success, result.error ? 'error' : 'ok');
-};
+// const handleDelete = async () => {
+//   const result = await doDelete();
+//   showToast(result.error || result.success, result.error ? 'error' : 'ok');
+// };
 </script>

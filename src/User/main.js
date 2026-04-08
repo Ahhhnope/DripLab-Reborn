@@ -5,11 +5,7 @@ import { createPinia } from 'pinia'
 import './main.css'
 import { useAuthStore } from '../Front-End/Authorization/Auth'
 
-//gate boiz
-
-
-//Holy maccaroni that sa lot ta spaghet
-
+// Components
 import InterfaceHomePage from '../Front-End/USER/InterfaceHomePage.vue'
 import Homepage from '../Front-End/USER/Homepage.vue'
 import UserAccount from '../Front-End/USER/UserAccount.vue'
@@ -22,18 +18,11 @@ import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
 import AboutUS from '../Front-End/USER/AboutUS.vue'
 import CartView from '../Front-End/USER/Cart.vue'
 import Voucher from '../Front-End/USER/Voucher.vue'
-
 import Brewing from '../Front-End/USER/Brewing.vue'
-
-//Uy quyen login
 import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
 
-
-
-
 const app = createApp(App)
-
 const pinia = createPinia()
 app.use(pinia)
 
@@ -43,68 +32,22 @@ const routes = [
         component: InterfaceHomePage,
         redirect: '/homepage',
         children: [
-            {
-                path: '/account',
-                component: UserAccount,
-                meta: {requiresAuth: true}
-            },
-            {
-                path: '/account/password',
-                component: UserChangePassword,
-                meta: {requiresAuth: true}
-            },
-            {
-                path: '/account/address',
-                component: UserAddress,
-                meta: {requiresAuth: true}
-            },
-            {
-                path: '/account/orders',
-                component: UserOrders,
-                meta: {requiresAuth: true}
-            },
-            {
-                path: '/brewing',
-                component: Brewing
-            },
-            {
-                path: '/menu',
-                component: MenuView
-            },
-            {
-                path: 'product/:id', name: 'user-product', component: ProductDetailView
-            },
-            {
-                path: '/stores',
-                component: UserStores
-            },
-            {
-                path: '/homepage',
-                component: Homepage
-            },
-            {
-                path: '/AboutUS',
-                component: AboutUS
-            },
-            {
-                path: '/cart',
-                component: CartView,
-                meta: {requiresAuth: true}
-            },
-            {
-                path: '/voucher',
-                component: Voucher
-            },
+            { path: '/account', component: UserAccount, meta: {requiresAuth: true} },
+            { path: '/account/password', component: UserChangePassword, meta: {requiresAuth: true} },
+            { path: '/account/address', component: UserAddress, meta: {requiresAuth: true} },
+            { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
+            { path: '/brewing', component: Brewing },
+            { path: '/menu', component: MenuView },
+            { path: 'product/:id', name: 'user-product', component: ProductDetailView },
+            { path: '/stores', component: UserStores },
+            { path: '/homepage', component: Homepage },
+            { path: '/AboutUS', component: AboutUS },
+            { path: '/cart', component: CartView, meta: {requiresAuth: true} },
+            { path: '/voucher', component: Voucher },
         ]
     },
-    {
-        path: '/login',
-        component: LoginAcc
-    },
-    {
-        path: '/register',
-        component: RegisterAcc
-    },
+    { path: '/login', component: LoginAcc },
+    { path: '/register', component: RegisterAcc },
 ]
 
 const router = createRouter({
@@ -112,36 +55,34 @@ const router = createRouter({
     routes
 })
 
-const auth = useAuthStore();
+const auth = useAuthStore()
+auth.init() // Start in background
 
-// Initialize auth in background (don't block app mounting)
-auth.init();
-
-app.use(router);
-app.mount('#app');
+app.use(router)
+app.mount('#app')
 
 router.beforeEach(async (to, from, next) => {
-    const auth = useAuthStore();
+    const auth = useAuthStore()
 
-    // Wait for auth initialization if not done yet
     if (!auth.isInitialized) {
-        await auth.init();
+        await auth.init()
     }
 
-    //redirect "admin" to admin site
-    if (auth.user && auth.user.role === 'ADMIN') {
-        window.location.replace('http://localhost:5005/');
-        return;
+    // ADMIN on user site → redirect to admin
+    if (auth.user && auth.user.role === 'ADMIN' && to.meta.requiresAuth) {
+        window.location.replace('http://localhost:5005/')
+        return next(false)
     }
 
-    //need auth -> redirect to login
+    // Requires auth but not logged in
     if (to.meta.requiresAuth && !auth.user) {
-        next({ path: '/login' });
+        return next('/login')
     }
-    //already logged in - redirect away from login
-    else if (auth.user && to.path === '/login') {
-        next({ path: '/homepage' });
-    } else {
-        next();
+
+    // Already logged in - redirect away from login
+    if (auth.user && to.path === '/login') {
+        return next('/homepage')
     }
-});
+
+    next()
+})
