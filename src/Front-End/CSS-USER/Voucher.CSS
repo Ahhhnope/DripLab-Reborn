@@ -1,4 +1,4 @@
-/* ===== VOUCHER PAGE - OPTION 2: FULL LIGHT MODE ===== */
+/* ===== VOUCHER PAGE ===== */
 .voucher-page {
   min-height: 100vh;
   background: #f5f0e8;
@@ -172,40 +172,6 @@
   z-index: 1;
 }
 
-/* ===== TAB SWITCH ===== */
-.voucher-tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
-.tab-btn {
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.25s ease;
-}
-
-.tab-btn.active {
-  background: #e87c3e;
-  color: #fff;
-  border-color: #e87c3e;
-}
-
-.tab-btn.inactive {
-  background: transparent;
-  color: #888;
-  border-color: #d0c8b8;
-}
-
-.tab-btn.inactive:hover {
-  border-color: #a0896a;
-  color: #333;
-}
-
 /* ===== VOUCHER GRID ===== */
 .voucher-grid {
   display: grid;
@@ -230,11 +196,6 @@
   border-color: #e87c3e66;
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(232,124,62,0.12);
-}
-
-.voucher-card.is-used {
-  opacity: 0.55;
-  filter: grayscale(0.4);
 }
 
 .voucher-card::after {
@@ -303,16 +264,6 @@
 .voucher-status-badge.active {
   color: #4caf93;
   background: #4caf9322;
-}
-
-.voucher-status-badge.used {
-  color: #aaa;
-  background: #f0ebe0;
-}
-
-.voucher-status-badge.expired {
-  color: #e87c3e;
-  background: #e87c3e22;
 }
 
 .voucher-meta {
@@ -401,4 +352,4 @@
 .voucher-empty-icon {
   font-size: 48px;
   margin-bottom: 16px;
-}           
+}

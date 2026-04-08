@@ -3,7 +3,6 @@ import api from '../../api/axios.js'
 
 export function useVoucher() {
 
-  const activeTab = ref('available')
   const vouchers = ref([])
   const copiedCode = ref(null)
   const showToast = ref(false)
@@ -36,18 +35,11 @@ export function useVoucher() {
   }
 
   const displayedVouchers = computed(() =>
-    vouchers.value.filter(v =>
-      activeTab.value === 'available'
-        ? v.status === 'active'
-        : v.status !== 'active'
-    )
+    vouchers.value.filter(v => v.status === 'active')
   )
 
   const activeCount = computed(() => vouchers.value.filter(v => v.status === 'active').length)
   const totalCount = computed(() => vouchers.value.length)
-  const usedCount = computed(() => totalCount.value - activeCount.value)
-
-  function setTab(t) { activeTab.value = t }
 
   async function copyCode(v) {
     try {
@@ -75,9 +67,12 @@ export function useVoucher() {
   loadVouchers()
 
   return {
-    activeTab, displayedVouchers,
-    activeCount, totalCount, usedCount,
-    copiedCode, showToast, toastMessage,
-    setTab, copyCode
+    displayedVouchers,
+    activeCount,
+    totalCount,
+    copiedCode,
+    showToast,
+    toastMessage,
+    copyCode,
   }
 }
