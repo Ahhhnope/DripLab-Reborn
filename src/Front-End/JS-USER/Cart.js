@@ -242,21 +242,18 @@ export default {
     async placeOrder() {
       this.isPlacingOrder = true;
       try {
-        //Send the request to your OrderController
-        // Use 'this' to access authStore and your component's data properties
+        // If it's MoMo, we use a different note so the backend treats it like POS/Immediate
+        const orderNote = this.paymentMethod === 'MOMO' ? "POS MoMo" : "Online Order";
+        
         const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
-          note: this.couponApplied ? `Coupon: ${this.couponCode}` : "Online Order",
+          note: this.couponApplied ? `${orderNote} - Coupon: ${this.couponCode}` : orderNote,
           paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo'
         });
 
-        //Capture the order number from the backend for the success screen
         this.lastOrderId = response.data.orderNumber; 
-        
-        //Switch modals
         this.showOrderModal = false;
         this.showSuccessModal = true;
 
-        //Clear the local cart state since the backend has cleared the DB
         this.cartStore.items = []; 
         this.selectedIds = [];
         

@@ -47,6 +47,7 @@ import OrderFilter from "../../components/OrderFilter.vue";
 import OrderTable from "../../components/OrderTable.vue";
 import OrderDetailModal from "../../components/OrderDetailModal.vue";
 import { useOrderList } from "../JS/OrderList";
+import { notifyInvoiceUpdate } from "../../utils/bus";
 import api from "../../api/axios";
 
 const { activeTab, filter, allItems, items, applyFilter, loadOrders, mapStatus } = useOrderList();
@@ -70,34 +71,30 @@ function toVietnameseStatus(s) {
   return map[s] ?? s;
 }
 
+
 async function handleEditSaved(updated) {
+  // 1. Optimistic Update (Update local UI immediately)
   const idx = allItems.value.findIndex(o => o.id === updated.id);
   if (idx !== -1) allItems.value[idx] = { ...allItems.value[idx], ...updated };
 
   try {
+    const vStatus = toVietnameseStatus(updated.status);
+    
+    // 2. Patch the order
     await api.patch(`/orders/update/${updated.id}/`, {
-      status: toVietnameseStatus(updated.status),
+      status: vStatus,
       note: updated.note,
       paymentMethod: updated.shippingType
     });
 
-    await loadOrders(); // reload
-  } catch (e) {
-    console.error("update error:", e);
-  }
-
-  if (updated.status === 'delivered') {
-    try {
-      await api.post('/invoices/add', {
-        orderId:       updated.id,
-        paymentMethod: updated.shippingType || 'COD',
-        receiveType:   'Online',
-        finalPrice:    updated.pay,
-        customerId:    updated.customer?.id ?? null,
-      });
-    } catch (e) {
-      if (e.response?.status !== 409) console.error('Lỗi tạo hóa đơn:', e);
+    // 3. If it was delivered, tell the Invoice Table to reload
+    if (vStatus === 'Đã giao') {
+      notifyInvoiceUpdate();
     }
+
+    await loadOrders(); // Refresh order list data from server
+  } catch (e) {
+    console.error("Update error:", e);
   }
 }
 
@@ -122,6 +119,23 @@ async function createInvoiceFromOrder(order) {
     }
   }
 }
+
+// const emit = defineEmits(['status-updated']);
+
+// const updateStatus = async (orderId, newStatus) => {
+//   try {
+//     await api.put(`/orders/${orderId}/status`, { status: newStatus });
+    
+//     // 1. Update local order UI
+//     fetchOrders(); 
+    
+//     // 2. Tell the parent to reload invoices
+//     emit('status-updated');
+    
+//   } catch (error) {
+//     console.error("Failed to update status", error);
+//   }
+// };
 
 function onConfirm(row) { handleEditSaved({ ...row, status: 'processing' }); }
 function onCancel(row)  { handleEditSaved({ ...row, status: 'cancelled' }); }
