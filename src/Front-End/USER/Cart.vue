@@ -28,9 +28,13 @@
             </div>
             <div class="card-body">
               <h1 class="card-name">{{ item.name }}</h1>
+              
               <div class="card-tags" v-if="item.toppings && item.toppings.length">
-                <span v-for="(tp, i) in item.toppings" :key="i" class="tag tag-topping">🧋 {{ tp }}</span>
+                <span v-for="(tp, i) in item.toppings" :key="i" class="tag tag-topping">
+                  🧋 {{ tp }}
+                </span>
               </div>
+
               <div class="card-specs">
                 <span class="card-spec">Đường: <strong>{{ item.sugar }}</strong></span>
                 <span class="card-spec">Đá: <strong>{{ item.ice }}</strong></span>
@@ -68,9 +72,25 @@
             <p v-else class="preview-empty">Chưa chọn sản phẩm nào</p>
           </div>
           <div class="summary-rows">
-            <div class="summary-row"><span>Tạm tính</span><span>{{ formatVND(selectedSubtotal) }}</span></div>
-            <div class="summary-row"><span>Phí giao hàng</span><span>{{ selectedSubtotal >= 100000 ? formatVND(20000) : 'Miễn phí' }}</span></div>
-            <div class="summary-row total"><span>Tổng cộng</span><span class="amount">{{ formatVND(selectedTotal) }}</span></div>
+            <div class="summary-row">
+              <span>Tạm tính</span>
+              <span>{{ formatVND(selectedSubtotal) }}</span>
+            </div>
+            
+            <div class="summary-row" v-if="couponApplied">
+              <span class="text-success">Giảm giá</span>
+              <span class="text-success">-{{ formatVND(couponDiscount) }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Phí giao hàng</span>
+              <span>{{ shippingFee === 0 ? 'Miễn phí' : formatVND(shippingFee) }}</span>
+            </div>
+
+            <div class="summary-row total">
+              <span>Tổng cộng</span>
+              <span class="amount">{{ formatVND(grandTotal) }}</span>
+            </div>
           </div>
           <button class="btn-checkout" :disabled="selectedItems.length === 0" @click="openOrderModal">
             <span>Mua hàng</span><span>→</span>
@@ -178,8 +198,14 @@
                   <p class="momo-label">Số điện thoại người nhận</p>
                   <div class="momo-input-wrap" :class="{ loading: momoLoading, found: momoName, error: momoError }">
                     <span class="momo-input-prefix">🇻🇳 +84</span>
-                    <input :value="momoPhone" @input="onMomoPhoneInput" type="tel" inputmode="numeric"
-                      placeholder="Nhập số điện thoại..." class="momo-input" maxlength="10" />
+                    <input 
+                      :value="momoPhone" 
+                      @input="onMomoPhoneInput" 
+                      type="tel" 
+                      placeholder="Nhập số điện thoại..." 
+                      class="momo-input" 
+                      maxlength="10" 
+                    />
                     <span v-if="momoLoading" class="momo-status-icon spin">⟳</span>
                     <span v-else-if="momoName" class="momo-status-icon green">✓</span>
                     <span v-else-if="momoError" class="momo-status-icon red">✕</span>

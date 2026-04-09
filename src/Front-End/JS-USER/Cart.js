@@ -1,8 +1,9 @@
 // ============================================================
-//  Cart.js – Logic chính của Giỏ Hàng
+//  Cart.js – DripLab POS Logic (nah.....)
 // ============================================================
 import { useCartStore } from '../../stores/cart.js'
 import { useAuthStore } from '../Authorization/Auth.js'
+import api from '../../api/axios'
 
 const MOMO_ACCOUNTS = {
   '0901234567': 'NGUYEN VAN AN',
@@ -22,7 +23,7 @@ export default {
 
   setup() {
     const cartStore = useCartStore()
-    const authStore = useAuthStore() // ✅ lấy user đang login
+    const authStore = useAuthStore()
     return { cartStore, authStore }
   },
 
@@ -52,19 +53,21 @@ export default {
   },
 
   computed: {
-    // ✅ Lấy dữ liệu từ cartStore thay vì data tĩnh
+    // Maps the SQL Server data structure to your UI cards
     cartItems() {
       return this.cartStore.items.map((item) => ({
-        id: item.id,
+        id: item.id, // cart_item_id
         productId: item.drinkId,
-        name: item.drink?.name || '',
-        image: item.drink?.imageUrl || '',
+        name: item.drink?.name || 'Drink',
+        image: item.drink?.imageUrl || '/placeholder.png',
+        // Calculates total price per item including size/toppings
         basePrice:
           (item.drink?.basePrice || 0) +
-          (item.toppings?.reduce((s, t) => s + (t.topping?.price || 0), 0) || 0),
+          (item.size?.price || 0) +
+          (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0),
         quantity: item.quantity,
-        sugar: item.sugar || '',
-        ice: item.ice || '',
+        sugar: item.sugar || '100%',
+        ice: item.ice || '100%',
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
       }))
     },
@@ -94,14 +97,12 @@ export default {
   },
 
   async created() {
-    // ✅ Lấy userId từ authStore — đúng với user đang login
     const userId = this.authStore.user?.id
-    if (!userId) return // chưa login thì không fetch
-
-    await this.cartStore.fetchUserCart(userId)
-
-    // ✅ Tự động chọn tất cả sản phẩm để sẵn sàng thanh toán
-    this.selectedIds = this.cartItems.map((i) => i.id)
+    if (userId) {
+      await this.cartStore.fetchUserCart(userId)
+      // Auto-select everything on load
+      this.selectedIds = this.cartItems.map((i) => i.id)
+    }
   },
 
   methods: {
@@ -117,27 +118,43 @@ export default {
       const idx = this.selectedIds.indexOf(id)
       idx === -1 ? this.selectedIds.push(id) : this.selectedIds.splice(idx, 1)
     },
+    
     toggleSelectAll(e) {
       this.selectedIds = e.target.checked ? this.cartItems.map((i) => i.id) : []
     },
 
-    increaseQty(item) {
+    async increaseQty(item) {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
-      if (storeItem) storeItem.quantity++
+      if (storeItem) {
+        storeItem.quantity++
+        // Sync with Backend
+        await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
+      }
     },
-    decreaseQty(item) {
+
+    async decreaseQty(item) {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
-      if (storeItem && storeItem.quantity > 1) storeItem.quantity--
+      if (storeItem && storeItem.quantity > 1) {
+        storeItem.quantity--
+        // Sync with Backend
+        await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
+      }
     },
 
     confirmDelete(item) { this.deleteTarget = item },
     cancelDelete() { this.deleteTarget = null },
-    executeDelete() {
+
+    async executeDelete() {
       if (!this.deleteTarget) return
       const id = this.deleteTarget.id
-      this.cartStore.items = this.cartStore.items.filter((i) => i.id !== id)
-      this.selectedIds = this.selectedIds.filter((s) => s !== id)
-      this.deleteTarget = null
+      try {
+        await api.delete(`/carts/items/${id}`)
+        this.cartStore.items = this.cartStore.items.filter((i) => i.id !== id)
+        this.selectedIds = this.selectedIds.filter((s) => s !== id)
+        this.deleteTarget = null
+      } catch (e) {
+        alert("Lỗi khi xóa sản phẩm")
+      }
     },
 
     openOrderModal() {
@@ -146,6 +163,7 @@ export default {
       this.resetMomo()
       this.showOrderModal = true
     },
+
     closeOrderModal() {
       this.showOrderModal = false
       this.paymentMethod = 'COD'
@@ -169,6 +187,7 @@ export default {
         this.couponMessage = 'Mã giảm giá không hợp lệ.'
       }
     },
+
     removeCoupon() {
       this.couponCode = ''
       this.couponApplied = false
@@ -180,10 +199,12 @@ export default {
       this.resetMomo()
       this.paymentMethod = 'MOMO'
     },
+
     backToPaymentSelect() {
       this.paymentMethod = 'COD'
       this.resetMomo()
     },
+
     resetMomo() {
       this.momoPhone = ''
       this.momoName = ''
@@ -191,6 +212,7 @@ export default {
       this.momoError = ''
       this.momoLoading = false
     },
+
     onMomoPhoneInput(e) {
       const clean = e.target.value.replace(/\D/g, '').slice(0, 10)
       this.momoPhone = clean
@@ -211,40 +233,37 @@ export default {
         }, 900)
       }
     },
+
     confirmMomoReceiver() {
       if (!this.momoName) return
       this.momoStep = 2
     },
 
     async placeOrder() {
-      if (this.isPlacingOrder) return;
-      if (this.paymentMethod === 'MOMO' && this.momoStep < 2) return;
       this.isPlacingOrder = true;
       try {
-        const api = (await import('../../api/axios')).default;
-        const userId = this.authStore.user?.id;
-
-        const res = await api.post('/orders/add', null, {
-          params: {
-            userId: userId,
-            note:   this.paymentMethod === 'MOMO'
-                      ? `MoMo - ${this.momoPhone}`
-                      : 'COD',
-          }
+        //Send the request to your OrderController
+        // Use 'this' to access authStore and your component's data properties
+        const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
+          note: this.couponApplied ? `Coupon: ${this.couponCode}` : "Online Order",
+          paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo'
         });
 
-        this.lastOrderId = res.data.orderNumber ?? res.data.id;
-
-        const orderedIds = this.selectedItems.map(i => i.id);
-        this.cartStore.items = this.cartStore.items.filter(i => !orderedIds.includes(i.id));
-        this.selectedIds = [];
-        this.removeCoupon();
-        this.resetMomo();
-        this.paymentMethod = 'COD';
+        //Capture the order number from the backend for the success screen
+        this.lastOrderId = response.data.orderNumber; 
+        
+        //Switch modals
         this.showOrderModal = false;
         this.showSuccessModal = true;
-      } catch (e) {
-        alert('Đặt hàng thất bại: ' + (e.response?.data?.message || e.message));
+
+        //Clear the local cart state since the backend has cleared the DB
+        this.cartStore.items = []; 
+        this.selectedIds = [];
+        
+      } catch (error) {
+        console.error("Lỗi checkout:", error);
+        const msg = error.response?.data?.message || "Không thể đặt hàng. Vui lòng thử lại!";
+        alert(msg);
       } finally {
         this.isPlacingOrder = false;
       }
@@ -252,6 +271,7 @@ export default {
 
     closeSuccessModal() {
       this.showSuccessModal = false
-    },
-  },
+      this.$router.push('/menu') // Go back to shop after success
+    }
+  }
 }

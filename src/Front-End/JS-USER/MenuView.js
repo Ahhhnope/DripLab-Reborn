@@ -1,26 +1,21 @@
-import { computed, ref } from 'vue'
+// ============================================================
+//  MenuView.js – DripLab Menu Logic
+// ============================================================
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-
-import matchaNong from '../IMG/matchanong.jpg'
-import matchaLatte from '../IMG/matchalatte.jpg'
-import capuchino from '../IMG/capu.jpg'
-import mocha from '../IMG/mocha.png'
-import geisha from '../IMG/geisha.jpg'
-import phinden from '../IMG/cfphin.jpg'
-import phinnau from '../IMG/cfphinnau.png'
-import bacsiu from '../IMG/bacxiukemxop.jpg'
-import latte from '../IMG/cflatte.jpg'
-import trasenvang from '../IMG/tra-sen-vang.jpg'
-import trathachdao from '../IMG/tradao.jpg'
-import trathachvai from '../IMG/travai.jpg'
-import traxanhdaudo from '../IMG/tra-xanh-dau-do.jpg'
-import tragung from '../IMG/tragungmo.jpg'
-import hongtra from '../IMG/tsua.png'
-
+import api from '../../api/axios'
+import { useCartStore } from '../../stores/cart' // Assuming standard path
+import { useAuthStore } from '../Authorization/Auth'
 
 export function useMenuView() {
   const router = useRouter()
+  const cartStore = useCartStore()
+  const authStore = useAuthStore()
 
+  const products = ref([])
+  const loading = ref(true)
+
+  // 1. Category Setup
   const categories = [
     { id: 'all', label: 'Tất cả' },
     { id: 'coffee', label: 'Cà phê' },
@@ -28,7 +23,9 @@ export function useMenuView() {
   ]
 
   const activeCategoryId = ref('all')
+  const activeSort = ref('name_asc')
 
+  // 2. Sorting Options
   const sortOptions = [
     { id: 'name_asc', label: 'Tên A → Z' },
     { id: 'name_desc', label: 'Tên Z → A' },
@@ -37,31 +34,29 @@ export function useMenuView() {
     { id: 'newest', label: 'Hàng mới' },
   ]
 
-  const activeSort = ref('name_asc')
+  // 3. Fetch Data from CafeDB
+  onMounted(async () => {
+    try {
+      const res = await api.get('/drinks/active')
+      products.value = res.data.map(p => ({
+        id: p.id,
+        // Logic to categorize based on string matching from your DB
+        categoryId: p.category?.toLowerCase().includes('trà') ? 'tea' : 'coffee',
+        brand: 'DRIP LAB',
+        name: p.name,
+        price: p.basePrice,
+        isHot: p.isHot || false,
+        isNew: p.isNew || false,
+        imageUrl: p.imageUrl 
+      }))
+    } catch (error) {
+      console.error("Failed to fetch menu:", error)
+    } finally {
+      loading.value = false
+    }
+  })
 
-  const products = ref([
-    { id: 'phin-den', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Cà phê Phin Đen', price: 29000, isHot: true, isNew: false, imageUrl: phinden },
-    { id: 'phin-nau', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Cà phê Phin Nâu', price: 29000, isHot: false, isNew: false, imageUrl: phinnau },
-    { id: 'bac-xiu', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Bạc Xỉu Kem Xốp', price: 40000, isHot: false, isNew: true, imageUrl: bacsiu },
-    { id: 'capuchino', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Capuchino', price: 35000, isHot: false, isNew: false, imageUrl: capuchino },
-    { id: 'mocha', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Mocha', price: 35000, isHot: false, isNew: true, imageUrl: mocha },
-    { id: 'geisha', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Geisha', price: 35000, isHot: true, isNew: false, imageUrl: geisha },
-    { id: 'caffee-latte', categoryId: 'coffee', brand: 'DRIP LAB', name: 'Caffee Latte', price: 60000, isHot: false, isNew: true, imageUrl: latte },
-
-    { id: 'matcha-latte', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Latte', price: 49000, isHot: true, isNew: false, imageUrl: matchaLatte },
-    { id: 'matcha-nong', categoryId: 'tea', brand: 'DRIP LAB', name: 'Matcha Nóng', price: 49000, isHot: true, isNew: false, imageUrl: matchaNong },
-    { id: 'tra-sen-vang', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Sen Vàng', price: 45000, isHot: true, isNew: false, imageUrl: trasenvang },
-    { id: 'tra-thach-dao', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Thạch Đào', price: 45000, isHot: true, isNew: false, imageUrl: trathachdao },
-    { id: 'tra-thach-vai', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Thạch Vải', price: 45000, isHot: true, isNew: false, imageUrl: trathachvai },
-    { id: 'tra-xanh-dau-do', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà Xanh Đậu Đỏ', price: 49000, isHot: true, isNew: false, imageUrl: traxanhdaudo },
-    { id: 'tra-gung', categoryId: 'tea', brand: 'DRIP LAB', name: 'Trà gừng mật ong', price: 49000, isHot: true, isNew: false, imageUrl: tragung },
-    { id: 'hong-tra-sua', categoryId: 'tea', brand: 'DRIP LAB', name: 'Hồng Trà Sữa', price: 49000, isHot: true, isNew: false, imageUrl: hongtra },
-  ])
-
-  function formatVnd(v) {
-    return v.toLocaleString('vi-VN') + 'đ'
-  }
-
+  // 4. Filtering & Sorting Logic
   const filteredProducts = computed(() => {
     if (activeCategoryId.value === 'all') return products.value
     return products.value.filter((p) => p.categoryId === activeCategoryId.value)
@@ -69,42 +64,51 @@ export function useMenuView() {
 
   const sortedProducts = computed(() => {
     const arr = [...filteredProducts.value]
-
     switch (activeSort.value) {
-      case 'name_asc':
-        return arr.sort((a, b) => a.name.localeCompare(b.name, 'vi'))
-      case 'name_desc':
-        return arr.sort((a, b) => b.name.localeCompare(a.name, 'vi'))
-      case 'price_asc':
-        return arr.sort((a, b) => a.price - b.price)
-      case 'price_desc':
-        return arr.sort((a, b) => b.price - a.price)
-      case 'newest':
-        return arr.sort((a, b) => Number(b.isNew) - Number(a.isNew))
-      default:
-        return arr
+      case 'name_asc': return arr.sort((a, b) => a.name.localeCompare(b.name, 'vi'))
+      case 'name_desc': return arr.sort((a, b) => b.name.localeCompare(a.name, 'vi'))
+      case 'price_asc': return arr.sort((a, b) => a.price - b.price)
+      case 'price_desc': return arr.sort((a, b) => b.price - a.price)
+      case 'newest': return arr.sort((a, b) => Number(b.isNew) - Number(a.isNew))
+      default: return arr
     }
   })
 
-  function setCategory(id) {
-    activeCategoryId.value = id
+  // 5. Action Handlers
+  function setCategory(id) { activeCategoryId.value = id }
+  function setSort(id) { activeSort.value = id }
+  
+  function formatVnd(v) {
+    return v ? v.toLocaleString('vi-VN') + 'đ' : '0đ'
   }
 
-  function setSort(id) {
-    activeSort.value = id
-  }
-
-  function addProduct(p) {
+  // Navigates to detail page (for customization)
+  function goToProduct(p) {
     router.push({ name: 'user-product', params: { id: p.id } })
   }
 
-  function openFromImage(p) {
-    window.scrollTo(0,0);
-    
-    router.push({
-      name: 'user-product',
-      params: { id: p.id },
-    })
+  // POS-Style Quick Add
+  async function quickAddToCart(p) {
+    if (!authStore.user) {
+      alert("Vui lòng đăng nhập để đặt món!");
+      return;
+    }
+
+    try {
+      cartStore.addToCart({
+        userId: authStore.user.id,
+        drinkId: p.id,
+        sizeId: 1, // Defaulting to Size S per your DB script
+        toppings: [], // Empty for quick add
+        quantity: 1,
+        sugar: '100%',
+        ice: '100%'
+      })
+      alert(`Đã thêm ${p.name} vào giỏ hàng!`);
+    } catch (error) {
+      console.error("Quick add failed:", error)
+      alert("Không thể thêm vào giỏ hàng.");
+    }
   }
 
   const pageTitle = computed(() => {
@@ -112,19 +116,20 @@ export function useMenuView() {
     return c?.label || 'Menu'
   })
 
+  // 6. Return Exports
   return {
     categories,
     activeCategoryId,
     pageTitle,
     setCategory,
-
     sortOptions,
     activeSort,
     setSort,
-
     sortedProducts,
     formatVnd,
-    addProduct,
-    openFromImage,
+    // Change this line:
+    addProduct: quickAddToCart, 
+    openFromImage: goToProduct, 
+    loading
   }
 }
