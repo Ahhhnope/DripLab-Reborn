@@ -26,7 +26,7 @@
       </thead>
       <tbody>
         <template v-if="filtered.length === 0">
-          <tr><td colspan="6" class="empty-td"><div class="empty-icon">☕</div><div>Không có dữ liệu</div></td></tr>
+          <tr><td colspan="5" class="empty-td"><div class="empty-icon">☕</div><div>Không có dữ liệu</div></td></tr>
           <tr v-for="g in PAGE_SIZE" :key="'eg'+g" class="ghost-row"><td colspan="5"></td></tr>
         </template>
         <template v-else>
@@ -68,7 +68,14 @@
           <div class="form-group"><label>Mã ID <em>(tự động)</em></label><input :value="form.id" readonly /></div>
           <div class="form-group"><label>Ngày tạo <em>(tự động)</em></label><input :value="form.ngayTaoDisp" readonly /></div>
           <div class="form-group full"><label>Tên cách thức</label><input ref="inputName" v-model="form.name" placeholder="VD: Cold brew, Pour over..." @keyup.enter="handleSubmit" /></div>
-          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.instructions" type="number" placeholder="lmao" min="0" @keyup.enter="handleSubmit" /></div>
+          <div class="form-group full">
+            <label>Nội dung hướng dẫn</label>
+            <input 
+              v-model="form.instructions" 
+              placeholder="VD: Chiết xuất Espresso tiêu chuẩn 30ml..." 
+              @keyup.enter="handleSubmit" 
+            />
+          </div>
         </div>
         <div class="popup-actions">
           <button class="cancel-btn" @click="showForm = false">Hủy</button>
@@ -155,7 +162,7 @@ const ghostCount = computed(() =>
 // ================= ACTIONS =================
 const openAdd = () => {
   isEditing.value = false
-  form.value = { id: null, name: '', price: 0 }
+  form.value = { id: null, name: '', instructions: '' }
   showForm.value = true
 }
 
@@ -170,7 +177,7 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       await api.put(`instructions/update/${form.value.id}`, form.value);
     } else {
-      await api.post('instructiions/add', form.value);
+      await api.post('instructions/add', form.value);
     }
 
     showForm.value = false

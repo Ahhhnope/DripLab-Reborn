@@ -3,105 +3,86 @@ import api from "../../api/axios"
 
 const customers = ref([])
 const filteredCustomers = ref([])
-
 const search = ref("")
-
 const showPopup = ref(false)
 
+// Use backend-aligned keys: fullName, account (email), phone, address
 const form = ref({
-  name: "", username: "", password: "",
-  phone: "", address: ""
+  fullName: "", email: "", password: "",
+  phone: "", defaultAddress: ""
 })
 
-// ── Load data ──
 async function loadCustomers() {
   try {
-    const res = await api.get("/customers")
-    customers.value         = res.data
+    const res = await api.get("/users")
+    customers.value = res.data
     filteredCustomers.value = res.data
   } catch (err) {
-    console.warn("Không kết nối được backend, dùng data mẫu")
-    const sample = [
-      {
-        id: "KH_01", name: "Tung tung tung", username: "aoghowg@gmail.com",
-        password: "Lmao", phone: "018591209", address: "âfaafw",
-        createdAt: "20/20/2020"
-      },
-      {
-        id: "KH_02", name: "Thịnh", username: "aoghowg@gmail.com",
-        password: "Lol", phone: "018591209", address: "âfwwafaf",
-        createdAt: "4/1/2026"
-      }
-    ]
-    customers.value         = sample
-    filteredCustomers.value = sample
+    console.error("Backend unreachable, check your @Data annotations or API path.")
   }
 }
 
-// ── Filter ──
 function filterCustomer() {
   const q = search.value.toLowerCase()
   filteredCustomers.value = customers.value.filter(c =>
-    c.name.toLowerCase().includes(q) ||
-    c.username.toLowerCase().includes(q)
+    c.fullName?.toLowerCase().includes(q) ||
+    c.account?.toLowerCase().includes(q)
   )
 }
 
 function resetFilter() {
-  search.value            = ""
+  search.value = ""
   filteredCustomers.value = [...customers.value]
 }
 
 function syncFiltered() {
-  if (search.value.trim()) {
-    filterCustomer()
-  } else {
-    filteredCustomers.value = [...customers.value]
-  }
+  search.value.trim() ? filterCustomer() : filteredCustomers.value = [...customers.value]
 }
 
-// ── CRUD ──
 function openAdd() {
-  form.value      = { name: "", username: "", password: "", phone: "", address: "" }
+  form.value = { fullName: "", account: "", password: "", phone: "", defaultAddress: "" }
   showPopup.value = true
 }
 
-function closePopup() { showPopup.value = false }
-
 async function saveCustomer() {
-    const res = await api.post('/customers/add', {
-      fullName: form.value.name,
+  try {
+    // Post using the DTO structure your backend expects
+    const res = await api.post('/users/add', {
+      fullName: form.value.fullName,
+      email: form.value.email,
+      password: form.value.password,
       phone: form.value.phone,
-      address: form.value.address,
+      defaultAddress: form.value.address
     })
-    customers.value.push(res.data)
+    
+    // Refresh list to get the new ID and formatted date from SQL
+    await loadCustomers()
     showPopup.value = false
     syncFiltered()
+  } catch (err) {
+    console.error("Save failed:", err)
   }
+}
 
-  async function deleteCustomer(index) {
-    const c = filteredCustomers.value[index]
-    await api.delete(`/customers/remove/${c.id}`)
-    const realIndex = customers.value.findIndex(e => e.id === c.id)
-    if (realIndex !== -1) {
-      customers.value.splice(realIndex, 1)
+async function deleteCustomer(index) {
+  const c = filteredCustomers.value[index]
+  if (confirm(`Xóa khách hàng ${c.fullName}?`)) {
+    try {
+      await api.delete(`/users/remove/${c.id}`)
+      customers.value = customers.value.filter(item => item.id !== c.id)
+      syncFiltered()
+    } catch (err) {
+      console.error("Delete failed:", err)
     }
-    syncFiltered()
   }
+}
 
 export default function useCustomer() {
   return {
-    customers,
-    filteredCustomers,
-    search,
-    filterCustomer,
-    resetFilter,
-    loadCustomers,
-    deleteCustomer,
-    openAdd,
-    showPopup,
-    form,
-    closePopup,
+    customers, filteredCustomers, search,
+    filterCustomer, resetFilter, loadCustomers,
+    deleteCustomer, openAdd, showPopup,
+    form, closePopup: () => { showPopup.value = false },
     saveCustomer
   }
 }

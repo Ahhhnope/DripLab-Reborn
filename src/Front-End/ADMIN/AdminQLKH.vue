@@ -1,14 +1,13 @@
 <style scoped src="../CSS/AdminQLKH.CSS"></style>
 <template>
   <div class="customer-container">
-    <!-- HEADER -->
     <div class="header">
-      <h2>Khách hàng</h2>
+      <h2>Quản lý Khách hàng</h2>
+      <button class="btn-them" @click="openAdd">+ Thêm khách hàng</button>
     </div>
 
-    <!-- FILTER -->
     <div class="filter">
-      <input v-model="search" placeholder="Tìm theo tên hoặc tài khoản" />
+      <input v-model="search" @keyup.enter="filterCustomer" placeholder="Tìm tên hoặc Email..." />
       <button class="btn-filter" @click="filterCustomer">Lọc</button>
       <button class="btn-reset" @click="resetFilter">Xóa lọc</button>
     </div>
@@ -16,64 +15,66 @@
     <table>
       <thead>
         <tr>
-          <th>STT</th>
-          <th>ID</th>
+          <th style="width: 50px">STT</th>
+          <th style="width: 70px">ID</th>
           <th>Tên khách hàng</th>
-          <th>Tài khoản</th>
+          <th>Email (Tài khoản)</th>
           <th>Mật khẩu</th>
-          <th>SDT</th>
+          <th>SĐT</th>
           <th>Địa chỉ</th>
-          <th>Ngày tạo</th>
-          <th>Hành động</th>
+          <th style="width: 120px">Hành động</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(cus, index) in filteredCustomers" :key="cus.id">
           <td>{{ index + 1 }}</td>
-          <td>{{ cus.id }}</td>
-          <td>{{ cus.name }}</td>
-          <td>{{ cus.username }}</td> <!-- that's email my dude ;-; -->
-          <td>{{ cus.password }}</td>
+          <td><span class="badge-id">{{ cus.id }}</span></td>
+          <td class="name-cell">{{ cus.fullName }}</td>
+          <td>{{ cus.email }}</td>
+          <td class="password-cell">••••••••</td>
           <td>{{ cus.phone }}</td>
-          <td>{{ cus.address }}</td>
-          <td>{{ cus.createdAt }}</td>
+          <td>{{ cus.defaultAddress }}</td>
           <td>
             <div class="action-buttons">
-              <button class="delete-btn" @click="deleteCustomer(index)">Xóa</button>
+              <button class="delete-btn" title="Xóa" @click="deleteCustomer(index)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <!-- POPUP THÊM -->
-    <div v-if="showPopup" class="popup-overlay">
+    <div v-if="showPopup" class="popup-overlay show">
       <div class="popup">
         <div class="popup-header">
-          <h3>Thêm khách hàng</h3>
+          <h3>Thêm khách hàng mới</h3>
           <span class="close-btn" @click="closePopup">✖</span>
         </div>
-        <div class="form-group">
-          <label>Tên khách hàng</label>
-          <input v-model="form.name" placeholder="Nhập tên khách hàng" />
-        </div>
-        <div class="form-group">
-          <label>Tài khoản</label>
-          <input v-model="form.username" placeholder="Nhập tài khoản" />
-        </div>
-        <div class="form-group">
-          <label>Mật khẩu</label>
-          <input type="password" v-model="form.password" placeholder="Nhập mật khẩu" />
-        </div>
-        <div class="form-group">
-          <label>Số điện thoại</label>
-          <input v-model="form.phone" placeholder="Nhập số điện thoại" />
-        </div>
-        <div class="form-group">
-          <label>Địa chỉ</label>
-          <input v-model="form.address" placeholder="Nhập địa chỉ" />
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Họ và Tên</label>
+            <input v-model="form.fullName" />
+          </div>
+          <div class="form-group full">
+            <label>Email / Tài khoản</label>
+            <input v-model="form.account" placeholder="example@gmail.com" />
+          </div>
+          <div class="form-group full">
+            <label>Mật khẩu</label>
+            <input type="password" v-model="form.password" />
+          </div>
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input v-model="form.phone" />
+          </div>
+          <div class="form-group">
+            <label>Địa chỉ</label>
+            <input v-model="form.address" />
+          </div>
         </div>
         <div class="popup-actions">
+          <button class="cancel-btn" @click="closePopup">Hủy</button>
           <button class="save-btn" @click="saveCustomer">Lưu</button>
         </div>
       </div>
