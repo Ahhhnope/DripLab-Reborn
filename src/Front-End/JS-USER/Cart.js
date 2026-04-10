@@ -148,7 +148,7 @@ export default {
       if (!this.deleteTarget) return
       const id = this.deleteTarget.id
       try {
-        await api.delete(`/carts/items/${id}`)
+        await api.delete(`/carts/remove/${id}`)
         this.cartStore.items = this.cartStore.items.filter((i) => i.id !== id)
         this.selectedIds = this.selectedIds.filter((s) => s !== id)
         this.deleteTarget = null
