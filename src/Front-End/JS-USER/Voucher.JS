@@ -1,78 +1,111 @@
 import { ref, computed } from 'vue'
 import api from '../../api/axios.js'
 
+const KEY = 'driplab_daily_login'
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {} }
+  catch { return {} }
+}
+
 export function useVoucher() {
 
+  // ── DAILY LOGIN ──────────────────────────────────────
+  const state = ref(loadState())
+  // state lưu: { date: 'YYYY-MM-DD', streak: 1-7, days: [1,2,...] }
+
+  const claimedDays = computed(() => state.value.days || [])
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10)
+  }
+
+  // Ngày được mở hôm nay = streak + 1, nhưng chỉ nếu hôm nay chưa nhận
+  function isDayUnlocked(day) {
+    if (state.value.date === todayStr()) return false   // đã nhận hôm nay rồi
+    const next = (state.value.streak || 0) + 1
+    return day === (next > 7 ? 1 : next)
+  }
+
+  function claimDay(day) {
+    if (!isDayUnlocked(day)) return
+    const newStreak = ((state.value.streak || 0) + 1) > 7 ? 1 : (state.value.streak || 0) + 1
+    const newDays = newStreak === 1 ? [1] : [...claimedDays.value, day]
+    state.value = { date: todayStr(), streak: newStreak, days: newDays }
+    localStorage.setItem(KEY, JSON.stringify(state.value))
+    showToast(day === 7 ? 'Nhận thành công 500 xu! 🎉' : 'Nhận thành công 100 xu! 🎉')
+  }
+
+  function resetLogin() {
+    localStorage.removeItem(KEY)
+    state.value = {}
+    showToast('Đã reset — thử lại từ Ngày 1!')
+  }
+
+  // ── VOUCHER ──────────────────────────────────────────
   const vouchers = ref([])
-  const copiedCode = ref(null)
-  const showToast = ref(false)
-  const toastMessage = ref('')
+  const usedIds = ref([])
 
   async function loadVouchers() {
     try {
-      const res = await api.get('/promo-codes')
+      const { data } = await api.get('/promo-codes')
       const now = new Date()
-
-      vouchers.value = res.data.map(v => ({
+      vouchers.value = data.map(v => ({
         id: v.id,
-        rawCode: v.code,
         code: v.code,
-        discount: v.category === 'PHẦN TRĂM'
-          ? 'Giảm ' + v.value + '%'
-          : 'Giảm ' + (+v.value).toLocaleString('vi-VN') + 'đ',
-        expiry: v.endDate
-          ? new Date(v.endDate).toLocaleDateString('vi-VN')
-          : 'Không giới hạn',
-        minOrder: '—',
-        status: v.status && new Date(v.endDate) >= now
-          ? 'active'
-          : 'expired'
+        discount: v.category === 'PHẦN TRĂM' ? `Giảm ${v.value}%` : `Giảm ${(+v.value).toLocaleString('vi-VN')}đ`,
+        maxDiscount: v.maxDiscount ? `${(+v.maxDiscount).toLocaleString('vi-VN')}đ` : '20k',
+        minOrder: v.minOrder ? `${(+v.minOrder).toLocaleString('vi-VN')}đ` : '50k',
+        expiry: v.endDate ? new Date(v.endDate).toLocaleDateString('vi-VN') : 'Không giới hạn',
+        active: v.status && new Date(v.endDate) >= now,
       }))
-    } catch (err) {
-      console.error('[Voucher] loadVouchers lỗi:', err.response?.status, err.message)
-      vouchers.value = []
+    } catch (e) { console.error(e) }
+  }
+
+  const displayedVouchers = computed(() => vouchers.value.filter(v => v.active))
+  const activeCount = computed(() => displayedVouchers.value.length)
+
+  // ── MODAL ────────────────────────────────────────────
+  const modal = ref({ show: false, code: '', date: '' })
+
+  function applyVoucher(v) {
+    if (usedIds.value.includes(v.id)) return
+    usedIds.value.push(v.id)
+    modal.value = {
+      show: true,
+      code: v.code,
+      date: `${new Date().toLocaleDateString('vi-VN')} - ${v.expiry}`,
     }
   }
 
-  const displayedVouchers = computed(() =>
-    vouchers.value.filter(v => v.status === 'active')
-  )
-
-  const activeCount = computed(() => vouchers.value.filter(v => v.status === 'active').length)
-  const totalCount = computed(() => vouchers.value.length)
-
-  async function copyCode(v) {
-    try {
-      await navigator.clipboard.writeText(v.rawCode)
-    } catch {
-      const el = document.createElement('textarea')
-      el.value = v.rawCode
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
+  async function copyCode() {
+    try { await navigator.clipboard.writeText(modal.value.code) }
+    catch {
+      const el = Object.assign(document.createElement('textarea'), { value: modal.value.code })
+      document.body.appendChild(el); el.select(); document.execCommand('copy'); el.remove()
     }
-
-    copiedCode.value = v.id
-    toastMessage.value = 'Đã sao chép: ' + v.rawCode
-    showToast.value = true
-
-    setTimeout(async () => {
-      copiedCode.value = null
-      showToast.value = false
-      await loadVouchers()
-    }, 2000)
+    modal.value.show = false
+    showToast('Đã sao chép: ' + modal.value.code)
   }
 
+  // ── TOAST ────────────────────────────────────────────
+  const toast = ref({ show: false, msg: '' })
+  let timer = null
+
+  function showToast(msg) {
+    toast.value = { show: true, msg }
+    clearTimeout(timer)
+    timer = setTimeout(() => { toast.value.show = false }, 2800)
+  }
+
+  // ── INIT ─────────────────────────────────────────────
   loadVouchers()
-
+  // resetLogin()
+  //Giải Thích resetLogin(): khi hoạt động thì sẽ về lại ngày ban đầu
   return {
-    displayedVouchers,
-    activeCount,
-    totalCount,
-    copiedCode,
-    showToast,
-    toastMessage,
-    copyCode,
+    claimedDays, isDayUnlocked, claimDay, resetLogin,
+    displayedVouchers, activeCount, usedIds, applyVoucher,
+    modal, copyCode,
+    toast,
   }
 }
