@@ -21,6 +21,7 @@ import Voucher from '../Front-End/USER/Voucher.vue'
 import Brewing from '../Front-End/USER/Brewing.vue'
 import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
+import UserPoints from '../Front-End/USER/UserPoints.vue'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -36,6 +37,7 @@ const routes = [
             { path: '/account/password', component: UserChangePassword, meta: {requiresAuth: true} },
             { path: '/account/address', component: UserAddress, meta: {requiresAuth: true} },
             { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
+            { path: '/account/points', component: UserPoints },
             { path: '/brewing', component: Brewing },
             { path: '/menu', component: MenuView },
             { path: 'product/:id', name: 'user-product', component: ProductDetailView },

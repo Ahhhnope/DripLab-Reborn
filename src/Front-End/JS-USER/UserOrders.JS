@@ -22,25 +22,56 @@ export function useUserOrders() {
   const navItems = [
     { id: 'account',  label: 'Tài Khoản',         icon: 'person',      route: '/account' },
     { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa Chỉ',            icon: 'location_on', route: '/account/address' },
-    { id: 'orders',   label: 'Đơn hàng của tôi',   icon: 'package',     route: '/account/orders' },
+    { id: 'address',  label: 'Địa Chỉ',           icon: 'location_on', route: '/account/address' },
+    { id: 'orders',   label: 'Đơn hàng của tôi',  icon: 'package',     route: '/account/orders' },
+    { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' }
   ]
 
   const user = sharedUser
 
-  const orderSteps = ref([
-    { label: 'Chờ xử lý',      icon: 'check',          state: 'done' },
-    { label: 'Đã xác nhận',    icon: 'inventory_2',    state: 'active' },
-    { label: 'Đang xử lý',     icon: 'settings',       state: 'pending' },
-    { label: 'Đang giao hàng', icon: 'local_shipping', state: 'pending' },
-    { label: 'Đã giao tới',    icon: 'home',           state: 'pending' },
-  ])
+const orderSteps = ref([
+  { label: 'Chờ xác nhận',    icon: 'pending_actions',  status: 'pending'    },
+  { label: 'Đang xử lý',      icon: 'settings',         status: 'processing' },
+  { label: 'Đang vận chuyển', icon: 'local_shipping',   status: 'shipping'   },
+  { label: 'Đã giao',         icon: 'home',             status: 'delivered'  },
+  { label: 'Đã huỷ',          icon: 'cancel',           status: 'cancelled'  },
+])
 
-  const progressWidth = computed(() => {
-    const doneCount = orderSteps.value.filter(s => s.state === 'done').length
-    const total = orderSteps.value.length - 1
-    return `${(doneCount / total) * 100}%`
-  })
+
+const currentStatus = ref('pending')
+
+const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
+
+const currentStepIndex = computed(() => {
+  if (currentStatus.value === 'cancelled') return -1
+  return STATUS_ORDER.indexOf(currentStatus.value)
+})
+
+const stepsWithState = computed(() => {
+  if (currentStatus.value === 'cancelled') {
+    return orderSteps.value.map(s =>
+      s.status === 'cancelled'
+        ? { ...s, state: 'active' }
+        : { ...s, state: 'cancelled-grey' }
+    )
+  }
+
+  const idx = currentStepIndex.value
+  return orderSteps.value
+    .filter(s => s.status !== 'cancelled')
+    .map((s, i) => ({
+      ...s,
+      state: i < idx ? 'done' : i === idx ? 'active' : 'pending'
+    }))
+})
+
+
+const progressWidth = computed(() => {
+  if (currentStatus.value === 'cancelled') return '0%'
+  const idx = currentStepIndex.value
+  const total = STATUS_ORDER.length - 1
+  return `${Math.max(0, (idx / total) * 100)}%`
+})
 
   const shipping = ref({
     name:    'Tuân Nguyễn Đình',
@@ -157,20 +188,17 @@ const allReceipts = ref([
   const filterToDate   = ref('')
   const showFilter     = ref(false)
 
-  // Danh sách category duy nhất để hiện trong dropdown
   const categoryOptions = computed(() => {
     const cats = allReceipts.value.map(r => r.category)
     return [...new Set(cats)]
   })
 
-  // ── Parse date dd/mm/yyyy → Date ──
   function parseDate(str) {
     if (!str) return null
     const [d, m, y] = str.split('/')
     return new Date(`${y}-${m}-${d}`)
   }
 
-  // ── Filtered + sliced ──
   const filteredReceipts = computed(() => {
     return allReceipts.value.filter(r => {
       const matchId = !searchId.value ||
@@ -234,7 +262,8 @@ const allReceipts = ref([
 
   return {
     user, navItems, currentRoute,
-    orderSteps, progressWidth,
+    orderSteps: stepsWithState, progressWidth,
+    currentStatus,
     shipping, activeOrder,
     receipts, hasMore, loadMore,
     searchId, filterCategory, filterFromDate, filterToDate,
