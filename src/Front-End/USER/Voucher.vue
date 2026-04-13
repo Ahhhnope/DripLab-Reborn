@@ -1,7 +1,5 @@
 <template>
   <div class="voucher-page">
-
-    <!-- TOP: daily box + sidebar -->
     <div class="top-section">
 
       <div class="daily-login-box">
