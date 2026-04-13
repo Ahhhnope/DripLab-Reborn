@@ -60,7 +60,7 @@
             <div class="form-grid">
               <div class="form-group">
                 <label for="fullname">Tên đầy đủ</label>
-                <input id="fullname" v-model="form.name" type="text" />
+                <input id="fullname" v-model="form.fullName" type="text" />
               </div>
               <div class="form-group">
                 <label for="email">Email</label>
@@ -157,7 +157,8 @@ const {
 const auth = useAuthStore();
 const router = useRouter();
 
-const user = auth.user;
+import { computed } from 'vue'
+const user = computed(() => auth.user || {})
 
 const logout = () => {
   auth.logout();
