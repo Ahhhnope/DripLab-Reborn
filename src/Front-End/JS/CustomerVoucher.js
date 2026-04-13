@@ -5,17 +5,17 @@ const API = '/promo-codes'
 function format(v) {
     const expired = !v.status || v.quantity <= 0 || new Date(v.endDate) < new Date()
     return {
-        id:       v.id,
-        code:     v.code,
-        name:     v.name,
-        type:     v.category,
-        value:    v.category === 'PHẦN TRĂM'
-                    ? v.value + '%'
-                    : (+v.value).toLocaleString('vi-VN') + 'đ',
+        id: v.id,
+        code: v.code,
+        name: v.name,
+        type: v.category,
+        value: v.category === 'PHẦN TRĂM'
+            ? v.value + '%'
+            : (+v.value).toLocaleString('vi-VN') + 'đ',
         quantity: v.quantity,
-        start:    v.startDate?.split('T')[0] ?? '',
-        end:      v.endDate?.split('T')[0]   ?? '',
-        status:   expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
+        start: v.startDate?.split('T')[0] ?? '',
+        end: v.endDate?.split('T')[0] ?? '',
+        status: expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
     }
 }
 
@@ -70,10 +70,10 @@ export default {
         filterVoucher() {
             this.filteredVouchers = this.vouchers.filter(v =>
                 (v.code + v.name).toLowerCase().includes(this.search.toLowerCase()) &&
-                (!this.status   || v.status === this.status) &&
-                (!this.type     || v.type   === this.type)   &&
-                (!this.fromDate || v.start  >= this.fromDate) &&
-                (!this.toDate   || v.end    <= this.toDate)
+                (!this.status || v.status === this.status) &&
+                (!this.type || v.type === this.type) &&
+                (!this.fromDate || v.start >= this.fromDate) &&
+                (!this.toDate || v.end <= this.toDate)
             )
             this.currentPage = 1
         },
@@ -98,14 +98,14 @@ export default {
             }
             try {
                 await api.post(API + '/add', {
-                    code:      f.code.toUpperCase().trim(),
-                    name:      f.name,
-                    category:  f.category,
-                    value:     parseFloat(f.value),
-                    quantity:  parseInt(f.quantity),
+                    code: f.code.toUpperCase().trim(),
+                    name: f.name,
+                    category: f.category,
+                    value: parseFloat(f.value),
+                    quantity: parseInt(f.quantity),
                     startDate: f.start ? new Date(f.start).toISOString() : null,
-                    endDate:   f.end   ? new Date(f.end).toISOString()   : null,
-                    status:    true
+                    endDate: f.end ? new Date(f.end).toISOString() : null,
+                    status: true
                 })
                 await this.loadVouchers()
                 this.showAddModal = false
@@ -143,7 +143,7 @@ export default {
                     id: f.id, code: f.code, name: f.name, category: f.category,
                     value: parseFloat(f.value), quantity: parseInt(f.quantity),
                     startDate: f.start ? new Date(f.start).toISOString() : null,
-                    endDate:   f.end   ? new Date(f.end).toISOString()   : null,
+                    endDate: f.end ? new Date(f.end).toISOString() : null,
                     status: f.status === 'HOẠT ĐỘNG'
                 })
                 await this.loadVouchers()
@@ -154,10 +154,10 @@ export default {
             }
         },
 
-        closeModal()    { this.showEditModal = false },
-        closeAddModal() { this.showAddModal  = false },
-        prevPage()      { this.currentPage-- },
-        nextPage()      { this.currentPage++ },
+        closeModal() { this.showEditModal = false },
+        closeAddModal() { this.showAddModal = false },
+        prevPage() { this.currentPage-- },
+        nextPage() { this.currentPage++ },
 
         showToast(message, type = 'success') {
             this.toast = { show: true, message, type }
