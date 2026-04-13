@@ -153,13 +153,9 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.active ? 'Đang bán' : 'Đã Tắt'}}</td> 
                     <td>
                         <button class="btn-edit" @click="openEdit(drink)">Sửa</button>
-<<<<<<< HEAD
-                        <button class="btn-delete" @click="removeDrink(drink.id)">Hết hàng</button>
-=======
                         <button class="btn-delete" @click="toggleDrink(drink.id)">
                             {{ drink.active ? 'Tắt' : 'Bật' }}
                         </button>
->>>>>>> ad2540a82ca0b4ef844ad5a076925030707a4b96
                     </td>
                 </tr>
             </tbody>
