@@ -74,10 +74,41 @@ export function useBrewing() {
   }))
 
   // Bước cuối cùng hoàn tất (có ống hút)
+  // Yêu cầu: vào bước topping sẽ chờ ~10 giây rồi mới hiển thị cốc hoàn thành.
+  const completeReady = ref(false)
+  let _completeTimer = null
+
   const isComplete = computed(() =>
-    currentStep.value === 3 && stepDone.value.bean && stepDone.value.base && stepDone.value.milk
+    completeReady.value && currentStep.value === 3 && stepDone.value.bean && stepDone.value.base && stepDone.value.milk
   )
 
+  function armCompleteDelay() {
+    if (_completeTimer) return
+    completeReady.value = false
+    _completeTimer = setTimeout(() => {
+      completeReady.value = true
+      _completeTimer = null
+    }, 10_000)
+  }
+
+  function clearCompleteDelay() {
+    if (_completeTimer) {
+      clearTimeout(_completeTimer)
+      _completeTimer = null
+    }
+    completeReady.value = false
+  }
+
+  // Khi vào step topping và đã chọn đủ bean/base/milk thì bắt đầu đếm 10s
+  watch(
+    () => [currentStep.value, selection.bean, selection.base, selection.milk],
+    ([step, bean, base, milk]) => {
+      const readyToStart = step >= 3 && !!bean && !!base && milk !== null
+      if (readyToStart) armCompleteDelay()
+      else clearCompleteDelay()
+    },
+    { immediate: true }
+  )
   // ─── THÔNG BÁO TẠM THỜI ───────────────────────────────────────────
   const notice = ref('')
   function showNotice(msg, ms = 1800) {
@@ -134,6 +165,7 @@ export function useBrewing() {
   // Yêu cầu: ở bước topping, hiệu ứng chỉ chạy 1 lần dù chọn 1/2/3 topping.
   const animTick = ref(0)
   const toppingAnimPlayed = ref(false)
+  const toppingFxKey = ref(0)
 
   // Chỉ rerun animation khi đổi bean/base/milk
   watch(
@@ -145,6 +177,7 @@ export function useBrewing() {
   watch(currentStep, (n) => {
     if (n >= 3 && !toppingAnimPlayed.value) {
       animTick.value++
+      toppingFxKey.value++ // chạy animation topping 1 lần
       toppingAnimPlayed.value = true
     }
   })
@@ -256,6 +289,16 @@ export function useBrewing() {
         color: mixHex(coffeeColor, selectedMilk.value?.color ?? null, hasMilk ? 0.35 : 0),
       },
 
+      // Hiệu ứng topping (không bị loạn khi chọn nhiều)
+      toppingsFx: {
+        whip: false, // bỏ hiệu ứng kem tươi
+        dustEnabled: (selection.toppings.has('cocoa') || selection.toppings.has('cinnamon') || selection.toppings.has('vanilla_powder')) && currentStep.value >= 3,
+        dustColor: selection.toppings.has('cocoa')
+          ? '#5c3317'
+          : (selection.toppings.has('cinnamon') ? '#c8834a' : '#d4a84b'),
+        fxKey: toppingFxKey.value,
+      },
+
       // Hiệu ứng đặc biệt
       drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
       bubbles:  { enabled: isColdBrew && hasBase },
@@ -292,6 +335,8 @@ export function useBrewing() {
     selection.toppings = new Set()
     currentStep.value  = 0
     toppingAnimPlayed.value = false
+    toppingFxKey.value = 0
+    clearCompleteDelay()
     animTick.value++
   }
 
