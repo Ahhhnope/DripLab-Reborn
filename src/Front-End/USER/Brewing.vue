@@ -138,47 +138,44 @@ onBeforeUnmount(() => {
                     <!-- Nền ly (trong suốt trước khi chọn) -->
                     <rect x="0" y="0" width="200" height="300"
                       :fill="cupLayers.bean.show ? 'rgba(30,12,4,0.08)' : 'rgba(220,210,200,0.10)'"
-                    />
- 
-                    <!-- LAYER 1: Bean (đáy) -->
-                    <rect
-                      v-if="cupLayers.bean.show"
-                      class="liq-layer"
-                      x="0" y="28" width="200" height="244"
-                      :style="{
-                        fill: cupLayers.bean.color,
-                        transformOrigin: 'center 272px',
-                        transform: `scaleY(${cupLayers.bean.height / 100})`,
-                        '--delay': '0ms',
-                      }"
-                    />
- 
-                    <!-- LAYER 2: Base (trên bean) -->
-                    <rect
-                      v-if="cupLayers.base.show"
-                      class="liq-layer"
-                      x="0" y="28" width="200" height="244"
-                      :style="{
-                        fill: cupLayers.base.color,
-                        transformOrigin: `center ${272 - cupLayers.bean.height * 2.44}px`,
-                        transform: `scaleY(${cupLayers.base.height / 100})`,
-                        '--delay': '60ms',
-                      }"
-                    />
- 
-                    <!-- LAYER 3: Milk (trên base) -->
-                    <rect
-                      v-if="cupLayers.milk.show"
-                      class="liq-layer"
-                      x="0" y="28" width="200" height="244"
-                      :style="{
-                        fill: cupLayers.milk.color,
-                        transformOrigin: `center ${272 - (cupLayers.bean.height + cupLayers.base.height) * 2.44}px`,
-                        transform: `scaleY(${cupLayers.milk.height / 100})`,
-                        '--delay': '80ms',
-                      }"
-                    />
- 
+                    />                    <!-- Khi CHƯA hoàn thành: hiển thị từng tầng riêng biệt (Ảnh 1) -->
+                    <g class="layers-split" :style="{ opacity: cupLayers.mixed.enabled ? 0 : 1 }">
+                      <!-- LAYER 1: Coffee (sau khi chọn base) -->
+                      <rect
+                        v-if="cupLayers.bean.show"
+                        class="liq-layer"
+                        x="0"
+                        :y="272 - cupLayers.bean.height * 2.44"
+                        width="200"
+                        :height="cupLayers.bean.height * 2.44"
+                        :style="{ fill: cupLayers.bean.color, '--delay': '0ms' }"
+                      />
+
+                      <!-- LAYER 2: Milk (trên coffee) -->
+                      <rect
+                        v-if="cupLayers.milk.show"
+                        class="liq-layer"
+                        x="0"
+                        :y="272 - (cupLayers.bean.height + cupLayers.milk.height) * 2.44"
+                        width="200"
+                        :height="cupLayers.milk.height * 2.44"
+                        :style="{ fill: cupLayers.milk.color, '--delay': '80ms' }"
+                      />
+                    </g>
+
+                    <!-- Khi HOÀN THÀNH (xuất hiện ống hút): cốc hoà 1 lớp, không tách tầng (Ảnh 2) -->
+                    <g class="layers-mixed" :style="{ opacity: cupLayers.mixed.enabled ? 1 : 0 }">
+                      <rect
+                        v-if="cupLayers.bean.show || cupLayers.base.show"
+                        class="liq-layer"
+                        x="0"
+                        :y="272 - cupLayers.mixed.height * 2.44"
+                        width="200"
+                        :height="cupLayers.mixed.height * 2.44"
+                        :style="{ fill: cupLayers.mixed.color, '--delay': '0ms' }"
+                      />
+                    </g>
+
                     <!-- Overlay chiều sâu 2 cạnh -->
                     <rect x="0" y="28" width="200" height="244" fill="url(#depthGrad)" opacity="0.75"/>
  

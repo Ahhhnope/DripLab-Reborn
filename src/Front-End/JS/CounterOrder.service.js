@@ -60,13 +60,9 @@ export function useCounterOrder() {
         return list.map(product => ({
             ...product,
             // Map the SQL column 'image_url' to the template's 'imageUrl'
-            imageUrl: getImg(product.imageUrl)
+            imageUrl: product.imageUrl
         }));
     });
-
-    function getImg(filename) {
-        return new URL('../IMG/MistakesWereMade.jpg', import.meta.url).href
-    }
 
     const orderedItems = computed(() => {
         return cartStore.items.map(item => {
@@ -123,17 +119,18 @@ export function useCounterOrder() {
     function checkout() { showPaymentPopup.value = true; }
     
     async function confirmPayment() {
-        // FIX 1: Removed 'receiptTotal.value = finalPrice.value' because it was undefined.
-        
         try {
             const res = await api.post(`/orders/add`, null, { 
-                params: { userId: posUserId, note: "POS Order" } 
+                params: {
+                    userId: posUserId,
+                    note: "POS Order",
+                    paymentMethod: paymentMethod.value === 'momo' ? 'MoMo' : 'Tiền mặt'
+                } 
             });
 
-            // FIX 2: Set the data we need for the success popup
             receiptData.value = {
                 finalPrice: res.data.finalPrice,
-                change: (parseInt(customerMoney.value) || 0) - res.data.finalPrice
+                change: paymentMethod.value === 'cash' ? (parseInt(customerMoney || 0)) - res.data.finalPrice : 0
             };
 
             txId.value = res.data.orderNumber;
@@ -142,9 +139,13 @@ export function useCounterOrder() {
             showPaymentPopup.value = false;
             showSuccessPopup.value = true;
 
+            // Reset MoMo state for next order
+            momoStep.value = 1;
+            momoPhone.value = "";
+            momoName.value = "";
+
             await cartStore.fetchUserCart(posUserId);
         } catch (error) {
-            // FIX 3: Changed 'err' to 'error' to match the catch variable
             console.error("Payment failed:", error);
             const msg = error.response?.data?.message || "Lỗi không xác định";
             alert("Thanh toán failed bruh: " + msg);
@@ -159,6 +160,40 @@ export function useCounterOrder() {
 
     const isToppingSelected = (topping) => selectedToppingIds.value.includes(topping.id);
 
+
+
+    //MOMO SHIT
+    async function onMomoPhoneInput(event) {
+        const val = event.target.value.replace(/\D/g, ''); // Only numbers regex
+        momoPhone.value = val;
+        momoError.value = "";
+        momoName.value = "";
+
+        if (val.length === 10) {
+            //correct phone number format
+            momoLoading.value = true;
+            try {
+                const res = await api.get(`/momo/lookup/${val}`);
+                momoName.value = res.data.fullName;
+            } catch (error) {
+                momoError.value = "Không tìm thấy tài khoản MoMo!";
+            } finally {
+                momoLoading.value = false;
+            }
+        }
+    }
+
+    function confirmMomoReceiver() {
+        if (momoName.value) {
+            momoStep.value = 2; // Move to the confirmation/processing step
+        }
+    }
+
+    function backMomo() {
+        momoStep.value = 1;
+    }
+
+
     return {
         searchText, products, searchProducts: () => {},
         showOrderScreen, orderList: ref([]), createNewOrder: () => {}, selectOrder: () => {},
@@ -167,6 +202,6 @@ export function useCounterOrder() {
         showSuccessPopup, closeSuccessPopup: () => showSuccessPopup.value = false, txId, txTime,
         showPopup, selectedProduct: selectedDrink, toppingList: toppings, selectedToppings: selectedToppingIds, selectedSize, selectedQty: quantity,
         openPopup, closePopup, toggleTopping, isToppingSelected, incQty: () => quantity.value++, decQty: () => { if(quantity.value > 1) quantity.value-- }, confirmOrder, receiptData,
-        momoPhone, momoName, momoStep, momoError, momoLoading, onMomoPhoneInput: () => {}, confirmMomoReceiver: () => {}, backMomo: () => {}
+        momoPhone, momoName, momoStep, momoError, momoLoading, onMomoPhoneInput, confirmMomoReceiver, backMomo
     };
 }

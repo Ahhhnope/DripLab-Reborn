@@ -5,6 +5,15 @@ const api = axios.create({
   withCredentials: true // Important: send cookies with requests
 });
 
+api.interceptors.request.use((config) => {
+  // Grab the token you saved during login
+  const token = localStorage.getItem('token'); 
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Handle 401 errors - clear user from localStorage
 api.interceptors.response.use(
   (response) => response,

@@ -38,13 +38,34 @@
 
 /* ── Table ───────────────────────────────────────── */
 table {
-  width: 100%;
-  table-layout: fixed;
+  width: 100%; /* Forces table to span the whole container */
+  table-layout: auto; /* Change from 'fixed' to 'auto' to let columns breathe */
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
-th:nth-child(1), td:nth-child(1) { width: 60px; }
-th:nth-child(2), td:nth-child(2) { width: 80px; }
-th:nth-child(3), td:nth-child(3) { width: 200px; }
-th:nth-child(4), td:nth-child(4) { width: auto; }   /* IMPORTANT */
+
+/* Set specific widths for the small columns */
+th:nth-child(1), td:nth-child(1) { width: 60px; text-align: center; } /* STT */
+th:nth-child(2), td:nth-child(2) { width: 80px; text-align: center; } /* ID */
+th:nth-child(3), td:nth-child(3) { width: 180px; text-align: left; }  /* Tên cách thức */
+th:nth-child(4), td:nth-child(4) {text-align: left;} /*Nội dung */
+
+th:nth-child(5), td:nth-child(5) { width: 100px; text-align: center; } /* Thao tác */
+
+/* Important: Overwrite the previous 'white-space: nowrap' if it exists in your global styles 
+   so that long instructions can wrap to the next line instead of pushing the table out. */
+td {
+  padding: 14px 16px;
+  font-size: 13.5px;
+  word-wrap: break-word;
+  white-space: normal; 
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+}
 /* 
 
 thead th {

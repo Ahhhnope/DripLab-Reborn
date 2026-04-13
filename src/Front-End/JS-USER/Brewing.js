@@ -130,16 +130,51 @@ export function useBrewing() {
   }
 
   // ─── ANIMATION TICK ───────────────────────────────────────────────
+  // Dùng để "remount" SVG layer nhằm chạy lại animation.
+  // Yêu cầu: ở bước topping, hiệu ứng chỉ chạy 1 lần dù chọn 1/2/3 topping.
   const animTick = ref(0)
+  const toppingAnimPlayed = ref(false)
+
+  // Chỉ rerun animation khi đổi bean/base/milk
   watch(
-    () => [selection.bean, selection.base, selection.milk, [...selection.toppings].join(',')],
+    () => [selection.bean, selection.base, selection.milk],
     () => { animTick.value++ },
   )
+
+  // Khi lần đầu đi tới bước topping (step=3) thì chạy 1 lần
+  watch(currentStep, (n) => {
+    if (n >= 3 && !toppingAnimPlayed.value) {
+      animTick.value++
+      toppingAnimPlayed.value = true
+    }
+  })
 
   // ─── COMPUTED: đối tượng nguyên liệu đang chọn ───────────────────
   const selectedBean    = computed(() => beanOptions.find(x => x.id === selection.bean))
   const selectedBase    = computed(() => baseOptions.find(x => x.id === selection.base))
   const selectedMilk    = computed(() => milkOptions.find(x => x.id === selection.milk))
+
+  // ─── HELPER: trộn màu đơn giản (hex #rrggbb) ──────────────────────
+  function mixHex(a, b, t = 0.5) {
+    if (!a) return b
+    if (!b) return a
+    const pa = a.replace('#', '')
+    const pb = b.replace('#', '')
+
+    const ar = parseInt(pa.slice(0, 2), 16)
+    const ag = parseInt(pa.slice(2, 4), 16)
+    const ab = parseInt(pa.slice(4, 6), 16)
+
+    const br = parseInt(pb.slice(0, 2), 16)
+    const bg = parseInt(pb.slice(2, 4), 16)
+    const bb = parseInt(pb.slice(4, 6), 16)
+
+    const rr = Math.round(ar + (br - ar) * t)
+    const rg = Math.round(ag + (bg - ag) * t)
+    const rb = Math.round(ab + (bb - ab) * t)
+
+    return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('')
+  }
 
   // ─── COMPUTED: CUP LAYERS (điền dần theo bước) ───────────────────
   /**
@@ -151,35 +186,55 @@ export function useBrewing() {
    *   5. Straw (ống hút)                    — khi isComplete
    */
   const cupLayers = computed(() => {
+    // Yêu cầu UI mới:
+    // - Chọn bean (hạt) thôi: cốc vẫn TRỐNG.
+    // - Chọn base: mới bắt đầu có tầng cà phê (1 tầng như ảnh 1).
+    // - Chọn sữa: thêm 1 tầng sữa.
+    // - Hoàn thành (có ống hút): hoà các tầng thành 1 khối.
+
     const hasBean    = !!selection.bean
     const hasBase    = !!selection.base
     const hasMilk    = !!selection.milk && selection.milk !== 'none'
     const hasTopping = currentStep.value >= 3
 
-    // Chiều cao từng lớp (% của tổng chiều cao vùng lỏng trong ly)
-    // Tổng không vượt quá 85%
-    const beanH    = hasBean ? 22 : 0
-    const baseH    = hasBase ? (hasMilk ? 32 : 48) : 0
-    const milkH    = hasMilk ? 22 : 0
-    const foamH    = hasTopping ? 10 : 0
+    // Coffee chỉ xuất hiện sau khi đã chọn base
+    const hasCoffee = hasBase
+
+    // Theo yêu cầu mới:
+    // - Chọn base xong: cốc ~50%
+    // - Chọn sữa: lên ~90%
+    // - Sang bước topping: 100%
+    const coffeeH = hasCoffee ? 50 : 0
+    const milkH   = hasMilk ? 40 : 0
+    const foamH   = hasTopping ? 10 : 0
 
     const isColdBrew = selection.base === 'cold_brew'
     const isHot      = hasBase && !isColdBrew
 
+    // Màu cà phê: trộn nhẹ giữa hạt và base để khác nhau theo lựa chọn
+    const coffeeColor = mixHex(
+      selectedBean.value?.color ?? '#3d2010',
+      selectedBase.value?.color ?? '#2b1b14',
+      0.45,
+    )
+
     return {
-      // Lớp nền hạt cà phê (đáy cốc, đậm)
+      // TẦNG CÀ PHÊ: chỉ xuất hiện sau khi đã chọn base
+      // (Dùng key `bean` để không phải sửa nhiều ở template)
       bean: {
-        show:   hasBean,
-        height: beanH,
-        color:  selectedBean.value?.color ?? '#3d2010',
+        show:   hasCoffee,
+        height: coffeeH,
+        color:  coffeeColor,
       },
-      // Lớp base (espresso / cold brew / pour over)
+
+      // Tắt layer base để tránh bị "2 tầng cà phê" (vì yêu cầu chỉ 1 tầng cà phê)
       base: {
-        show:   hasBase,
-        height: baseH,
+        show:   false,
+        height: 0,
         color:  selectedBase.value?.color ?? '#2b1b14',
       },
-      // Lớp sữa (phía trên base)
+
+      // Lớp sữa (phía trên cà phê)
       milk: {
         show:   hasMilk,
         height: milkH,
@@ -191,6 +246,16 @@ export function useBrewing() {
         height: foamH,
         color:  '#fffcf0',
       },
+
+      // Khi hoàn thành (có ống hút) thì cốc "hòa" thành 1 lớp, không tách tầng
+      mixed: {
+        enabled: isComplete.value,
+        // Khi hoàn thành (xuất hiện ống hút) thì cốc hoà 1 khối và đầy 100%
+        height: 100,
+        // Trộn màu cà phê với sữa (nếu có) để ra màu "hoà" nhìn tự nhiên hơn
+        color: mixHex(coffeeColor, selectedMilk.value?.color ?? null, hasMilk ? 0.35 : 0),
+      },
+
       // Hiệu ứng đặc biệt
       drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
       bubbles:  { enabled: isColdBrew && hasBase },
@@ -226,6 +291,8 @@ export function useBrewing() {
     selection.milk     = null
     selection.toppings = new Set()
     currentStep.value  = 0
+    toppingAnimPlayed.value = false
+    animTick.value++
   }
 
   // ─── EXPORT ───────────────────────────────────────────────────────

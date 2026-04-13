@@ -97,9 +97,9 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
 
     try {
       if (isEditing.value) {
-        await api.put(`/ingredients/${endpoint}/${form.value.id}`, payload);
+        await api.put(`/ingredients/update/${endpoint}/${form.value.id}`, payload);
       } else {
-        await api.post(`/ingredients/${endpoint}`, payload);
+        await api.post(`/ingredients/add/${endpoint}`, payload);
       }
       await fetchData();
       showForm.value = false;
@@ -116,7 +116,7 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
 
   const doDelete = async () => {
     try {
-      await api.delete(`/ingredients/${endpoint}/${deleteTarget.value.id}`);
+      await api.delete(`/ingredients/remove/${endpoint}/${deleteTarget.value.id}`);
       await fetchData();
       showConfirm.value = false;
       return { success: "Đã xóa thành công!" };

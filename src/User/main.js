@@ -69,10 +69,10 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // ADMIN on user site → redirect to admin
-    if (auth.user && auth.user.role === 'ADMIN' && to.meta.requiresAuth) {
-        window.location.replace('http://localhost:5005/')
-        return next(false)
-    }
+    // if (auth.user && auth.user.role === 'ADMIN' && to.meta.requiresAuth) {
+    //     window.location.replace('http://localhost:5005/')
+    //     return next(false)
+    // }
 
     // Requires auth but not logged in
     if (to.meta.requiresAuth && !auth.user) {

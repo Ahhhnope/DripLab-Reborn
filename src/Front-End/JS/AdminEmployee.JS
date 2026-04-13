@@ -10,7 +10,7 @@ const showPopup   = ref(false)
 const currentIndex = ref(null)
 const isEditing   = ref(false)
 
-const form = ref({ name: "", username: "", password: "", newPassword: "" })
+const form = ref({ fullName: "", account: "", password: "", newPassword: "" })
 
 // ── Load data ──
 async function loadEmployees() {
@@ -20,12 +20,6 @@ async function loadEmployees() {
     filteredEmployees.value = res.data
   } catch (err) {
     console.warn("Không kết nối được backend, dùng data mẫu")
-    const sample = [
-      { id: "NV_01", name: "Americano", username: "abc123", password: "Lmao", createdAt: "20/02/2020" },
-      { id: "NV_02", name: "Robusta",   username: "kikiki", password: "Lol",  createdAt: "04/01/2026" }
-    ]
-    employees.value         = sample
-    filteredEmployees.value = sample
   }
 }
 
@@ -55,7 +49,7 @@ function syncFiltered() {
 function openAdd() {
   isEditing.value    = false
   currentIndex.value = null
-  form.value         = { name: "", username: "", password: "", newPassword: "" }
+  form.value         = { fullName: "", account: "", password: "", newPassword: "" }
   showPopup.value    = true
 }
 
@@ -63,68 +57,54 @@ function openEdit(index) {
   isEditing.value    = true
   const emp          = filteredEmployees.value[index]
   currentIndex.value = employees.value.findIndex(e => e.id === emp.id)
-  form.value         = { name: emp.name, username: emp.username, password: emp.password, newPassword: "" }
+  form.value         = { ...emp, newPassword: "" }
   showPopup.value    = true
 }
 
 function closePopup() { showPopup.value = false }
 
 async function saveEmployee() {
-  if (isEditing.value) {
-    //update
-    const i = currentIndex.value
-    employees.value[i].name     = form.value.name
-    employees.value[i].username = form.value.username
-    if (form.value.newPassword) {
-      employees.value[i].password = form.value.newPassword
+  try {
+    if (isEditing.value) {
+      const id = employees.value[currentIndex.value].id
+      const payload = {
+        fullName: form.value.fullName,
+        account: form.value.account,
+        // Only send new password if it was typed
+        password: form.value.newPassword || form.value.password 
+      }
+      
+      await api.put(`/workers/update/${id}`, payload)
+    } else {
+      const res = await api.post('/workers/add', {
+        fullName: form.value.fullName,
+        account: form.value.account,
+        password: form.value.password
+      })
+      // The backend returns the newly created object with its SQL ID
+      employees.value.push(res.data)
     }
-
-    await api.put(`/workers/update/${employees.value[i].id}`, {
-      fullName: employees.value[i].name,
-      account: employees.value[i].username,
-      password: form.value.newPassword || employees.value[i].password,
-    })
-
-  } else {
-
-    //add
-    const newId  = "NV_" + String(employees.value.length + 1).padStart(2, "0")
-    const newEmp = {
-      id:        newId,
-      name:      form.value.name,
-      username:  form.value.username,
-      password:  form.value.password,
-      createdAt: new Date().toLocaleDateString("vi-VN")
-    }
-    employees.value.push(newEmp)
-
-    // Khi có backend: bỏ comment dòng dưới
-    const res = await api.post('/workers/add', {
-      fullName: newEmp.name,
-      account: newEmp.username,
-      password: newEmp.password,
-    })
-
-    newEmp.id = res.data.id
-    newEmp.name = res.data.fullName
-    newEmp.username = res.data.account
+    
+    showPopup.value = false
+    await loadEmployees() // Refresh to ensure data integrity
+    syncFiltered()
+  } catch (err) {
+    console.error("Save failed:", err)
   }
-
-  showPopup.value = false
-  syncFiltered()
 }
 
 async function deleteEmployee(index) {
-  const emp       = filteredEmployees.value[index]
-  const realIndex = employees.value.findIndex(e => e.id === emp.id)
-  if (realIndex !== -1) {
-    employees.value.splice(realIndex, 1)
-
-    await api.delete(`/workers/remove/${emp.id}`)
+  const emp = filteredEmployees.value[index]
+  if (confirm(`Bạn có chắc muốn xóa nhân viên ${emp.fullName}?`)) {
+    try {
+      await api.delete(`/workers/remove/${emp.id}`)
+      await loadEmployees()
+      syncFiltered()
+    } catch (err) {
+      console.error("Delete failed:", err)
+    }
   }
-  syncFiltered()
 }
-
 export default function useEmployee() {
   return {
     employees,
