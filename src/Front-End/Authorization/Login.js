@@ -35,17 +35,20 @@ export function useLogin() {
         password: password.value
       })
 
-      const { token, user } = response.data
-      
-      // Save data to Pinia and LocalStorage
-      auth.setUser(user, token)
+      const { user } = response.data
+
+      // Save user data to Pinia and sessionStorage
+      // Token is stored in httpOnly cookie automatically
+      auth.setUser(user)
 
       // Optional: small delay so the user sees the "Brewing..." animation
       await new Promise(r => setTimeout(r, 800))
-      if (user && user.role && user.role.toUpperCase() === 'ADMIN') {
-          router.push('/Dashboard'); // Matches your route path in main.js
+
+
+      if (user.role.toUpperCase() === 'ADMIN') {
+        window.location.href = 'http://localhost:5005/Dashboard'
       } else {
-          router.push('/homepage');
+          window.location.href = 'http://localhost:5173/homepage';
       }
     } catch (err) {
       errorMsg.value = err.response?.data?.message || 'Đăng nhập thất bại'

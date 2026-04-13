@@ -1,33 +1,29 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api'
+  baseURL: 'http://localhost:8080/api',
+  withCredentials: true // Important: send cookies with requests
 });
 
-
-//before every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-
+  // Grab the token you saved during login
+  const token = localStorage.getItem('token'); 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
-})
+});
 
-//before every response
+// Handle 401 errors - clear user from localStorage
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    //401: Unauthorized (token expired)
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      // Clear stored user data on unauthorized
+      localStorage.removeItem('user');
     }
-
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;

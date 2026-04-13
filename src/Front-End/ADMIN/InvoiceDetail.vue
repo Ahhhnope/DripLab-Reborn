@@ -74,7 +74,9 @@
                       </div>
                     </div>
                     <div class="col-span-1 text-center font-bold text-stone-400">x{{ item.qty }}</div>
-                    <div class="col-span-3 text-right font-bold text-[#3C2A21]">—</div>
+                    <div class="col-span-3 text-right font-bold text-[#3C2A21]">
+                      {{ (item.price * item.qty).toLocaleString('vi-VN') }} đ
+                    </div>
                   </div>
                 </div>
 
@@ -85,20 +87,20 @@
                 <div class="rounded-xl bg-[#FAF7F2] p-5 space-y-3">
                   <div class="flex justify-between text-sm">
                     <span class="text-stone-500">Tổng gốc</span>
-                    <span class="font-bold">{{ invoice.original_price.toLocaleString('vi-VN') }} đ</span>
+                    <span class="font-bold">{{ (invoice.originalPrice || 0).toLocaleString('vi-VN') }} đ</span>
                   </div>
                   <div class="flex justify-between text-sm text-red-500">
                     <span>Giảm giá</span>
-                    <span class="font-bold">- {{ invoice.discount.toLocaleString('vi-VN') }} đ</span>
+                    <span class="font-bold">- {{ (invoice.discountAmount || 0).toLocaleString('vi-VN') }} đ</span>
                   </div>
                   <div class="flex justify-between text-sm">
                     <span class="text-stone-500">Phí ship</span>
-                    <span class="font-bold">{{ invoice.shipping.toLocaleString('vi-VN') }} đ</span>
+                    <span class="font-bold">{{ (invoice.shippingFee || 0).toLocaleString('vi-VN') }} đ</span>
                   </div>
                   <div class="pt-3 border-t border-stone-200 flex justify-between">
                     <span class="font-bold">Thành tiền</span>
                     <span class="text-lg font-black text-[#634832]">
-                      {{ invoice.final_price.toLocaleString('vi-VN') }} đ
+                      {{ (invoice.finalPrice || 0).toLocaleString('vi-VN') }} đ
                     </span>
                   </div>
                 </div>

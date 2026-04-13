@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import axios from 'axios'
+import api from '../../api/axios'
 
 const DISCOUNT_CODES = { KM50: 50, KM20: 20, KM10: 10 }
 
@@ -35,10 +35,11 @@ export function usePOS() {
   const showMilkPopup    = ref(false)
   const showToppingPopup = ref(false)
 
-  const beans    = ref([])
-  const bases    = ref([])
-  const milks    = ref([])
-  const toppings = ref([])
+  const coffeeBeans       = ref([])
+  const milks       = ref([])
+  const heavyCreams = ref([])
+  const iceCreams   = ref([])
+  const toppings    = ref([])
 
   const sampleBeans = [
     { name: 'Robusta', price: 12000 },
@@ -69,15 +70,11 @@ export function usePOS() {
 
   async function loadProducts() {
     try {
-      const [b, ba, m, t] = await Promise.all([
-        axios.get('http://localhost:8080/beans'),
-        axios.get('http://localhost:8080/bases'),
-        axios.get('http://localhost:8080/milks'),
-        axios.get('http://localhost:8080/toppings')
-      ])
-      beans.value = b.data; bases.value = ba.data
-      milks.value = m.data; toppings.value = t.data
-    } catch {
+      coffeeBeans.value = coffeeBeansAPI;
+      milks.value = m.data;
+
+      toppings.value = t.data
+    } catch (err) {
       beans.value = sampleBeans; bases.value = sampleBases
       milks.value = sampleMilks; toppings.value = sampleToppings
     }

@@ -1,12 +1,10 @@
-import { createApp, patchProp } from 'vue'
+import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 
-// Import CSS (Rất quan trọng để Tailwind hoạt động)
 import './main.css'
 
-// Import các Component chính
 import FrameInterface from '@/Front-End/ADMIN/FrameInterface.vue'
 import CounterOrder from '@/Front-End/ADMIN/CounterOrder.vue'
 import AdminPOScustom from '@/Front-End/ADMIN/AdminPOScustom.vue'
@@ -16,8 +14,6 @@ import OrderList from '@/Front-End/ADMIN/OrderList.vue'
 import Products from '@/Front-End/ADMIN/Products.vue'
 import AdminEmployee from '@/Front-End/ADMIN/AdminEmployee.vue'
 import AdminQLKH from '@/Front-End/ADMIN/AdminQLKH.vue'
-
-// Import các Component thành phần sản phẩm
 import QuanLySPCachThuc from '@/Front-End/ADMIN/QuanLySPCachThuc.vue'
 import QuanLySPSua from '@/Front-End/ADMIN/QuanLySPSua.vue'
 import QuanLySPHatCaPhe from '@/Front-End/ADMIN/QuanLySPHatCaPhe.vue'
@@ -28,7 +24,7 @@ import AdminDashboard from '../Front-End/ADMIN/AdminDashboard.vue'
 import Login from '../Front-End/Authorization/Login.vue'
 import { useAuthStore } from '../Front-End/Authorization/Auth'
 
-const pinia = createPinia();
+const pinia = createPinia()
 const routes = [
     {
         path: '/',
@@ -58,29 +54,38 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
-});
+})
 
+const app = createApp(App)
+app.use(pinia)
 
-  router.beforeEach((to, from, next) => {
-      const auth = useAuthStore();
-      const isAuthenticated = !!localStorage.getItem('token');
+const auth = useAuthStore()
+auth.init() // Start in background
 
-      // not ADMIN → off to user app
-      if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
-          return next('http://localhost:5173' + to.fullPath);
+app.use(router)
+app.mount('#app')
+
+router.beforeEach(async (to, from, next) => {
+    const auth = useAuthStore()
+      if (!auth.isInitialized) {
+          await auth.init()
       }
+      console.log('Admin guard - user:', auth.user, 'role:', auth.user?.role);
+    // Non-ADMIN → redirect to user site
+    if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
+        window.location.replace('http://localhost:5173/homepage')
+        return next(false)
+    }
 
-      // needs auth but not logged in
-      if (to.meta.requiresAuth && !isAuthenticated) {
-          next('/login');
-      }
-      // logged in but hitting /login
-      else if (to.path === '/login' && isAuthenticated) {
-          next('/Dashboard');
-      }
-      else {
-          next();
-      }
-  });
+    // Need login
+    if (to.meta.requiresAuth && !auth.user) {
+        return next('/login')
+    }
 
-createApp(App).use(pinia).use(router).mount('#app')
+    // Already logged in - redirect away from login
+    if (auth.user && (to.path === '/login' || to.path === '/')) {
+        return next('/Dashboard')
+    }
+
+    next()
+})

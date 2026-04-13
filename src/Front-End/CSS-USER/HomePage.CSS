@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: 'Epilogue', sans-serif;
+  font-family: 'Segoe UI', 'Inter', sans-serif;
 }
 
 .section-gap  { margin-bottom: 30px; }
@@ -13,6 +13,8 @@
   position: relative;
   overflow: hidden;
   background: #1a0e08;
+  width: 100%;
+  max-width: 100%;
 }
 
 .slider-track {
@@ -22,8 +24,10 @@
 
 .slide {
   min-width: 100%;
-  height: 580px;
-  background-size: cover;
+  height: 0;
+  padding-bottom: 50%;        /* tỉ lệ 2:1 khớp ảnh Canva 1000x500 */
+  background-size: cover;     /* ← đổi từ cover → contain */
+  background-repeat: no-repeat;  /* ← thêm dòng này */
   background-position: center;
   position: relative;
   flex-shrink: 0;

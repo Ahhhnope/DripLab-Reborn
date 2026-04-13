@@ -254,6 +254,8 @@ const emit = defineEmits(["view", "confirm", "cancel", "edit-saved", "delete-con
  
 const { money, statusText, statusClass } = useOrderTable(emit);
  
+
+//Modal Sửa
 // ── STATUS OPTIONS cho radio group ───────────────────────
 const statusOptions = [
   { value: "pending",    label: "Chờ xác nhận",     dotClass: "bg-amber-400",   activeClass: "border-amber-300 bg-amber-50 text-amber-700 font-semibold" },

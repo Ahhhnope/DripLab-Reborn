@@ -9,11 +9,13 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     fs: {
-      allow: ['..']
+      strict: false,
+      allow: ['..'],
     }
   },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
   },
   root: './src/User',
+  publicDir: '../../public'
 })

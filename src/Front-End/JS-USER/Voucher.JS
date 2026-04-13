@@ -3,10 +3,9 @@ import api from '../../api/axios.js'
 
 export function useVoucher() {
 
-  const activeTab    = ref('available')
-  const vouchers     = ref([])
-  const copiedCode   = ref(null)
-  const showToast    = ref(false)
+  const vouchers = ref([])
+  const copiedCode = ref(null)
+  const showToast = ref(false)
   const toastMessage = ref('')
 
   async function loadVouchers() {
@@ -15,19 +14,19 @@ export function useVoucher() {
       const now = new Date()
 
       vouchers.value = res.data.map(v => ({
-        id:       v.id,
-        rawCode:  v.code,
-        code:     v.code,
+        id: v.id,
+        rawCode: v.code,
+        code: v.code,
         discount: v.category === 'PHẦN TRĂM'
           ? 'Giảm ' + v.value + '%'
           : 'Giảm ' + (+v.value).toLocaleString('vi-VN') + 'đ',
-        expiry:   v.endDate
+        expiry: v.endDate
           ? new Date(v.endDate).toLocaleDateString('vi-VN')
           : 'Không giới hạn',
         minOrder: '—',
-        status: (v.status && v.quantity > 0 && new Date(v.endDate) >= now)
+        status: v.status && new Date(v.endDate) >= now
           ? 'active'
-          : (v.quantity <= 0 ? 'used' : 'expired')
+          : 'expired'
       }))
     } catch (err) {
       console.error('[Voucher] loadVouchers lỗi:', err.response?.status, err.message)
@@ -36,18 +35,11 @@ export function useVoucher() {
   }
 
   const displayedVouchers = computed(() =>
-    vouchers.value.filter(v =>
-      activeTab.value === 'available'
-        ? v.status === 'active'
-        : v.status !== 'active'
-    )
+    vouchers.value.filter(v => v.status === 'active')
   )
 
   const activeCount = computed(() => vouchers.value.filter(v => v.status === 'active').length)
-  const totalCount  = computed(() => vouchers.value.length)
-  const usedCount   = computed(() => totalCount.value - activeCount.value)
-
-  function setTab(t) { activeTab.value = t }
+  const totalCount = computed(() => vouchers.value.length)
 
   async function copyCode(v) {
     try {
@@ -61,19 +53,13 @@ export function useVoucher() {
       document.body.removeChild(el)
     }
 
-    copiedCode.value   = v.id
+    copiedCode.value = v.id
     toastMessage.value = 'Đã sao chép: ' + v.rawCode
-    showToast.value    = true
-
-    try {
-      await api.put('/promo-codes/use/' + v.id)
-    } catch (err) {
-      console.warn('[Voucher] /use lỗi:', err.response?.status)
-    }
+    showToast.value = true
 
     setTimeout(async () => {
       copiedCode.value = null
-      showToast.value  = false
+      showToast.value = false
       await loadVouchers()
     }, 2000)
   }
@@ -81,9 +67,12 @@ export function useVoucher() {
   loadVouchers()
 
   return {
-    activeTab, displayedVouchers,
-    activeCount, totalCount, usedCount,
-    copiedCode, showToast, toastMessage,
-    setTab, copyCode
+    displayedVouchers,
+    activeCount,
+    totalCount,
+    copiedCode,
+    showToast,
+    toastMessage,
+    copyCode,
   }
 }

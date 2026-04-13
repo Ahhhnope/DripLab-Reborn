@@ -126,8 +126,16 @@
                   >
                     <div class="item-info">
                       <p class="item-name">{{ it.name }}</p>
-                      <div v-if="it.options?.length" class="item-options">
-                        <span v-for="(op, idx) in it.options" :key="idx" class="option-tag">{{ op }}</span>
+                      <div v-if="it.options?.length || it.orderItemToppings?.length" class="item-options">
+                        <span v-for="(op, idx) in it.options" :key="'opt-'+idx" class="option-tag">
+                          {{ op }}
+                        </span>
+                        
+                        <template v-if="!it.options?.length">
+                          <span v-for="t in it.orderItemToppings" :key="t.id" class="option-tag">
+                            {{ t.topping?.name }}
+                          </span>
+                        </template>
                       </div>
                     </div>
                     <div class="item-qty">x{{ it.qty }}</div>

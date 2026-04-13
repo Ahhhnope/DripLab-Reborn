@@ -48,7 +48,7 @@
                 {{ invoice.receive_type }}
               </span>
             </td>
-            <td>{{ invoice.final_price.toLocaleString('vi-VN') }} đ</td>
+            <td>{{ (invoice.finalPrice || 0).toLocaleString('vi-VN') }} đ</td>
             <td>
               <button class="view-btn" @click="openInvoice(invoice)">Xem thêm</button>
             </td>
@@ -81,7 +81,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, watch } from "vue"
+import { bus } from "../../utils/bus";
 import InvoiceDetail from "./InvoiceDetail.vue"
 import {
   filteredInvoices,
@@ -102,6 +103,20 @@ function openInvoice(invoice) {
   selectedInvoice.value = invoice
   showDetail.value = true
 }
+
+// const invoices = ref([]);
+
+// const fetchInvoices = async () => {
+//   const response = await api.get('/invoices');
+//   invoices.value = response.data;
+// };
+
+// defineExpose({ fetchInvoices });
+
+watch(bus, () => {
+  console.log("Invoice table refreshing...");
+  loadInvoices();
+});
 
 onMounted(() => loadInvoices())
 </script>

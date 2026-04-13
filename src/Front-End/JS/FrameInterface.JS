@@ -68,10 +68,9 @@ export function useAdminMenu() {
 
     //logout
     const auth = useAuthStore();
-    const logout = () => {
-        auth.setUser(null, null)
-        localStorage.removeItem('token')
-        router.push('/login')
+    const logout = async () => {
+        await auth.logout();
+        router.push('/login');
     };
 
 

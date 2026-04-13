@@ -1,8 +1,7 @@
 import api from '../../api/axios'
 
-
 export async function getDrinks() {
-  const res = await api.get('/drinks');
+  const res = await api.get("/drinks/all");
   return res.data;
 }
 
@@ -36,8 +35,8 @@ export async function updateDrink(drink) {
   });
 }
 
-export async function deleteDrink(id) {
-  await api.delete(`/drinks/remove/${id}`);
+export async function toggleDrinks(id) {
+  await api.put(`/drinks/toggle/${id}`);
 }
 
 

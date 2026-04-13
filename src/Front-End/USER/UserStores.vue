@@ -3,8 +3,8 @@
 
     <!-- ===== ẢNH ĐƠN ===== -->
     <section class="photo-single">
-      <div class="photo-bg"
-        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACiqIMCNghyhx1mxHuryYcVP3lKk_IqXozA7gJ3BbRb7Znx1uaBGTq0f2ILd5hK3MEgScOUbV1bcDkt-NysEDEwAish075vvb06TmJrWz7FIHKeCl8xe-zCw_Uh5QLmT3DknFeb5VHrlXY_C5acuKXWc74sfdhThFkCBFla4f36cdi2uQtVMYw4porXzCqYvjTvKFLxc9rd2C3MO4vXFeW2QDV2-GE8h5hCT3Y_HMvE7unt38cyFhul-BRNT0H98sA5FHApHKSASvl')">
+      <div class="photo-bg">
+        <img src="../IMG/MTStore.png">
       </div>
     </section>
 

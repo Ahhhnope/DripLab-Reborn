@@ -125,9 +125,13 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
       <!-- ✅ mốc scroll mới -->
       <div ref="gridTopEl" class="mt-6 border-t border-slate-200"></div>
 
-      <!-- Grid sản phẩm -->
       <div class="grid grid-cols-1 gap-8 pt-8 md:grid-cols-2 lg:grid-cols-3">
+        <div v-if="loading" class="col-span-full text-center py-20 text-slate-400 font-medium">
+           Đang pha cà phê... ☕
+        </div>
+
         <article
+          v-else
           v-for="p in sortedProducts"
           :key="p.id"
           class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition-shadow hover:shadow-md"
@@ -139,24 +143,17 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           >
             <div class="aspect-4/3 bg-white">
               <img
-                :src="p.imageUrl"
+                :src="p.imageUrl ? `${p.imageUrl}` : '/placeholder.png'"
                 alt=""
-                class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-90"
+                class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                 loading="lazy"
               />
             </div>
 
-            <div
-              v-if="p.isHot"
-              class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md"
-            >
+            <div v-if="p.isHot" class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md">
               BÁN CHẠY!
             </div>
-
-            <div
-              v-else-if="p.isNew"
-              class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md"
-            >
+            <div v-else-if="p.isNew" class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md">
               GIÁ MỚI
             </div>
           </button>
