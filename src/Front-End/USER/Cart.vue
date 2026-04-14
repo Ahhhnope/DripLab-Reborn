@@ -28,13 +28,11 @@
             </div>
             <div class="card-body">
               <h1 class="card-name">{{ item.name }}</h1>
-              
               <div class="card-tags" v-if="item.toppings && item.toppings.length">
                 <span v-for="(tp, i) in item.toppings" :key="i" class="tag tag-topping">
                   🧋 {{ tp }}
                 </span>
               </div>
-
               <div class="card-specs">
                 <span class="card-spec">Đường: <strong>{{ item.sugar }}</strong></span>
                 <span class="card-spec">Đá: <strong>{{ item.ice }}</strong></span>
@@ -76,17 +74,14 @@
               <span>Tạm tính</span>
               <span>{{ formatVND(selectedSubtotal) }}</span>
             </div>
-            
             <div class="summary-row" v-if="couponApplied">
               <span class="text-success">Giảm giá</span>
               <span class="text-success">-{{ formatVND(couponDiscount) }}</span>
             </div>
-
             <div class="summary-row">
               <span>Phí giao hàng</span>
               <span>{{ shippingFee === 0 ? 'Miễn phí' : formatVND(shippingFee) }}</span>
             </div>
-
             <div class="summary-row total">
               <span>Tổng cộng</span>
               <span class="amount">{{ formatVND(grandTotal) }}</span>
@@ -122,20 +117,27 @@
         <div v-if="showOrderModal" class="modal-overlay" @click.self="closeOrderModal">
           <div class="modal-box">
 
-            <!-- Header -->
+            <!-- ── Header gọn, sạch ── -->
             <div class="modal-header">
-              <button v-if="paymentMethod === 'MOMO'" class="modal-back-btn" @click="backToPaymentSelect">←</button>
-              <div v-else style="width:36px"></div>
+              <!-- Nút back (chỉ hiện khi ở màn MoMo) -->
+              <button v-if="paymentMethod === 'MOMO'" class="modal-nav-btn" @click="backToPaymentSelect">
+                ←
+              </button>
+              <div v-else class="modal-nav-placeholder"></div>
+
+              <!-- Tiêu đề -->
               <div class="modal-title">
                 {{ paymentMethod === 'MOMO' ? 'Thanh toán MoMo' : 'Xem lại đơn hàng' }}
               </div>
-              <button class="modal-close-btn" @click="closeOrderModal">✕</button>
+
+              <!-- Nút đóng -->
+              <button class="modal-nav-btn modal-close-btn" @click="closeOrderModal">✕</button>
             </div>
 
-            <!-- Body -->
+            <!-- ── Body ── -->
             <div class="modal-body">
 
-              <!-- ── MÀN HÌNH BÌNH THƯỜNG ── -->
+              <!-- MÀN HÌNH BÌNH THƯỜNG -->
               <template v-if="paymentMethod !== 'MOMO'">
 
                 <div class="modal-section">
@@ -152,25 +154,30 @@
                 <div class="modal-section">
                   <div class="modal-section-label">Mã giảm giá</div>
                   <div class="coupon-wrap">
-                    <input class="coupon-input" type="text" v-model="couponCode" placeholder="Nhập mã giảm giá..." @keyup.enter="applyCoupon" :disabled="couponApplied" />
-                    <button class="btn-apply-coupon" @click="couponApplied ? removeCoupon() : applyCoupon()">{{ couponApplied ? 'Hủy mã' : 'Áp dụng' }}</button>
+                    <input class="coupon-input" type="text" v-model="couponCode"
+                      placeholder="Nhập mã giảm giá..." @keyup.enter="applyCoupon"
+                      :disabled="couponApplied" />
+                    <button class="btn-apply-coupon" @click="couponApplied ? removeCoupon() : applyCoupon()">
+                      {{ couponApplied ? 'Hủy mã' : 'Áp dụng' }}
+                    </button>
                   </div>
-                  <div v-if="couponMessage" class="coupon-feedback" :class="couponApplied ? 'success' : 'error'">{{ couponMessage }}</div>
+                  <div v-if="couponMessage" class="coupon-feedback" :class="couponApplied ? 'success' : 'error'">
+                    {{ couponMessage }}
+                  </div>
                 </div>
 
                 <div class="modal-section">
                   <div class="modal-section-label">Phương thức thanh toán</div>
                   <div class="payment-methods">
-                    <!-- COD: xe máy -->
                     <div class="payment-option" :class="{ active: paymentMethod === 'COD' }" @click="paymentMethod = 'COD'">
                       <span class="payment-icon">🛵</span>
                       <span class="payment-label">COD</span>
                       <span class="payment-sub">Thanh toán khi nhận</span>
                     </div>
-                    <!-- MoMo -->
                     <div class="payment-option payment-option--momo" :class="{ active: paymentMethod === 'MOMO' }" @click="openMomoFlow">
-                      <img src="../IMG/logoMOMO.png" class="momo-option-logo" alt="MoMo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
-                      <span class="momo-option-fallback" style="display:none;font-size:1.8rem">📱</span>
+                      <img src="../IMG/logoMOMO.png" class="momo-option-logo" alt="MoMo"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+                      <span class="momo-option-fallback" style="display:none;font-size:1.6rem">📱</span>
                       <span class="payment-label">MoMo</span>
                       <span class="payment-sub">Ví điện tử MoMo</span>
                     </div>
@@ -179,17 +186,19 @@
 
               </template>
 
-              <!-- ── MÀN HÌNH MOMO (thay thế toàn bộ body) ── -->
+              <!-- MÀN HÌNH MOMO -->
               <template v-else>
 
-                <!-- Header MoMo – giống CounterOrder -->
-                <div class="momo-header">
-                  <img src="../IMG/logoMOMO.png" class="momo-logo" alt="MoMo"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
-                  <div class="momo-logo-fallback" style="display:none;width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#d63f7a,#ae2d68);align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📱</div>
-                  <div>
-                    <p class="momo-brand">Ví MoMo</p>
-                    <p class="momo-amount">{{ formatVND(grandTotal) }}</p>
+                <!-- MoMo brand bar -->
+                <div class="momo-brand-bar">
+                  <div class="momo-brand-logo">
+                    <img src="../IMG/logoMOMO.png" alt="MoMo"
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                    <div class="momo-logo-fallback">📱</div>
+                  </div>
+                  <div class="momo-brand-info">
+                    <span class="momo-brand-name">Ví MoMo</span>
+                    <span class="momo-brand-amount">{{ formatVND(grandTotal) }}</span>
                   </div>
                 </div>
 
@@ -198,14 +207,8 @@
                   <p class="momo-label">Số điện thoại người nhận</p>
                   <div class="momo-input-wrap" :class="{ loading: momoLoading, found: momoName, error: momoError }">
                     <span class="momo-input-prefix">🇻🇳 +84</span>
-                    <input 
-                      :value="momoPhone" 
-                      @input="onMomoPhoneInput" 
-                      type="tel" 
-                      placeholder="Nhập số điện thoại..." 
-                      class="momo-input" 
-                      maxlength="10" 
-                    />
+                    <input :value="momoPhone" @input="onMomoPhoneInput" type="tel"
+                      placeholder="Nhập số điện thoại..." class="momo-input" maxlength="10" />
                     <span v-if="momoLoading" class="momo-status-icon spin">⟳</span>
                     <span v-else-if="momoName" class="momo-status-icon green">✓</span>
                     <span v-else-if="momoError" class="momo-status-icon red">✕</span>
@@ -230,38 +233,48 @@
                     Giao dịch đang được xử lý
                   </div>
                   <div class="momo-confirm-card">
-                    <div class="momo-confirm-row"><span class="momo-confirm-label">Người nhận</span><span class="momo-confirm-val">{{ momoName }}</span></div>
-                    <div class="momo-confirm-row"><span class="momo-confirm-label">Số điện thoại</span><span class="momo-confirm-val">{{ momoPhone }}</span></div>
-                    <div class="momo-confirm-row"><span class="momo-confirm-label">Số tiền</span><span class="momo-confirm-val bold pink">{{ formatVND(grandTotal) }}</span></div>
-                    <div class="momo-confirm-row"><span class="momo-confirm-label">Nội dung</span><span class="momo-confirm-val">Cà Phê Nhà - Thanh toán đơn hàng</span></div>
+                    <div class="momo-confirm-row">
+                      <span class="momo-confirm-label">Người nhận</span>
+                      <span class="momo-confirm-val">{{ momoName }}</span>
+                    </div>
+                    <div class="momo-confirm-row">
+                      <span class="momo-confirm-label">Số điện thoại</span>
+                      <span class="momo-confirm-val">{{ momoPhone }}</span>
+                    </div>
+                    <div class="momo-confirm-row">
+                      <span class="momo-confirm-label">Số tiền</span>
+                      <span class="momo-confirm-val bold pink">{{ formatVND(grandTotal) }}</span>
+                    </div>
+                    <div class="momo-confirm-row">
+                      <span class="momo-confirm-label">Nội dung</span>
+                      <span class="momo-confirm-val">Cà Phê Nhà - Thanh toán đơn hàng</span>
+                    </div>
                   </div>
                 </div>
 
               </template>
             </div><!-- /modal-body -->
 
-            <!-- Footer -->
+            <!-- ── Footer ── -->
             <div class="modal-footer">
               <div class="grand-total-row">
                 <span class="gt-label">Tổng thanh toán</span>
                 <span class="gt-amount">{{ formatVND(grandTotal) }}</span>
               </div>
 
-              <!-- COD -->
               <template v-if="paymentMethod === 'COD'">
                 <button class="btn-place-order" @click="placeOrder" :disabled="isPlacingOrder">
                   {{ isPlacingOrder ? 'Đang xử lý...' : '✓ Xác nhận đặt hàng' }}
                 </button>
               </template>
 
-              <!-- MoMo bước 1 -->
               <template v-else-if="paymentMethod === 'MOMO' && momoStep === 1">
-                <button class="btn-place-order btn-momo" :disabled="!momoName" :class="{ disabled: !momoName }" @click="confirmMomoReceiver">
+                <button class="btn-place-order btn-momo" :disabled="!momoName"
+                  :class="{ disabled: !momoName }" @click="confirmMomoReceiver">
                   Tiếp tục →
                 </button>
               </template>
 
-              <!-- MoMo bước 2 -->
               <template v-else-if="paymentMethod === 'MOMO' && momoStep === 2">
                 <button class="btn-place-order btn-momo" @click="placeOrder" :disabled="isPlacingOrder">
                   {{ isPlacingOrder ? 'Đang xử lý...' : 'Xác nhận thanh toán' }}
@@ -281,9 +294,10 @@
       <transition name="fade">
         <div v-if="showSuccessModal" class="modal-overlay">
           <div class="success-modal">
+            <div class="success-icon">✅</div>
             <div class="success-title">Đặt hàng thành công!</div>
             <div class="success-order-id">Mã đơn: {{ lastOrderId }}</div>
-            <p class="success-msg">Cảm ơn bạn đã tin tưởng Cà Phê Nhà! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể</p>
+            <p class="success-msg">Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể</p>
             <button class="btn-success-ok" @click="closeSuccessModal">Hoàn tất</button>
           </div>
         </div>
@@ -294,4 +308,4 @@
 </template>
 
 <script src="../JS-USER/Cart.js"></script>
-<style src="../CSS-USER/Cart.CSS"></style>
+<style src="../CSS-USER/Cart.CSS" ></style>

@@ -122,5 +122,6 @@ const {
   toast,
 } = useVoucher()
 </script>
-
-<style src="../CSS-USER/Voucher.CSS"></style>
+<style scoped>
+@import "../CSS-USER/Voucher.CSS";
+</style>
