@@ -294,7 +294,7 @@
       <transition name="fade">
         <div v-if="showSuccessModal" class="modal-overlay">
           <div class="success-modal">
-            <div class="success-icon">✅</div>
+           <img src="../IMG/DripLab_Logo.png" class="success-logo-big" />
             <div class="success-title">Đặt hàng thành công!</div>
             <div class="success-order-id">Mã đơn: {{ lastOrderId }}</div>
             <p class="success-msg">Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể</p>

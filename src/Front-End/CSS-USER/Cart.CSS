@@ -1316,10 +1316,12 @@ aside {
   animation: slideUp .3s cubic-bezier(.34, 1.56, .64, 1);
 }
 
-.success-icon {
-  font-size: 3.5rem;
-  margin-bottom: 16px;
-  display: block;
+.success-logo-big {
+   width: 90px;
+  height: 90px;
+  object-fit: contain;
+  margin: 0 auto 16px;  
+  display: block; 
 }
 
 .success-title {
