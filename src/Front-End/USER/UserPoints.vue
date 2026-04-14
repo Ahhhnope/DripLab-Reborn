@@ -11,9 +11,9 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
+           <!--<img :src="user.avatar" alt="Avatar" class="avatar-img" />--> 
           </div>
-          <h2 class="sidebar-name">{{ user.name }}</h2>
+          <!--<h2 class="sidebar-name">{{ user.name }}</h2>-->
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
 
@@ -171,16 +171,29 @@
 
 <script setup>
 import { useUserPoints } from '../JS-USER/UserPoints.JS'
+import { useAuthStore } from "../Authorization/Auth";
+import { useRouter } from "vue-router";
 
 const {
-  user, navItems, currentRoute,
+  navItems, currentRoute,
   myPoints, usedPoints, nextTierPoints,
   currentTier, nextTier, progress,
   vouchers, canRedeem, redeem,
   pointHistory,
   toastVisible, toastMessage, toastType,
-  goTo, logout,
+  goTo,
 } = useUserPoints()
+
+const auth = useAuthStore();
+const router = useRouter();
+
+import { computed } from 'vue'
+const user = computed(() => auth.user || {})
+
+const logout = () => {
+  auth.logout();
+  router.push('/login');
+};
 </script>
 
-<style scoped src="../CSS-USER/UserPoints.CSS"></style>
+<style scoped src="../CSS-USER/UserAccount.CSS"></style>
