@@ -74,57 +74,102 @@
             </div>
           </section>
 
-          <!-- Active Order Items -->
+          <!-- Active Orders -->
           <section class="card">
-            <h3 class="card-title">Các mục đơn hàng đang hoạt động</h3>
-            <div
-              v-for="item in activeOrder"
-              :key="item.id"
-              class="active-order-item"
-            >
-              <div class="active-order-info">
-                <h4>Mã đơn hàng: {{ item.name }}</h4>
-                <div class="active-drink-list">
-                  <div
-                    v-for="(drink, i) in item.receiptData.items"
-                    :key="i"
-                    class="active-drink-row"
-                  >
-                    <div class="active-drink-img">
-                      <img :src="drink.img" :alt="drink.name" />
-                    </div>
-                    <div class="active-drink-info">
-                      <p class="active-drink-name">{{ drink.name }}</p>
-                      <p class="text-xs text-slate-500 italic">+ {{ drink.toppings }}</p>
-                      <p class="active-drink-qty">Số lượng: x{{ drink.qty }}</p>
-                      <div class="item-options">
-                        <span class="option-tag sugar">
-                          <span class="material-symbols-outlined"
-                            >nutrition</span
-                          >
-                          Đường: {{ drink.sugar }}%
-                        </span>
-                        <span class="option-tag ice">
-                          <span class="material-symbols-outlined">ac_unit</span>
-                          Đá: {{ drink.ice }}%
-                        </span>
-                      </div>
-                    </div>
-                    <p class="active-drink-price">{{ drink.price }}</p>
-                  </div>
-                </div>
+            <h3 class="card-title">Đơn hàng đang hoạt động</h3>
 
-                <div class="active-order-bottom">
-                  <p class="active-order-price">Tổng: {{ item.price }}</p>
+            <!-- Không có đơn nào -->
+            <div v-if="activeOrders.length === 0" class="empty-result">
+              <span class="material-symbols-outlined">inventory_2</span>
+              <p>Không có đơn hàng nào đang hoạt động</p>
+            </div>
+
+            <template v-else>
+              <!-- Bộ chọn đơn hàng (chỉ hiện khi có >= 2 đơn) -->
+              <div v-if="activeOrders.length > 1" class="order-selector">
+                <p class="order-selector-label">
+                  <span class="material-symbols-outlined">swap_horiz</span>
+                  Chọn đơn để xem tiến trình ({{ activeOrders.length }} đơn đang
+                  xử lý)
+                </p>
+                <div class="order-selector-tabs">
                   <button
-                    class="view-detail-btn"
-                    @click="openModal(item.receiptData)"
+                    v-for="order in activeOrders"
+                    :key="order.id"
+                    :class="[
+                      'order-tab',
+                      { active: selectedOrderId === order.id },
+                    ]"
+                    @click="selectOrder(order.id)"
                   >
-                    Xem chi tiết
+                    <span class="order-tab-name">{{ order.name }}</span>
+                    <span :class="['order-tab-badge', order.status]">
+                      {{ statusLabel(order.status) }}
+                    </span>
                   </button>
                 </div>
               </div>
-            </div>
+
+              <!-- Chi tiết đơn đang chọn -->
+              <div v-if="selectedOrder" class="active-order-item">
+                <div class="active-order-info">
+                  <div class="active-order-header">
+                    <h4>Mã đơn hàng: {{ selectedOrder.name }}</h4>
+                    <span class="active-order-date">{{
+                      selectedOrder.date
+                    }}</span>
+                  </div>
+
+                  <div class="active-drink-list">
+                    <div
+                      v-for="(drink, i) in selectedOrder.receiptData.items"
+                      :key="i"
+                      class="active-drink-row"
+                    >
+                      <div class="active-drink-img">
+                        <img :src="drink.img" :alt="drink.name" />
+                      </div>
+                      <div class="active-drink-info">
+                        <p class="active-drink-name">{{ drink.name }}</p>
+                        <p v-if="drink.toppings" class="active-drink-topping">
+                          + {{ drink.toppings }}
+                        </p>
+                        <p class="active-drink-qty">
+                          Số lượng: x{{ drink.qty }}
+                        </p>
+                        <div class="item-options">
+                          <span class="option-tag sugar">
+                            <span class="material-symbols-outlined"
+                              >nutrition</span
+                            >
+                            Đường: {{ drink.sugar }}%
+                          </span>
+                          <span class="option-tag ice">
+                            <span class="material-symbols-outlined"
+                              >ac_unit</span
+                            >
+                            Đá: {{ drink.ice }}%
+                          </span>
+                        </div>
+                      </div>
+                      <p class="active-drink-price">{{ drink.price }}</p>
+                    </div>
+                  </div>
+
+                  <div class="active-order-bottom">
+                    <p class="active-order-price">
+                      Tổng: {{ selectedOrder.price }}
+                    </p>
+                    <button
+                      class="view-detail-btn"
+                      @click="openModal(selectedOrder.receiptData)"
+                    >
+                      Xem chi tiết
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
           </section>
         </div>
 
@@ -316,7 +361,10 @@ const {
   orderSteps,
   progressWidth,
   shipping,
-  activeOrder,
+  activeOrders,
+  selectedOrderId,
+  selectedOrder,
+  selectOrder,
   receipts,
   hasMore,
   loadMore,
@@ -335,7 +383,15 @@ const {
   goTo,
 } = useUserOrders();
 
-
+function statusLabel(status) {
+  const map = {
+    pending:    'Chờ xác nhận',
+    processing: 'Đang xử lý',
+    shipping:   'Đang giao',
+    delivered:  'Đã giao',
+  }
+  return map[status] ?? status
+}
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -344,7 +400,7 @@ const user = auth.user;
 
 const logout = () => {
   auth.logout();
-  router.push('/login');
+  router.push("/login");
 };
 </script>
 

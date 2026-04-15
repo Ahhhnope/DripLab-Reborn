@@ -19,7 +19,8 @@ import latte           from '../IMG/coffee_latte.jpg'
 
 export function useUserOrders() {
   const auth = useAuthStore()
-  const activeOrder = ref([]) // Keep as array to match your v-for
+  const activeOrders = ref([])
+  const selectedOrderId = ref(null) 
   const currentStatus = ref('pending')
   const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
 
@@ -96,49 +97,100 @@ export function useUserOrders() {
 
   const allReceipts = ref([])
 
+  const selectedOrder = computed(() =>
+  activeOrders.value.find(o => o.id === selectedOrderId.value) || null
+  )
+
   const fetchActiveOrder = async () => {
-    try {
-      const response = await api.get(`/orders/active/${userId}`);
-      
-      if (response.data && response.data.length > 0) {
-        const order = response.data[0]; 
-        const mappedStatus = mapStatus(order.status);
+  try {
+    const response = await api.get(`/orders/active/${userId}`)
 
-        currentStatus.value = mappedStatus;
-      
-        if (mappedStatus === 'cancelled') {
-          activeOrder.value = [];
-          currentStatus.value = 'cancelled';
-          return;
-        }
-
-        activeOrder.value = [{
+    if (response.data && response.data.length > 0) {
+      activeOrders.value = response.data
+        .filter(order => mapStatus(order.status) !== 'cancelled')
+        .map(order => ({
           id: order.id,
           name: `DL-${order.id}`,
+          status: mapStatus(order.status),
           price: `${order.finalPrice?.toLocaleString()} VNĐ`,
+          date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
           receiptData: {
             id: `#DL-${order.id}`,
             date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
             total: `${order.finalPrice?.toLocaleString()} VNĐ`,
-            
+            subtotal: `${Math.round(order.finalPrice / 1.05).toLocaleString()} VNĐ`,
+            tax: `${Math.round(order.finalPrice - order.finalPrice / 1.05).toLocaleString()} VNĐ`,
             items: order.items?.map(item => ({
               name: item.drink?.name || 'Sản phẩm',
               qty: item.quantity,
-              // Fix the price calculation to include toppings
-              price: `${(item.basePriceAtPurchase + (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)).toLocaleString()} VNĐ`,
-              
-              // Ensure this string is built correctly
+              price: `${(
+                item.basePriceAtPurchase +
+                (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)
+              ).toLocaleString()} VNĐ`,
               toppings: item.orderItemToppings?.map(t => t.topping.name).join(', ') || '',
-              
               img: item.drink?.imageUrl,
-              sugar: 100, // You can replace these with actual data if stored in DB
-              ice: 100
+              sugar: 100,
+              ice: 100,
             })) || []
           }
-        }];
+        }))
+
+      if (!selectedOrderId.value || !activeOrders.value.find(o => o.id === selectedOrderId.value)) {
+        selectedOrderId.value = activeOrders.value[0]?.id || null
+      }
+
+      if (selectedOrder.value) {
+        currentStatus.value = selectedOrder.value.status
+      }
+
+    } else {
+      activeOrders.value = []
+      selectedOrderId.value = null
+      currentStatus.value = 'nothing'
+      fetchOrderHistory()
+    }
+  } catch (error) {
+    console.error('Fetch Error:', error)
+  }
+}
+
+  function selectOrder(orderId) {
+  selectedOrderId.value = orderId
+  const order = activeOrders.value.find(o => o.id === orderId)
+  if (order) currentStatus.value = order.status
+}
+
+  const fetchOrderHistory = async () => {
+    try {
+      const response = await api.get(`/orders/history/${userId}`);
+      
+      if (response.data) {
+        allReceipts.value = response.data.map(order => {
+          const totalNum = order.finalPrice || 0;
+          const subtotalNum = totalNum / 1.05;
+          const taxNum = totalNum - subtotalNum;
+
+          return {
+            id: `#DL-${order.id}`,
+            category: order.paymentMethod || 'Tiền mặt',
+            date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
+            total: `${totalNum.toLocaleString()} VNĐ`,
+            subtotal: `${Math.round(subtotalNum).toLocaleString()} VNĐ`,
+            tax: `${Math.round(taxNum).toLocaleString()} VNĐ`,
+            items: order.items?.map(item => ({
+              name: item.drink?.name || 'Sản phẩm',
+              qty: item.quantity,
+              price: `${(item.basePriceAtPurchase + (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)).toLocaleString()} VNĐ`,
+              img: item.drink?.imageUrl,
+              toppings: item.orderItemToppings?.map(t => t.topping.name).join(', ') || '',
+              sugar: 100, 
+              ice: 100
+            })) || []
+          };
+        });
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error("Fetch history error: ", error);
     }
   };
 
@@ -225,11 +277,13 @@ export function useUserOrders() {
   let intervalId = null;
 
   onMounted(() => {
-    fetchActiveOrder(); // Initial fetch
+    fetchActiveOrder();
+    fetchOrderHistory();
     
     // Set up the 5-second timer
     intervalId = setInterval(() => {
       fetchActiveOrder();
+      fetchOrderHistory();
       console.log('Order status updated'); // Optional for debugging
     }, 5000);
   });
@@ -243,18 +297,21 @@ export function useUserOrders() {
 
 
   return {
-    user, navItems, currentRoute,
-    orderSteps: stepsWithState, progressWidth,
-    currentStatus,
-    shipping, activeOrder,
-    receipts, hasMore, loadMore,
-    searchId, filterCategory, filterFromDate, filterToDate,
-    showFilter, categoryOptions,
-    applyFilter, resetFilter,
-    showModal, selectedReceipt,
-    openModal, closeModal,
-    goTo, logout, activeOrder,
-    currentStatus,
-    fetchActiveOrder
+  user, navItems, currentRoute,
+  orderSteps: stepsWithState, progressWidth,
+  currentStatus,
+  shipping,
+  activeOrders,     
+  selectedOrderId,    
+  selectedOrder,      
+  selectOrder,        
+  receipts, hasMore, loadMore,
+  searchId, filterCategory, filterFromDate, filterToDate,
+  showFilter, categoryOptions,
+  applyFilter, resetFilter,
+  showModal, selectedReceipt,
+  openModal, closeModal,
+  goTo, logout,
+  fetchActiveOrder
   }
 }

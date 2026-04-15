@@ -1,5 +1,8 @@
 <script setup>
 import { useHeader } from '../JS-USER/InterfaceHeader.js'
+import { useAuthStore } from '../Authorization/Auth.js'
+
+const auth = useAuthStore()
 
 const {
   goToLogin,
@@ -103,13 +106,13 @@ const {
                 <div class="ud-avatar">
                   <img src="../IMG/LmaoUSSER.jpg" alt="Avatar" />
                 </div>
-                <p class="ud-name">DRIP LAB</p>
-                <p class="ud-email">contact@driplab.com</p>
+                <p class="ud-name">{{ auth.user ? auth.user.fullName : 'Chưa đăng nhập' }}</p>
+                <p class="ud-email">{{ auth.user ? auth.user.email : 'Chưa đăng nhập' }}</p>
               </div>
 
               <div class="ud-divider"></div>
 
-              <div class="ud-actions">
+              <div class="ud-actions" v-if="!auth.user">
                 <button
                   class="ud-btn ud-login"
                   :class="{ 'option-active': activeUserAction === 'login' }"
