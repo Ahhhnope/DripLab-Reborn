@@ -128,16 +128,30 @@ export default {
     async increaseQty(item) {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
       if (storeItem) {
-        storeItem.quantity++
-        await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
+        const newQty = storeItem.quantity + 1
+        try {
+          await api.put(`/carts/items/${item.id}/quantity`, { 
+            quantity: newQty 
+          })
+          storeItem.quantity = newQty
+        } catch (e) {
+          console.error("Quantity update failed:", e)
+        }
       }
     },
 
     async decreaseQty(item) {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
-      if (storeItem && storeItem.quantity > 1) {
-        storeItem.quantity--
-        await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
+      if (storeItem) {
+        const newQty = storeItem.quantity - 1
+        try {
+          await api.put(`/carts/items/${item.id}/quantity`, { 
+            quantity: newQty 
+          })
+          storeItem.quantity = newQty
+        } catch (e) {
+          console.error("Quantity update failed:", e)
+        }
       }
     },
 
