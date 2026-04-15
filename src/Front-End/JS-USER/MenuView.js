@@ -128,7 +128,7 @@ export function useMenuView() {
     sortedProducts,
     formatVnd,
     // Change this line:
-    addProduct: quickAddToCart, 
+    addProduct: goToProduct, 
     openFromImage: goToProduct, 
     loading
   }

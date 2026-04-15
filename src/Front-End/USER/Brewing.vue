@@ -535,17 +535,7 @@ onBeforeUnmount(() => {
             <span class="cart-pop__icon-inner">🎉</span>
           </div>
 
-          <h3 class="cart-pop__title">Đặt hàng thành công!</h3>
-
-          <div class="cart-pop__order">
-            Mã đơn: <b>{{ orderCode }}</b>
-          </div>
-
-          <p class="cart-pop__desc">
-            Đã thêm vào giỏ hàng với tổng tiền <b>{{ formatVnd(price) }}</b>.
-            Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.
-          </p>
-
+          <h3 class="cart-pop__title">Pha chế xong — đã cho vào giỏ!</h3>
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>
       </div>
