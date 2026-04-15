@@ -1477,3 +1477,104 @@
 @media (max-width: 480px) {
   .point-summary { grid-template-columns: 1fr; }
 }
+
+/* ── Order Selector ── */
+.order-selector {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: #faf9f9;
+  border-radius: 10px;
+  border: 1px solid #f0ebe6;
+}
+
+.order-selector-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.order-selector-label .material-symbols-outlined {
+  font-size: 16px;
+  color: #bd490f;
+}
+
+.order-selector-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+}
+
+.order-tab:hover {
+  border-color: #bd490f;
+  background: #fdf0eb;
+}
+
+.order-tab.active {
+  border-color: #bd490f;
+  background: #fdf0eb;
+  box-shadow: 0 2px 8px rgba(189, 73, 15, 0.12);
+}
+
+.order-tab-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #181311;
+}
+
+.order-tab-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.order-tab-badge.pending    { background: #fef3c7; color: #d97706; }
+.order-tab-badge.processing { background: #dbeafe; color: #1d4ed8; }
+.order-tab-badge.shipping   { background: #ede9fe; color: #6d28d9; }
+.order-tab-badge.delivered  { background: #dcfce7; color: #15803d; }
+
+.active-order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.active-order-header h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #181311;
+}
+
+.active-order-date {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.active-drink-topping {
+  font-size: 11.5px;
+  color: #9ca3af;
+  font-style: italic;
+  margin-bottom: 2px;
+}
