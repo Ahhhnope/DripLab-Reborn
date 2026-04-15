@@ -60,8 +60,8 @@
 </template>
 
 <script setup>
-import { useAboutUS } from '../JS-USER/AboutUS.js'
+import { useAboutUS } from '../JS-USER/AboutUS.JS'
 const { heroImg, heritageImg, visionImg, goalImg } = useAboutUS()
 </script>
 
-<style src="../CSS-USER/AboutUS.css"></style>
+<style src="../CSS-USER/AboutUS.CSS"></style>

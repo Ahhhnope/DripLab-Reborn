@@ -12,7 +12,6 @@ import UserAccount from '../Front-End/USER/UserAccount.vue'
 import UserChangePassword from '../Front-End/USER/UserChangePassword.vue'
 import UserAddress from '../Front-End/USER/UserAddress.vue'
 import UserOrders from '../Front-End/USER/UserOrders.vue'
-import UserOrdersV2 from '../Front-End/USER/UserOrdersV2.vue'
 import UserStores from '../Front-End/USER/UserStores.vue'
 import MenuView from '../Front-End/USER/MenuView.vue'
 import ProductDetailView from '../Front-End/USER/ProductDetailView.vue'
@@ -38,7 +37,6 @@ const routes = [
             { path: '/account/password', component: UserChangePassword, meta: {requiresAuth: true} },
             { path: '/account/address', component: UserAddress, meta: {requiresAuth: true} },
             { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
-            { path: '/account/ordersV2', component: UserOrdersV2, meta: {requiresAuth: true} },
             { path: '/account/points', component: UserPoints, meta: {requiresAuth: true} },
             { path: '/brewing', component: Brewing },
             { path: '/menu', component: MenuView },
