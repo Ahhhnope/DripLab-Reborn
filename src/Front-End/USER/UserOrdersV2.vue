@@ -95,6 +95,7 @@
                     </div>
                     <div class="active-drink-info">
                       <p class="active-drink-name">{{ drink.name }}</p>
+                      <p class="text-xs text-slate-500 italic">+ {{ drink.toppings }}</p>
                       <p class="active-drink-qty">Số lượng: x{{ drink.qty }}</p>
                       <div class="item-options">
                         <span class="option-tag sugar">
@@ -243,27 +244,61 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="showModal && selectedReceipt" class="modal-overlay" @click.self="closeModal">
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-box">
         <div class="modal-header">
-          <h2 class="modal-title">Chi tiết đơn hàng {{ selectedReceipt.id }}</h2>
-          <button @click="closeModal">Close</button>
+          <div>
+            <h2 class="modal-title">Chi tiết đơn hàng</h2>
+            <p class="modal-id">{{ selectedReceipt.id }}</p>
+            <p class="modal-date">{{ selectedReceipt.date }}</p>
+          </div>
+          <button class="modal-close-btn" @click="closeModal">
+            <span class="material-symbols-outlined">close</span>
+          </button>
         </div>
+
         <div class="modal-products">
-          <div v-for="item in selectedReceipt.items" :key="item.name" class="modal-product-item">
-            <img :src="item.img" style="width:50px" />
+          <div
+            v-for="item in selectedReceipt.items"
+            :key="item.name"
+            class="modal-product-item"
+          >
+            <div class="modal-product-img">
+              <img :src="item.img" :alt="item.name" />
+            </div>
             <div class="modal-product-info">
               <h4>{{ item.name }}</h4>
               <p>Số lượng: x{{ item.qty }}</p>
+              <div class="item-options">
+                <span class="option-tag sugar">
+                  <span class="material-symbols-outlined">nutrition</span>
+                  Đường: {{ item.sugar }}%
+                </span>
+                <span class="option-tag ice">
+                  <span class="material-symbols-outlined">ac_unit</span>
+                  Đá: {{ item.ice }}%
+                </span>
+              </div>
             </div>
-            <p>{{ item.price }}</p>
+
+            <p class="modal-product-price">{{ item.price }}</p>
           </div>
         </div>
+
         <div class="modal-summary">
+          <div class="summary-row">
+            <span>Tạm tính</span>
+            <span>{{ selectedReceipt.subtotal }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Thuế (5%)</span>
+            <span>{{ selectedReceipt.tax }}</span>
+          </div>
           <div class="summary-row total-row">
             <span>Tổng cộng</span>
             <span class="total-price">{{ selectedReceipt.total }}</span>
           </div>
+          <button class="modal-close-main-btn" @click="closeModal">Đóng</button>
         </div>
       </div>
     </div>
@@ -271,7 +306,7 @@
 </template>
 
 <script setup>
-import { useUserOrders } from "../JS-USER/UserOrders.JS";
+import { useUserOrders } from "../JS-USER/UserOrdersV2.JS";
 import { useAuthStore } from "../Authorization/Auth";
 import { useRouter } from "vue-router";
 

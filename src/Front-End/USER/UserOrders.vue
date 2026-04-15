@@ -95,6 +95,7 @@
                     </div>
                     <div class="active-drink-info">
                       <p class="active-drink-name">{{ drink.name }}</p>
+                      <p class="text-xs text-slate-500 italic">+ {{ drink.toppings }}</p>
                       <p class="active-drink-qty">Số lượng: x{{ drink.qty }}</p>
                       <div class="item-options">
                         <span class="option-tag sugar">

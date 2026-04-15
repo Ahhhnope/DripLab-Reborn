@@ -38,7 +38,6 @@ const routes = [
             { path: '/account/password', component: UserChangePassword, meta: {requiresAuth: true} },
             { path: '/account/address', component: UserAddress, meta: {requiresAuth: true} },
             { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
-            { path: '/account/ordersV2', component: UserOrdersV2, meta: {requiresAuth: true} },
             { path: '/account/points', component: UserPoints, meta: {requiresAuth: true} },
             { path: '/brewing', component: Brewing },
             { path: '/menu', component: MenuView },
