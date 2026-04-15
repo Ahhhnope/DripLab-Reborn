@@ -98,9 +98,14 @@ async function handleEditSaved(updated) {
   }
 }
 
-function handleDeleteConfirmed(row) {
-  api.delete(`/orders/remove/${row.id}`).catch(console.error);
-  allItems.value = allItems.value.filter(o => o.id !== row.id);
+async function handleDeleteConfirmed(row) {
+  try {
+    await api.delete(`/orders/remove/${row.id}`);
+    allItems.value = allItems.value.filter(o => o.id !== row.id);
+  } catch (e) {
+    console.error("Delete failed:", e);
+    alert("Lỗi: Không thể xóa đơn hàng này (Đã tồn tại hóa đơn).");
+  }
 }
 
 async function createInvoiceFromOrder(order) {

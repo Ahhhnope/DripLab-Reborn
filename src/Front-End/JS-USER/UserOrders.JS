@@ -137,8 +137,51 @@ export function useUserOrders() {
           }
         }];
       }
+
+      else {
+        activeOrder.value = [];
+        currentStatus.value = 'nothing' //idk ;-;
+        fetchOrderHistory();
+      }
     } catch (error) {
       console.error("Fetch Error:", error);
+    }
+  };
+
+  const fetchOrderHistory = async () => {
+    try {
+      const response = await api.get(`/orders/history/${userId}`);
+      
+      if (response.data) {
+        // Map the backend data to match the "receipt" structure used in your table
+        allReceipts.value = response.data.map(order => {
+          // Calculate subtotal and tax (assuming 5% as per your modal)
+          const totalNum = order.finalPrice || 0;
+          const subtotalNum = totalNum / 1.05;
+          const taxNum = totalNum - subtotalNum;
+
+          return {
+            id: `#DL-${order.id}`,
+            category: order.paymentMethod || 'Tiền mặt',
+            date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
+            total: `${totalNum.toLocaleString()} VNĐ`,
+            subtotal: `${Math.round(subtotalNum).toLocaleString()} VNĐ`,
+            tax: `${Math.round(taxNum).toLocaleString()} VNĐ`,
+            // Map items for the Modal view
+            items: order.items?.map(item => ({
+              name: item.drink?.name || 'Sản phẩm',
+              qty: item.quantity,
+              price: `${(item.basePriceAtPurchase + (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)).toLocaleString()} VNĐ`,
+              img: item.drink?.imageUrl,
+              toppings: item.orderItemToppings?.map(t => t.topping.name).join(', ') || '',
+              sugar: 100, 
+              ice: 100
+            })) || []
+          };
+        });
+      }
+    } catch (error) {
+      console.error("Fetch history error: ", error);
     }
   };
 
@@ -225,11 +268,13 @@ export function useUserOrders() {
   let intervalId = null;
 
   onMounted(() => {
-    fetchActiveOrder(); // Initial fetch
+    fetchActiveOrder();
+    fetchOrderHistory();
     
     // Set up the 5-second timer
     intervalId = setInterval(() => {
       fetchActiveOrder();
+      fetchOrderHistory();
       console.log('Order status updated'); // Optional for debugging
     }, 5000);
   });
