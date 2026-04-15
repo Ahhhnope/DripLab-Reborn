@@ -1,104 +1,120 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { sharedUser, saveUserProfile } from './Useruser.JS'
+import { useAuthStore } from '../Authorization/Auth'
+import api from '../../api/axios'
 
 export function useUserAccount() {
   const router = useRouter()
+  const authStore = useAuthStore()
 
   const activeTab = ref('account')
 
   const navItems = [
-    { id: 'account',  label: 'Tài Khoản',          icon: 'person',      route: '/account'},
-    { id: 'password', label: 'Thay đổi mật khẩu',  icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa Chỉ',            icon: 'location_on', route: '/account/address' },
-    { id: 'orders',   label: 'Đơn hàng của tôi',   icon: 'package',     route: '/account/orders' },
-    { id: 'points',   label: 'Điểm của tôi',       icon: 'loyalty',     route: '/account/points' }
+    { id: 'account',  label: 'Tài Khoản',         icon: 'person',      route: '/account' },
+    { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
+    { id: 'address',  label: 'Địa Chỉ',           icon: 'location_on', route: '/account/address' },
+    { id: 'orders',   label: 'Đơn hàng của tôi',  icon: 'package',     route: '/account/orders' },
+    { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' },
   ]
 
- 
-  const user = sharedUser
-
-  const savedProfile = JSON.parse(localStorage.getItem('userProfile') || 'null')
-
- const form = ref({
-  name:  savedProfile?.name  || 'Tuân Nguyễn Đình',
-  email: savedProfile?.email || 'tuan.nguyen@driplab.com',
-  phone: savedProfile?.phone || '+84 123 456 789'
- })
+  // Form dữ liệu
+  const form = ref({
+    fullName: '',
+    email: '',
+    phone: '',
+  })
 
   const passwordForm = ref({
     current: '',
     newPass: '',
-    confirm: ''
+    confirm: '',
   })
 
-  const addresses = ref([
-    { label: 'Home',   text: '123 Nguyễn Huệ, Quận 1, TP.HCM' },
-    { label: 'Office', text: '456 Lê Lợi, Quận 3, TP.HCM' }
-  ])
+  const addresses = ref([])
+  const orders = ref([])
 
-  const orders = ref([
-    { id: 'DL00123', date: '20/03/2026', status: 'Delivered', total: 85000 },
-    { id: 'DL00118', date: '15/03/2026', status: 'Delivered', total: 120000 },
-    { id: 'DL00134', date: '25/03/2026', status: 'Pending',   total: 65000 }
-  ])
-
-  
   const fileInput = ref(null)
+  const pendingAvatar = ref(null)
+  const isSaving = ref(false)
 
-  
-  function triggerFileInput() {
-    fileInput.value.click()
+  // ====================== ĐỒNG BỘ DỮ LIỆU ======================
+  const syncFormFromStore = () => {
+    const u = authStore.user
+    if (u) {
+      form.value.fullName = u.fullName || u.name || ''
+      form.value.email    = u.email || ''
+      form.value.phone    = u.phone || ''
+      
+      // Cập nhật địa chỉ mặc định
+      addresses.value = [
+        { 
+          label: 'Địa chỉ mặc định', 
+          text: u.defaultAddress || u.address || '' 
+        }
+      ]
+    }
   }
 
-  
-  
+  // Theo dõi và đồng bộ ngay lập tức
+  watch(() => authStore.user, syncFormFromStore, { 
+    immediate: true,
+    deep: true 
+  })
+
+  // ====================== CÁC HÀM ======================
+
+  function triggerFileInput() {
+    fileInput.value?.click()
+  }
+
   function onAvatarChange(event) {
     const file = event.target.files[0]
     if (!file) return
-
     if (file.size > 2 * 1024 * 1024) {
       alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
       return
     }
-
     const reader = new FileReader()
     reader.onload = (e) => {
-      
-      user.value.avatar = e.target.result
       pendingAvatar.value = e.target.result
     }
     reader.readAsDataURL(file)
   }
 
+  // Lưu thông tin hồ sơ
+  const saveProfile = async () => {
+    if (isSaving.value) return
+    isSaving.value = true
 
-  const pendingAvatar = ref(null)
+    try {
+      const payload = {
+        fullName: form.value.fullName.trim(),
+        email:    form.value.email.trim(),
+        phone:    form.value.phone.trim(),
+      }
 
+      const res = await api.put('/users/me', payload)
 
-  function saveProfile() {
-      saveUserProfile({
-        name:   form.value.name,
-        email:  form.value.email,
-        phone:  form.value.phone,
-        avatar: pendingAvatar.value || user.value.avatar
-      })
-      pendingAvatar.value = null
-      alert('Lưu thành công!')
+      // Cập nhật lại authStore
+      authStore.setUser({
+        ...authStore.user,
+        fullName: res.data.fullName || payload.fullName,
+        email:    res.data.email || payload.email,
+        phone:    res.data.phone || payload.phone,
+      }, authStore.token)
 
-    // Lưu vào localStorage để giữ sau reload
-    localStorage.setItem('userProfile', JSON.stringify({
-      name:   user.value.name,
-      email:  form.value.email,
-      phone:  form.value.phone,
-      avatar: user.value.avatar
-    }))
-
-    alert('Lưu thành công!')
-
-    // Khi có backend: await axios.put('/api/user/profile', { ...form.value, avatar: user.value.avatar })
+      alert('✅ Lưu thông tin thành công!')
+    } catch (err) {
+      console.error('Lỗi lưu profile:', err)
+      const msg = err.response?.data?.message || 'Lưu thất bại! Vui lòng thử lại.'
+      alert(msg)
+    } finally {
+      isSaving.value = false
+    }
   }
 
-  function savePassword() {
+  // Đổi mật khẩu
+  async function savePassword() {
     if (!passwordForm.value.current || !passwordForm.value.newPass) {
       alert('Vui lòng điền đầy đủ thông tin!')
       return
@@ -107,28 +123,53 @@ export function useUserAccount() {
       alert('Mật khẩu mới không khớp!')
       return
     }
-    alert('Đổi mật khẩu thành công!')
-    passwordForm.value = { current: '', newPass: '', confirm: '' }
-    // Khi có backend: await axios.put('/api/user/password', passwordForm.value)
+
+    try {
+      await api.put('/users/me/password', {   // ← Nếu backend chưa có endpoint này thì sẽ lỗi
+        currentPassword: passwordForm.value.current,
+        newPassword: passwordForm.value.newPass,
+      })
+      alert('✅ Đổi mật khẩu thành công!')
+      passwordForm.value = { current: '', newPass: '', confirm: '' }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Đổi mật khẩu thất bại!'
+      alert(msg)
+    }
   }
 
-  function setTab(id) { activeTab.value = id }
+  function setTab(id) {
+    activeTab.value = id
+  }
 
   function logout() {
+    authStore.logout()
     router.push('/login')
   }
 
- function goTo(route) {
-  router.push(route)
- }
+  function goTo(route) {
+    router.push(route)
+  }
 
+  // ====================== RETURN ======================
   return {
-  user, form, passwordForm,
-    addresses, orders,
-    navItems, activeTab,
-    fileInput, pendingAvatar,
-    triggerFileInput, onAvatarChange,
-    setTab, saveProfile, savePassword,
-    goTo, logout
+    // Dùng trong template
+    form,
+    passwordForm,
+    addresses,
+    orders,
+    navItems,
+    activeTab,
+    fileInput,
+    pendingAvatar,
+    isSaving,
+
+    // Functions
+    triggerFileInput,
+    onAvatarChange,
+    saveProfile,
+    savePassword,
+    setTab,
+    goTo,
+    logout,
   }
 }

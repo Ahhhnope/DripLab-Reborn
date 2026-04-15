@@ -202,12 +202,7 @@
 
 /* ─── GLASS SHIMMER ─────────────────────────────────────────── */
 .glass-shimmer {
-  animation: shimmer 4s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 0.70; }
-  50%       { opacity: 0.95; }
+  animation: none;
 }
 
 /* ─── STRAW (ỐNG HÚT) ───────────────────────────────────────── */
@@ -727,3 +722,21 @@
 .cart-pop-leave-active .cart-pop__card{ transition: transform .18s ease; }
 .cart-pop-enter-from .cart-pop__card{ transform: translateY(10px) scale(.985); }
 .cart-pop-leave-to .cart-pop__card{ transform: translateY(10px) scale(.985); }
+
+/* ─── TOPPING FX ─────────────────────────────────────────────── */
+.topping-fx {
+  pointer-events: none;
+}
+
+
+.fx-dust circle {
+  opacity: 0;
+  animation: dustSprinkle 900ms ease-out both;
+  animation-delay: var(--delay-anim, 0s);
+}
+
+@keyframes dustSprinkle {
+  0%   { transform: translateY(-6px); opacity: 0; }
+  30%  { opacity: 0.85; }
+  100% { transform: translateY(8px);  opacity: 0.35; }
+}

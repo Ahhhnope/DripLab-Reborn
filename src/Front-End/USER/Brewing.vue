@@ -15,6 +15,8 @@ const {
   notice,
 } = useBrewing()
 
+
+
 // ─────────────────────────────────────────────────────────────
 // Popup thông báo “đã thêm vào giỏ” (giống mẫu ảnh)
 // ─────────────────────────────────────────────────────────────
@@ -198,6 +200,28 @@ onBeforeUnmount(() => {
                           fill="#fff"
                         />
                       </g>
+
+                    <!-- TOPPING FX (không loạn khi chọn nhiều) -->
+                    <g
+                      v-if="cupLayers.toppingsFx"
+                      class="topping-fx"
+                      :key="'fx-' + cupLayers.toppingsFx.fxKey"
+                    >                      <!-- Bột (cacao/quế/vanilla): chỉ 1 hiệu ứng rắc, chọn màu theo ưu tiên -->
+ chỉ 1 hiệu ứng rắc, chọn màu theo ưu tiên -->
+                      <g v-if="cupLayers.toppingsFx.dustEnabled" class="fx-dust">
+                        <circle
+                          v-for="i in 18"
+                          :key="'d' + i"
+                          :cx="40 + (i * 9) % 120"
+                          :cy="(272 - (cupLayers.bean.height + cupLayers.milk.height + cupLayers.foam.height) * 2.44) - 18 - (i % 6) * 4"
+                          :r="0.9 + (i % 3) * 0.6"
+                          :fill="cupLayers.toppingsFx.dustColor"
+                          :style="{ '--delay-anim': (i * 0.03) + 's' }"
+                        />
+                      </g>
+                    </g>
+
+
                     </g>
  
                     <!-- Drizzle caramel -->

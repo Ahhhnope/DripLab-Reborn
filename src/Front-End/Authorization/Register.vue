@@ -1,5 +1,5 @@
 <script setup>
-import { useRegister } from '../Authorization/Register.JS'
+import { useRegister } from '../Authorization/Register.js'
 
 const {
   name,

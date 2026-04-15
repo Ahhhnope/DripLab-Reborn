@@ -1,5 +1,5 @@
 // ============================================================
-//  Cart.js – DripLab POS Logic (nah.....)
+//  Cart.js – DripLab POS Logic
 // ============================================================
 import { useCartStore } from '../../stores/cart.js'
 import { useAuthStore } from '../Authorization/Auth.js'
@@ -53,14 +53,12 @@ export default {
   },
 
   computed: {
-    // Maps the SQL Server data structure to your UI cards
     cartItems() {
       return this.cartStore.items.map((item) => ({
-        id: item.id, // cart_item_id
+        id: item.id,
         productId: item.drinkId,
         name: item.drink?.name || 'Drink',
         image: item.drink?.imageUrl || '/placeholder.png',
-        // Calculates total price per item including size/toppings
         basePrice:
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
@@ -100,9 +98,13 @@ export default {
     const userId = this.authStore.user?.id
     if (userId) {
       await this.cartStore.fetchUserCart(userId)
-      // Auto-select everything on load
       this.selectedIds = this.cartItems.map((i) => i.id)
     }
+  },
+
+  // Đảm bảo unlock scroll nếu component bị destroy khi modal đang mở
+  unmounted() {
+    document.body.style.overflow = ''
   },
 
   methods: {
@@ -118,7 +120,7 @@ export default {
       const idx = this.selectedIds.indexOf(id)
       idx === -1 ? this.selectedIds.push(id) : this.selectedIds.splice(idx, 1)
     },
-    
+
     toggleSelectAll(e) {
       this.selectedIds = e.target.checked ? this.cartItems.map((i) => i.id) : []
     },
@@ -127,7 +129,6 @@ export default {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
       if (storeItem) {
         storeItem.quantity++
-        // Sync with Backend
         await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
       }
     },
@@ -136,7 +137,6 @@ export default {
       const storeItem = this.cartStore.items.find((i) => i.id === item.id)
       if (storeItem && storeItem.quantity > 1) {
         storeItem.quantity--
-        // Sync with Backend
         await api.put(`/carts/items/${item.id}/quantity`, { quantity: storeItem.quantity })
       }
     },
@@ -153,7 +153,7 @@ export default {
         this.selectedIds = this.selectedIds.filter((s) => s !== id)
         this.deleteTarget = null
       } catch (e) {
-        alert("Lỗi khi xóa sản phẩm")
+        alert('Lỗi khi xóa sản phẩm')
       }
     },
 
@@ -162,12 +162,16 @@ export default {
       this.paymentMethod = 'COD'
       this.resetMomo()
       this.showOrderModal = true
+      // Khóa scroll body bên ngoài khi modal mở
+      document.body.style.overflow = 'hidden'
     },
 
     closeOrderModal() {
       this.showOrderModal = false
       this.paymentMethod = 'COD'
       this.resetMomo()
+      // Mở lại scroll body
+      document.body.style.overflow = ''
     },
 
     applyCoupon() {
@@ -240,35 +244,37 @@ export default {
     },
 
     async placeOrder() {
-      this.isPlacingOrder = true;
+      this.isPlacingOrder = true
       try {
-        // If it's MoMo, we use a different note so the backend treats it like POS/Immediate
-        const orderNote = this.paymentMethod === 'MOMO' ? "POS MoMo" : "Online Order";
-        
+        const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
         const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
-          note: this.couponApplied ? `${orderNote} - Coupon: ${this.couponCode}` : orderNote,
-          paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo'
-        });
+          note: this.couponApplied
+            ? `${orderNote} - Coupon: ${this.couponCode}`
+            : orderNote,
+          paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo',
+        })
 
-        this.lastOrderId = response.data.orderNumber; 
-        this.showOrderModal = false;
-        this.showSuccessModal = true;
+        this.lastOrderId = response.data.orderNumber
+        this.showOrderModal = false
+        this.showSuccessModal = true
+        // Giữ overflow:hidden vì success modal vẫn đang mở
 
-        this.cartStore.items = []; 
-        this.selectedIds = [];
-        
+        this.cartStore.items = []
+        this.selectedIds = []
       } catch (error) {
-        console.error("Lỗi checkout:", error);
-        const msg = error.response?.data?.message || "Không thể đặt hàng. Vui lòng thử lại!";
-        alert(msg);
+        console.error('Lỗi checkout:', error)
+        const msg = error.response?.data?.message || 'Không thể đặt hàng. Vui lòng thử lại!'
+        alert(msg)
       } finally {
-        this.isPlacingOrder = false;
+        this.isPlacingOrder = false
       }
     },
 
     closeSuccessModal() {
       this.showSuccessModal = false
-      this.$router.push('/menu') // Go back to shop after success
-    }
-  }
+      // Mở lại scroll body
+      document.body.style.overflow = ''
+      this.$router.push('/menu')
+    },
+  },
 }

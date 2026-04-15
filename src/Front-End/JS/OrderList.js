@@ -1,4 +1,4 @@
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import api from "../../api/axios";
 
 export function useOrderList() {
@@ -81,6 +81,26 @@ export function useOrderList() {
     filter.value = payload;
   }
 
-  onMounted(loadOrders);
+  let intervalId = null;
+
+  onMounted(() => {
+    // 1. Initial load
+    loadOrders();
+
+    // 2. Set the interval (Cleaned up the double setInterval)
+    intervalId = setInterval(() => {
+      loadOrders();
+      console.log('Order list updated');
+    }, 5000);
+  });
+
+  onUnmounted(() => {
+    // 3. Clear the interval when leaving the page to prevent memory leaks
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+  });
+
+
   return { activeTab, filter, allItems, items, applyFilter, loadOrders, mapStatus };
 }
