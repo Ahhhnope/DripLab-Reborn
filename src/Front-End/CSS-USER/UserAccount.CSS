@@ -1478,103 +1478,405 @@
   .point-summary { grid-template-columns: 1fr; }
 }
 
-/* ── Order Selector ── */
-.order-selector {
-  margin-bottom: 16px;
-  padding: 12px 14px;
-  background: #faf9f9;
-  border-radius: 10px;
-  border: 1px solid #f0ebe6;
+/* ══════════════════════════════════════
+   ORDERS PAGE — bảng gộp
+══════════════════════════════════════ */
+.orders-card {
+  padding: 0;
+  overflow: hidden;
 }
 
-.order-selector-label {
+.orders-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.orders-table-wrapper {
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table thead tr {
+  background: #faf9f9;
+}
+
+.orders-table th {
+  padding: 11px 16px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #9ca3af;
-  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-align: left;
+  border-bottom: 1px solid #f1f1f1;
+  white-space: nowrap;
 }
 
-.order-selector-label .material-symbols-outlined {
-  font-size: 16px;
-  color: #bd490f;
+.orders-table th.text-center,
+.orders-table td.text-center { text-align: center; }
+
+.orders-table th.text-right,
+.orders-table td.text-right  { text-align: right; }
+
+.order-row td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #f8fafc;
+  vertical-align: middle;
+  font-size: 13px;
+  color: #374151;
 }
 
-.order-selector-tabs {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.order-row:last-child td { border-bottom: none; }
+.order-row:hover td { background: #fdfaf9; }
 
-.order-tab {
+/* Mã đơn hàng */
+.order-code-cell {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  transition: all 0.18s;
-  text-align: left;
+  gap: 8px;
 }
 
-.order-tab:hover {
-  border-color: #bd490f;
-  background: #fdf0eb;
+.order-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.order-tab.active {
-  border-color: #bd490f;
-  background: #fdf0eb;
-  box-shadow: 0 2px 8px rgba(189, 73, 15, 0.12);
-}
+.order-status-dot.pending    { background: #f59e0b; }
+.order-status-dot.processing { background: #3b82f6; }
+.order-status-dot.shipping   { background: #8b5cf6; }
+.order-status-dot.delivered  { background: #10b981; }
+.order-status-dot.cancelled  { background: #ef4444; }
 
-.order-tab-name {
+.order-code {
   font-size: 13px;
   font-weight: 700;
   color: #181311;
 }
 
-.order-tab-badge {
+.order-payment {
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.order-qty {
+  font-weight: 600;
+  color: #181311;
+}
+
+.order-total {
+  font-weight: 700;
+  color: #181311;
+}
+
+.order-date {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* Status badge trong bảng */
+.status-badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.status-badge.pending    { background: #fef3c7; color: #d97706; }
+.status-badge.processing { background: #dbeafe; color: #1d4ed8; }
+.status-badge.shipping   { background: #ede9fe; color: #6d28d9; }
+.status-badge.delivered  { background: #dcfce7; color: #15803d; }
+.status-badge.cancelled  { background: #fee2e2; color: #dc2626; }
+
+/* Nút hành động */
+.action-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #bd490f;
+  background: rgba(189, 73, 15, 0.06);
+  border: 1px solid rgba(189, 73, 15, 0.15);
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.btn-view:hover {
+  background: #bd490f;
+  color: #fff;
+  border-color: #bd490f;
+}
+
+.btn-view .material-symbols-outlined { font-size: 14px; }
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.btn-cancel:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+
+.btn-cancel .material-symbols-outlined { font-size: 14px; }
+
+/* Footer bảng */
+.orders-footer {
+  padding: 14px;
+  background: #faf9f9;
+  text-align: center;
+  border-top: 1px solid #f1f1f1;
+}
+
+.no-more-text {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* ── Progress tab chọn đơn ── */
+.progress-order-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.progress-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.progress-tab-btn:hover {
+  border-color: #bd490f;
+  color: #bd490f;
+  background: #fdf0eb;
+}
+
+.progress-tab-btn.active {
+  border-color: #bd490f;
+  background: #fdf0eb;
+  color: #bd490f;
+  box-shadow: 0 2px 8px rgba(189, 73, 15, 0.12);
+}
+
+/* ── Modal cải tiến ── */
+.modal-shipping {
+  padding: 12px 26px;
+  background: rgba(60, 47, 47, 0.02);
+  border-bottom: 1px solid rgba(60, 47, 47, 0.06);
+}
+
+.modal-shipping-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(60, 47, 47, 0.45);
+  margin-bottom: 4px;
+}
+
+.modal-shipping-addr {
+  font-size: 13px;
+  color: #3c2f2f;
+  line-height: 1.5;
+}
+
+.modal-topping {
+  font-size: 11px;
+  color: rgba(60, 47, 47, 0.5);
+  font-style: italic;
+  margin-bottom: 2px;
+}
+
+.modal-status-badge {
+  display: inline-block;
   font-size: 10px;
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 99px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin-top: 6px;
 }
 
-.order-tab-badge.pending    { background: #fef3c7; color: #d97706; }
-.order-tab-badge.processing { background: #dbeafe; color: #1d4ed8; }
-.order-tab-badge.shipping   { background: #ede9fe; color: #6d28d9; }
-.order-tab-badge.delivered  { background: #dcfce7; color: #15803d; }
+.modal-status-badge.pending    { background: #fef3c7; color: #d97706; }
+.modal-status-badge.processing { background: #dbeafe; color: #1d4ed8; }
+.modal-status-badge.shipping   { background: #ede9fe; color: #6d28d9; }
+.modal-status-badge.delivered  { background: #dcfce7; color: #15803d; }
+.modal-status-badge.cancelled  { background: #fee2e2; color: #dc2626; }
 
-.active-order-header {
+.modal-footer-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.modal-cancel-btn {
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.active-order-header h4 {
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.modal-cancel-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+
+.modal-cancel-btn .material-symbols-outlined { font-size: 16px; }
+
+.modal-close-main-btn {
+  flex: 1;
+  padding: 11px;
+  background: #8a3d2a;
+  color: white;
+  font-size: 13.5px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(138, 61, 42, 0.25);
+  margin-top: 0;
+}
+
+.modal-close-main-btn:hover {
+  background: #6d3021;
+  transform: translateY(-1px);
+}
+
+/* ── Confirm cancel dialog ── */
+.confirm-box {
+  background: #fff;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+  animation: modalIn 0.2s ease;
+}
+
+.confirm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.confirm-icon .material-symbols-outlined {
+  font-size: 28px;
+  color: #dc2626;
+}
+
+.confirm-title {
+  font-size: 17px;
+  font-weight: 800;
   color: #181311;
+  margin-bottom: 10px;
 }
 
-.active-order-date {
-  font-size: 11px;
-  color: #9ca3af;
+.confirm-desc {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 24px;
 }
 
-.active-drink-topping {
-  font-size: 11.5px;
-  color: #9ca3af;
-  font-style: italic;
-  margin-bottom: 2px;
+.confirm-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-no {
+  flex: 1;
+  padding: 11px;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.confirm-no:hover { background: #e5e7eb; }
+
+.confirm-yes {
+  flex: 1;
+  padding: 11px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transition: all 0.18s;
+}
+
+.confirm-yes:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
 }

@@ -1,6 +1,7 @@
 <template>
   <div class="account-wrapper">
     <div class="account-inner">
+
       <!-- Sidebar -->
       <aside class="sidebar">
         <div class="sidebar-profile">
@@ -31,194 +32,87 @@
 
       <!-- Main Content -->
       <main class="account-main">
-        <!-- Trạng thái đơn hàng -->
-        <section class="card">
-          <h3 class="card-title">Trạng thái đơn hàng hiện tại</h3>
+
+        <!-- Tiến trình đơn hàng đang active -->
+        <section v-if="activeOrders.length > 0" class="card">
+          <div class="card-title-row">
+            <div class="card-title-icon">
+              <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <h3 class="card-title">Tiến trình giao hàng</h3>
+
+            <!-- Tab chọn đơn nếu có >= 2 đơn active -->
+            <div v-if="activeOrders.length > 1" class="progress-order-tabs">
+              <button
+                v-for="order in activeOrders"
+                :key="order.id"
+                :class="['progress-tab-btn', { active: selectedOrderId === order.id }]"
+                @click="selectOrder(order.id)"
+              >
+                {{ order.name }}
+                <span :class="['order-tab-badge', order.status]">
+                  {{ statusLabel(order.status) }}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <div class="order-steps">
             <div class="steps-line-bg"></div>
-            <div
-              class="steps-line-progress"
-              :style="{ width: progressWidth }"
-            ></div>
+            <div class="steps-line-progress" :style="{ width: progressWidth }"></div>
             <div class="steps-row">
               <div v-for="(step, i) in orderSteps" :key="i" class="step-item">
                 <div :class="['step-circle', step.state]">
                   <span class="material-symbols-outlined">{{ step.icon }}</span>
                 </div>
-                <span :class="['step-label', step.state]">{{
-                  step.label
-                }}</span>
+                <span :class="['step-label', step.state]">{{ step.label }}</span>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Địa chỉ + Đơn hàng đang hoạt động -->
-        <div class="order-grid">
-          <section class="card">
-            <h3 class="card-title">
-              <span class="material-symbols-outlined title-icon"
-                >location_on</span
-              >
-              Địa chỉ giao hàng
-            </h3>
-            <div class="shipping-info">
-              <p class="shipping-name">{{ shipping.name }}</p>
-              <p class="shipping-text">{{ shipping.phone }}</p>
-              <p class="shipping-text">{{ shipping.address }}</p>
-            </div>
-            <div class="shipping-footer">
-              <button class="link-btn" @click="goTo('/account/address')">
-                Thay đổi địa chỉ
-              </button>
-            </div>
-          </section>
-
-          <!-- Active Orders -->
-          <section class="card">
-            <h3 class="card-title">Đơn hàng đang hoạt động</h3>
-
-            <!-- Không có đơn nào -->
-            <div v-if="activeOrders.length === 0" class="empty-result">
-              <span class="material-symbols-outlined">inventory_2</span>
-              <p>Không có đơn hàng nào đang hoạt động</p>
-            </div>
-
-            <template v-else>
-              <!-- Bộ chọn đơn hàng (chỉ hiện khi có >= 2 đơn) -->
-              <div v-if="activeOrders.length > 1" class="order-selector">
-                <p class="order-selector-label">
-                  <span class="material-symbols-outlined">swap_horiz</span>
-                  Chọn đơn để xem tiến trình ({{ activeOrders.length }} đơn đang
-                  xử lý)
-                </p>
-                <div class="order-selector-tabs">
-                  <button
-                    v-for="order in activeOrders"
-                    :key="order.id"
-                    :class="[
-                      'order-tab',
-                      { active: selectedOrderId === order.id },
-                    ]"
-                    @click="selectOrder(order.id)"
-                  >
-                    <span class="order-tab-name">{{ order.name }}</span>
-                    <span :class="['order-tab-badge', order.status]">
-                      {{ statusLabel(order.status) }}
-                    </span>
-                  </button>
-                </div>
+        <!-- Bảng tất cả đơn hàng -->
+        <section class="card orders-card">
+          <div class="orders-header">
+            <div class="card-title-row" style="margin-bottom: 0;">
+              <div class="card-title-icon">
+                <span class="material-symbols-outlined">receipt_long</span>
               </div>
-
-              <!-- Chi tiết đơn đang chọn -->
-              <div v-if="selectedOrder" class="active-order-item">
-                <div class="active-order-info">
-                  <div class="active-order-header">
-                    <h4>Mã đơn hàng: {{ selectedOrder.name }}</h4>
-                    <span class="active-order-date">{{
-                      selectedOrder.date
-                    }}</span>
-                  </div>
-
-                  <div class="active-drink-list">
-                    <div
-                      v-for="(drink, i) in selectedOrder.receiptData.items"
-                      :key="i"
-                      class="active-drink-row"
-                    >
-                      <div class="active-drink-img">
-                        <img :src="drink.img" :alt="drink.name" />
-                      </div>
-                      <div class="active-drink-info">
-                        <p class="active-drink-name">{{ drink.name }}</p>
-                        <p v-if="drink.toppings" class="active-drink-topping">
-                          + {{ drink.toppings }}
-                        </p>
-                        <p class="active-drink-qty">
-                          Số lượng: x{{ drink.qty }}
-                        </p>
-                        <div class="item-options">
-                          <span class="option-tag sugar">
-                            <span class="material-symbols-outlined"
-                              >nutrition</span
-                            >
-                            Đường: {{ drink.sugar }}%
-                          </span>
-                          <span class="option-tag ice">
-                            <span class="material-symbols-outlined"
-                              >ac_unit</span
-                            >
-                            Đá: {{ drink.ice }}%
-                          </span>
-                        </div>
-                      </div>
-                      <p class="active-drink-price">{{ drink.price }}</p>
-                    </div>
-                  </div>
-
-                  <div class="active-order-bottom">
-                    <p class="active-order-price">
-                      Tổng: {{ selectedOrder.price }}
-                    </p>
-                    <button
-                      class="view-detail-btn"
-                      @click="openModal(selectedOrder.receiptData)"
-                    >
-                      Xem chi tiết
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </section>
-        </div>
-
-        <!-- Hóa đơn -->
-        <section class="card receipts-card">
-          <div class="receipts-header">
-            <h3 class="card-title">Hóa đơn của tôi</h3>
+              <h3 class="card-title" style="margin-bottom: 0;">Đơn hàng của tôi</h3>
+            </div>
             <button class="filter-btn" @click="showFilter = !showFilter">
               <span class="material-symbols-outlined">filter_list</span>
               Lọc
             </button>
           </div>
 
+          <!-- Filter panel -->
           <div v-if="showFilter" class="filter-panel">
             <div class="filter-row">
               <div class="filter-group">
                 <label>Tìm theo mã</label>
-                <input
-                  v-model="searchId"
-                  type="text"
-                  placeholder="VD: #DL-9283"
-                />
+                <input v-model="searchId" type="text" placeholder="VD: #DL-1234" />
               </div>
-
               <div class="filter-group">
-                <label>Danh mục</label>
-                <select v-model="filterCategory">
+                <label>Trạng thái</label>
+                <select v-model="filterStatus">
                   <option value="">Tất cả</option>
-                  <option
-                    v-for="cat in categoryOptions"
-                    :key="cat"
-                    :value="cat"
-                  >
-                    {{ cat }}
-                  </option>
+                  <option value="pending">Chờ xác nhận</option>
+                  <option value="processing">Đang xử lý</option>
+                  <option value="shipping">Đang vận chuyển</option>
+                  <option value="delivered">Đã giao</option>
+                  <option value="cancelled">Đã huỷ</option>
                 </select>
               </div>
-
               <div class="filter-group">
                 <label>Từ ngày</label>
                 <input type="date" v-model="filterFromDate" />
               </div>
-
               <div class="filter-group">
                 <label>Đến ngày</label>
                 <input type="date" v-model="filterToDate" />
               </div>
             </div>
-
             <div class="filter-actions">
               <button class="filter-apply-btn" @click="applyFilter">
                 <span class="material-symbols-outlined">search</span>
@@ -230,81 +124,128 @@
             </div>
           </div>
 
-          <div class="receipts-table-wrapper">
-            <table class="receipts-table">
+          <!-- Bảng đơn hàng -->
+          <div class="orders-table-wrapper">
+            <table class="orders-table">
               <thead>
                 <tr>
-                  <th>Thông tin đơn hàng</th>
-                  <th>Ngày tháng</th>
-                  <th class="text-right">Tổng giá tiền</th>
-                  <th class="text-right">Hành động</th>
+                  <th>Mã đơn hàng</th>
+                  <th>Thanh toán</th>
+                  <th>Trạng thái</th>
+                  <th class="text-center">Số lượng</th>
+                  <th class="text-right">Tổng tiền</th>
+                  <th>Ngày đặt</th>
+                  <th class="text-center">Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="receipts.length === 0">
-                  <td colspan="4" class="empty-result">
+                <tr v-if="pagedOrders.length === 0">
+                  <td colspan="7" class="empty-result">
                     <span class="material-symbols-outlined">search_off</span>
                     <p>Không tìm thấy đơn hàng phù hợp</p>
                   </td>
                 </tr>
                 <tr
-                  v-for="receipt in receipts"
-                  :key="receipt.id"
-                  class="receipt-row"
+                  v-for="order in pagedOrders"
+                  :key="order.id"
+                  class="order-row"
                 >
+                  <!-- Mã đơn -->
                   <td>
-                    <div class="receipt-info">
-                      <div class="receipt-icon">
-                        <span class="material-symbols-outlined"
-                          >receipt_long</span
-                        >
-                      </div>
-                      <div>
-                        <p class="receipt-id">{{ receipt.id }}</p>
-                        <p class="receipt-category">{{ receipt.category }}</p>
-                      </div>
+                    <div class="order-code-cell">
+                      <div :class="['order-status-dot', order.status]"></div>
+                      <span class="order-code">{{ order.name }}</span>
                     </div>
                   </td>
-                  <td class="receipt-date">{{ receipt.date }}</td>
-                  <td class="receipt-price text-right">{{ receipt.total }}</td>
-                  <td class="text-right">
-                    <button class="view-detail-btn" @click="openModal(receipt)">
-                      Xem chi tiết
-                    </button>
+
+                  <!-- Thanh toán -->
+                  <td class="order-payment">{{ order.paymentMethod }}</td>
+
+                  <!-- Trạng thái -->
+                  <td>
+                    <span :class="['status-badge', order.status]">
+                      {{ statusLabel(order.status) }}
+                    </span>
+                  </td>
+
+                  <!-- Số lượng -->
+                  <td class="text-center order-qty">{{ order.totalQty }}</td>
+
+                  <!-- Tổng tiền -->
+                  <td class="text-right order-total">{{ order.price }}</td>
+
+                  <!-- Ngày đặt -->
+                  <td class="order-date">{{ order.date }}</td>
+
+                  <!-- Hành động -->
+                  <td class="text-center">
+                    <div class="action-btns">
+                      <button
+                        class="btn-view"
+                        @click="openModal(order)"
+                        title="Xem chi tiết"
+                      >
+                        <span class="material-symbols-outlined">visibility</span>
+                        Chi tiết
+                      </button>
+                      <button
+                        v-if="order.status === 'pending'"
+                        class="btn-cancel"
+                        @click="confirmCancel(order)"
+                        title="Huỷ đơn"
+                      >
+                        <span class="material-symbols-outlined">cancel</span>
+                        Huỷ
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div class="receipts-footer">
+          <!-- Footer phân trang -->
+          <div class="orders-footer">
             <button v-if="hasMore" class="load-more-btn" @click="loadMore">
               <span class="material-symbols-outlined">expand_more</span>
-              Xem thêm lịch sử đơn hàng
+              Xem thêm đơn hàng
             </button>
-            <p v-else class="no-more-text">Đã hiển thị tất cả đơn hàng</p>
+            <p v-else-if="allOrders.length > 0" class="no-more-text">
+              Đã hiển thị tất cả {{ filteredOrders.length }} đơn hàng
+            </p>
           </div>
         </section>
+
       </main>
     </div>
 
-    <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+    <!-- Modal xem chi tiết -->
+    <div v-if="showModal && selectedOrder" class="modal-overlay" @click.self="closeModal">
       <div class="modal-box">
         <div class="modal-header">
           <div>
             <h2 class="modal-title">Chi tiết đơn hàng</h2>
-            <p class="modal-id">{{ selectedReceipt.id }}</p>
-            <p class="modal-date">{{ selectedReceipt.date }}</p>
+            <p class="modal-id">{{ selectedOrder.name }}</p>
+            <p class="modal-date">{{ selectedOrder.date }}</p>
+            <span :class="['modal-status-badge', selectedOrder.status]">
+              {{ statusLabel(selectedOrder.status) }}
+            </span>
           </div>
           <button class="modal-close-btn" @click="closeModal">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
 
+        <!-- Thông tin giao hàng -->
+        <div class="modal-shipping">
+          <p class="modal-shipping-label">Địa chỉ giao hàng</p>
+          <p class="modal-shipping-addr">{{ selectedOrder.shippingAddress || 'Không có thông tin' }}</p>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
         <div class="modal-products">
           <div
-            v-for="item in selectedReceipt.items"
+            v-for="item in selectedOrder.receiptData.items"
             :key="item.name"
             class="modal-product-item"
           >
@@ -313,6 +254,7 @@
             </div>
             <div class="modal-product-info">
               <h4>{{ item.name }}</h4>
+              <p v-if="item.toppings" class="modal-topping">+ {{ item.toppings }}</p>
               <p>Số lượng: x{{ item.qty }}</p>
               <div class="item-options">
                 <span class="option-tag sugar">
@@ -325,83 +267,95 @@
                 </span>
               </div>
             </div>
-
             <p class="modal-product-price">{{ item.price }}</p>
           </div>
         </div>
 
+        <!-- Tổng tiền (không có thuế) -->
         <div class="modal-summary">
           <div class="summary-row">
-            <span>Tạm tính</span>
-            <span>{{ selectedReceipt.subtotal }}</span>
+            <span>Phương thức thanh toán</span>
+            <span>{{ selectedOrder.paymentMethod }}</span>
           </div>
           <div class="summary-row">
-            <span>Thuế (5%)</span>
-            <span>{{ selectedReceipt.tax }}</span>
+            <span>Tổng số món</span>
+            <span>{{ selectedOrder.totalQty }} món</span>
           </div>
           <div class="summary-row total-row">
             <span>Tổng cộng</span>
-            <span class="total-price">{{ selectedReceipt.total }}</span>
+            <span class="total-price">{{ selectedOrder.price }}</span>
           </div>
-          <button class="modal-close-main-btn" @click="closeModal">Đóng</button>
+          <div class="modal-footer-btns">
+            <button
+              v-if="selectedOrder.status === 'pending'"
+              class="modal-cancel-btn"
+              @click="confirmCancel(selectedOrder); closeModal()"
+            >
+              <span class="material-symbols-outlined">cancel</span>
+              Huỷ đơn hàng
+            </button>
+            <button class="modal-close-main-btn" @click="closeModal">Đóng</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Confirm cancel dialog -->
+    <div v-if="showCancelConfirm" class="modal-overlay" @click.self="showCancelConfirm = false">
+      <div class="confirm-box">
+        <div class="confirm-icon">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <h3 class="confirm-title">Xác nhận huỷ đơn?</h3>
+        <p class="confirm-desc">
+          Bạn có chắc muốn huỷ đơn hàng
+          <strong>{{ cancelTarget?.name }}</strong>?
+          Hành động này không thể hoàn tác.
+        </p>
+        <div class="confirm-btns">
+          <button class="confirm-no" @click="showCancelConfirm = false">Không, giữ lại</button>
+          <button class="confirm-yes" @click="doCancel">Có, huỷ đơn</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { useUserOrders } from "../JS-USER/UserOrders.JS";
-import { useAuthStore } from "../Authorization/Auth";
-import { useRouter } from "vue-router";
+import { useUserOrders } from '../JS-USER/UserOrders.JS'
+import { useAuthStore } from '../Authorization/Auth'
+import { useRouter } from 'vue-router'
 
 const {
-  navItems,
-  currentRoute,
-  orderSteps,
-  progressWidth,
-  shipping,
-  activeOrders,
-  selectedOrderId,
-  selectedOrder,
-  selectOrder,
-  receipts,
-  hasMore,
-  loadMore,
-  searchId,
-  filterCategory,
-  filterFromDate,
-  filterToDate,
-  showFilter,
-  categoryOptions,
-  applyFilter,
-  resetFilter,
-  showModal,
-  selectedReceipt,
-  openModal,
-  closeModal,
-  goTo,
-} = useUserOrders();
+  user, navItems, currentRoute,
+  orderSteps, progressWidth,
+  activeOrders, selectedOrderId, selectOrder,
+  allOrders, filteredOrders, pagedOrders,
+  hasMore, loadMore,
+  searchId, filterStatus, filterFromDate, filterToDate,
+  showFilter, applyFilter, resetFilter,
+  showModal, selectedOrder,
+  openModal, closeModal,
+  showCancelConfirm, cancelTarget,
+  confirmCancel, doCancel,
+  goTo, logout,
+} = useUserOrders()
 
 function statusLabel(status) {
   const map = {
     pending:    'Chờ xác nhận',
     processing: 'Đang xử lý',
-    shipping:   'Đang giao',
+    shipping:   'Đang vận chuyển',
     delivered:  'Đã giao',
+    cancelled:  'Đã huỷ',
   }
   return map[status] ?? status
 }
 
-const auth = useAuthStore();
-const router = useRouter();
-
-const user = auth.user;
-
-const logout = () => {
-  auth.logout();
-  router.push("/login");
-};
+const auth = useAuthStore()
+const router = useRouter()
+const logout2 = () => { auth.logout(); router.push('/login') }
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>

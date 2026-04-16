@@ -4,28 +4,12 @@ import api from '../../api/axios'
 import { useAuthStore } from '../Authorization/Auth'
 import { sharedUser } from './Useruser.JS'
 
-import matchaNong      from '../IMG/Matcha-latte.png'
-import matchaLatte     from '../IMG/Matcha_tea.jpg'
-import capuchino       from '../IMG/flat-white.jpg'
-import mocha           from '../IMG/mocha.jpg'
-import geisha          from '../IMG/geisha.png'
-import phinden         from '../IMG/phin_den.jpg'
-import phinnau         from '../IMG/phin_nau.jpg'
-import coldbrew        from '../IMG/cold_brew_mat_ong.jpg'
-import coldbrewmatong  from '../IMG/cold_brew_mat_ong.jpg'
-import coldbrewvaihong from '../IMG/cold_brew_vai_hong.jpg'
-import bacsiu          from '../IMG/bac_xiu.jpg'
-import latte           from '../IMG/coffee_latte.jpg'
-
 export function useUserOrders() {
-  const auth = useAuthStore()
-  const activeOrders = ref([])
-  const selectedOrderId = ref(null) 
-  const currentStatus = ref('pending')
-  const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
+  const auth     = useAuthStore()
+  const router   = useRouter()
+  const user     = sharedUser
+  const userId   = auth.user?.id || 1
 
-  const userId = auth.user?.id || 1
-  const router = useRouter()
   const currentRoute = '/account/orders'
 
   const navItems = [
@@ -33,179 +17,190 @@ export function useUserOrders() {
     { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
     { id: 'address',  label: 'Địa Chỉ',           icon: 'location_on', route: '/account/address' },
     { id: 'orders',   label: 'Đơn hàng của tôi',  icon: 'package',     route: '/account/orders' },
-    { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' }
+    { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' },
   ]
 
-  const user = sharedUser
+  // ── Status helpers ───────────────────────────────────────
+  const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
 
-  const orderSteps = ref([
-    { label: 'Chờ xác nhận',    icon: 'pending_actions',  status: 'pending'    },
-    { label: 'Đang xử lý',      icon: 'settings',         status: 'processing' },
-    { label: 'Đang vận chuyển', icon: 'local_shipping',   status: 'shipping'   },
-    { label: 'Đã giao',         icon: 'home',             status: 'delivered'  },
-    { label: 'Đã huỷ',          icon: 'cancel',           status: 'cancelled'  },
+  function mapStatus(s) {
+    const map = {
+      'Chờ xác nhận':    'pending',
+      'Đang xử lý':      'processing',
+      'Đang vận chuyển': 'shipping',
+      'Đã giao':         'delivered',
+      'Đã huỷ':          'cancelled',
+    }
+    return map[s] ?? s?.toLowerCase() ?? 'pending'
+  }
+
+  // ── Order steps (tiến trình) ─────────────────────────────
+  const _orderSteps = ref([
+    { label: 'Chờ xác nhận',    icon: 'pending_actions', status: 'pending'    },
+    { label: 'Đang xử lý',      icon: 'settings',        status: 'processing' },
+    { label: 'Đang vận chuyển', icon: 'local_shipping',  status: 'shipping'   },
+    { label: 'Đã giao',         icon: 'home',            status: 'delivered'  },
+    { label: 'Đã huỷ',          icon: 'cancel',          status: 'cancelled'  },
   ])
 
+  // Đơn hàng active đang được chọn để hiển thị tiến trình
+  const activeOrders    = ref([])
+  const selectedOrderId = ref(null)
+  const currentStatus   = ref('pending')
 
-  const mapStatus = (status) => {
-    const map = {
-      'Chờ xác nhận': 'pending',
-      'Đang xử lý': 'processing',
-      'Đang vận chuyển': 'shipping',
-      'Đã giao': 'delivered',
-      'Đã huỷ': 'cancelled'
-    }
-    return map[status] || 'pending'
-  }
+  const selectedActiveOrder = computed(() =>
+    activeOrders.value.find(o => o.id === selectedOrderId.value) || null
+  )
 
   const currentStepIndex = computed(() => {
     if (currentStatus.value === 'cancelled') return -1
     return STATUS_ORDER.indexOf(currentStatus.value)
   })
 
-  const stepsWithState = computed(() => {
+  const orderSteps = computed(() => {
     if (currentStatus.value === 'cancelled') {
-      return orderSteps.value.map(s =>
+      return _orderSteps.value.map(s =>
         s.status === 'cancelled'
           ? { ...s, state: 'active' }
-          : { ...s, state: 'cancelled-grey' }
+          : { ...s, state: 'pending' }
       )
     }
-
     const idx = currentStepIndex.value
-    return orderSteps.value
+    return _orderSteps.value
       .filter(s => s.status !== 'cancelled')
       .map((s, i) => ({
         ...s,
-        state: i < idx ? 'done' : i === idx ? 'active' : 'pending'
+        state: i < idx ? 'done' : i === idx ? 'active' : 'pending',
       }))
   })
 
-
   const progressWidth = computed(() => {
     if (currentStatus.value === 'cancelled') return '0%'
-    const idx = currentStepIndex.value
+    const idx   = currentStepIndex.value
     const total = STATUS_ORDER.length - 1
     return `${Math.max(0, (idx / total) * 100)}%`
   })
 
-  const shipping = ref({
-    name:    'Tuân Nguyễn Đình',
-    phone:   '+84 123 456 789',
-    address: 'Căn 48b Chung cư Royal City\n72A Nguyễn Trãi, quận Thanh Xuân\nHà Nội\nViệt Nam'
-  })
-
-  const allReceipts = ref([])
-
-  const selectedOrder = computed(() =>
-  activeOrders.value.find(o => o.id === selectedOrderId.value) || null
-  )
-
-  const fetchActiveOrder = async () => {
-  try {
-    const response = await api.get(`/orders/active/${userId}`)
-
-    if (response.data && response.data.length > 0) {
-      activeOrders.value = response.data
-        .filter(order => mapStatus(order.status) !== 'cancelled')
-        .map(order => ({
-          id: order.id,
-          name: `DL-${order.id}`,
-          status: mapStatus(order.status),
-          price: `${order.finalPrice?.toLocaleString()} VNĐ`,
-          date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
-          receiptData: {
-            id: `#DL-${order.id}`,
-            date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
-            total: `${order.finalPrice?.toLocaleString()} VNĐ`,
-            subtotal: `${Math.round(order.finalPrice / 1.05).toLocaleString()} VNĐ`,
-            tax: `${Math.round(order.finalPrice - order.finalPrice / 1.05).toLocaleString()} VNĐ`,
-            items: order.items?.map(item => ({
-              name: item.drink?.name || 'Sản phẩm',
-              qty: item.quantity,
-              price: `${(
-                item.basePriceAtPurchase +
-                (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)
-              ).toLocaleString()} VNĐ`,
-              toppings: item.orderItemToppings?.map(t => t.topping.name).join(', ') || '',
-              img: item.drink?.imageUrl,
-              sugar: 100,
-              ice: 100,
-            })) || []
-          }
-        }))
-
-      if (!selectedOrderId.value || !activeOrders.value.find(o => o.id === selectedOrderId.value)) {
-        selectedOrderId.value = activeOrders.value[0]?.id || null
-      }
-
-      if (selectedOrder.value) {
-        currentStatus.value = selectedOrder.value.status
-      }
-
-    } else {
-      activeOrders.value = []
-      selectedOrderId.value = null
-      currentStatus.value = 'nothing'
-      fetchOrderHistory()
-    }
-  } catch (error) {
-    console.error('Fetch Error:', error)
-  }
-}
-
   function selectOrder(orderId) {
-  selectedOrderId.value = orderId
-  const order = activeOrders.value.find(o => o.id === orderId)
-  if (order) currentStatus.value = order.status
-}
+    selectedOrderId.value = orderId
+    const o = activeOrders.value.find(o => o.id === orderId)
+    if (o) currentStatus.value = o.status
+  }
 
-  const fetchOrderHistory = async () => {
-    try {
-      const response = await api.get(`/orders/history/${userId}`);
-      
-      if (response.data) {
-        allReceipts.value = response.data.map(order => {
-          const totalNum = order.finalPrice || 0;
-          const subtotalNum = totalNum / 1.05;
-          const taxNum = totalNum - subtotalNum;
+  // ── Tất cả đơn hàng (active + history gộp chung) ────────
+  const allOrders = ref([])
 
-          return {
-            id: `#DL-${order.id}`,
-            category: order.paymentMethod || 'Tiền mặt',
-            date: new Date(order.orderDate).toLocaleDateString('vi-VN'),
-            total: `${totalNum.toLocaleString()} VNĐ`,
-            subtotal: `${Math.round(subtotalNum).toLocaleString()} VNĐ`,
-            tax: `${Math.round(taxNum).toLocaleString()} VNĐ`,
-            items: order.items?.map(item => ({
-              name: item.drink?.name || 'Sản phẩm',
-              qty: item.quantity,
-              price: `${(item.basePriceAtPurchase + (item.orderItemToppings?.reduce((s, t) => s + t.basePriceAtPurchase, 0) || 0)).toLocaleString()} VNĐ`,
-              img: item.drink?.imageUrl,
-              toppings: item.orderItemToppings?.map(t => t.topping.name).join(', ') || '',
-              sugar: 100, 
-              ice: 100
-            })) || []
-          };
-        });
-      }
-    } catch (error) {
-      console.error("Fetch history error: ", error);
+  // Helper map một order từ API → object dùng trong UI
+  function mapOrder(order) {
+    const totalQty = (order.items ?? []).reduce((s, i) => s + (i.quantity ?? 1), 0)
+    return {
+      id:              order.id,
+      name:            `DL-${order.orderNumber ?? order.id}`,
+      status:          mapStatus(order.status),
+      paymentMethod:   order.paymentMethod ?? 'Tiền mặt',
+      totalQty,
+      price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
+      date:            order.orderDate
+                         ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+                         : '-',
+      shippingAddress: order.shippingAddress ?? '',
+      receiptData: {
+        id:    `#DL-${order.orderNumber ?? order.id}`,
+        date:  order.orderDate
+                 ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+                 : '-',
+        total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
+        items: (order.items ?? []).map(item => ({
+          name:     item.drink?.name ?? 'Sản phẩm',
+          qty:      item.quantity ?? 1,
+          price:    `${(
+                      (item.basePriceAtPurchase ?? 0) +
+                      (item.orderItemToppings ?? []).reduce((s, t) => s + (t.basePriceAtPurchase ?? 0), 0)
+                    ).toLocaleString('vi-VN')} VNĐ`,
+          toppings: (item.orderItemToppings ?? []).map(t => t.topping?.name).filter(Boolean).join(', '),
+          img:      item.drink?.imageUrl ?? null,
+          sugar:    item.sugarLevel ?? 100,
+          ice:      item.iceLevel   ?? 100,
+        })),
+      },
     }
-  };
+  }
 
+  // Fetch tất cả đơn hàng của user (gọi 1 endpoint tổng)
+  async function fetchAllOrders() {
+    try {
+      // Thử endpoint tổng trước
+      const res = await api.get(`/orders/user/${userId}`)
+      if (res.data) {
+        allOrders.value = res.data.map(mapOrder)
+          // Sắp xếp: đơn mới nhất lên đầu
+          .sort((a, b) => b.id - a.id)
 
-  // ── Filter state ──
+        // Tách ra active để hiển thị tiến trình
+        activeOrders.value = allOrders.value.filter(
+          o => !['delivered', 'cancelled'].includes(o.status)
+        )
+
+        if (activeOrders.value.length > 0) {
+          // Giữ lại đơn đang chọn nếu vẫn còn active
+          if (!activeOrders.value.find(o => o.id === selectedOrderId.value)) {
+            selectedOrderId.value = activeOrders.value[0].id
+          }
+          currentStatus.value = activeOrders.value.find(
+            o => o.id === selectedOrderId.value
+          )?.status ?? 'pending'
+        } else {
+          selectedOrderId.value = null
+          currentStatus.value   = 'delivered'
+        }
+        return
+      }
+    } catch (_) {
+      // endpoint tổng chưa có → fallback gọi 2 endpoint riêng
+    }
+
+    // Fallback: gọi active + history riêng rồi gộp
+    try {
+      const [activeRes, historyRes] = await Promise.all([
+        api.get(`/orders/active/${userId}`).catch(() => ({ data: [] })),
+        api.get(`/orders/history/${userId}`).catch(() => ({ data: [] })),
+      ])
+
+      const active  = (activeRes.data  ?? []).map(mapOrder)
+      const history = (historyRes.data ?? []).map(mapOrder)
+
+      // Gộp, tránh trùng id
+      const seen = new Set()
+      allOrders.value = [...active, ...history]
+        .filter(o => { if (seen.has(o.id)) return false; seen.add(o.id); return true })
+        .sort((a, b) => b.id - a.id)
+
+      activeOrders.value = active.filter(
+        o => !['delivered', 'cancelled'].includes(o.status)
+      )
+
+      if (activeOrders.value.length > 0) {
+        if (!activeOrders.value.find(o => o.id === selectedOrderId.value)) {
+          selectedOrderId.value = activeOrders.value[0].id
+        }
+        currentStatus.value = activeOrders.value.find(
+          o => o.id === selectedOrderId.value
+        )?.status ?? 'pending'
+      } else {
+        selectedOrderId.value = null
+        currentStatus.value   = 'delivered'
+      }
+    } catch (err) {
+      console.error('fetchAllOrders error:', err)
+    }
+  }
+
+  // ── Filter ───────────────────────────────────────────────
   const searchId       = ref('')
-  const filterCategory = ref('')
+  const filterStatus   = ref('')
   const filterFromDate = ref('')
   const filterToDate   = ref('')
   const showFilter     = ref(false)
-
-  const categoryOptions = computed(() => {
-    const cats = allReceipts.value.map(r => r.category)
-    return [...new Set(cats)]
-  })
 
   function parseDate(str) {
     if (!str) return null
@@ -213,105 +208,126 @@ export function useUserOrders() {
     return new Date(`${y}-${m}-${d}`)
   }
 
-  const filteredReceipts = computed(() => {
-    return allReceipts.value.filter(r => {
-      const matchId = !searchId.value ||
-        r.id.toLowerCase().includes(searchId.value.toLowerCase())
-
-      const matchCategory = !filterCategory.value ||
-        r.category === filterCategory.value
-
-      const rDate    = parseDate(r.date)
-      const fromDate = filterFromDate.value ? new Date(filterFromDate.value) : null
-      const toDate   = filterToDate.value   ? new Date(filterToDate.value)   : null
-
-      const matchFrom = !fromDate || rDate >= fromDate
-      const matchTo   = !toDate   || rDate <= toDate
-
-      return matchId && matchCategory && matchFrom && matchTo
+  const filteredOrders = computed(() => {
+    const k = searchId.value.trim().toLowerCase()
+    return allOrders.value.filter(o => {
+      const okId     = !k || o.name.toLowerCase().includes(k)
+      const okStatus = !filterStatus.value || o.status === filterStatus.value
+      const oDate    = parseDate(o.date)
+      const from     = filterFromDate.value ? new Date(filterFromDate.value) : null
+      const to       = filterToDate.value   ? new Date(filterToDate.value)   : null
+      const okFrom   = !from || oDate >= from
+      const okTo     = !to   || oDate <= to
+      return okId && okStatus && okFrom && okTo
     })
   })
 
-  const visibleCount = ref(3)
+  const visibleCount = ref(10)
 
-  const receipts = computed(() =>
-    filteredReceipts.value.slice(0, visibleCount.value)
+  const pagedOrders = computed(() =>
+    filteredOrders.value.slice(0, visibleCount.value)
   )
 
   const hasMore = computed(() =>
-    visibleCount.value < filteredReceipts.value.length
+    visibleCount.value < filteredOrders.value.length
   )
 
   function loadMore() {
     visibleCount.value = Math.min(
-      visibleCount.value + 3,
-      filteredReceipts.value.length
+      visibleCount.value + 10,
+      filteredOrders.value.length
     )
   }
 
   function applyFilter() {
-    visibleCount.value = 3
+    visibleCount.value = 10
     showFilter.value   = false
   }
 
   function resetFilter() {
     searchId.value       = ''
-    filterCategory.value = ''
+    filterStatus.value   = ''
     filterFromDate.value = ''
     filterToDate.value   = ''
-    visibleCount.value   = 3
+    visibleCount.value   = 10
   }
 
-  const showModal       = ref(false)
-  const selectedReceipt = ref(null)
+  // ── Modal xem chi tiết ───────────────────────────────────
+  const showModal    = ref(false)
+  const selectedOrder = ref(null)
 
-  function openModal(receipt) {
-    selectedReceipt.value = receipt
-    showModal.value = true
+  function openModal(order) {
+    selectedOrder.value = order
+    showModal.value     = true
   }
 
-  function closeModal() { showModal.value = false }
+  function closeModal() {
+    showModal.value = false
+  }
+
+  // ── Huỷ đơn ─────────────────────────────────────────────
+  const showCancelConfirm = ref(false)
+  const cancelTarget      = ref(null)
+
+  function confirmCancel(order) {
+    cancelTarget.value      = order
+    showCancelConfirm.value = true
+  }
+
+  async function doCancel() {
+    if (!cancelTarget.value) return
+    try {
+      await api.put(`/orders/${cancelTarget.value.id}/status`, {
+        status: 'Đã huỷ'
+      })
+      // Cập nhật local ngay, không cần chờ poll
+      const target = allOrders.value.find(o => o.id === cancelTarget.value.id)
+      if (target) target.status = 'cancelled'
+
+      activeOrders.value = activeOrders.value.filter(
+        o => o.id !== cancelTarget.value.id
+      )
+      if (selectedOrderId.value === cancelTarget.value.id) {
+        selectedOrderId.value = activeOrders.value[0]?.id ?? null
+        currentStatus.value   = activeOrders.value[0]?.status ?? 'delivered'
+      }
+    } catch (err) {
+      console.error('Cancel order error:', err)
+      alert('Huỷ đơn thất bại, vui lòng thử lại!')
+    } finally {
+      showCancelConfirm.value = false
+      cancelTarget.value      = null
+    }
+  }
+
+  // ── Navigation ───────────────────────────────────────────
   function goTo(route)  { router.push(route) }
   function logout()     { router.push('/login') }
 
-  let intervalId = null;
+  // ── Polling ──────────────────────────────────────────────
+  let intervalId = null
 
   onMounted(() => {
-    fetchActiveOrder();
-    fetchOrderHistory();
-    
-    // Set up the 5-second timer
-    intervalId = setInterval(() => {
-      fetchActiveOrder();
-      fetchOrderHistory();
-      console.log('Order status updated'); // Optional for debugging
-    }, 5000);
-  });
+    fetchAllOrders()
+    intervalId = setInterval(fetchAllOrders, 15_000) // poll 15s
+  })
 
-  // Clean up when the component is destroyed
   onUnmounted(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  });
-
+    if (intervalId) clearInterval(intervalId)
+  })
 
   return {
-  user, navItems, currentRoute,
-  orderSteps: stepsWithState, progressWidth,
-  currentStatus,
-  shipping,
-  activeOrders,     
-  selectedOrderId,    
-  selectedOrder,      
-  selectOrder,        
-  receipts, hasMore, loadMore,
-  searchId, filterCategory, filterFromDate, filterToDate,
-  showFilter, categoryOptions,
-  applyFilter, resetFilter,
-  showModal, selectedReceipt,
-  openModal, closeModal,
-  goTo, logout,
-  fetchActiveOrder
+    user, navItems, currentRoute,
+    orderSteps, progressWidth,
+    activeOrders, selectedOrderId, selectOrder,
+    allOrders, filteredOrders, pagedOrders,
+    hasMore, loadMore,
+    searchId, filterStatus, filterFromDate, filterToDate,
+    showFilter, applyFilter, resetFilter,
+    showModal, selectedOrder,
+    openModal, closeModal,
+    showCancelConfirm, cancelTarget,
+    confirmCancel, doCancel,
+    goTo, logout,
   }
 }

@@ -2,10 +2,10 @@
   <teleport to="body">
     <transition name="fade">
       <div
-        class="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6"
         @click.self="$emit('close')"
       >
-        <div class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-xl border border-stone-200 bg-white shadow-2xl overflow-hidden">
+        <div class="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-xl border border-stone-200 bg-white shadow-2xl overflow-hidden">
 
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-stone-100 bg-stone-50 px-4 py-3">
@@ -27,12 +27,12 @@
           <div class="p-6 overflow-y-auto custom-scrollbar">
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
 
-              <!-- LEFT -->
+              <!-- LEFT: Chi tiết đơn + Khách hàng -->
               <div class="lg:col-span-8 space-y-6">
 
                 <!-- Thông tin chung -->
                 <div class="rounded-xl border border-stone-100 bg-stone-50/50 p-5">
-                  <div class="grid grid-cols-12 gap-2">
+                  <div class="grid grid-cols-12 gap-y-2 gap-x-4">
                     <div class="col-span-4 text-sm text-stone-400">Mã đơn hàng</div>
                     <div class="col-span-8 text-sm font-bold text-[#3C2A21]">{{ invoice.order_id }}</div>
 
@@ -44,31 +44,55 @@
 
                     <div class="col-span-4 text-sm text-stone-400">Hình thức nhận</div>
                     <div class="col-span-8 text-sm font-medium">
-                      <span :class="['rounded-full px-2 py-0.5 text-xs font-semibold', invoice.receive_type === 'Online' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700']">
+                      <span :class="['rounded-full px-2 py-0.5 text-xs font-semibold',
+                        invoice.receive_type === 'Online'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-green-100 text-green-700']">
                         {{ invoice.receive_type }}
                       </span>
                     </div>
                   </div>
                 </div>
 
+                <!-- ✅ Thông tin khách hàng -->
+                <div class="rounded-xl border border-stone-100 bg-stone-50/50 p-5">
+                  <h4 class="font-bold text-stone-800 border-b pb-2 mb-3">Thông tin khách hàng</h4>
+                  <div class="grid grid-cols-12 gap-y-2 gap-x-4">
+                    <div class="col-span-4 text-sm text-stone-400">Mã KH</div>
+                    <div class="col-span-8 text-sm font-bold text-[#3C2A21]">{{ invoice.customer?.id || '—' }}</div>
+
+                    <div class="col-span-4 text-sm text-stone-400">Tên</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.name || '—' }}</div>
+
+                    <div class="col-span-4 text-sm text-stone-400">SĐT</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.phone || '—' }}</div>
+
+                    <div class="col-span-4 text-sm text-stone-400">Email</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.email || '—' }}</div>
+
+                    <div class="col-span-4 text-sm text-stone-400">Địa chỉ</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.address || '—' }}</div>
+                  </div>
+                </div>
+
                 <!-- Chi tiết món -->
-                <div class="space-y-4">
+                <div class="space-y-3">
                   <h4 class="font-bold text-stone-800 border-b pb-2">Chi tiết món</h4>
                   <div
                     v-for="(item, i) in invoice.items" :key="i"
-                    class="grid grid-cols-12 gap-4 items-start border-b border-dashed border-stone-100 pb-4 last:border-0"
+                    class="grid grid-cols-12 gap-4 items-start border-b border-dashed border-stone-100 pb-3 last:border-0"
                   >
                     <div class="col-span-8">
-                      <div class="font-bold text-stone-800">{{ item.qty }}x {{ item.name }}</div>
-                      <div v-if="item.sugar != null || item.ice != null" class="mt-2 flex flex-wrap gap-1">
+                      <div class="font-bold text-stone-800">{{ item.name }}</div>
+                      <div v-if="item.sugar != null || item.ice != null" class="mt-1.5 flex flex-wrap gap-1">
                         <span v-if="item.sugar != null"
                           class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                          style="background: rgba(251,191,36,0.12); color: #d97706; border: 1px solid rgba(251,191,36,0.25)">
+                          style="background:rgba(251,191,36,0.12);color:#d97706;border:1px solid rgba(251,191,36,0.25)">
                           🍬 Đường: {{ item.sugar }}%
                         </span>
                         <span v-if="item.ice != null"
                           class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                          style="background: rgba(59,130,246,0.08); color: #2563eb; border: 1px solid rgba(59,130,246,0.15)">
+                          style="background:rgba(59,130,246,0.08);color:#2563eb;border:1px solid rgba(59,130,246,0.15)">
                           🧊 Đá: {{ item.ice }}%
                         </span>
                       </div>
@@ -78,13 +102,17 @@
                       {{ (item.price * item.qty).toLocaleString('vi-VN') }} đ
                     </div>
                   </div>
+
+                  <div v-if="!invoice.items?.length" class="text-center text-stone-400 text-sm py-4">
+                    Không có món nào
+                  </div>
                 </div>
 
               </div>
 
-              <!-- RIGHT -->
+              <!-- RIGHT: Tổng tiền -->
               <div class="lg:col-span-4 space-y-4">
-                <div class="rounded-xl bg-[#FAF7F2] p-5 space-y-3">
+                <div class="rounded-xl bg-[#FAF7F2] p-5 space-y-3 sticky top-0">
                   <div class="flex justify-between text-sm">
                     <span class="text-stone-500">Tổng gốc</span>
                     <span class="font-bold">{{ (invoice.originalPrice || 0).toLocaleString('vi-VN') }} đ</span>
@@ -133,10 +161,6 @@ const statusClass = computed(() => {
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
-
 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 10px;
-}
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
 </style>
