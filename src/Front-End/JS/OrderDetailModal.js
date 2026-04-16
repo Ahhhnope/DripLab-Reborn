@@ -44,13 +44,9 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     emit("cancel", props.order);
   }
 
-  // ✅ Click vào timeline status: luôn hỏi confirm
+  // ✅ Đổi trạng thái (confirm đã xử lý ở UI)
   function requestChangeStatus(nextStatus) {
     if (!props.order) return;
-    const label = statusSteps.find((s) => s.key === nextStatus)?.label ?? nextStatus;
-
-    const ok = window.confirm(`Vui lòng xác nhận bạn có muốn tiếp tục không?\n\nChuyển trạng thái sang: ${label}`);
-    if (!ok) return;
 
     // Component cha sẽ bắt event này để gọi API update status
     emit("set-status", { order: props.order, status: nextStatus });

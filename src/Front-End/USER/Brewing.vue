@@ -1,4 +1,4 @@
-<!-- Brewing.vue (đã thêm popup thông báo khi “Thêm vào giỏ hàng”) -->
+<!-- Brewing.vue (đã thêm popup thông báo khi "Thêm vào giỏ hàng") -->
 <script setup>
 import { ref, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useBrewing } from '../JS-USER/Brewing.js'
@@ -14,48 +14,53 @@ const {
   price, formatVnd,
   notice,
 } = useBrewing()
-
-
-
+ 
+ 
+ 
 // ─────────────────────────────────────────────────────────────
-// Popup thông báo “đã thêm vào giỏ” (giống mẫu ảnh)
+// Popup thông báo "đã thêm vào giỏ" (giống mẫu ảnh)
 // ─────────────────────────────────────────────────────────────
 const cartPopupOpen = ref(false)
 const orderCode = ref('')
 const popupBackdropEl = ref(null)
-
+ 
 function makeOrderCode() {
   // ORD- + epoch ms (đủ giống mẫu, bạn có thể thay bằng mã backend)
   return `ORD-${Date.now()}`
 }
-
+ 
 function openCartPopup() {
   orderCode.value = makeOrderCode()
-  cartPopupOpen.value = true
-  document.documentElement.classList.add('no-scroll')
+ 
+  // ✅ Cuộn về đầu trang trước, rồi mới mở popup
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  setTimeout(() => {
+    cartPopupOpen.value = true
+    document.documentElement.classList.add('no-scroll')
+  }, 500)
 }
-
+ 
 watch(cartPopupOpen, async (v) => {
   if (v) {
     await nextTick()
     popupBackdropEl.value?.focus?.()
   }
 })
-
+ 
 function closeCartPopup() {
   cartPopupOpen.value = false
   document.documentElement.classList.remove('no-scroll')
 }
-
+ 
 function addToCart() {
-  // TODO: chỗ này bạn gắn logic “thêm vào giỏ” thật (store/pinia/localStorage/api)
+  // TODO: chỗ này bạn gắn logic "thêm vào giỏ" thật (store/pinia/localStorage/api)
   openCartPopup()
 }
-
+ 
 function onPopupKeydown(e) {
   if (e.key === 'Escape') closeCartPopup()
 }
-
+ 
 onBeforeUnmount(() => {
   document.documentElement.classList.remove('no-scroll')
 })
@@ -152,7 +157,7 @@ onBeforeUnmount(() => {
                         :height="cupLayers.bean.height * 2.44"
                         :style="{ fill: cupLayers.bean.color, '--delay': '0ms' }"
                       />
-
+ 
                       <!-- LAYER 2: Milk (trên coffee) -->
                       <rect
                         v-if="cupLayers.milk.show"
@@ -164,7 +169,7 @@ onBeforeUnmount(() => {
                         :style="{ fill: cupLayers.milk.color, '--delay': '80ms' }"
                       />
                     </g>
-
+ 
                     <!-- Khi HOÀN THÀNH (xuất hiện ống hút): cốc hoà 1 lớp, không tách tầng (Ảnh 2) -->
                     <g class="layers-mixed" :style="{ opacity: cupLayers.mixed.enabled ? 1 : 0 }">
                       <rect
@@ -177,7 +182,7 @@ onBeforeUnmount(() => {
                         :style="{ fill: cupLayers.mixed.color, '--delay': '0ms' }"
                       />
                     </g>
-
+ 
                     <!-- Overlay chiều sâu 2 cạnh -->
                     <rect x="0" y="28" width="200" height="244" fill="url(#depthGrad)" opacity="0.75"/>
  
@@ -200,14 +205,14 @@ onBeforeUnmount(() => {
                           fill="#fff"
                         />
                       </g>
-
+ 
                     <!-- TOPPING FX (không loạn khi chọn nhiều) -->
                     <g
                       v-if="cupLayers.toppingsFx"
                       class="topping-fx"
                       :key="'fx-' + cupLayers.toppingsFx.fxKey"
-                    >                      <!-- Bột (cacao/quế/vanilla): chỉ 1 hiệu ứng rắc, chọn màu theo ưu tiên -->
- chỉ 1 hiệu ứng rắc, chọn màu theo ưu tiên -->
+                    >
+                      <!-- Bột (cacao/quế/vanilla): chỉ 1 hiệu ứng rắc, chọn màu theo ưu tiên -->
                       <g v-if="cupLayers.toppingsFx.dustEnabled" class="fx-dust">
                         <circle
                           v-for="i in 18"
@@ -220,8 +225,8 @@ onBeforeUnmount(() => {
                         />
                       </g>
                     </g>
-
-
+ 
+ 
                     </g>
  
                     <!-- Drizzle caramel -->
@@ -513,9 +518,9 @@ onBeforeUnmount(() => {
  
       </div>
     </main>
-
+ 
     <!-- ══════════════════════════════════════════
-         POPUP THÔNG BÁO “THÊM VÀO GIỎ”
+         POPUP THÔNG BÁO "THÊM VÀO GIỎ"
          - click nền đen để đóng
          - nhấn ESC để đóng
     ══════════════════════════════════════════ -->
@@ -534,7 +539,7 @@ onBeforeUnmount(() => {
           <div class="cart-pop__icon" aria-hidden="true">
             <span class="cart-pop__icon-inner">🎉</span>
           </div>
-
+ 
           <h3 class="cart-pop__title">Pha chế xong — đã cho vào giỏ!</h3>
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>
@@ -542,5 +547,5 @@ onBeforeUnmount(() => {
     </transition>
   </div>
 </template>
- 
+
 <style src="../CSS-USER/Brewing.css"></style>

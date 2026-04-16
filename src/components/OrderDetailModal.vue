@@ -57,7 +57,7 @@
                       class="status-step"
                       :class="stepClass(st, idx)"
                       role="listitem"
-                      @click="requestChangeStatus(st.key)"
+                      @click="openConfirmStatus(st)"
                       :title="st.label"
                     >
                       <span class="status-step__circle" aria-hidden="true">
@@ -268,13 +268,30 @@
             </div>
           </div>
         </div>
+
+        <!-- ✅ CONFIRM MODAL (đẹp như mẫu) -->
+        <Transition name="confirm-pop">
+          <div v-if="confirmOpen" class="confirm-backdrop" @click.self="closeConfirm">
+            <div class="confirm-card" role="dialog" aria-modal="true">
+              <div class="confirm-icon" aria-hidden="true">
+                <span class="confirm-icon__inner">✦</span>
+              </div>
+              <h3 class="confirm-title">{{ confirmTitle }}</h3>
+              <p class="confirm-desc">{{ confirmDesc }}</p>
+              <div class="confirm-actions">
+                <button class="confirm-btn confirm-btn--ghost" @click="closeConfirm">Huỷ</button>
+                <button class="confirm-btn confirm-btn--primary" @click="confirmProceed">{{ confirmPrimaryText }}</button>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </div>
     </Transition>
   </Teleport>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useOrderTable } from "../Front-End/JS/OrderTable";
 import { useOrderDetailModal } from "../Front-End/JS/OrderDetailModal";
 
@@ -289,6 +306,34 @@ const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 const { money, statusText } = useOrderTable(() => {});
 const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } =
   useOrderDetailModal(props, emit, { money, statusText });
+
+// ── Confirm modal state (thay window.confirm) ─────────────
+const confirmOpen = ref(false);
+const confirmTitle = ref("Vui lòng xác nhận");
+const confirmDesc = ref("");
+const confirmPrimaryText = ref("Đồng ý");
+const pendingStatus = ref(null);
+
+function openConfirmStatus(st) {
+  if (!st) return;
+  pendingStatus.value = st.key;
+  confirmTitle.value = "Vui lòng xác nhận";
+  confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
+  confirmPrimaryText.value = "Tiếp tục";
+  confirmOpen.value = true;
+}
+
+function closeConfirm() {
+  confirmOpen.value = false;
+  pendingStatus.value = null;
+}
+
+function confirmProceed() {
+  if (!pendingStatus.value) return closeConfirm();
+  // gọi composable emit set-status
+  requestChangeStatus(pendingStatus.value);
+  closeConfirm();
+}
 
 const visibleSteps = computed(() => getVisibleSteps(props.order?.status));
 
@@ -321,596 +366,4 @@ function initials(name) {
 }
 </script>
 
-<style scoped>
-/* ── BACKDROP & CONTAINER ─────────────────────────── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
-  padding: 16px;
-}
-.modal-container {
-  width: 100%;
-  max-width: 860px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  background: #fff;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.16);
-  overflow: hidden;
-}
-
-/* ── HEADER ───────────────────────────────────────── */
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid #f1efe8;
-  background: #faf9f7;
-  flex-shrink: 0;
-}
-.modal-header__left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.modal-order-code {
-  font-size: 16px;
-  font-weight: 700;
-  color: #3c2a21;
-  letter-spacing: -0.3px;
-}
-.modal-close-btn {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1px solid #e7e5e0;
-  background: #fff;
-  color: #9c9589;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-.modal-close-btn:hover {
-  background: #f1efe8;
-  color: #5c5248;
-}
-
-/* ── STATUS BADGE ─────────────────────────────────── */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-.status-badge--pending {
-  background: #faeeda;
-  color: #854f0b;
-  border-color: #fac775;
-}
-.status-badge--processing {
-  background: #dbeafe;
-  color: #1e40af;
-  border-color: #93c5fd;
-}
-.status-badge--shipping {
-  background: #e0e7ff;
-  color: #3730a3;
-  border-color: #a5b4fc;
-}
-.status-badge--delivered {
-  background: #dcfce7;
-  color: #166534;
-  border-color: #86efac;
-}
-.status-badge--failed {
-  background: #ffe4e6;
-  color: #9f1239;
-  border-color: #fda4af;
-}
-.status-badge--cancelled {
-  background: #fee2e2;
-  color: #991b1b;
-  border-color: #fca5a5;
-}
-
-/* ── BODY ─────────────────────────────────────────── */
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-.modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.modal-grid {
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: 20px;
-}
-@media (max-width: 600px) {
-  .modal-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ── TIMELINE (đẹp như mẫu) ───────────────────────── */
-.status-timeline {
-  border: 1px solid #ede9e2;
-  background: #fff;
-  border-radius: 16px;
-  padding: 18px 18px 14px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-}
-.status-timeline__title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #111827;
-  margin: 0 0 18px;
-}
-.status-timeline__hint {
-  margin-top: 14px;
-  font-size: 12px;
-  color: #9ca3af;
-}
-
-.status-steps {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  overflow-x: auto;
-  overflow-y: visible; /* ✅ để line không bị cắt */
-  padding: 10px 2px 10px;
-}
-
-.status-step {
-  appearance: none;
-  background: transparent;
-  border: none;
-  padding: 0;
-  min-width: 140px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.status-step__circle {
-  width: 54px;
-  height: 54px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  border: 2px solid #e5e7eb;
-  color: #9ca3af;
-  background: #fff;
-  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
-}
-
-.status-step__icon {
-  width: 22px;
-  height: 22px;
-}
-
-.status-step__label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #9ca3af;
-  text-align: center;
-  line-height: 1.2;
-  max-width: 140px;
-  transition: color 220ms ease, transform 220ms ease;
-}
-
-/* Line có animation fill */
-.status-step__line {
-  height: 4px;
-  flex: 1;
-  border-radius: 999px;
-  /* ✅ line nằm ngang đúng tâm vòng tròn */
-  transform: translateY(-18px);
-  background:
-    linear-gradient(90deg, #c2410c 0%, #c2410c 100%) left center / 0% 100% no-repeat,
-    #e5e7eb;
-  transition: background-size 320ms cubic-bezier(0.2, 0.9, 0.2, 1);
-}
-
-/* current */
-.status-step.is-current .status-step__circle {
-  background: #c2410c;
-  border-color: #c2410c;
-  color: #ffffff;
-  box-shadow: 0 10px 20px rgba(194, 65, 12, 0.22);
-  animation: stepPop 260ms cubic-bezier(0.2, 0.9, 0.2, 1);
-}
-.status-step.is-current .status-step__label {
-  color: #c2410c;
-  transform: translateY(-1px);
-}
-
-/* done */
-.status-step.is-done .status-step__circle {
-  background: #c2410c;
-  border-color: #c2410c;
-  color: #ffffff;
-}
-.status-step.is-done .status-step__label {
-  color: #c2410c;
-}
-
-/* todo */
-.status-step.is-todo .status-step__circle {
-  background: #fff;
-  border-color: #e5e7eb;
-  color: #9ca3af;
-}
-.status-step.is-todo .status-step__label {
-  color: #9ca3af;
-}
-
-.status-step:hover .status-step__circle {
-  transform: translateY(-1px);
-}
-
-/* line done -> fill */
-.status-step__line.is-done {
-  background-size: 100% 100%, auto;
-}
-
-@keyframes stepPop {
-  0% {
-    transform: scale(0.92);
-  }
-  70% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* ── LEFT / RIGHT ─────────────────────────────────── */
-.modal-col-left {
-  border-right: 1px solid #f1efe8;
-  padding-right: 20px;
-}
-.modal-col-right {
-  padding-left: 4px;
-}
-
-/* ── SECTIONS ─────────────────────────────────────── */
-.info-section {
-  margin-bottom: 20px;
-}
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.section-header--between {
-  justify-content: space-between;
-}
-.section-icon {
-  color: #b0a99f;
-  flex-shrink: 0;
-}
-.section-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #b0a99f;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-
-/* ── AVATAR ───────────────────────────────────────── */
-.avatar {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #dbeafe;
-  color: #1e40af;
-  font-size: 10px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* ── INFO CARD ────────────────────────────────────── */
-.info-card {
-  background: #faf9f7;
-  border: 1px solid #ede9e2;
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.info-row {
-  display: grid;
-  grid-template-columns: 108px 1fr;
-  gap: 8px;
-  align-items: center;
-}
-.info-row--align-start {
-  align-items: start;
-}
-.info-label {
-  font-size: 13px;
-  color: #a8a098;
-}
-.info-value {
-  font-size: 13px;
-  color: #3c2a21;
-  line-height: 1.5;
-}
-.info-value--bold {
-  font-weight: 600;
-}
-.info-value--link {
-  color: #2563eb;
-  text-decoration: none;
-}
-.info-value--link:hover {
-  text-decoration: underline;
-}
-.info-value--empty {
-  color: #c4bfb8;
-}
-.info-value--note {
-  color: #a8a098;
-  font-style: italic;
-}
-
-/* ── QTY BADGE ────────────────────────────────────── */
-.qty-badge {
-  background: #f1efe8;
-  border: 1px solid #e7e5e0;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #7d7469;
-  padding: 2px 8px;
-}
-
-/* ── ITEM ROW ─────────────────────────────────────── */
-.item-row {
-  display: grid;
-  grid-template-columns: 1fr 36px 80px;
-  gap: 8px;
-  align-items: start;
-  padding: 12px 0;
-  border-bottom: 1px dashed #ede9e2;
-}
-.item-row:last-of-type {
-  border-bottom: none;
-}
-.item-name {
-  margin: 0 0 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #3c2a21;
-}
-.item-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-.option-tag {
-  background: #f1efe8;
-  border: 1px solid #e7e5e0;
-  border-radius: 4px;
-  font-size: 11px;
-  color: #7d7469;
-  padding: 2px 7px;
-}
-.item-qty {
-  text-align: center;
-  font-size: 13px;
-  color: #a8a098;
-  font-weight: 500;
-  padding-top: 1px;
-}
-.item-total {
-  text-align: right;
-  font-size: 13px;
-  font-weight: 600;
-  color: #3c2a21;
-  padding-top: 1px;
-}
-.empty-items {
-  padding: 20px 0;
-  text-align: center;
-  font-size: 13px;
-  color: #c4bfb8;
-}
-
-/* ── PAYMENT ──────────────────────────────────────── */
-.payment-card {
-  background: #faf9f7;
-  border: 1px solid #ede9e2;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 14px;
-}
-.payment-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: #7d7469;
-  margin-bottom: 8px;
-}
-.payment-row--discount {
-  color: #b91c1c;
-}
-.payment-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #ede9e2;
-  padding-top: 12px;
-  margin-top: 4px;
-}
-.payment-total span:first-child {
-  font-size: 14px;
-  font-weight: 600;
-  color: #3c2a21;
-}
-.payment-total__amount {
-  font-size: 16px;
-  font-weight: 700;
-  color: #3c2a21;
-}
-
-/* ── ACTIONS ──────────────────────────────────────── */
-.action-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.btn {
-  width: 100%;
-  padding: 11px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, opacity 0.15s, transform 0.1s;
-  border: none;
-}
-.btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-.btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-.btn--primary {
-  background: #3c2a21;
-  color: #fff;
-}
-.btn--primary:hover:not(:disabled) {
-  background: #2a1d17;
-}
-.btn--danger {
-  background: transparent;
-  color: #b91c1c;
-  border: 1px solid #fca5a5;
-}
-.btn--danger:hover:not(:disabled) {
-  background: #fff1f2;
-}
-.btn--ghost {
-  background: transparent;
-  color: #9c9589;
-  border: 1px solid #e7e5e0;
-}
-.btn--ghost:hover {
-  background: #faf9f7;
-}
-
-/* ── STATES ───────────────────────────────────────── */
-.modal-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 60px 20px;
-  font-size: 13px;
-  color: #a8a098;
-}
-.error-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #fee2e2;
-  color: #b91c1c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-state__msg {
-  color: #7d7469;
-}
-.retry-btn {
-  font-size: 12px;
-  font-weight: 600;
-  color: #634832;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* ── SPINNER ──────────────────────────────────────── */
-.spinner {
-  width: 28px;
-  height: 28px;
-  animation: spin 0.8s linear infinite;
-  color: #634832;
-}
-.spinner__track {
-  opacity: 0.2;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ── SCROLLBAR ────────────────────────────────────── */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e7e5e0;
-  border-radius: 99px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* ── TRANSITIONS ──────────────────────────────────── */
-.modal-fade-enter-active {
-  transition: opacity 0.2s ease;
-}
-.modal-fade-leave-active {
-  transition: opacity 0.18s ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-.modal-fade-enter-active .modal-container {
-  animation: slideUp 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
-}
-@keyframes slideUp {
-  from {
-    transform: translateY(16px) scale(0.98);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-}
-</style>
+<style src="../Front-End/CSS/OrderDetailModal.css" scoped></style>

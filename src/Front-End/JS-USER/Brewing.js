@@ -88,7 +88,7 @@ export function useBrewing() {
     _completeTimer = setTimeout(() => {
       completeReady.value = true
       _completeTimer = null
-    }, 10_000)
+    }, 5_000)
   }
 
   function clearCompleteDelay() {

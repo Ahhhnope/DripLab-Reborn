@@ -637,31 +637,38 @@
 /* khóa scroll khi popup mở */
 .no-scroll { overflow: hidden; }
 
-.cart-pop__backdrop{
+.cart-pop__backdrop {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 24px;
   background: rgba(0,0,0,.42);
   backdrop-filter: blur(6px);
+  overflow: visible; /* ✅ thêm dòng này */
 }
 
-.cart-pop__card{
+.cart-pop__card {
   width: min(720px, 92vw);
   background: #fbf6ef;
   border-radius: 28px;
-  padding: 34px 28px 28px;
+  padding: 48px 28px 28px;
   box-shadow: 0 28px 70px rgba(0,0,0,.28);
   text-align: center;
   color: #4a2f21;
+  position: relative;
+  margin-top: 31px; /* ✅ đẩy card xuống để icon không bị backdrop che */
 }
 
-.cart-pop__icon{
+.cart-pop__icon {
   width: 62px;
   height: 62px;
-  margin: -64px auto 14px;
+  position: absolute;
+  top: -31px;
+  left: 50%;
+  transform: translateX(-50%);
   background: #ffffff;
   border-radius: 999px;
   display: grid;
