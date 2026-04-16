@@ -1,8 +1,7 @@
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../Authorization/Auth'
 
-// Import icon từ heroicons
 import { 
   HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon, 
   DocumentTextIcon, TicketIcon, NewspaperIcon, 
@@ -11,12 +10,16 @@ import {
 } from '@heroicons/vue/24/outline'
 
 export function useAdminMenu() {
+    const route = useRoute()
+    const router = useRouter()
+
     const activeIndex = ref(1)
     const openMenu = ref(null)
     const openSub = ref(null)
-    const router = useRouter()
 
-    // 1. ĐỔI TÊN THÀNH menuGroups VÀ CHIA NHÓM
+    const auth = useAuthStore()
+
+    // === DANH SÁCH MENU (giữ nguyên) ===
     const menuGroups = [
         {
             title: 'Báo cáo & Phân tích',
@@ -52,7 +55,6 @@ export function useAdminMenu() {
         {
             title: 'Quản lý hệ thống',
             items: [
-
                 { id: 5, label: 'Khuyến mãi', icon: TicketIcon, path: '/QuanLyKhuyenMai' },
                 { 
                     id: 8, label: 'Tài khoản', icon: UserCircleIcon,
@@ -65,19 +67,87 @@ export function useAdminMenu() {
         }
     ]
 
+    // Hàm tìm item theo path (hỗ trợ cả children và subChildren)
+    const findMenuByPath = (path) => {
+        for (const group of menuGroups) {
+            for (const item of group.items) {
+                // Kiểm tra item chính
+                if (item.path === path) return item
 
-    //logout
-    const auth = useAuthStore();
+                // Kiểm tra children
+                if (item.children) {
+                    for (const child of item.children) {
+                        if (child.path === path) return child
+
+                        // Kiểm tra subChildren
+                        if (child.subChildren) {
+                            for (const sub of child.subChildren) {
+                                if (sub.path === path) return sub
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    // Set active menu theo route hiện tại
+    const setActiveFromRoute = () => {
+        const currentPath = route.path
+        const menuItem = findMenuByPath(currentPath)
+
+        if (menuItem) {
+            activeIndex.value = menuItem.id
+
+            // Mở menu cha nếu có children
+            if (menuItem.id.toString().length === 2) { // ví dụ: 31, 32, 81, 82...
+                // Tìm item cha
+                for (const group of menuGroups) {
+                    for (const item of group.items) {
+                        if (item.children) {
+                            const child = item.children.find(c => c.id === menuItem.id)
+                            if (child) {
+                                openMenu.value = item.id
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Mở sub menu nếu có subChildren
+            if (menuItem.id.toString().length === 3) { // ví dụ: 321, 322...
+                for (const group of menuGroups) {
+                    for (const item of group.items) {
+                        if (item.children) {
+                            for (const child of item.children) {
+                                if (child.subChildren) {
+                                    const sub = child.subChildren.find(s => s.id === menuItem.id)
+                                    if (sub) {
+                                        openMenu.value = item.id
+                                        openSub.value = child.id
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Logout
     const logout = async () => {
-        await auth.logout();
-        router.push('/login');
-    };
+        await auth.logout()
+        router.push('/login')
+    }
 
-
-
-    
+    // Xử lý click menu
     function clickMenu(item) {
         activeIndex.value = item.id
+
         if (item.children) {
             openMenu.value = openMenu.value === item.id ? null : item.id
         } else {
@@ -89,6 +159,7 @@ export function useAdminMenu() {
 
     function clickSub(child) {
         activeIndex.value = child.id
+
         if (child.subChildren) {
             openSub.value = openSub.value === child.id ? null : child.id
         } else {
@@ -102,6 +173,24 @@ export function useAdminMenu() {
         if (subChild.path) router.push(subChild.path)
     }
 
-    // 2. RETURN ĐÚNG TÊN BIẾN menuGroups
-    return { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild }
+    // Theo dõi thay đổi route để cập nhật active
+    watch(() => route.path, () => {
+        setActiveFromRoute()
+    }, { immediate: true })
+
+    // Khởi tạo ban đầu
+    onMounted(() => {
+        setActiveFromRoute()
+    })
+
+    return { 
+        menuGroups, 
+        activeIndex, 
+        openMenu, 
+        openSub, 
+        logout, 
+        clickMenu, 
+        clickSub, 
+        clickSubChild 
+    }
 }
