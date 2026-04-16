@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="page-title">Đơn hàng</div>
+    <div class="page-title">Quản Lý Đơn Hàng</div>
 
     <OrderStatusTab v-model="activeTab" />
     <OrderFilter @apply="applyFilter" />
