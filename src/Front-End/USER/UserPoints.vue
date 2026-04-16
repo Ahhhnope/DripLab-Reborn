@@ -13,7 +13,7 @@
           <div class="avatar-ring">
            <!--<img :src="user.avatar" alt="Avatar" class="avatar-img" />--> 
           </div>
-          <!--<h2 class="sidebar-name">{{ user.name }}</h2>-->
+          <h2 class="sidebar-name">{{ user.fullName }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
 
