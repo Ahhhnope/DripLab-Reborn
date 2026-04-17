@@ -39,10 +39,11 @@ export function useOrderList() {
         deadline:  o.orderDate ? new Date(o.orderDate).toLocaleString('vi-VN') : '-',
         createdAt: o.createdAt ? new Date(o.createdAt).toLocaleString('vi-VN') : '-',
         note:      o.note ?? '',
-        customer: {
-          id:      o.customer?.id       ?? null,
-          name:    o.customer?.fullName ?? o.customer?.name ?? '-',  // ✅ try fullName first
-          phone:   o.customer?.phone    ?? '-',
+        user: {
+          id:      o.user?.id       ?? null,
+          fullName:    o.user?.fullName ? o.user.fullName : '-',
+          email:    o.user?.email ? o.user.email : '-',
+          phone:   o.user?.phone    ?? '-',
           address: o.shippingAddress    ?? '-',
         },
         // damn....

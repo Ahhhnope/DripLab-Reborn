@@ -5,6 +5,7 @@
         <thead>
           <tr class="text-left text-sm text-slate-600">
             <th class="border-b border-slate-200 px-3 py-3 font-semibold">Mã đơn hàng</th>
+            <th class="border-b border-slate-200 px-3 py-3 font-semibold">Người đặt</th>
             <th class="border-b border-slate-200 px-3 py-3 font-semibold">Phương thức thanh toán</th>
             <th class="border-b border-slate-200 px-3 py-3 font-semibold">Trạng thái</th>
             <th class="border-b border-slate-200 px-3 py-3 text-center font-semibold">Số lượng món</th>
@@ -24,6 +25,10 @@
               <span class="font-extrabold text-blue-600 cursor-pointer hover:underline" @click="handleView(r)">
                 {{ r.code }}
               </span>
+            </td>
+
+            <td class="border-b border-slate-200 px-3 py-3 text-slate-600">
+              {{ r.user.fullName || "-" }}
             </td>
  
             <td class="border-b border-slate-200 px-3 py-3 text-slate-600">
