@@ -4,12 +4,43 @@
 
     <OrderStatusTab v-model="activeTab" />
     <OrderFilter @apply="applyFilter" />
-    <OrderTable :items="items"
-      @view="onView" 
-      @edit-saved="handleEditSaved"
-      @delete-confirmed="handleDeleteConfirmed"
-      @confirm="onConfirm"
-      @cancel="onCancel" />
+
+    <OrderTable :items="pagedItems" @view="onView" />
+
+    <!-- Pagination (giống mẫu bạn gửi) -->
+    <div v-if="totalPages > 1" class="mt-6 flex justify-center">
+      <div class="flex items-center gap-2">
+        <button
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+          :disabled="page === 1"
+          @click="page--"
+          aria-label="Trang trước"
+        >
+          ‹
+        </button>
+
+        <button
+          v-for="p in pages"
+          :key="p"
+          class="flex h-9 w-9 items-center justify-center rounded-md border text-sm font-semibold"
+          :class="p === page
+            ? 'border-blue-600 bg-blue-600 text-white'
+            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
+          @click="page = p"
+        >
+          {{ p }}
+        </button>
+
+        <button
+          class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+          :disabled="page === totalPages"
+          @click="page++"
+          aria-label="Trang sau"
+        >
+          ›
+        </button>
+      </div>
+    </div>
 
     <OrderDetailModal
       v-model:open="detailOpen"
@@ -21,27 +52,7 @@
 </template>
 
 <script setup>
-// import { ref } from "vue";
-// import OrderStatusTab from "../../components/OrderStatusTab.vue";
-// import OrderFilter from "../../components/OrderFilter.vue";
-// import OrderTable from "../../components/OrderTable.vue";
-// import OrderDetailModal from "../../components/OrderDetailModal.vue";
-// import { useOrderList } from "../JS/OrderList";
-
-// const { activeTab, items, applyFilter } = useOrderList();
-
-// const detailOpen = ref(false);
-// const selectedOrder = ref(null);
-
-// function onView(row) {
-//   selectedOrder.value = row;   // lấy luôn data mẫu trong OrderList.js
-//   detailOpen.value = true;
-// }
-
-// function onConfirm(row) { console.log("confirm", row); }
-// function onCancel(row) { console.log("cancel", row); }
-
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import OrderStatusTab from "../../components/OrderStatusTab.vue";
 import OrderFilter from "../../components/OrderFilter.vue";
 import OrderTable from "../../components/OrderTable.vue";
@@ -50,7 +61,17 @@ import { useOrderList } from "../JS/OrderList";
 import { notifyInvoiceUpdate } from "../../utils/bus";
 import api from "../../api/axios";
 
-const { activeTab, filter, allItems, items, applyFilter, loadOrders, mapStatus } = useOrderList();
+const {
+  activeTab,
+  applyFilter,
+  loadOrders,
+
+  // pagination from composable
+  page,
+  pageSize,
+  totalPages,
+  pagedItems,
+} = useOrderList();
 
 const detailOpen = ref(false);
 const selectedOrder = ref(null);
@@ -62,96 +83,71 @@ function onView(row) {
 
 function toVietnameseStatus(s) {
   const map = {
-    'pending':    'Chờ xác nhận',
-    'processing': 'Đang xử lý',
-    'shipping':   'Đang vận chuyển',
-    'delivered':  'Đã giao',
-    'cancelled':  'Đã huỷ',
+    pending: "Chờ xác nhận",
+    processing: "Đang xử lý",
+    shipping: "Đang vận chuyển",
+    delivered: "Đã giao",
+    cancelled: "Đã huỷ",
+    delivery_failed: "Giao hàng không thành công",
   };
   return map[s] ?? s;
 }
 
-
-async function handleEditSaved(updated) {
-  // 1. Optimistic Update (Update local UI immediately)
-  const idx = allItems.value.findIndex(o => o.id === updated.id);
-  if (idx !== -1) allItems.value[idx] = { ...allItems.value[idx], ...updated };
-
+async function patchOrder(updated) {
   try {
     const vStatus = toVietnameseStatus(updated.status);
-    
-    // 2. Patch the order
+
     await api.patch(`/orders/update/${updated.id}/`, {
       status: vStatus,
       note: updated.note,
-      paymentMethod: updated.shippingType
+      paymentMethod: updated.shippingType,
     });
 
-    // 3. If it was delivered, tell the Invoice Table to reload
-    if (vStatus === 'Đã giao') {
-      notifyInvoiceUpdate();
-    }
+    if (vStatus === "Đã giao") notifyInvoiceUpdate();
 
-    await loadOrders(); // Refresh order list data from server
+    await loadOrders();
   } catch (e) {
     console.error("Update error:", e);
   }
 }
 
-async function handleDeleteConfirmed(row) {
-  try {
-    await api.delete(`/orders/remove/${row.id}`);
-    allItems.value = allItems.value.filter(o => o.id !== row.id);
-  } catch (e) {
-    console.error("Delete failed:", e);
-    alert("Lỗi: Không thể xóa đơn hàng này (Đã tồn tại hóa đơn).");
-  }
+// Nút xác nhận/huỷ vẫn giữ trong modal chi tiết
+function onConfirm(row) {
+  patchOrder({ ...row, status: "processing" });
 }
 
-async function createInvoiceFromOrder(order) {
-  try {
-    await api.post('/invoices/add', {
-      orderId:        order.id,
-      paymentMethod:  order.shippingType || 'COD',
-      receiveType:    'Online',
-      finalPrice:     order.pay,
-      customerId:     order.customer?.id || null,
-    });
-  } catch (e) {
-    // Nếu hóa đơn đã tồn tại (409) thì bỏ qua
-    if (e.response?.status !== 409) {
-      console.error('Lỗi tạo hóa đơn:', e);
-    }
-  }
+function onCancel(row) {
+  patchOrder({ ...row, status: "cancelled" });
 }
 
-// const emit = defineEmits(['status-updated']);
+// pages hiển thị đẹp: tối đa 5 trang, có trượt theo page hiện tại
+const pages = computed(() => {
+  const total = totalPages.value;
+  const current = page.value;
+  const windowSize = 5;
 
-// const updateStatus = async (orderId, newStatus) => {
-//   try {
-//     await api.put(`/orders/${orderId}/status`, { status: newStatus });
-    
-//     // 1. Update local order UI
-//     fetchOrders(); 
-    
-//     // 2. Tell the parent to reload invoices
-//     emit('status-updated');
-    
-//   } catch (error) {
-//     console.error("Failed to update status", error);
-//   }
-// };
+  if (total <= windowSize) return Array.from({ length: total }, (_, i) => i + 1);
 
-function onConfirm(row) { handleEditSaved({ ...row, status: 'processing' }); }
-function onCancel(row)  { handleEditSaved({ ...row, status: 'cancelled' }); }
+  let start = Math.max(1, current - 2);
+  let end = start + windowSize - 1;
+
+  if (end > total) {
+    end = total;
+    start = end - windowSize + 1;
+  }
+
+  const out = [];
+  for (let p = start; p <= end; p++) out.push(p);
+  return out;
+});
 </script>
 
 <style scoped>
 .page-title {
-  text-align: left;      /* Căn giữa chữ */
-  font-size: 28px;         /* Làm chữ to ra (bạn có thể thay đổi số này) */
-  font-weight: bold;       /* In đậm chữ cho giống tiêu đề */
-  margin-bottom: 20px;     /* Tạo khoảng cách với phần bộ lọc phía dưới */
-  color: #333;             /* Màu chữ (tuỳ chọn) */
+  text-align: left;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
 }
 </style>
