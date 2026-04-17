@@ -109,9 +109,11 @@ export function useOrderList() {
   const startItem = computed(() => (totalItems.value ? (page.value - 1) * pageSize.value + 1 : 0));
   const endItem = computed(() => Math.min(page.value * pageSize.value, totalItems.value));
 
-  watch([items, pageSize], () => {
+  // Reset về trang 1 khi người dùng đổi filter/tab hoặc đổi pageSize.
+  // KHÔNG reset khi list tự reload 5s/lần (tránh bị nhảy về trang 1).
+  watch([activeTab, filter, pageSize], () => {
     page.value = 1;
-  });
+  }, { deep: true });
 
   watch(totalPages, () => {
     if (page.value > totalPages.value) page.value = totalPages.value;
