@@ -23,7 +23,7 @@
 
   font-family: 'Be Vietnam Pro', sans-serif;
   width: 100%;
-  height: 100%;
+  height: 100vh;   /* Dùng 100vh thay vì 100% để chắc chắn có chiều cao */
   overflow: hidden;
   display: block;
   box-sizing: border-box;
@@ -126,7 +126,7 @@
 ────────────────────────────────────────────── */
 .info-page {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: var(--cream);
   display: flex;
   flex-direction: row;
@@ -145,7 +145,7 @@
   background: var(--brown);
   color: var(--white);
   padding: 16px 28px;
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: 1px;
   text-align: center;
@@ -591,7 +591,7 @@
 .counter-order {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background: var(--cream);
   overflow: hidden;
 }
@@ -602,7 +602,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: 100%;
+  height: 100vh;
   overflow: hidden;
 }
 
@@ -860,7 +860,7 @@
 }
 
 /* ──────────────────────────────────────────────
-   CỘT PHẢI — CỐ ĐỊNH
+   CỘT PHẢI — CỐ ĐỊNH (DÙNG CHUNG CHO CẢ info VÀ order)
 ────────────────────────────────────────────── */
 .order-section {
   width: 300px;
@@ -869,9 +869,10 @@
   border-left: 2px solid var(--cream-dark);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;  /* Cả cột không scroll */
+  height: 100vh;       /* Luôn chiếm đúng chiều cao viewport */
+  overflow: hidden;
   flex-shrink: 0;
+  outline: none;
 }
 
 .order-section-title {
@@ -880,7 +881,11 @@
   font-size: 15px;
   font-weight: 800;
   text-align: center;
-  padding: 19px;
+  padding: 0 21px;
+  height: 60px;          
+  display: flex;
+  align-items: center;
+  justify-content: center;
   letter-spacing: 0.5px;
   flex-shrink: 0;
 }
@@ -942,7 +947,7 @@
   color: var(--brown-dark);
 }
 
-/* SỬA: Sản phẩm mua — scroll dọc độc lập, chiếm toàn bộ không gian còn lại */
+/* FIX: Sản phẩm mua — scroll dọc độc lập, chiếm toàn bộ không gian còn lại */
 .right-products-block {
   flex: 1;           /* Chiếm hết không gian còn lại giữa customer block và footer */
   overflow-y: auto;  /* Chỉ phần này scroll dọc */
