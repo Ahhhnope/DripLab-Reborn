@@ -1,30 +1,50 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { sharedUser } from './Useruser.JS'
+import api from '../../api/axios'
+import { useAuthStore } from '../Authorization/Auth'
 
 export function useUserPoints() {
-  const router = useRouter()
+  const router       = useRouter()
+  const auth         = useAuthStore()
   const currentRoute = '/account/points'
 
   const navItems = [
-    { id: 'account',  label: 'Tài Khoản',          icon: 'person',      route: '/account' },
-    { id: 'password', label: 'Thay đổi mật khẩu',  icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa Chỉ',             icon: 'location_on', route: '/account/address' },
-    { id: 'orders',   label: 'Đơn hàng của tôi',    icon: 'package',     route: '/account/orders' },
-    { id: 'points',   label: 'Điểm của tôi',        icon: 'loyalty',     route: '/account/points' },
+    { id: 'account',  label: 'Tài Khoản',         icon: 'person',      route: '/account'          },
+    { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
+    { id: 'address',  label: 'Địa Chỉ',            icon: 'location_on', route: '/account/address'  },
+    { id: 'orders',   label: 'Đơn hàng của tôi',   icon: 'package',     route: '/account/orders'   },
+    { id: 'points',   label: 'Điểm của tôi',       icon: 'loyalty',     route: '/account/points'   },
   ]
 
   const user = sharedUser
 
-  // ── Điểm ──────────────────────────────────────────────────
-  // TODO: thay bằng API → GET /customers/{id} → loyalty_point
-  const myPoints    = ref(31200)
-  const usedPoints  = ref(18800)
+  // ── userId từ auth store ────────────────────────────────────
+  const userId = computed(() => auth.user?.id ?? null)
 
+  // ══════════════════════════════════════════════════════════
+  //  ĐIỂM TÍCH LŨY
+  // ══════════════════════════════════════════════════════════
+  const myPoints   = ref(0)
+  const usedPoints = ref(0)
+
+  async function loadPoints() {
+    if (!userId.value) return
+    try {
+      // GET /customers/me → trả về { loyaltyPoint, usedPoint, ... }
+      const res = await api.get('/customers/me')
+      myPoints.value   = res.data.loyaltyPoint ?? 0
+      usedPoints.value = res.data.usedPoint    ?? 0
+    } catch (e) {
+      console.error('Không thể tải điểm:', e)
+    }
+  }
+
+  // ── Hạng thành viên ────────────────────────────────────────
   const TIERS = [
-    { name: 'Bạc',    min: 0,      next: 'Vàng',   nextMin: 50000  },
-    { name: 'Vàng',   min: 50000,  next: 'Kim cương', nextMin: 150000 },
-    { name: 'Kim cương', min: 150000, next: null, nextMin: null },
+    { name: 'Bạc',       min: 0,      next: 'Vàng',      nextMin: 50000  },
+    { name: 'Vàng',      min: 50000,  next: 'Kim cương', nextMin: 150000 },
+    { name: 'Kim cương', min: 150000, next: null,        nextMin: null   },
   ]
 
   const currentTierObj = computed(() =>
@@ -39,90 +59,128 @@ export function useUserPoints() {
     const base = currentTierObj.value.min
     const top  = nextTierPoints.value
     if (!currentTierObj.value.next) return 100
-    return Math.min(Math.round(((myPoints.value - base) / (top - base)) * 100), 100)
+    return Math.min(
+      Math.round(((myPoints.value - base) / (top - base)) * 100),
+      100
+    )
   })
 
-  // ── Vouchers ───────────────────────────────────────────────
-  const vouchers = ref([
-    {
-      id: 1,
-      tag: 'Giảm giá',  color: 'orange',
-      name: 'Giảm 10% đơn hàng',
-      desc: 'Áp dụng cho tất cả sản phẩm, không giới hạn giá trị đơn.',
-      cost: 20000,
-    },
-    {
-      id: 2,
-      tag: 'Giảm giá',  color: 'orange',
-      name: 'Giảm 20% đơn hàng',
-      desc: 'Áp dụng cho tất cả sản phẩm, tối đa giảm 50.000 đ.',
-      cost: 35000,
-    },
-    {
-      id: 3,
-      tag: 'Miễn phí',  color: 'green',
-      name: 'Miễn phí 1 ly size M',
-      desc: 'Tặng 1 ly bất kỳ size M khi đặt đơn từ 2 ly trở lên.',
-      cost: 25000,
-    },
-    {
-      id: 4,
-      tag: 'Ship',       color: 'blue',
-      name: 'Miễn phí giao hàng',
-      desc: 'Áp dụng cho đơn online, giao trong nội thành Hà Nội.',
-      cost: 15000,
-    },
-    {
-      id: 5,
-      tag: 'Đặc biệt',  color: 'purple',
-      name: 'Giảm 50% cho lần đặt tiếp theo',
-      desc: 'Áp dụng 1 lần cho đơn hàng bất kỳ, không giới hạn giá trị.',
-      cost: 50000,
-    },
-    {
-      id: 6,
-      tag: 'Miễn phí',  color: 'green',
-      name: 'Miễn phí topping tùy chọn',
-      desc: 'Được thêm 1 topping bất kỳ miễn phí cho mỗi ly trong đơn.',
-      cost: 10000,
-    },
-  ])
+  // ══════════════════════════════════════════════════════════
+  //  VOUCHERS — Đổi thưởng
+  //  Gọi GET /promo-codes/rewards (display_location = 'đổi thưởng')
+  // ══════════════════════════════════════════════════════════
+  const vouchers      = ref([])
+  const savedPromoIds = ref([])   // id các mã user đã đổi
 
-  function canRedeem(cost) {
-    return myPoints.value >= cost
+  async function loadVouchers() {
+    try {
+      const res = await api.get('/promo-codes/rewards')
+      vouchers.value = res.data
+    } catch (e) {
+      console.error('Không thể tải voucher đổi thưởng:', e)
+    }
   }
 
-  function redeem(voucher) {
-    if (!canRedeem(voucher.cost)) return
-
-    myPoints.value  -= voucher.cost
-    usedPoints.value += voucher.cost
-
-    // Thêm vào lịch sử
-    pointHistory.value.unshift({
-      type: 'use',
-      desc: `Đổi voucher: ${voucher.name}`,
-      date: new Date().toLocaleDateString('vi-VN'),
-      pts:  voucher.cost,
-    })
-
-    showToast(`Đổi thành công: ${voucher.name}!`, 'success')
-
-    // TODO: gọi API → POST /vouchers/redeem { customerId, voucherId }
+  async function loadSavedPromos() {
+    if (!userId.value) return
+    try {
+      const res = await api.get('/promo-codes/my-promos', {
+        params: { userId: userId.value }
+      })
+      savedPromoIds.value = res.data.map(v => v.id)
+    } catch (e) {
+      console.error('Không thể tải kho mã:', e)
+    }
   }
 
-  // ── Lịch sử điểm ──────────────────────────────────────────
-  // TODO: thay bằng API → GET /customers/{id}/point-history
-  const pointHistory = ref([
-    { type: 'earn', desc: 'Đặt hàng #DL-8080-41',       date: '30/03/2026', pts: 193   },
-    { type: 'use',  desc: 'Đổi voucher: Giảm 10%',       date: '25/03/2026', pts: 20000 },
-    { type: 'earn', desc: 'Đặt hàng #DL-6401-08',        date: '15/08/2023', pts: 130   },
-    { type: 'earn', desc: 'Đặt hàng #DL-7501-19',        date: '01/09/2023', pts: 58    },
-    { type: 'earn', desc: 'Đặt hàng #DL-8122-42',        date: '28/09/2023', pts: 160   },
-    { type: 'earn', desc: 'Đặt hàng #DL-9283-01',        date: '12/10/2023', pts: 98    },
-  ])
+  /** Kiểm tra user có thể đổi voucher này không */
+  function canRedeem(voucher) {
+    if (!userId.value) return false
+    if (savedPromoIds.value.includes(voucher.id)) return false
+    if (voucher.quantity <= 0) return false
+    // Nếu muốn trừ điểm: thêm field pointCost vào DB và so sánh ở đây
+    // return myPoints.value >= voucher.pointCost
+    return true
+  }
 
-  // ── Toast ──────────────────────────────────────────────────
+  function isAlreadySaved(voucherId) {
+    return savedPromoIds.value.includes(voucherId)
+  }
+
+  /** Bấm "Đổi ngay" */
+  async function redeem(voucher) {
+    if (!canRedeem(voucher)) return
+    if (!userId.value) { showToast('Vui lòng đăng nhập!', 'error'); return }
+
+    try {
+      // Lưu mã vào kho của user + trừ quantity
+      await api.post(`/promo-codes/${voucher.id}/save`, null, {
+        params: { userId: userId.value }
+      })
+
+      // Cập nhật local ngay, không cần reload toàn bộ
+      savedPromoIds.value.push(voucher.id)
+
+      // Trừ quantity hiển thị local
+      const v = vouchers.value.find(v => v.id === voucher.id)
+      if (v) v.quantity = Math.max(0, (v.quantity ?? 1) - 1)
+
+      // Refresh điểm từ server (nếu backend trừ điểm)
+      await loadPoints()
+
+      // Ghi vào lịch sử
+      pointHistory.value.unshift({
+        type: 'use',
+        desc: `Đổi voucher: ${voucher.name}`,
+        date: new Date().toLocaleDateString('vi-VN'),
+        pts:  0,  // thay bằng voucher.pointCost khi có field đó
+      })
+
+      showToast(`Đổi thành công: ${voucher.name}!`, 'success')
+    } catch (e) {
+      showToast(e.response?.data?.message || 'Lỗi khi đổi voucher', 'error')
+    }
+  }
+
+  /** Format giá trị hiển thị trên card */
+  function fmtValue(v) {
+    return v.category === 'PHẦN TRĂM'
+      ? v.value + '%'
+      : (+v.value).toLocaleString('vi-VN') + 'đ'
+  }
+
+  /** Màu tag theo loại voucher */
+  function tagColor(v) {
+    return v.category === 'PHẦN TRĂM' ? 'tag-orange' : 'tag-green'
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  LỊCH SỬ ĐIỂM
+  // ══════════════════════════════════════════════════════════
+  const pointHistory = ref([])
+
+  async function loadHistory() {
+    if (!userId.value) return
+    try {
+      // Khi có API: const res = await api.get('/customers/me/point-history')
+      // pointHistory.value = res.data
+      // Tạm dùng data mẫu
+      pointHistory.value = [
+        { type: 'earn', desc: 'Đặt hàng #DL-8080-41',  date: '30/03/2026', pts: 193   },
+        { type: 'use',  desc: 'Đổi voucher: Giảm 10%', date: '25/03/2026', pts: 20000 },
+        { type: 'earn', desc: 'Đặt hàng #DL-6401-08',  date: '15/08/2023', pts: 130   },
+        { type: 'earn', desc: 'Đặt hàng #DL-7501-19',  date: '01/09/2023', pts: 58    },
+        { type: 'earn', desc: 'Đặt hàng #DL-8122-42',  date: '28/09/2023', pts: 160   },
+        { type: 'earn', desc: 'Đặt hàng #DL-9283-01',  date: '12/10/2023', pts: 98    },
+      ]
+    } catch (e) {
+      console.error('Không thể tải lịch sử điểm:', e)
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  TOAST
+  // ══════════════════════════════════════════════════════════
   const toastVisible = ref(false)
   const toastMessage = ref('')
   const toastType    = ref('success')
@@ -134,18 +192,32 @@ export function useUserPoints() {
     setTimeout(() => { toastVisible.value = false }, 3000)
   }
 
-  // ── Navigation ─────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════
+  //  NAVIGATION
+  // ══════════════════════════════════════════════════════════
   function goTo(route) { router.push(route) }
+  function logout()    { router.push('/login') }
 
-  function logout() { router.push('/login') }
+  // ══════════════════════════════════════════════════════════
+  //  INIT — gọi khi component mount
+  // ══════════════════════════════════════════════════════════
+  async function initPage() {
+    await Promise.all([
+      loadPoints(),
+      loadVouchers(),
+      loadSavedPromos(),
+      loadHistory(),
+    ])
+  }
 
   return {
     user, navItems, currentRoute,
     myPoints, usedPoints,
     currentTier, nextTier, nextTierPoints, progress,
-    vouchers, canRedeem, redeem,
+    vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
     pointHistory,
     toastVisible, toastMessage, toastType,
     goTo, logout,
+    initPage,
   }
 }

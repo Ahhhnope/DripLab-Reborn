@@ -3,7 +3,7 @@
     width: 100%;
 }
 
-/* tiêu đề */
+/* ── Tiêu đề ── */
 .promo-page h2 {
     font-size: 26px;
     font-weight: 600;
@@ -11,7 +11,7 @@
     margin-bottom: 20px;
 }
 
-/* filter */
+/* ── Filter ── */
 .filter {
     background: #fff;
     padding: 16px;
@@ -38,7 +38,7 @@
     border-color: #f97316;
 }
 
-/* BUTTON filter */
+/* ── Buttons filter ── */
 .filter button {
     padding: 8px 14px;
     border: none;
@@ -47,21 +47,25 @@
     font-size: 14px;
 }
 
+/* Lọc */
 .filter button:nth-child(6) {
     background: #f97316;
     color: white;
 }
 
+/* Xóa lọc */
 .filter button:nth-child(7) {
     background: #e5e7eb;
+    color: #374151;
 }
 
+/* Thêm voucher */
 .filter button:nth-child(8) {
     background: #22c55e;
     color: white;
 }
 
-/* bảng */
+/* ── Bảng ── */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -78,13 +82,14 @@ tbody td {
     padding: 10px 8px;
     border: 1px solid #ddd;
     text-align: center;
+    font-size: 13px;
 }
 
 tbody tr:hover {
     background: #fafafa;
 }
 
-/* Dòng trống */
+/* ── Dòng trống ── */
 .empty-row td {
     height: 42px;
     border-left: 1px solid #ddd;
@@ -93,7 +98,7 @@ tbody tr:hover {
     border-bottom: none;
 }
 
-/* Status badge trong bảng */
+/* ── Status badge ── */
 .status-badge {
     display: inline-block;
     padding: 3px 10px;
@@ -112,7 +117,27 @@ tbody tr:hover {
     color: #dc2626;
 }
 
-/* pagination */
+/* ── Location badge (Hiện ở) ── */
+.location-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.location-badge.web {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.location-badge.reward {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+/* ── Pagination ── */
 .pagination {
     margin-top: 16px;
     display: flex;
@@ -143,7 +168,7 @@ tbody tr:hover {
     cursor: not-allowed;
 }
 
-/* Nút hành động */
+/* ── Action buttons ── */
 .action-buttons {
     display: flex;
     gap: 8px;
@@ -157,11 +182,10 @@ tbody tr:hover {
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 12px;
 }
 
-.edit-btn:hover {
-    background: #2563eb;
-}
+.edit-btn:hover { background: #2563eb; }
 
 .delete-btn {
     background: #ef4444;
@@ -170,11 +194,10 @@ tbody tr:hover {
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
+    font-size: 12px;
 }
 
-.delete-btn:hover {
-    background: #dc2626;
-}
+.delete-btn:hover { background: #dc2626; }
 
 /* ── Modal overlay ── */
 .modal-overlay {
@@ -258,9 +281,7 @@ tbody tr:hover {
     font-weight: 600;
 }
 
-.save-btn:hover {
-    background: #357abd;
-}
+.save-btn:hover { background: #357abd; }
 
 .cancel-btn {
     background: #e0e0e0;
@@ -272,11 +293,9 @@ tbody tr:hover {
     font-weight: 600;
 }
 
-.cancel-btn:hover {
-    background: #c8c8c8;
-}
+.cancel-btn:hover { background: #c8c8c8; }
 
-/* ── Toast thông báo ── */
+/* ── Toast ── */
 .toast-notification {
     position: fixed;
     bottom: 30px;
@@ -299,10 +318,5 @@ tbody tr:hover {
     transform: translateY(0);
 }
 
-.toast-notification.success {
-    background: #22c55e;
-}
-
-.toast-notification.error {
-    background: #ef4444;
-}
+.toast-notification.success { background: #22c55e; }
+.toast-notification.error   { background: #ef4444; }
