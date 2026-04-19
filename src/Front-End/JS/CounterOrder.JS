@@ -68,12 +68,17 @@ export function useCounterOrder() {
     function onNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
         customerNameInput.value = val
+        // Force update DOM để loại bỏ ký tự không hợp lệ ngay lập tức
+        e.target.value = val
         nameError.value = ''
     }
 
     function onPhoneInput(e) {
+        // Chỉ giữ lại số, loại bỏ tất cả chữ cái và ký tự đặc biệt
         const val = e.target.value.replace(/\D/g, '').slice(0, 10)
         customerPhoneInput.value = val
+        // Force update DOM — bắt buộc để chặn ký tự lạ hiển thị trên màn hình
+        e.target.value = val
         phoneError.value = ''
     }
 
@@ -448,6 +453,8 @@ export function useCounterOrder() {
     function onMomoPhoneInput(e) {
         const clean = e.target.value.replace(/\D/g, '').slice(0, 10)
         momoPhone.value = clean
+        // Force update DOM
+        e.target.value = clean
         momoError.value = ''
         momoName.value = ''
         momoLoading.value = false

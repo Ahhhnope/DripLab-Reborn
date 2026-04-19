@@ -165,7 +165,7 @@ function availableTableCount() {
         </div>
       </div>
 
-      <!-- Cột phải cố định -->
+      <!-- Cột phải cố định — dùng chung class order-section -->
       <div class="order-section">
         <div class="order-section-title">CHI TIẾT KHÁCH HÀNG</div>
         <div class="right-customer-block">
@@ -232,9 +232,6 @@ function availableTableCount() {
 
         <!-- Cảnh báo bàn — box vàng nền vàng giống warning trên -->
         <div v-if="confirmWarningTable" class="confirm-warning-table">{{ confirmWarningTable }}</div>
-
-        <!-- SỬA: Đường kẻ ngang đặt DƯỚI cả 2 thông báo -->
-
 
         <div class="confirm-btns">
           <button class="btn-back" @click="backFromConfirmToInfo">Quay Lại</button>
