@@ -747,3 +747,56 @@
   30%  { opacity: 0.85; }
   100% { transform: translateY(8px);  opacity: 0.35; }
 }
+
+
+/* ─── LOGO INPUT (bước hoàn thành) ─────────────────────────── */
+.logo-config {
+  margin-top: 14px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: #f7f7f7;
+}
+
+.logo-config__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+
+.logo-config__input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.10);
+  outline: none;
+  background: #fff;
+}
+
+.logo-config__input:focus {
+  border-color: rgba(76,175,80,0.55);
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.14);
+}
+
+.logo-config__hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #6f6f6f;
+}
+
+/* ─── CUP LOGO ─────────────────────────────────────────────── */
+.cup-logo image {
+  /* Đổ bóng mềm + nổi nhẹ để logo bám vào mặt cốc */
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,0.38))
+    drop-shadow(0 8px 18px rgba(0,0,0,0.18))
+    drop-shadow(0 2px 4px rgba(0,0,0,0.10));
+  opacity: 0.95;
+}
+
+/* Tùy chọn: nếu logo bị quá sắc, giảm tương phản nhẹ */
+.cup-logo image {
+  image-rendering: auto;
+}
