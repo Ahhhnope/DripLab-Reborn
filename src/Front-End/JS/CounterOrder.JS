@@ -68,7 +68,7 @@ export function useCounterOrder() {
     function onNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
         customerNameInput.value = val
-        // Force update DOM để loại bỏ ký tự không hợp lệ ngay lập tức
+
         e.target.value = val
         nameError.value = ''
     }
