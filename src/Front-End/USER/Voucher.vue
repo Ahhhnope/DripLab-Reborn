@@ -152,4 +152,4 @@ import { useUserVoucher } from '../JS-USER/UserVoucher'
 const { claimedDays, isDayUnlocked, claimDay, modal, copyCode } = useVoucher()
 const { promos, isSaved, savePromo, fmtValue, toast }           = useUserVoucher()
 </script>
-<style src="../CSS-USER/Voucher.CSS"></style>
+<style scoped src="../CSS-USER/Voucher.CSS"></style>
