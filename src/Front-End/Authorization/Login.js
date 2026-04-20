@@ -48,7 +48,7 @@ export function useLogin() {
       if (user.role.toUpperCase() === 'ADMIN') {
         window.location.href = 'http://localhost:5005/Dashboard'
       } else {
-          window.location.href = 'http://localhost:5173/homepage';
+          window.location.href = 'http://localhost:5173/choosestores';
       }
     } catch (err) {
       errorMsg.value = err.response?.data?.message || 'Đăng nhập thất bại'
