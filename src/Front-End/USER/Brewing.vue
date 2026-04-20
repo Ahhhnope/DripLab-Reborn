@@ -3,6 +3,7 @@
 import { ref, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useBrewing } from '../JS-USER/Brewing.js'
 import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
+import driplabLogo2 from '../IMG/DripLab_Logo.png'
 
 const {
   beanOptions, baseOptions, milkOptions, toppingOptions,
@@ -14,6 +15,7 @@ const {
   selectedBean, selectedBase, selectedMilk,
   price, formatVnd,
   notice,
+  logoUrl,
 } = useBrewing()
 
 
@@ -22,15 +24,9 @@ const {
 // Popup thông báo "đã thêm vào giỏ"
 // ─────────────────────────────────────────────────────────────
 const cartPopupOpen = ref(false)
-const orderCode = ref('')
 const popupBackdropEl = ref(null)
 
-function makeOrderCode() {
-  return `ORD-${Date.now()}`
-}
-
 function openCartPopup() {
-  orderCode.value = makeOrderCode()
   window.scrollTo({ top: 0, behavior: 'smooth' })
   setTimeout(() => {
     cartPopupOpen.value = true
@@ -104,12 +100,6 @@ onBeforeUnmount(() => {
                       <stop offset="75%" stop-color="#fff" stop-opacity="0.06" />
                       <stop offset="100%" stop-color="#fff" stop-opacity="0.22" />
                     </linearGradient>
-                    <!--
-                      surfaceGrad: shimmer hòa với màu liquid bên dưới.
-                      Dùng currentColor trick — màu thực được set qua CSS variable
-                      trên element cha .cup-svg, tính từ cupLayers.bean.color.
-                      Opacity thấp hơn (0.18 max) để không trông như váng sữa.
-                    -->
                     <linearGradient id="surfaceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%"   :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.22" />
                       <stop offset="40%"  :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.06" />
@@ -151,7 +141,7 @@ onBeforeUnmount(() => {
                         width="200" :height="cupLayers.bean.height * 2.44"
                         :style="{ fill: cupLayers.bean.color, '--delay': '0ms' }" />
 
-                      <!-- LAYER 2: Milk — FIX: chỉ render khi hasMilk thật sự (show=true) -->
+                      <!-- LAYER 2: Milk -->
                       <rect v-if="cupLayers.milk.show" class="liq-layer" x="0"
                         :y="272 - (cupLayers.bean.height + cupLayers.milk.height) * 2.44" width="200"
                         :height="cupLayers.milk.height * 2.44"
@@ -168,7 +158,7 @@ onBeforeUnmount(() => {
                     <!-- Overlay chiều sâu 2 cạnh -->
                     <rect x="0" y="28" width="200" height="244" fill="url(#depthGrad)" opacity="0.75" />
 
-                    <!-- LAYER 4: Foam — chỉ hiện khi có sữa hoặc chọn whip topping -->
+                    <!-- LAYER 4: Foam -->
                     <g v-if="cupLayers.foam.show" class="foam-group">
                       <ellipse :cx="100"
                         :cy="272 - (cupLayers.bean.height + (cupLayers.milk.show ? cupLayers.milk.height : 0)) * 2.44"
@@ -224,7 +214,7 @@ onBeforeUnmount(() => {
                       <ellipse cx="44" cy="202" rx="2" ry="3.5" :style="{ '--dur': '5s', '--delay-anim': '0.7s' }" />
                     </g>
 
-                    <!-- Bề mặt lỏng (shimmer) — chỉ hiện khi có liquid, tính đúng vị trí top của lớp cao nhất -->
+                    <!-- Bề mặt lỏng (shimmer) -->
                     <ellipse
                       v-if="cupLayers.bean.show && !cupLayers.mixed.enabled"
                       :cx="100"
@@ -252,18 +242,8 @@ onBeforeUnmount(() => {
                       preserveAspectRatio="xMidYMid meet" opacity="0.92" />
                   </g>
 
-                  <!-- ỐNG HÚT — 3 đoạn: thẳng trong cốc + cong khúc + ngắn chìa ra -->
+                  <!-- ỐNG HÚT -->
                   <g v-if="cupLayers.straw.enabled" class="straw">
-                    <!--
-                      Cấu trúc ống hút (nhìn từ dưới lên):
-                        A (150, 220)  — đáy ống, sâu trong cốc
-                        B (150,  50)  — đoạn thẳng lên tới gần vành
-                        C (150,  30)  — bắt đầu khúc cong
-                        D (158,  10)  — đỉnh cong (control point)
-                        E (174,   4)  — đoạn chìa ra ngoài (đầu ống)
-                    -->
-
-                    <!-- Đường chính (xanh lá) -->
                     <path
                       d="M 150 220 L 150 38 Q 152 14 174 4"
                       fill="none"
@@ -272,7 +252,6 @@ onBeforeUnmount(() => {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                     />
-                    <!-- Highlight (trắng mờ, lệch trái 2px — tạo cảm giác tròn bóng) -->
                     <path
                       d="M 147 220 L 147 38 Q 149 14 171 4"
                       fill="none"
@@ -457,11 +436,6 @@ onBeforeUnmount(() => {
                 </button>
               </div>
 
-              <div v-if="currentStep === 3" class="logo-config">
-                <label class="logo-config__label">Đường dẫn logo trên cốc</label>
-                <input v-model="logoUrl" class="logo-config__input" placeholder="../IMG/dripLab_Logo_Footer.png" />
-                <div class="logo-config__hint">Logo sẽ hiện trên cốc khi hoàn thành (ảnh phải load được từ trình duyệt).</div>
-              </div>
             </div>
 
           </div>
@@ -477,11 +451,14 @@ onBeforeUnmount(() => {
       <div v-if="cartPopupOpen" ref="popupBackdropEl" class="cart-pop__backdrop" role="dialog" aria-modal="true"
         @click.self="closeCartPopup" @keydown="onPopupKeydown" tabindex="-1">
         <div class="cart-pop__card">
-          <div class="cart-pop__icon" aria-hidden="true">
-            <span class="cart-pop__icon-inner">🎉</span>
-          </div>
+          <img :src="driplabLogo2" class="cart-pop__logo" alt="Drip Lab" />
 
-          <h3 class="cart-pop__title">Pha chế xong — đã cho vào giỏ!</h3>
+          <h3 class="cart-pop__title">Thêm vào giỏ hàng thành công!</h3>
+
+          <p class="cart-pop__desc">
+            Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.
+          </p>
+
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>
       </div>
