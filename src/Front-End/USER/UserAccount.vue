@@ -5,7 +5,7 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <!-- <img :src="user.avatar" alt="Avatar" class="avatar-img" /> -->
+            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.fullName }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
@@ -39,7 +39,8 @@
 
           <div class="profile-pic-row">
             <div class="avatar-edit">
-              <!-- <img :src="user.avatar" alt="Profile" class="profile-img" /> -->
+              <!-- yippe ;-; -->
+              <img :src="user.avatar" alt="Profile" class="profile-img" />
               <button class="edit-avatar-btn" @click="triggerFileInput">
                 <span class="material-symbols-outlined">edit</span>
               </button>
