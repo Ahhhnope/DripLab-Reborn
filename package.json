@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "dev:admin": "vite --config vite.config.admin.js",
     "dev:user": "vite --config vite.config.user.js",
     "build": "vite build",

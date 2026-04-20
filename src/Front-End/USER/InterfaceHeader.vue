@@ -104,7 +104,7 @@ const {
 
               <div class="ud-profile">
                 <div class="ud-avatar">
-                  <img :src="auth.user.avatar" alt="Avatar" style="background-color: white;"/>
+                  <img :src="auth.user?.avatar" alt="Avatar" style="background-color: white;"/>
                 </div>
                 <p class="ud-name">{{ auth.user ? auth.user.fullName : 'Chưa đăng nhập' }}</p>
                 <p class="ud-email">{{ auth.user ? auth.user.email : 'Chưa đăng nhập' }}</p>

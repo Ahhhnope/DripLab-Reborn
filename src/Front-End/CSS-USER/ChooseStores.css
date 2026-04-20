@@ -1,0 +1,293 @@
+/*
+  ChooseStores.css
+  Toàn bộ UI nằm trong một panel căn giữa có border.
+  Topbar location là phần đầu của panel đó.
+*/
+
+:root {
+  --cs-green:        #16a34a;
+  --cs-red:          #ef4444;
+  --cs-border:       #e8e8e8;
+  --cs-border-panel: #e0e0e0;
+}
+
+/* ─── Nền trang ─────────────────────────────────────── */
+.cs-page {
+  min-height: 100vh;
+  background: #f7f7f7;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px 60px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  color: #111;
+}
+
+/* ─── Panel chứa toàn bộ UI ─────────────────────────── */
+.cs-panel {
+  width: 100%;
+  max-width: 860px;
+  background: #ffffff;
+  border: 1px solid var(--cs-border-panel);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ─── Top bar (location) ────────────────────────────── */
+.cs-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  height: 50px;
+  border-bottom: 1px solid var(--cs-border);
+  background: #ffffff;
+}
+
+.cs-locationIcon {
+  color: #f97316;
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.cs-locationText {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.cs-iconBtn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: #bbb;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.cs-iconBtn:hover {
+  background: #f5f5f5;
+  color: #777;
+}
+
+/* ─── Main ──────────────────────────────────────────── */
+.cs-main {
+  padding: 24px 24px 32px;
+}
+
+.cs-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.3px;
+  margin: 0 0 16px 0;
+}
+
+/* ─── Search ────────────────────────────────────────── */
+.cs-search {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.cs-searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #bbb;
+  pointer-events: none;
+  display: inline-flex;
+}
+
+.cs-searchInput {
+  width: 100%;
+  border: 1px solid var(--cs-border);
+  border-radius: 8px;
+  padding: 10px 14px 10px 38px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  outline: none;
+}
+
+.cs-searchInput::placeholder { color: #bbb; }
+.cs-searchInput:focus { border-color: #bbb; }
+
+/* ─── Store list ────────────────────────────────────── */
+.cs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cs-card {
+  width: 100%;
+  text-align: left;
+  background: #ffffff;
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.cs-card:hover { background: #fafafa; }
+
+.cs-card.is-selected {
+  background: #f6fdf8;
+  border-color: #b6e4c8;
+}
+
+/* Card đang đóng cửa — làm mờ toàn bộ */
+.cs-card.is-closed {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.cs-card.is-closed:hover {
+  background: #ffffff;
+}
+
+.cs-cardRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Logo */
+.cs-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #3d1f14;
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.cs-logoImg {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+/* Card body */
+.cs-cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.cs-cardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.cs-cardTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cs-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  flex: 0 0 auto;
+}
+
+.cs-cardAddr {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card meta */
+.cs-cardMeta {
+  text-align: right;
+  flex: 0 0 auto;
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  padding: 2px 0;
+}
+
+.cs-distance {
+  margin: 0;
+  font-size: 13px;
+  color: #bbb;
+}
+
+.cs-status {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cs-status.is-open   { color: var(--cs-green); }
+.cs-status.is-closed { color: #aaa; }
+
+/* Empty */
+.cs-empty {
+  background: #fff;
+  border: 1px solid var(--cs-border);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+/* ─── Toast ─────────────────────────────────────────── */
+.cs-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.cs-toast-enter-active,
+.cs-toast-leave-active {
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.cs-toast-enter,
+.cs-toast-leave-to {
+  transform: translateX(-50%) translateY(8px);
+  opacity: 0;
+}
