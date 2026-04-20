@@ -82,10 +82,7 @@ router.beforeEach(async (to, from, next) => {
         return next('/login')
     }
 
-    // Already logged in - redirect away from login
-    if (auth.user && to.path === '/login') {
-        return next('/choosestores')
-    }
+    // After logging in - redirect to /choosestores (in Login.js)
 
     next()
 })

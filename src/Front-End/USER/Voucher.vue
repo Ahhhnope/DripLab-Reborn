@@ -147,9 +147,9 @@
 <script setup>
 import coinImg from '../IMG/logoIconVoucher.png'
 import { useVoucher }     from '../JS-USER/Voucher.JS'
-import { useUserVoucher } from '../JS-USER/UserVoucher.JS'
+import { useUserVoucher } from '../JS-USER/UserVoucher'
 
 const { claimedDays, isDayUnlocked, claimDay, modal, copyCode } = useVoucher()
 const { promos, isSaved, savePromo, fmtValue, toast }           = useUserVoucher()
 </script>
-<style src="../CSS-USER/Voucher.css"></style>
+<style src="../CSS-USER/Voucher.CSS"></style>
