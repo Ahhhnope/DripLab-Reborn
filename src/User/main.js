@@ -22,7 +22,7 @@ import Brewing from '../Front-End/USER/Brewing.vue'
 import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
 import UserPoints from '../Front-End/USER/UserPoints.vue'
-
+import ChooseStores from '../Front-End/USER/ChooseStores.vue'
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
@@ -39,6 +39,7 @@ const routes = [
             { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
             { path: '/account/points', component: UserPoints, meta: {requiresAuth: true} },
             { path: '/brewing', component: Brewing },
+            { path: '/choosestores', component: ChooseStores },
             { path: '/menu', component: MenuView },
             { path: 'product/:id', name: 'user-product', component: ProductDetailView },
             { path: '/stores', component: UserStores },
@@ -83,7 +84,7 @@ router.beforeEach(async (to, from, next) => {
 
     // Already logged in - redirect away from login
     if (auth.user && to.path === '/login') {
-        return next('/homepage')
+        return next('/choosestores')
     }
 
     next()
