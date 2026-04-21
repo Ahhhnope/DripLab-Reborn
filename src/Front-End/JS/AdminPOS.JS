@@ -35,48 +35,52 @@ export function usePOS() {
   const showMilkPopup    = ref(false)
   const showToppingPopup = ref(false)
 
-  const coffeeBeans       = ref([])
-  const milks       = ref([])
-  const heavyCreams = ref([])
-  const iceCreams   = ref([])
-  const toppings    = ref([])
+  const beans = ref([])
+  const bases = ref([])
+  const milks = ref([])
+  const toppings = ref([])
 
-  const sampleBeans = [
-    { name: 'Robusta', price: 12000 },
-    { name: 'Arabica', price: 15000 },
-    { name: 'Culi',    price: 18000 },
-    { name: 'Moka',    price: 20000 }
-  ]
-  const sampleBases = [
-    { name: 'Espresso (pha máy)',   price: 10000 },
-    { name: 'Cold Brew (ủ)',        price: 12000 },
-    { name: 'Pour Over (nhỏ giọt)', price: 15000 }
-  ]
-  const sampleMilks = [
-    { name: 'Sữa tươi',    price: 7000  },
-    { name: 'Sữa hạt',     price: 9000  },
-    { name: 'Sữa kem béo', price: 10000 },
-    { name: 'Sữa đặc',     price: 5000  }
-  ]
-  const sampleToppings = [
-    { name: 'Trân châu đen',  price: 5000 },
-    { name: 'Thạch cà phê',   price: 6000 },
-    { name: 'Kem cheese',     price: 8000 },
-    { name: 'Pudding trứng',  price: 7000 },
-    { name: 'Kem béo',        price: 6000 },
-    { name: 'Machiato',       price: 7000 },
-    { name: 'Whipping cream', price: 8000 }
-  ]
-  const beans = null
+  // const sampleBeans = [
+  //   { name: 'Robusta', price: 12000 },
+  //   { name: 'Arabica', price: 15000 },
+  //   { name: 'Culi',    price: 18000 },
+  //   { name: 'Moka',    price: 20000 }
+  // ]
+  // const sampleBases = [
+  //   { name: 'Espresso (pha máy)',   price: 10000 },
+  //   { name: 'Cold Brew (ủ)',        price: 12000 },
+  //   { name: 'Pour Over (nhỏ giọt)', price: 15000 }
+  // ]
+  // const sampleMilks = [
+  //   { name: 'Sữa tươi',    price: 7000  },
+  //   { name: 'Sữa hạt',     price: 9000  },
+  //   { name: 'Sữa kem béo', price: 10000 },
+  //   { name: 'Sữa đặc',     price: 5000  }
+  // ]
+  // const sampleToppings = [
+  //   { name: 'Trân châu đen',  price: 5000 },
+  //   { name: 'Thạch cà phê',   price: 6000 },
+  //   { name: 'Kem cheese',     price: 8000 },
+  //   { name: 'Pudding trứng',  price: 7000 },
+  //   { name: 'Kem béo',        price: 6000 },
+  //   { name: 'Machiato',       price: 7000 },
+  //   { name: 'Whipping cream', price: 8000 }
+  // ]
   async function loadProducts() {
     try {
-      coffeeBeans.value = coffeeBeansAPI;
-      milks.value = m.data;
+      const [resBeans, resBases, resMilks, resToppings] = await Promise.all([
+        api.get('/ingredients/coffee-beans'), // Matches backend case
+        api.get('/ingredients/heavy-creams'), // Matches backend case
+        api.get('/ingredients/milks'),        // Matches backend case
+        api.get('/ingredients/toppings')      // Matches backend case
+      ]);
 
-      toppings.value = t.data
+      beans.value = resBeans.data;
+      bases.value = resBases.data;
+      milks.value = resMilks.data;
+      toppings.value = resToppings.data;
     } catch (err) {
-      beans.value = sampleBeans; bases.value = sampleBases
-      milks.value = sampleMilks; toppings.value = sampleToppings
+      // Fallback logic
     }
   }
 

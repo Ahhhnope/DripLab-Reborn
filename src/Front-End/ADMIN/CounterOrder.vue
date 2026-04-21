@@ -49,8 +49,8 @@ const {
   MAX_CASH,
 } = useCounterOrder()
 
-function goAdmin() {
-  router.push('/AdminEmployee')
+function goCustom() {
+  router.push('/AdminPOS')
 }
 
 function getTableLabel(num) {
@@ -271,8 +271,8 @@ function availableTableCount() {
               <div class="logo-card-img-wrap">
                 <img :src="logoDrip" alt="DripLab" class="logo-card-img" />
               </div>
-              <p class="logo-card-label">COFFEE</p>
-              <button class="detail-btn" style="width:80%;margin:0 auto 10px" @click.stop="goAdmin">Chi tiết</button>
+              <p class="logo-card-label">CUSOTM COFFEE</p>
+              <button class="detail-btn" style="width:80%;margin:0 auto 10px" @click.stop="goCustom">Chi tiết</button>
             </div>
 
             <!-- Sản phẩm -->

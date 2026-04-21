@@ -79,61 +79,62 @@
     </div>
 
     <!-- ========== POPUP: Chọn Bean ========== -->
-    <div v-if="showBeanPopup" class="popup">
-      <div class="popup-box">
-        <img src="../IMG/Bean.jpg" class="card-img" />
-        <h3>Chọn hạt cà phê</h3>
-        <button v-for="b in beans" :key="b.name" @click="selectBean(b)">
-          {{ b.name }} - {{ b.price.toLocaleString() }}đ
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== POPUP: Chọn Base ========== -->
-    <div v-if="showBasePopup" class="popup">
-      <div class="popup-box">
-        <img src="../IMG/base.png" class="card-img" />
-        <h3>Chọn base</h3>
-        <button v-for="b in bases" :key="b.name" @click="selectBase(b)">
-          {{ b.name }} - {{ b.price.toLocaleString() }}đ
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== POPUP: Chọn Sữa ========== -->
-    <div v-if="showMilkPopup" class="popup">
-      <div class="popup-box">
-        <img src="../IMG/milk.jpg" class="card-img" />
-        <h3>Chọn sữa</h3>
-        <button v-for="m in milks" :key="m.name" @click="selectMilk(m)">
-          {{ m.name }} - {{ m.price.toLocaleString() }}đ
-        </button>
-      </div>
-    </div>
-
-    <!-- ========== POPUP: Chọn Topping ========== -->
-    <div v-if="showToppingPopup" class="popup">
-      <div class="popup-box">
-        <img src="../IMG/topping.jpg" class="card-img" />
-        <h3>Chọn topping <span class="topping-count">({{ selected.toppings.length }}/3)</span></h3>
-        <div v-if="selected.toppings.length > 0" class="selected-toppings">
-          <div v-for="(t, i) in selected.toppings" :key="i" class="selected-topping-tag">
-            {{ t.name }}
-            <span @click="removeTopping(i)">✕</span>
-          </div>
+    <Teleport to="body">
+      <div v-if="showBeanPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/Bean.jpg" class="card-img" />
+          <h3>Chọn hạt cà phê</h3>
+          <button v-for="b in beans" :key="b.name" @click="selectBean(b)">
+            {{ b.name }} - {{ b.price.toLocaleString() }}đ
+          </button>
         </div>
-        <button v-for="t in toppings" :key="t.name"
-          @click="selectTopping(t)"
-          :disabled="selected.toppings.length >= 3"
-          :class="{ 'topping-selected': selected.toppings.some(s => s.name === t.name) }">
-          {{ t.name }} - {{ t.price.toLocaleString() }}đ
-        </button>
-        <button class="confirm-topping-btn" @click="confirmTopping">
-          ✓ Xác nhận ({{ selected.toppings.length }} topping)
-        </button>
       </div>
-    </div>
 
+      <!-- ========== POPUP: Chọn Base ========== -->
+      <div v-if="showBasePopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/base.png" class="card-img" />
+          <h3>Chọn base</h3>
+          <button v-for="b in bases" :key="b.name" @click="selectBase(b)">
+            {{ b.name }} - {{ b.price.toLocaleString() }}đ
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== POPUP: Chọn Sữa ========== -->
+      <div v-if="showMilkPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/milk.jpg" class="card-img" />
+          <h3>Chọn sữa</h3>
+          <button v-for="m in milks" :key="m.name" @click="selectMilk(m)">
+            {{ m.name }} - {{ m.price.toLocaleString() }}đ
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== POPUP: Chọn Topping ========== -->
+      <div v-if="showToppingPopup" class="popup">
+        <div class="popup-box">
+          <img src="../IMG/topping.jpg" class="card-img" />
+          <h3>Chọn topping <span class="topping-count">({{ selected.toppings.length }}/3)</span></h3>
+          <div v-if="selected.toppings.length > 0" class="selected-toppings">
+            <div v-for="(t, i) in selected.toppings" :key="i" class="selected-topping-tag">
+              {{ t.name }}
+              <span @click="removeTopping(i)">✕</span>
+            </div>
+          </div>
+          <button v-for="t in toppings" :key="t.name"
+            @click="selectTopping(t)"
+            :disabled="selected.toppings.length >= 3"
+            :class="{ 'topping-selected': selected.toppings.some(s => s.name === t.name) }">
+            {{ t.name }} - {{ t.price.toLocaleString() }}đ
+          </button>
+          <button class="confirm-topping-btn" @click="confirmTopping">
+            ✓ Xác nhận ({{ selected.toppings.length }} topping)
+          </button>
+        </div>
+      </div>
+    </Teleport>
     <!-- ========== POPUP: Thanh toán ========== -->
     <div v-if="showPaymentPopup" class="popup">
       <div class="payment-popup">
