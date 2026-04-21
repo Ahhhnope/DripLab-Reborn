@@ -2,7 +2,7 @@
   <div class="cs-page">
     <div class="cs-panel">
 
-      <!-- Location bar — nằm trên cùng trong khung -->
+      <!-- Location bar -->
       <div class="cs-topbar">
         <div class="cs-locationIcon" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -84,6 +84,25 @@
       </transition>
 
     </div>
+
+    <!-- Closed Store Modal -->
+    <transition name="cs-modal">
+      <div v-if="showClosedModal" class="cs-modal-overlay" @click.self="showClosedModal = false">
+        <div class="cs-modal">
+          <div class="cs-modal-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#ff6b6b" />
+              <path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <span class="cs-modal-badge">CLOSE</span>
+          </div>
+          <h2 class="cs-modal-title">Cửa hàng đang đóng cửa</h2>
+          <p class="cs-modal-desc">Cửa hàng đang đóng cửa, không thể đặt giao ngay.</p>
+          <button class="cs-modal-btn" @click="showClosedModal = false">Đã hiểu</button>
+        </div>
+      </div>
+    </transition>
+
   </div>
 </template>
 
