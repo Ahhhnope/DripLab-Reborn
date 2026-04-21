@@ -5,10 +5,10 @@ import { useAuthStore } from '../Authorization/Auth'
 import { sharedUser } from './Useruser.JS'
 
 export function useUserOrders() {
-  const auth     = useAuthStore()
-  const router   = useRouter()
-  const user     = auth.user
-  const userId   = auth.user?.id || 1
+  const auth   = useAuthStore()
+  const router = useRouter()
+  const user   = sharedUser
+  const userId = auth.user?.id || 1
 
   const currentRoute = '/account/orders'
 
@@ -20,79 +20,23 @@ export function useUserOrders() {
     { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' },
   ]
 
-  // ── Status helpers ───────────────────────────────────────
-  const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
+  // ── Status ───────────────────────────────────────────────
+  const STATUS_MAP = {
+    'Chờ xác nhận':    'pending',
+    'Đang xử lý':      'processing',
+    'Đang vận chuyển': 'shipping',
+    'Đã giao':         'delivered',
+    'Đã huỷ':          'cancelled',
+  }
 
   function mapStatus(s) {
-    const map = {
-      'Chờ xác nhận':    'pending',
-      'Đang xử lý':      'processing',
-      'Đang vận chuyển': 'shipping',
-      'Đã giao':         'delivered',
-      'Đã huỷ':          'cancelled',
-    }
-    return map[s] ?? s?.toLowerCase() ?? 'pending'
+    return STATUS_MAP[s] ?? s?.toLowerCase() ?? 'pending'
   }
 
-  // ── Order steps (tiến trình) ─────────────────────────────
-  const _orderSteps = ref([
-    { label: 'Chờ xác nhận',    icon: 'pending_actions', status: 'pending'    },
-    { label: 'Đang xử lý',      icon: 'settings',        status: 'processing' },
-    { label: 'Đang vận chuyển', icon: 'local_shipping',  status: 'shipping'   },
-    { label: 'Đã giao',         icon: 'home',            status: 'delivered'  },
-    { label: 'Đã huỷ',          icon: 'cancel',          status: 'cancelled'  },
-  ])
-
-  // Đơn hàng active đang được chọn để hiển thị tiến trình
-  const activeOrders    = ref([])
-  const selectedOrderId = ref(null)
-  const currentStatus   = ref('pending')
-
-  const selectedActiveOrder = computed(() =>
-    activeOrders.value.find(o => o.id === selectedOrderId.value) || null
-  )
-
-  const currentStepIndex = computed(() => {
-    if (currentStatus.value === 'cancelled') return -1
-    return STATUS_ORDER.indexOf(currentStatus.value)
-  })
-
-  const orderSteps = computed(() => {
-    if (currentStatus.value === 'cancelled') {
-      return _orderSteps.value.map(s =>
-        s.status === 'cancelled'
-          ? { ...s, state: 'active' }
-          : { ...s, state: 'pending' }
-      )
-    }
-    const idx = currentStepIndex.value
-    return _orderSteps.value
-      .filter(s => s.status !== 'cancelled')
-      .map((s, i) => ({
-        ...s,
-        state: i < idx ? 'done' : i === idx ? 'active' : 'pending',
-      }))
-  })
-
-  const progressWidth = computed(() => {
-    if (currentStatus.value === 'cancelled') return '0%'
-    const idx   = currentStepIndex.value
-    const total = STATUS_ORDER.length - 1
-    return `${Math.max(0, (idx / total) * 100)}%`
-  })
-
-  function selectOrder(orderId) {
-    selectedOrderId.value = orderId
-    const o = activeOrders.value.find(o => o.id === orderId)
-    if (o) currentStatus.value = o.status
-  }
-
-  // ── Tất cả đơn hàng (active + history gộp chung) ────────
-  const allOrders = ref([])
-
-  // Helper map một order từ API → object dùng trong UI
+  // ── Map order từ API ─────────────────────────────────────
   function mapOrder(order) {
     const totalQty = (order.items ?? []).reduce((s, i) => s + (i.quantity ?? 1), 0)
+
     return {
       id:              order.id,
       name:            `DL-${order.orderNumber ?? order.id}`,
@@ -100,92 +44,159 @@ export function useUserOrders() {
       paymentMethod:   order.paymentMethod ?? 'Tiền mặt',
       totalQty,
       price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
-      date:            order.orderDate ? new Date(order.orderDate).toLocaleDateString('vi-VN') : '-',
+      finalPriceNum:   order.finalPrice ?? 0,
+      date:            order.orderDate
+                         ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+                         : '-',
       shippingAddress: order.shippingAddress ?? '',
       receiptData: {
         id:    `#DL-${order.orderNumber ?? order.id}`,
-        date:  order.orderDate ? new Date(order.orderDate).toLocaleDateString('vi-VN') : '-',
+        date:  order.orderDate
+                 ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+                 : '-',
         total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
-        items: (order.items ?? []).map(item => ({
-          name:     item.drink?.name ?? 'Sản phẩm',
-          qty:      item.quantity ?? 1,
-          price:    `${((item.basePriceAtPurchase ?? 0) + (item.orderItemToppings ?? []).reduce((s, t) => s + (t.basePriceAtPurchase ?? 0), 0)).toLocaleString('vi-VN')} VNĐ`,
-          toppings: (item.orderItemToppings ?? []).map(t => t.topping?.name).filter(Boolean).join(', '),
-          img:      item.drink?.imageUrl ?? null,
-          sugar:    item.sugarLevel ?? 100,
-          ice:      item.iceLevel   ?? 100,
-        })),
+        items: (order.items ?? []).map(item => {
+          // Size
+          const sizeName  = item.size?.name  ?? null
+          const sizePrice = item.size?.price ?? 0
+
+          // Toppings với từng giá riêng
+          const toppingList = (item.orderItemToppings ?? []).map(t => ({
+            name:  t.topping?.name ?? '',
+            price: t.basePriceAtPurchase ?? t.topping?.price ?? 0,
+          }))
+
+          const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
+
+          const itemUnitPrice = (item.basePriceAtPurchase ?? 0) + sizePrice + toppingTotal
+
+          return {
+            name:        item.drink?.name ?? 'Sản phẩm',
+            qty:         item.quantity ?? 1,
+            price:       `${(itemUnitPrice * (item.quantity ?? 1)).toLocaleString('vi-VN')} VNĐ`,
+            // Size
+            sizeName,
+            sizePrice,
+            // Toppings
+            toppingList,
+            // Compat cũ
+            toppings:    toppingList.map(t => t.name).join(', '),
+            img:         item.drink?.imageUrl ?? null,
+            sugar:       item.sugarLevel ?? 100,
+            ice:         item.iceLevel   ?? 100,
+          }
+        }),
       },
     }
   }
 
-  // Fetch tất cả đơn hàng của user (gọi 1 endpoint tổng)
+  // ── Fetch ────────────────────────────────────────────────
+  const allOrders = ref([])
+
+  // IDs đơn delivered đã nhắc xác nhận (không nhắc lại)
+  const dismissedReceiveIds = ref(
+    new Set(JSON.parse(localStorage.getItem('dismissedReceive') ?? '[]'))
+  )
+  // IDs đơn đã tích điểm rồi
+  const pointedOrderIds = ref(
+    new Set(JSON.parse(localStorage.getItem('pointedOrders') ?? '[]'))
+  )
+
   async function fetchAllOrders() {
     try {
-      // Thử endpoint tổng trước
-      const res = await api.get(`/orders/user/${userId}`)
-      if (res.data) {
-        allOrders.value = res.data.map(mapOrder)
-          // Sắp xếp: đơn mới nhất lên đầu
-          .sort((a, b) => b.id - a.id)
+      let data = null
 
-        // Tách ra active để hiển thị tiến trình
-        activeOrders.value = allOrders.value.filter(
-          o => !['delivered', 'cancelled'].includes(o.status)
-        )
-
-        if (activeOrders.value.length > 0) {
-          // Giữ lại đơn đang chọn nếu vẫn còn active
-          if (!activeOrders.value.find(o => o.id === selectedOrderId.value)) {
-            selectedOrderId.value = activeOrders.value[0].id
-          }
-          currentStatus.value = activeOrders.value.find(
-            o => o.id === selectedOrderId.value
-          )?.status ?? 'pending'
-        } else {
-          selectedOrderId.value = null
-          currentStatus.value   = 'delivered'
-        }
-        return
+      try {
+        const res = await api.get(`/orders/user/${userId}`)
+        data = res.data
+      } catch {
+        const [a, h] = await Promise.all([
+          api.get(`/orders/active/${userId}`).catch(() => ({ data: [] })),
+          api.get(`/orders/history/${userId}`).catch(() => ({ data: [] })),
+        ])
+        const seen = new Set()
+        data = [...(a.data ?? []), ...(h.data ?? [])].filter(o => {
+          if (seen.has(o.id)) return false
+          seen.add(o.id)
+          return true
+        })
       }
-    } catch (_) {
-      // endpoint tổng chưa có → fallback gọi 2 endpoint riêng
-    }
 
-    // Fallback: gọi active + history riêng rồi gộp
-    try {
-      const [activeRes, historyRes] = await Promise.all([
-        api.get(`/orders/active/${userId}`).catch(() => ({ data: [] })),
-        api.get(`/orders/history/${userId}`).catch(() => ({ data: [] })),
-      ])
-
-      const active  = (activeRes.data  ?? []).map(mapOrder)
-      const history = (historyRes.data ?? []).map(mapOrder)
-
-      // Gộp, tránh trùng id
-      const seen = new Set()
-      allOrders.value = [...active, ...history]
-        .filter(o => { if (seen.has(o.id)) return false; seen.add(o.id); return true })
+      allOrders.value = (data ?? [])
+        .map(mapOrder)
         .sort((a, b) => b.id - a.id)
 
-      activeOrders.value = active.filter(
-        o => !['delivered', 'cancelled'].includes(o.status)
-      )
+      // Kiểm tra đơn nào vừa chuyển sang "delivered" → nhắc xác nhận
+      checkDeliveredOrders()
 
-      if (activeOrders.value.length > 0) {
-        if (!activeOrders.value.find(o => o.id === selectedOrderId.value)) {
-          selectedOrderId.value = activeOrders.value[0].id
-        }
-        currentStatus.value = activeOrders.value.find(
-          o => o.id === selectedOrderId.value
-        )?.status ?? 'pending'
-      } else {
-        selectedOrderId.value = null
-        currentStatus.value   = 'delivered'
-      }
     } catch (err) {
-      console.error('fetchAllOrders error:', err)
+      console.error('fetchAllOrders:', err)
     }
+  }
+
+  // ── Kiểm tra đơn delivered cần xác nhận ─────────────────
+  function checkDeliveredOrders() {
+    if (showReceiveConfirm.value) return // đang hiện popup rồi
+
+    const pending = allOrders.value.find(
+      o => o.status === 'delivered'
+        && !dismissedReceiveIds.value.has(o.id)
+        && !pointedOrderIds.value.has(o.id)
+    )
+
+    if (pending) {
+      receiveTarget.value = {
+        ...pending,
+        // Tính điểm = 1 điểm / 1000 VNĐ, làm tròn
+        earnPoints: Math.round(pending.finalPriceNum / 1000),
+      }
+      showReceiveConfirm.value = true
+    }
+  }
+
+  // ── Xác nhận nhận hàng + tích điểm ─────────────────────
+  const showReceiveConfirm = ref(false)
+  const receiveTarget      = ref(null)
+  const showPointsToast    = ref(false)
+  const earnedPoints       = ref(0)
+
+  function dismissReceive() {
+    if (!receiveTarget.value) return
+    dismissedReceiveIds.value.add(receiveTarget.value.id)
+    localStorage.setItem(
+      'dismissedReceive',
+      JSON.stringify([...dismissedReceiveIds.value])
+    )
+    showReceiveConfirm.value = false
+    receiveTarget.value      = null
+  }
+
+  async function doConfirmReceive() {
+    if (!receiveTarget.value) return
+    try {
+      // Gọi API cộng điểm
+      await api.post(`/customers/${userId}/points`, {
+        orderId: receiveTarget.value.id,
+        points:  receiveTarget.value.earnPoints,
+      })
+    } catch (err) {
+      console.warn('points API chưa có, cộng local:', err)
+    }
+
+    // Đánh dấu đã tích điểm
+    pointedOrderIds.value.add(receiveTarget.value.id)
+    localStorage.setItem(
+      'pointedOrders',
+      JSON.stringify([...pointedOrderIds.value])
+    )
+
+    earnedPoints.value       = receiveTarget.value.earnPoints
+    showReceiveConfirm.value = false
+    receiveTarget.value      = null
+
+    // Hiện toast
+    showPointsToast.value = true
+    setTimeout(() => { showPointsToast.value = false }, 4000)
   }
 
   // ── Filter ───────────────────────────────────────────────
@@ -193,7 +204,19 @@ export function useUserOrders() {
   const filterStatus   = ref('')
   const filterFromDate = ref('')
   const filterToDate   = ref('')
-  const showFilter     = ref(false)
+
+  const hasActiveFilter = computed(() =>
+    !!searchId.value || !!filterFromDate.value || !!filterToDate.value
+  )
+
+  function setStatusTab(val) {
+    filterStatus.value = val
+    visibleCount.value = 10
+  }
+
+  function countByStatus(status) {
+    return allOrders.value.filter(o => o.status === status).length
+  }
 
   function parseDate(str) {
     if (!str) return null
@@ -204,14 +227,14 @@ export function useUserOrders() {
   const filteredOrders = computed(() => {
     const k = searchId.value.trim().toLowerCase()
     return allOrders.value.filter(o => {
-      const okId     = !k || o.name.toLowerCase().includes(k)
       const okStatus = !filterStatus.value || o.status === filterStatus.value
+      const okId     = !k || o.name.toLowerCase().includes(k)
       const oDate    = parseDate(o.date)
       const from     = filterFromDate.value ? new Date(filterFromDate.value) : null
       const to       = filterToDate.value   ? new Date(filterToDate.value)   : null
-      const okFrom   = !from || oDate >= from
-      const okTo     = !to   || oDate <= to
-      return okId && okStatus && okFrom && okTo
+      return okStatus && okId
+        && (!from || oDate >= from)
+        && (!to   || oDate <= to)
     })
   })
 
@@ -226,37 +249,25 @@ export function useUserOrders() {
   )
 
   function loadMore() {
-    visibleCount.value = Math.min(
-      visibleCount.value + 10,
-      filteredOrders.value.length
-    )
-  }
-
-  function applyFilter() {
-    visibleCount.value = 10
-    showFilter.value   = false
+    visibleCount.value = Math.min(visibleCount.value + 10, filteredOrders.value.length)
   }
 
   function resetFilter() {
     searchId.value       = ''
-    filterStatus.value   = ''
     filterFromDate.value = ''
     filterToDate.value   = ''
     visibleCount.value   = 10
   }
 
-  // ── Modal xem chi tiết ───────────────────────────────────
-  const showModal    = ref(false)
+  // ── Modal chi tiết ───────────────────────────────────────
+  const showModal     = ref(false)
   const selectedOrder = ref(null)
 
   function openModal(order) {
     selectedOrder.value = order
     showModal.value     = true
   }
-
-  function closeModal() {
-    showModal.value = false
-  }
+  function closeModal() { showModal.value = false }
 
   // ── Huỷ đơn ─────────────────────────────────────────────
   const showCancelConfirm = ref(false)
@@ -270,22 +281,11 @@ export function useUserOrders() {
   async function doCancel() {
     if (!cancelTarget.value) return
     try {
-      await api.put(`/orders/${cancelTarget.value.id}/status`, {
-        status: 'Đã huỷ'
-      })
-      // Cập nhật local ngay, không cần chờ poll
-      const target = allOrders.value.find(o => o.id === cancelTarget.value.id)
-      if (target) target.status = 'cancelled'
-
-      activeOrders.value = activeOrders.value.filter(
-        o => o.id !== cancelTarget.value.id
-      )
-      if (selectedOrderId.value === cancelTarget.value.id) {
-        selectedOrderId.value = activeOrders.value[0]?.id ?? null
-        currentStatus.value   = activeOrders.value[0]?.status ?? 'delivered'
-      }
+      await api.put(`/orders/${cancelTarget.value.id}/status`, { status: 'Đã huỷ' })
+      const t = allOrders.value.find(o => o.id === cancelTarget.value.id)
+      if (t) t.status = 'cancelled'
     } catch (err) {
-      console.error('Cancel order error:', err)
+      console.error('Cancel error:', err)
       alert('Huỷ đơn thất bại, vui lòng thử lại!')
     } finally {
       showCancelConfirm.value = false
@@ -293,34 +293,28 @@ export function useUserOrders() {
     }
   }
 
-  // ── Navigation ───────────────────────────────────────────
+  // ── Nav ──────────────────────────────────────────────────
   function goTo(route)  { router.push(route) }
   function logout()     { router.push('/login') }
 
   // ── Polling ──────────────────────────────────────────────
-  let intervalId = null
-
+  let timer = null
   onMounted(() => {
     fetchAllOrders()
-    intervalId = setInterval(fetchAllOrders, 15_000) // poll 15s
+    timer = setInterval(fetchAllOrders, 15_000)
   })
-
-  onUnmounted(() => {
-    if (intervalId) clearInterval(intervalId)
-  })
+  onUnmounted(() => { if (timer) clearInterval(timer) })
 
   return {
     user, navItems, currentRoute,
-    orderSteps, progressWidth,
-    activeOrders, selectedOrderId, selectOrder,
     allOrders, filteredOrders, pagedOrders,
     hasMore, loadMore,
     searchId, filterStatus, filterFromDate, filterToDate,
-    showFilter, applyFilter, resetFilter,
-    showModal, selectedOrder,
-    openModal, closeModal,
-    showCancelConfirm, cancelTarget,
-    confirmCancel, doCancel,
+    hasActiveFilter, resetFilter, setStatusTab, countByStatus,
+    showModal, selectedOrder, openModal, closeModal,
+    showCancelConfirm, cancelTarget, confirmCancel, doCancel,
+    showReceiveConfirm, receiveTarget, dismissReceive, doConfirmReceive,
+    showPointsToast, earnedPoints,
     goTo, logout,
   }
 }
