@@ -7,7 +7,7 @@
 
     <OrderTable :items="pagedItems" @view="onView" />
 
-    <!-- Pagination (giống mẫu bạn gửi) -->
+    <!-- Pagination -->
     <div v-if="totalPages > 1" class="mt-6 flex justify-center">
       <div class="flex items-center gap-2">
         <button
@@ -47,6 +47,7 @@
       :order="selectedOrder"
       @confirm="onConfirm"
       @cancel="onCancel"
+      @set-status="onSetStatus"
     />
   </div>
 </template>
@@ -97,7 +98,7 @@ async function patchOrder(updated) {
   try {
     const vStatus = toVietnameseStatus(updated.status);
 
-    await api.patch(`/orders/update/${updated.id}/`, {
+    await api.patch(`/orders/update/${updated.id}`, {
       status: vStatus,
       note: updated.note,
       paymentMethod: updated.shippingType,
@@ -106,18 +107,29 @@ async function patchOrder(updated) {
     if (vStatus === "Đã giao") notifyInvoiceUpdate();
 
     await loadOrders();
+
+    if (selectedOrder.value && selectedOrder.value.id === updated.id) {
+        selectedOrder.value = { ...selectedOrder.value, status: updated.status };
+    }
   } catch (e) {
     console.error("Update error:", e);
+    alert("Lỗi khi cập nhật đơn hàng!");
   }
 }
 
 // Nút xác nhận/huỷ vẫn giữ trong modal chi tiết
 function onConfirm(row) {
-  patchOrder({ ...row, status: "processing" });
+  onSetStatus({ id: row.id, status: "processing" });
 }
 
 function onCancel(row) {
-  patchOrder({ ...row, status: "cancelled" });
+  onSetStatus({ id: row.id, status: "cancelled" });
+}
+
+function onSetStatus({id, status}) {
+  patchOrder({ id, status });
+
+  // detailOpen.value = false;
 }
 
 // pages hiển thị đẹp: tối đa 5 trang, có trượt theo page hiện tại

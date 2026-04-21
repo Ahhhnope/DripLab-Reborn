@@ -42,7 +42,7 @@
 
             <!-- Content -->
             <div v-else-if="props.order" class="modal-content">
-              <!-- TIMELINE TRẠNG THÁI (ĐÃ SỬA THEO ẢNH MONG MUỐN) -->
+              <!-- TIMELINE TRẠNG THÁI -->
               <div class="status-timeline">
                 <div class="status-timeline__title">Trạng thái đơn hàng hiện tại</div>
 
@@ -239,8 +239,7 @@ const props = defineProps({
 const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 
 const { money, statusText } = useOrderTable(() => {});
-const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } =
-  useOrderDetailModal(props, emit, { money, statusText });
+const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } = useOrderDetailModal(props, emit, { money, statusText });
 
 const confirmOpen = ref(false);
 const confirmTitle = ref("Vui lòng xác nhận");

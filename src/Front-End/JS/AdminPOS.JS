@@ -67,7 +67,7 @@ export function usePOS() {
     { name: 'Machiato',       price: 7000 },
     { name: 'Whipping cream', price: 8000 }
   ]
-
+  const beans = null
   async function loadProducts() {
     try {
       coffeeBeans.value = coffeeBeansAPI;

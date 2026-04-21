@@ -37,21 +37,25 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
   }
 
   function emitConfirm() {
-    emit("confirm", props.order);
-    closse();
+    // emit("confirm", props.order);
+    requestChangeStatus("processing");
+    // close();
   }
 
   function emitCancel() {
-    emit("cancel", props.order);
-    close();
+    // emit("cancel", props.order);
+    requestChangeStatus("cancelled");
+    // close();
   }
 
   // ✅ Đổi trạng thái (confirm đã xử lý ở UI)
   function requestChangeStatus(nextStatus) {
     if (!props.order) return;
 
-    // Component cha sẽ bắt event này để gọi API update status
-    emit("set-status", { order: props.order, status: nextStatus });
+    emit("set-status", { 
+      id: props.order.id, 
+      status: nextStatus
+    });
   }
 
   // Gọi API lấy chi tiết (nếu backend sẵn sàng)
