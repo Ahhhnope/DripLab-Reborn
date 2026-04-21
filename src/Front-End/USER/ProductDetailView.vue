@@ -118,7 +118,7 @@ async function handleAddToCart() {
     showNotice({
       type: 'success',
       title: 'Thêm vào giỏ hàng thành công!',
-      message: `Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.`,
+      message: `Cảm ơn bạn đã quan tâm Drip Lab! Sản phẩm đã được thêm vào giỏ hàng. Bạn hãy kiểm tra lại và tiến hành đặt hàng khi sẵn sàng nhé.`,
       buttonText: 'Hoàn tất',
       onClose: null
     })

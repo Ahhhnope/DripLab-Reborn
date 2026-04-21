@@ -485,7 +485,7 @@ onBeforeUnmount(() => {
           <img :src="driplabLogo2" class="cart-pop__logo" alt="Drip Lab" />
           <h3 class="cart-pop__title">Thêm vào giỏ hàng thành công!</h3>
           <p class="cart-pop__desc">
-            Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.
+            Cảm ơn bạn đã quan tâm Drip Lab! Sản phẩm đã được thêm vào giỏ hàng. Bạn hãy kiểm tra lại và tiến hành đặt hàng khi sẵn sàng nhé.
           </p>
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>
