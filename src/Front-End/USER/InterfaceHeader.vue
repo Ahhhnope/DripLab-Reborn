@@ -91,20 +91,20 @@ const {
             <div v-if="showUserDropdown" class="user-dropdown">
 
               <div class="ud-header">
-                <span>Thông Tin Tài Khoản</span>
-                <button
+                <span class="mx-auto">Thông Tin Tài Khoản</span>
+                <!-- <button
                   class="ud-settings-btn"
                   :class="{ 'option-active': activeUserAction === 'account' }"
                   @click="goToAccount"
                   aria-label="Cài đặt tài khoản"
                 >
                   <span class="material-symbols-outlined">settings</span>
-                </button>
+                </button> -->
               </div>
 
               <div class="ud-profile">
                 <div class="ud-avatar">
-                  <img src="../IMG/LmaoUSSER.jpg" alt="Avatar" />
+                  <img :src="auth.user?.avatar" alt="Avatar" style="background-color: white;"/>
                 </div>
                 <p class="ud-name">{{ auth.user ? auth.user.fullName : 'Chưa đăng nhập' }}</p>
                 <p class="ud-email">{{ auth.user ? auth.user.email : 'Chưa đăng nhập' }}</p>
@@ -112,11 +112,12 @@ const {
 
               <div class="ud-divider"></div>
 
-              <div class="ud-actions" v-if="!auth.user">
+              <div class="ud-actions">
                 <button
                   class="ud-btn ud-login"
                   :class="{ 'option-active': activeUserAction === 'login' }"
                   @click="goToLogin"
+                  v-if="!auth.user"
                 >
                   <span class="material-symbols-outlined">login</span>
                   <span>Đăng nhập</span>
@@ -125,9 +126,22 @@ const {
                   class="ud-btn ud-register"
                   :class="{ 'option-active': activeUserAction === 'register' }"
                   @click="goToRegister"
+                  v-if="!auth.user"
                 >
                   <span class="material-symbols-outlined">person_add</span>
                   <span>Đăng ký</span>
+                </button>
+
+                <!-- after login -->
+                <button
+                  class="ud-btn ud-register"
+                  :class="{ 'option-active': activeUserAction === 'account' }"
+                  @click="goToAccount"
+                  aria-label="Cài đặt tài khoản"
+                  v-if="auth.user"
+                >
+                  <span class="material-symbols-outlined">settings</span>
+                  <span>Thông tin tài khoản</span>
                 </button>
               </div>
 

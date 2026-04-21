@@ -2,6 +2,7 @@
 import { computed, reactive, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../../api/axios'
+import driplabLogo2 from '../IMG/DripLab_Logo.png'
 
 // ✅ STORES
 import { useCartStore } from '../../stores/cart.js'
@@ -51,7 +52,6 @@ const toppingItems = [
 onMounted(async () => {
   try {
     const id = route.params.id
-    // Fetch directly from your CafeDB API
     const res = await api.get(`/drinks/${id}`)
     product.value = res.data
   } catch (error) {
@@ -74,7 +74,6 @@ const lineTotal = computed(() => {
     const t = toppingItems.find(x => x.id === id)
     if (t) toppingExtra += t.price
   })
-  // basePrice comes from your Database
   return (product.value.basePrice + toppingExtra) * qty.value
 })
 
@@ -108,21 +107,20 @@ async function handleAddToCart() {
     userId: userId,
     drinkId: product.value.id,
     quantity: qty.value,
-    sizeId: 1, // Defaulting to Size S for Online orders
+    sizeId: 1,
     sugar: selections.sugar,
     ice: selections.ice,
     toppings: Array.from(selections.toppings)
   }
 
   try {
-    // Calls your Pinia store action
     await cartStore.addToCart(payload)
     showNotice({
       type: 'success',
-      title: 'Tuyệt vời!',
-      message: `Đã thêm ${product.value.name} vào giỏ hàng.`,
-      buttonText: 'Xem giỏ hàng',
-      onClose: () => router.push('/cart')
+      title: 'Thêm vào giỏ hàng thành công!',
+      message: `Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.`,
+      buttonText: 'Hoàn tất',
+      onClose: null
     })
   } catch (e) {
     showNotice({ type: 'error', title: 'Lỗi', message: 'Lỗi kết nối giỏ hàng.' })
@@ -133,7 +131,7 @@ async function handleAddToCart() {
 function formatVnd(v) { return (v || 0).toLocaleString('vi-VN') + 'đ' }
 
 function showNotice(params) {
-  Object.assign(notice, { open: true, ...params })
+  Object.assign(notice, { open: true, buttonText: 'Hoàn tất', onClose: null, ...params })
 }
 
 function closeNotice() { 
@@ -160,8 +158,8 @@ function closeNotice() {
       <div class="grid grid-cols-1 gap-12 md:grid-cols-12">
         <div class="md:col-span-5">
           <div class="sticky top-10 group overflow-hidden rounded-3xl shadow-2xl cursor-zoom-in" @click="showPreview = true">
-            <img :src="product.imageUrl" class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            <img :src="product.imageUrl" class="aspect-4/5 w-full object-cover transition duration-500 group-hover:scale-105" />
+            <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
             <div class="absolute bottom-0 p-8 text-white">
               <span class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter mb-2 inline-block">Món mới</span>
               <h1 class="text-4xl font-black leading-none uppercase">{{ product.name }}</h1>
@@ -226,7 +224,7 @@ function closeNotice() {
               <button @click="qty++" class="text-2xl font-light text-slate-300 hover:text-slate-900 transition"> + </button>
             </div>
             
-            <button @click="handleAddToCart" class="flex-1 min-w-[240px] bg-[#126b23] text-white px-8 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-green-900/20 hover:bg-[#0f541b] active:scale-95 transition">
+            <button @click="handleAddToCart" class="flex-1 min-w-60 bg-[#126b23] text-white px-8 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-green-900/20 hover:bg-[#0f541b] active:scale-95 transition">
               Thêm vào giỏ • {{ formatVnd(lineTotal) }}
             </button>
           </div>
@@ -234,21 +232,144 @@ function closeNotice() {
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════
+         POPUP THÔNG BÁO — STYLE BREWING
+    ══════════════════════════════════════════ -->
     <Teleport to="body">
-      <div v-if="notice.open" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" @click.self="closeNotice">
-        <div class="bg-white rounded-[40px] p-10 max-w-sm w-full text-center shadow-2xl transform transition-all scale-100">
-          <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span class="text-4xl">
-              {{ notice.type === 'success' ? '✨' : notice.type === 'warning' ? '👀' : '⚠️' }}
-            </span>
+      <Transition name="cart-pop">
+        <div
+          v-if="notice.open"
+          class="cart-pop__backdrop"
+          @click.self="closeNotice"
+        >
+          <div class="cart-pop__card">
+
+            <!-- Logo (chỉ hiện khi success) -->
+            <img
+              v-if="notice.type === 'success'"
+              :src="driplabLogo2"
+              class="cart-pop__logo"
+              alt="Drip Lab"
+            />
+
+            <!-- Icon (khi warning / error) -->
+            <div v-else class="cart-pop__icon-wrap">
+              <span class="cart-pop__icon-inner">
+                {{ notice.type === 'warning' ? '👀' : '⚠️' }}
+              </span>
+            </div>
+
+            <h3 class="cart-pop__title">{{ notice.title }}</h3>
+
+            <p class="cart-pop__desc">{{ notice.message }}</p>
+
+            <button class="cart-pop__btn" @click="closeNotice">
+              {{ notice.buttonText }}
+            </button>
           </div>
-          <h2 class="text-2xl font-black text-slate-900 mb-2 uppercase">{{ notice.title }}</h2>
-          <p class="text-slate-500 font-medium leading-relaxed mb-8">{{ notice.message }}</p>
-          <button @click="closeNotice" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-black transition">
-            {{ notice.buttonText }}
-          </button>
         </div>
-      </div>
+      </Transition>
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+/* ── BACKDROP ─────────────────────────────────────────────── */
+.cart-pop__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(60, 40, 28, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+/* ── CARD ─────────────────────────────────────────────────── */
+.cart-pop__card {
+  width: min(460px, 92vw);
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 32px 36px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+  text-align: center;
+  color: #2b1b0e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── LOGO (success) ───────────────────────────────────────── */
+.cart-pop__logo {
+  width: 110px;
+  height: auto;
+  margin-bottom: 24px;
+  object-fit: contain;
+}
+
+/* ── ICON (warning / error) ───────────────────────────────── */
+.cart-pop__icon-wrap {
+  width: 72px;
+  height: 72px;
+  background: #f8f8f8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.cart-pop__icon-inner {
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* ── TITLE ────────────────────────────────────────────────── */
+.cart-pop__title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #2b1b0e;
+  margin: 0 0 14px;
+  line-height: 1.2;
+}
+
+/* ── DESC ─────────────────────────────────────────────────── */
+.cart-pop__desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(43, 27, 14, 0.72);
+  max-width: 340px;
+  margin: 0 0 28px;
+}
+
+/* ── BUTTON ───────────────────────────────────────────────── */
+.cart-pop__btn {
+  min-width: 180px;
+  padding: 15px 32px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #2b1b0e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 28px rgba(43, 27, 14, 0.22);
+  transition: filter 0.18s;
+}
+.cart-pop__btn:hover { filter: brightness(1.12); }
+
+/* ── TRANSITION ───────────────────────────────────────────── */
+.cart-pop-enter-active,
+.cart-pop-leave-active  { transition: opacity 0.2s ease; }
+.cart-pop-enter-from,
+.cart-pop-leave-to      { opacity: 0; }
+
+.cart-pop-enter-active .cart-pop__card,
+.cart-pop-leave-active .cart-pop__card { transition: transform 0.2s ease; }
+.cart-pop-enter-from   .cart-pop__card { transform: translateY(12px) scale(0.97); }
+.cart-pop-leave-to     .cart-pop__card { transform: translateY(12px) scale(0.97); }
+</style>

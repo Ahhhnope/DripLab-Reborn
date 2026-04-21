@@ -7,7 +7,7 @@ import { sharedUser } from './Useruser.JS'
 export function useUserOrders() {
   const auth     = useAuthStore()
   const router   = useRouter()
-  const user     = sharedUser
+  const user     = auth.user
   const userId   = auth.user?.id || 1
 
   const currentRoute = '/account/orders'
@@ -100,23 +100,16 @@ export function useUserOrders() {
       paymentMethod:   order.paymentMethod ?? 'Tiền mặt',
       totalQty,
       price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
-      date:            order.orderDate
-                         ? new Date(order.orderDate).toLocaleDateString('vi-VN')
-                         : '-',
+      date:            order.orderDate ? new Date(order.orderDate).toLocaleDateString('vi-VN') : '-',
       shippingAddress: order.shippingAddress ?? '',
       receiptData: {
         id:    `#DL-${order.orderNumber ?? order.id}`,
-        date:  order.orderDate
-                 ? new Date(order.orderDate).toLocaleDateString('vi-VN')
-                 : '-',
+        date:  order.orderDate ? new Date(order.orderDate).toLocaleDateString('vi-VN') : '-',
         total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
         items: (order.items ?? []).map(item => ({
           name:     item.drink?.name ?? 'Sản phẩm',
           qty:      item.quantity ?? 1,
-          price:    `${(
-                      (item.basePriceAtPurchase ?? 0) +
-                      (item.orderItemToppings ?? []).reduce((s, t) => s + (t.basePriceAtPurchase ?? 0), 0)
-                    ).toLocaleString('vi-VN')} VNĐ`,
+          price:    `${((item.basePriceAtPurchase ?? 0) + (item.orderItemToppings ?? []).reduce((s, t) => s + (t.basePriceAtPurchase ?? 0), 0)).toLocaleString('vi-VN')} VNĐ`,
           toppings: (item.orderItemToppings ?? []).map(t => t.topping?.name).filter(Boolean).join(', '),
           img:      item.drink?.imageUrl ?? null,
           sugar:    item.sugarLevel ?? 100,

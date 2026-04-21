@@ -398,20 +398,17 @@
   background: #f0faf0;
 }
 
-/* Bước đang active */
 .stepper-cell--active {
   border-color: #4caf50 !important;
   background: #fff !important;
   box-shadow: 0 4px 18px rgba(76,175,80,0.18);
 }
 
-/* Bước đã hoàn thành */
 .stepper-cell--done {
   background: #f8fdf8;
   border-color: #c8e6c9;
 }
 
-/* Bước bị khóa (chưa tới) */
 .stepper-cell--locked {
   opacity: 0.5;
   cursor: not-allowed;
@@ -528,7 +525,6 @@
   box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
 }
 
-/* Swatch màu */
 .option-card__swatch {
   width: 28px;
   height: 10px;
@@ -632,109 +628,10 @@
 }
 .btn-nav--finish:hover { background: #43a047; }
 
-/* Dán phần này xuống CUỐI file ../CSS-USER/Brewing.css */
-
-/* khóa scroll khi popup mở */
-.no-scroll { overflow: hidden; }
-
-.cart-pop__backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(0,0,0,.42);
-  backdrop-filter: blur(6px);
-  overflow: visible; /* ✅ thêm dòng này */
-}
-
-.cart-pop__card {
-  width: min(720px, 92vw);
-  background: #fbf6ef;
-  border-radius: 28px;
-  padding: 48px 28px 28px;
-  box-shadow: 0 28px 70px rgba(0,0,0,.28);
-  text-align: center;
-  color: #4a2f21;
-  position: relative;
-  margin-top: 31px; /* ✅ đẩy card xuống để icon không bị backdrop che */
-}
-
-.cart-pop__icon {
-  width: 62px;
-  height: 62px;
-  position: absolute;
-  top: -31px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ffffff;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 10px 24px rgba(0,0,0,.12);
-}
-
-.cart-pop__icon-inner{
-  font-size: 26px;
-  line-height: 1;
-}
-
-.cart-pop__title{
-  font-size: 40px;
-  line-height: 1.12;
-  margin: 10px 0 16px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.cart-pop__order{
-  display: inline-block;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1.6px solid rgba(210,140,88,.55);
-  background: rgba(255,255,255,.35);
-  font-size: 16px;
-  color: #4a2f21;
-  margin-bottom: 14px;
-}
-
-.cart-pop__desc{
-  max-width: 520px;
-  margin: 8px auto 22px;
-  color: rgba(74,47,33,.85);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.cart-pop__btn{
-  min-width: 190px;
-  padding: 14px 22px;
-  border-radius: 16px;
-  border: none;
-  cursor: pointer;
-  background: #2e1b12;
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
-  box-shadow: 0 14px 26px rgba(46,27,18,.24);
-}
-.cart-pop__btn:hover{ filter: brightness(1.06); }
-
-/* transition */
-.cart-pop-enter-active, .cart-pop-leave-active{ transition: opacity .18s ease; }
-.cart-pop-enter-from, .cart-pop-leave-to{ opacity: 0; }
-.cart-pop-enter-active .cart-pop__card,
-.cart-pop-leave-active .cart-pop__card{ transition: transform .18s ease; }
-.cart-pop-enter-from .cart-pop__card{ transform: translateY(10px) scale(.985); }
-.cart-pop-leave-to .cart-pop__card{ transform: translateY(10px) scale(.985); }
-
 /* ─── TOPPING FX ─────────────────────────────────────────────── */
 .topping-fx {
   pointer-events: none;
 }
-
 
 .fx-dust circle {
   opacity: 0;
@@ -747,3 +644,138 @@
   30%  { opacity: 0.85; }
   100% { transform: translateY(8px);  opacity: 0.35; }
 }
+
+/* ─── LOGO INPUT ─────────────────────────────────────────────── */
+.logo-config {
+  margin-top: 14px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: #f7f7f7;
+}
+
+.logo-config__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+
+.logo-config__input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.10);
+  outline: none;
+  background: #fff;
+}
+
+.logo-config__input:focus {
+  border-color: rgba(76,175,80,0.55);
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.14);
+}
+
+.logo-config__hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #6f6f6f;
+}
+
+/* ─── CUP LOGO ─────────────────────────────────────────────── */
+.cup-logo image {
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,0.38))
+    drop-shadow(0 8px 18px rgba(0,0,0,0.18))
+    drop-shadow(0 2px 4px rgba(0,0,0,0.10));
+  opacity: 0.95;
+}
+
+.cup-logo image {
+  image-rendering: auto;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   POPUP "ĐẶT HÀNG THÀNH CÔNG"
+═══════════════════════════════════════════════════════════════ */
+
+/* Khóa scroll khi popup mở */
+.no-scroll { overflow: hidden; }
+
+.cart-pop__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(60, 40, 28, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.cart-pop__card {
+  width: min(460px, 92vw);
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 32px 36px;
+  box-shadow: 0 28px 70px rgba(0,0,0,.22);
+  text-align: center;
+  color: #2b1b0e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Logo */
+.cart-pop__logo {
+  width: 110px;
+  height: auto;
+  margin-bottom: 24px;
+  object-fit: contain;
+}
+
+/* Tiêu đề */
+.cart-pop__title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #2b1b0e;
+  margin: 0 0 16px;
+  line-height: 1.15;
+}
+
+/* Mô tả */
+.cart-pop__desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(43, 27, 14, 0.72);
+  max-width: 340px;
+  margin: 0 0 28px;
+}
+
+/* Nút Hoàn tất */
+.cart-pop__btn {
+  min-width: 180px;
+  padding: 15px 32px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: #2b1b0e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 28px rgba(43,27,14,.22);
+  transition: filter 0.18s;
+}
+.cart-pop__btn:hover { filter: brightness(1.12); }
+
+/* Transition hiệu ứng mở/đóng */
+.cart-pop-enter-active, .cart-pop-leave-active { transition: opacity .2s ease; }
+.cart-pop-enter-from,  .cart-pop-leave-to      { opacity: 0; }
+.cart-pop-enter-active .cart-pop__card,
+.cart-pop-leave-active .cart-pop__card         { transition: transform .2s ease; }
+.cart-pop-enter-from   .cart-pop__card         { transform: translateY(12px) scale(.97); }
+.cart-pop-leave-to     .cart-pop__card         { transform: translateY(12px) scale(.97); }

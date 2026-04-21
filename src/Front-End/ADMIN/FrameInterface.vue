@@ -1,5 +1,6 @@
 <script setup>
 import { useAdminMenu } from "../JS/FrameInterface.JS";
+import { useAuthStore } from "../Authorization/Auth";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -16,6 +17,7 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild } = useAdminMenu();
+const auth = useAuthStore()
 </script>
 
 <template>
@@ -85,13 +87,12 @@ const { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub,
       </nav>
 
       <div class="p-4 border-t border-stone-100 bg-[#FAF7F2]/50 flex items-center gap-3">
-        <div
-          class="w-9 h-9 rounded-full bg-[#3C2A21] flex items-center justify-center text-[#F5EBE0] text-xs font-bold shadow-sm">
-          A
+        <div class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-[#F5EBE0] text-xs font-bold shadow-sm">
+          <img :src="auth.user.avatar" alt="A">
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-[13px] font-bold text-[#3C2A21] truncate">Quản Trị Viên</p>
-          <p class="text-[10px] text-stone-500 truncate font-medium">Nguyễn Huy Bình</p>
+          <p class="text-[10px] text-stone-500 truncate font-medium" alt="Nguyễn Huy Bình">{{ auth.user.fullName }}</p>
         </div>
         <button @click="logout" class="p-2 text-stone-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all">
           <ArrowLeftOnRectangleIcon class="w-5 h-5" />

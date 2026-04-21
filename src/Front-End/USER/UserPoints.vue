@@ -7,11 +7,12 @@
     />
 
     <div class="account-inner">
-      <!-- Sidebar -->
+
+      <!-- ══════════ SIDEBAR ══════════ -->
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-           <!--<img :src="user.avatar" alt="Avatar" class="avatar-img" />--> 
+            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.fullName }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
@@ -27,9 +28,7 @@
             <span class="material-symbols-outlined">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
           </a>
-
           <div class="nav-divider"></div>
-
           <a class="nav-item logout" @click="logout">
             <span class="material-symbols-outlined">logout</span>
             <span>Đăng xuất</span>
@@ -37,7 +36,7 @@
         </nav>
       </aside>
 
-      <!-- Main Content -->
+      <!-- ══════════ MAIN ══════════ -->
       <main class="account-main">
 
         <!-- ── Điểm tích lũy ── -->
@@ -73,24 +72,29 @@
             </div>
           </div>
 
-          <!-- Progress bar -->
+          <!-- Progress -->
           <div class="progress-wrap">
             <div class="progress-label">
               <span>Tiến độ đến hạng <strong>{{ nextTier }}</strong></span>
-              <span>{{ myPoints.toLocaleString('vi-VN') }} / {{ nextTierPoints.toLocaleString('vi-VN') }} điểm</span>
+              <span>
+                {{ myPoints.toLocaleString('vi-VN') }} /
+                {{ nextTierPoints.toLocaleString('vi-VN') }} điểm
+              </span>
             </div>
             <div class="progress-bar">
               <div class="progress-fill" :style="{ width: progress + '%' }"></div>
             </div>
             <p class="progress-hint">
               Cần thêm
-              <strong>{{ (nextTierPoints - myPoints).toLocaleString('vi-VN') }} điểm</strong>
+              <strong>
+                {{ (nextTierPoints - myPoints).toLocaleString('vi-VN') }} điểm
+              </strong>
               để lên hạng {{ nextTier }}
             </p>
           </div>
         </section>
 
-        <!-- ── Kho khuyến mãi ── -->
+        <!-- ── Kho khuyến mãi đổi thưởng ── -->
         <section class="card">
           <div class="card-title-row">
             <div class="card-title-icon">
@@ -105,26 +109,58 @@
             — chọn voucher để đổi ngay
           </p>
 
-          <div class="voucher-grid">
+          <!-- Empty state -->
+          <p v-if="vouchers.length === 0" class="empty-hint">
+            Hiện chưa có voucher nào để đổi 😢
+          </p>
+
+          <!-- Voucher grid -->
+          <div class="voucher-grid" v-else>
             <div
               v-for="v in vouchers"
               :key="v.id"
-              :class="['voucher-card', { 'voucher-disabled': !canRedeem(v.cost) }]"
+              :class="[
+                'voucher-card',
+                { 'voucher-disabled': !canRedeem(v) || isAlreadySaved(v.id) }
+              ]"
             >
-              <span :class="['voucher-tag', `tag-${v.color}`]">{{ v.tag }}</span>
+              <!-- Tag loại -->
+              <span :class="['voucher-tag', tagColor(v)]">
+                {{ v.category === 'PHẦN TRĂM' ? 'Giảm %' : 'Giảm tiền' }}
+              </span>
+
+              <!-- Badge số lượng còn lại -->
+              <span class="voucher-remain">Còn {{ v.quantity }} mã</span>
+
+              <!-- Tên -->
               <p class="voucher-name">{{ v.name }}</p>
-              <p class="voucher-desc">{{ v.desc }}</p>
+
+              <!-- Mô tả -->
+              <p class="voucher-desc">
+                Mã: <strong>{{ v.code }}</strong>
+                <template v-if="v.minOrderValue > 0">
+                  &nbsp;·&nbsp;Đơn từ {{ (+v.minOrderValue).toLocaleString('vi-VN') }}đ
+                </template>
+                &nbsp;·&nbsp;HSD: {{ v.endDate?.split('T')[0] }}
+              </p>
+
               <div class="voucher-footer">
+                <!-- Giá trị giảm -->
                 <div class="voucher-cost">
-                  <span class="material-symbols-outlined cost-icon">toll</span>
-                  <strong>{{ v.cost.toLocaleString('vi-VN') }}</strong> điểm
+                  <span class="material-symbols-outlined cost-icon">sell</span>
+                  <strong>{{ fmtValue(v) }}</strong>
                 </div>
+
+                <!-- Nút đổi -->
                 <button
                   class="btn-doi"
-                  :disabled="!canRedeem(v.cost)"
+                  :disabled="!canRedeem(v) || isAlreadySaved(v.id)"
                   @click="redeem(v)"
                 >
-                  {{ canRedeem(v.cost) ? 'Đổi' : 'Thiếu điểm' }}
+                  <template v-if="isAlreadySaved(v.id)">✓ Đã đổi</template>
+                  <template v-else-if="v.quantity <= 0">Hết mã</template>
+                  <template v-else-if="canRedeem(v)">Đổi ngay</template>
+                  <template v-else>Không đủ điều kiện</template>
                 </button>
               </div>
             </div>
@@ -147,13 +183,16 @@
               class="history-row"
             >
               <div class="history-left">
-                <div :class="['history-dot', h.type === 'earn' ? 'dot-earn' : 'dot-use']"></div>
+                <div :class="['history-dot',
+                  h.type === 'earn' ? 'dot-earn' : 'dot-use']">
+                </div>
                 <div>
                   <p class="history-desc">{{ h.desc }}</p>
                   <p class="history-date">{{ h.date }}</p>
                 </div>
               </div>
-              <span :class="['history-pts', h.type === 'earn' ? 'pts-earn' : 'pts-use']">
+              <span :class="['history-pts',
+                h.type === 'earn' ? 'pts-earn' : 'pts-use']">
                 {{ h.type === 'earn' ? '+' : '−' }}{{ h.pts.toLocaleString('vi-VN') }}
               </span>
             </div>
@@ -170,30 +209,32 @@
 </template>
 
 <script setup>
-import { useUserPoints } from '../JS-USER/UserPoints.JS'
-import { useAuthStore } from "../Authorization/Auth";
-import { useRouter } from "vue-router";
+import { computed, onMounted } from 'vue'
+import { useRouter }           from 'vue-router'
+import { useAuthStore }        from '../Authorization/Auth'
+import { useUserPoints }       from '../JS-USER/UserPoints.JS'
+
+const auth   = useAuthStore()
+const router = useRouter()
 
 const {
   navItems, currentRoute,
   myPoints, usedPoints, nextTierPoints,
   currentTier, nextTier, progress,
-  vouchers, canRedeem, redeem,
+  vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
   pointHistory,
   toastVisible, toastMessage, toastType,
-  goTo,
+  goTo, initPage,
 } = useUserPoints()
 
-const auth = useAuthStore();
-const router = useRouter();
-
-import { computed } from 'vue'
 const user = computed(() => auth.user || {})
 
-const logout = () => {
-  auth.logout();
-  router.push('/login');
-};
+function logout() {
+  auth.logout()
+  router.push('/login')
+}
+
+onMounted(() => initPage())
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>

@@ -20,3 +20,5 @@ export function saveUserProfile(data) {
     avatar: sharedUser.value.avatar
   }))
 }
+
+// WHICH ASSHOLE MADE THIS FILE WTFFFFF WE HAVE THE AUTHSTORE ALREADY PLSSSSSSSSS

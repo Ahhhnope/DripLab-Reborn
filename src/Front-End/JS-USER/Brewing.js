@@ -1,5 +1,5 @@
 import { computed, reactive, ref, watch } from 'vue'
-
+import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
 /**
  * useBrewing — Composable Tùy Chỉnh Đồ Uống (Luồng theo bước)
  *
@@ -22,10 +22,11 @@ export function useBrewing() {
   ]
 
   // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
+  // FIX: Espresso giờ dùng màu tối hơn hẳn so với Pour Over để dễ phân biệt
   const baseOptions = [
-    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',    priceDelta: 15000, color: '#2b1b14' },
+    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',    priceDelta: 15000, color: '#0f0705' }, // ← rất tối, gần đen
     { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',       priceDelta: 18000, color: '#24160f' },
-    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',      priceDelta: 16000, color: '#2f1e16' },
+    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',      priceDelta: 16000, color: '#5c3220' }, // ← nâu đỏ sáng hơn
   ]
 
   // ─── DỮ LIỆU: SỮA ─────────────────────────────────────────────────
@@ -47,7 +48,6 @@ export function useBrewing() {
   ]
 
   // ─── BƯỚC HIỆN TẠI ────────────────────────────────────────────────
-  // 0=bean, 1=base, 2=milk, 3=topping
   const currentStep = ref(0)
 
   const STEPS = [
@@ -59,7 +59,7 @@ export function useBrewing() {
 
   // ─── TRẠNG THÁI LỰA CHỌN ──────────────────────────────────────────
   const selection = reactive({
-    bean:     null,   // null = chưa chọn
+    bean:     null,
     base:     null,
     milk:     null,
     toppings: new Set(),
@@ -70,11 +70,9 @@ export function useBrewing() {
     bean:    selection.bean    !== null,
     base:    selection.base    !== null,
     milk:    selection.milk    !== null,
-    topping: true, // topping không bắt buộc, luôn "done" sau khi tới bước này
+    topping: true,
   }))
 
-  // Bước cuối cùng hoàn tất (có ống hút)
-  // Yêu cầu: vào bước topping sẽ chờ ~10 giây rồi mới hiển thị cốc hoàn thành.
   const completeReady = ref(false)
   let _completeTimer = null
 
@@ -99,7 +97,6 @@ export function useBrewing() {
     completeReady.value = false
   }
 
-  // Khi vào step topping và đã chọn đủ bean/base/milk thì bắt đầu đếm 10s
   watch(
     () => [currentStep.value, selection.bean, selection.base, selection.milk],
     ([step, bean, base, milk]) => {
@@ -109,6 +106,10 @@ export function useBrewing() {
     },
     { immediate: true }
   )
+
+  // ─── LOGO TRÊN CỐC ────────────────────────────────────────────────
+  const logoUrl = ref(dripLabLogo)
+  
   // ─── THÔNG BÁO TẠM THỜI ───────────────────────────────────────────
   const notice = ref('')
   function showNotice(msg, ms = 1800) {
@@ -144,7 +145,6 @@ export function useBrewing() {
     if (currentStep.value > 0) currentStep.value--
   }
 
-  // Chọn và tự động sang bước tiếp (bean, base, milk)
   function selectBean(id) {
     selection.bean = id
     setTimeout(nextStep, 320)
@@ -161,23 +161,19 @@ export function useBrewing() {
   }
 
   // ─── ANIMATION TICK ───────────────────────────────────────────────
-  // Dùng để "remount" SVG layer nhằm chạy lại animation.
-  // Yêu cầu: ở bước topping, hiệu ứng chỉ chạy 1 lần dù chọn 1/2/3 topping.
   const animTick = ref(0)
   const toppingAnimPlayed = ref(false)
   const toppingFxKey = ref(0)
 
-  // Chỉ rerun animation khi đổi bean/base/milk
   watch(
     () => [selection.bean, selection.base, selection.milk],
     () => { animTick.value++ },
   )
 
-  // Khi lần đầu đi tới bước topping (step=3) thì chạy 1 lần
   watch(currentStep, (n) => {
     if (n >= 3 && !toppingAnimPlayed.value) {
       animTick.value++
-      toppingFxKey.value++ // chạy animation topping 1 lần
+      toppingFxKey.value++
       toppingAnimPlayed.value = true
     }
   })
@@ -187,7 +183,7 @@ export function useBrewing() {
   const selectedBase    = computed(() => baseOptions.find(x => x.id === selection.base))
   const selectedMilk    = computed(() => milkOptions.find(x => x.id === selection.milk))
 
-  // ─── HELPER: trộn màu đơn giản (hex #rrggbb) ──────────────────────
+  // ─── HELPER: trộn màu ─────────────────────────────────────────────
   function mixHex(a, b, t = 0.5) {
     if (!a) return b
     if (!b) return a
@@ -209,42 +205,40 @@ export function useBrewing() {
     return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('')
   }
 
-  // ─── COMPUTED: CUP LAYERS (điền dần theo bước) ───────────────────
-  /**
-   * Cốc có 4 vùng từ đáy lên:
-   *   1. Bean layer   (lớp hạt/nền cà phê)  — xuất hiện khi chọn bean
-   *   2. Base layer   (espresso/cold brew)   — xuất hiện khi chọn base
-   *   3. Milk layer   (sữa)                 — xuất hiện khi chọn milk ≠ none
-   *   4. Foam/topping                        — xuất hiện khi tới bước topping
-   *   5. Straw (ống hút)                    — khi isComplete
-   */
-  const cupLayers = computed(() => {
-    // Yêu cầu UI mới:
-    // - Chọn bean (hạt) thôi: cốc vẫn TRỐNG.
-    // - Chọn base: mới bắt đầu có tầng cà phê (1 tầng như ảnh 1).
-    // - Chọn sữa: thêm 1 tầng sữa.
-    // - Hoàn thành (có ống hút): hoà các tầng thành 1 khối.
+  function darkenHex(hex, amt = 0.18) {
+    if (!hex) return hex
+    const p = hex.replace('#', '')
+    const r = parseInt(p.slice(0, 2), 16)
+    const g = parseInt(p.slice(2, 4), 16)
+    const b = parseInt(p.slice(4, 6), 16)
+    const rr = Math.max(0, Math.round(r * (1 - amt)))
+    const rg = Math.max(0, Math.round(g * (1 - amt)))
+    const rb = Math.max(0, Math.round(b * (1 - amt)))
+    return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('')
+  }
 
+
+  // ─── COMPUTED: CUP LAYERS ─────────────────────────────────────────
+  const cupLayers = computed(() => {
     const hasBean    = !!selection.bean
     const hasBase    = !!selection.base
+
+    // FIX: hasMilk chỉ true khi người dùng chọn sữa thật sự (không phải 'none')
+    // Trước đây: hasMilk = !!selection.milk && selection.milk !== 'none'
+    // Vẫn đúng logic nhưng cần đảm bảo milk layer HEIGHT = 0 khi none
     const hasMilk    = !!selection.milk && selection.milk !== 'none'
     const hasTopping = currentStep.value >= 3
 
-    // Coffee chỉ xuất hiện sau khi đã chọn base
     const hasCoffee = hasBase
 
-    // Theo yêu cầu mới:
-    // - Chọn base xong: cốc ~50%
-    // - Chọn sữa: lên ~90%
-    // - Sang bước topping: 100%
     const coffeeH = hasCoffee ? 50 : 0
+    // FIX: milkH = 0 nếu không có sữa thật sự → lớp sữa biến mất hoàn toàn
     const milkH   = hasMilk ? 40 : 0
     const foamH   = hasTopping ? 10 : 0
 
     const isColdBrew = selection.base === 'cold_brew'
     const isHot      = hasBase && !isColdBrew
 
-    // Màu cà phê: trộn nhẹ giữa hạt và base để khác nhau theo lựa chọn
     const coffeeColor = mixHex(
       selectedBean.value?.color ?? '#3d2010',
       selectedBase.value?.color ?? '#2b1b14',
@@ -252,46 +246,41 @@ export function useBrewing() {
     )
 
     return {
-      // TẦNG CÀ PHÊ: chỉ xuất hiện sau khi đã chọn base
-      // (Dùng key `bean` để không phải sửa nhiều ở template)
       bean: {
         show:   hasCoffee,
         height: coffeeH,
         color:  coffeeColor,
       },
 
-      // Tắt layer base để tránh bị "2 tầng cà phê" (vì yêu cầu chỉ 1 tầng cà phê)
       base: {
         show:   false,
         height: 0,
         color:  selectedBase.value?.color ?? '#2b1b14',
       },
 
-      // Lớp sữa (phía trên cà phê)
+      // FIX: show: false khi không có sữa → lớp sữa không render trong SVG
       milk: {
         show:   hasMilk,
         height: milkH,
         color:  selectedMilk.value?.color ?? '#f3e9dc',
       },
-      // Foam / topping
+
       foam: {
-        show:   hasTopping,
+        // Foam chỉ hiện khi: có sữa thật (hasMilk) HOẶC user chọn topping kem tươi (whip)
+        // Không có sữa + không whip → cà phê đen, không có foam
+        show:   hasTopping && (hasMilk || selection.toppings.has('whip')),
         height: foamH,
         color:  '#fffcf0',
       },
 
-      // Khi hoàn thành (có ống hút) thì cốc "hòa" thành 1 lớp, không tách tầng
       mixed: {
         enabled: isComplete.value,
-        // Khi hoàn thành (xuất hiện ống hút) thì cốc hoà 1 khối và đầy 100%
         height: 100,
-        // Trộn màu cà phê với sữa (nếu có) để ra màu "hoà" nhìn tự nhiên hơn
-        color: mixHex(coffeeColor, selectedMilk.value?.color ?? null, hasMilk ? 0.35 : 0),
+        color: darkenHex(mixHex(coffeeColor, selectedMilk.value?.color ?? null, hasMilk ? 0.16 : 0), 0.06),
       },
 
-      // Hiệu ứng topping (không bị loạn khi chọn nhiều)
       toppingsFx: {
-        whip: false, // bỏ hiệu ứng kem tươi
+        whip: false,
         dustEnabled: (selection.toppings.has('cocoa') || selection.toppings.has('cinnamon') || selection.toppings.has('vanilla_powder')) && currentStep.value >= 3,
         dustColor: selection.toppings.has('cocoa')
           ? '#5c3317'
@@ -299,11 +288,11 @@ export function useBrewing() {
         fxKey: toppingFxKey.value,
       },
 
-      // Hiệu ứng đặc biệt
       drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
       bubbles:  { enabled: isColdBrew && hasBase },
       steam:    { enabled: isHot },
       straw:    { enabled: isComplete.value },
+      logo:     { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
     }
   })
 
@@ -324,7 +313,6 @@ export function useBrewing() {
     return (v || 0).toLocaleString('vi-VN') + 'đ'
   }
 
-  // ─── TOPPING COUNT LABEL ──────────────────────────────────────────
   const toppingCountLabel = computed(() => `${selection.toppings.size}/3`)
 
   // ─── RESET ────────────────────────────────────────────────────────
@@ -340,23 +328,18 @@ export function useBrewing() {
     animTick.value++
   }
 
-  // ─── EXPORT ───────────────────────────────────────────────────────
   return {
-    // Data
     beanOptions,
     baseOptions,
     milkOptions,
     toppingOptions,
     STEPS,
-
-    // State
     selection,
     currentStep,
+    logoUrl,
     isComplete,
     stepDone,
     toppingCountLabel,
-
-    // Actions
     selectBean,
     selectBase,
     selectMilk,
@@ -365,21 +348,13 @@ export function useBrewing() {
     nextStep,
     prevStep,
     reset,
-
-    // Cup
     cupLayers,
     animTick,
-
-    // Computed helpers
     selectedBean,
     selectedBase,
     selectedMilk,
-
-    // Price
     price,
     formatVnd,
-
-    // Notice
     notice,
     showNotice,
   }

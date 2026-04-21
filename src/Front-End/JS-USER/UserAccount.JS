@@ -20,6 +20,7 @@ export function useUserAccount() {
   // Form dữ liệu
   const form = ref({
     fullName: '',
+    avatar: '',
     email: '',
     phone: '',
   })
@@ -42,6 +43,7 @@ export function useUserAccount() {
     const u = authStore.user
     if (u) {
       form.value.fullName = u.fullName || u.name || ''
+      form.value.avatar = u.avatar || ''
       form.value.email    = u.email || ''
       form.value.phone    = u.phone || ''
       
@@ -89,6 +91,7 @@ export function useUserAccount() {
     try {
       const payload = {
         fullName: form.value.fullName.trim(),
+        avatar: form.value.avatar.trim(),
         email:    form.value.email.trim(),
         phone:    form.value.phone.trim(),
       }
@@ -99,6 +102,7 @@ export function useUserAccount() {
       authStore.setUser({
         ...authStore.user,
         fullName: res.data.fullName || payload.fullName,
+        avatar: res.data.avatar || payload.avatar,
         email:    res.data.email || payload.email,
         phone:    res.data.phone || payload.phone,
       }, authStore.token)
