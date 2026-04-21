@@ -200,7 +200,6 @@
                     <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(props.order.status)" @click="emitCancel">
                       Huỷ đơn
                     </button>
-                    <button class="btn btn--ghost" @click="close">Đóng</button>
                   </div>
                 </div>
               </div>

@@ -16,6 +16,7 @@
         <option value="processing">Đang xử lý</option>
         <option value="shipping">Đang vận chuyển</option>
         <option value="delivered">Đã giao</option>
+        <option value="delivery_failed">Giao hàng không thành công</option>
         <option value="cancelled">Đã huỷ</option>
       </select>
     </div>
@@ -25,6 +26,7 @@
         <option value="all">Tất cả loại</option>
         <option value="online">Online</option>
         <option value="counter">Tại quầy</option>
+        <option value="cod">Thanh toán COD</option>
       </select>
     </div>
 

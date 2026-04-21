@@ -598,21 +598,37 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+/* Xác nhận: mặc định trắng, hover/nhấn đổi sang nâu */
 .btn--primary {
-  background: #3c2a21;
-  color: #fff;
+  background: #ffffff;
+  color: #3c2a21;
+  border: 1.5px solid #3c2a21;
 }
 .btn--primary:hover:not(:disabled) {
-  background: #2a1d17;
+  background: #3c2a21;
+  color: #ffffff;
 }
+.btn--primary:active:not(:disabled) {
+  background: #2a1d17;
+  border-color: #2a1d17;
+}
+
+/* Huỷ: mặc định trắng, hover/nhấn đổi sang đỏ */
 .btn--danger {
-  background: transparent;
+  background: #ffffff;
   color: #b91c1c;
-  border: 1px solid #fca5a5;
+  border: 1.5px solid #fca5a5;
 }
 .btn--danger:hover:not(:disabled) {
-  background: #fff1f2;
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #ffffff;
 }
+.btn--danger:active:not(:disabled) {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
 .btn--ghost {
   background: transparent;
   color: #9c9589;

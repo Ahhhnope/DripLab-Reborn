@@ -38,10 +38,12 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
 
   function emitConfirm() {
     emit("confirm", props.order);
+    closse();
   }
 
   function emitCancel() {
     emit("cancel", props.order);
+    close();
   }
 
   // ✅ Đổi trạng thái (confirm đã xử lý ở UI)

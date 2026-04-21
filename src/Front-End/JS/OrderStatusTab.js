@@ -4,6 +4,7 @@ export const ORDER_TABS = [
   { label: "Đang xử lý", value: "processing" },
   { label: "Đang vận chuyển", value: "shipping" },
   { label: "Đã giao", value: "delivered" },
+  { label: "Giao hàng không thành công", value: "delivery_failed" },
   { label: "Đã huỷ", value: "cancelled" },
 ];
 
