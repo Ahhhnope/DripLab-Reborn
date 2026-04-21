@@ -6,9 +6,9 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
+            <img :src="auth.user?.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
-          <h2 class="sidebar-name">{{ user.name }}</h2>
+          <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
         <nav class="sidebar-nav">
@@ -344,9 +344,12 @@
 
 <script setup>
 import { useUserOrders } from '../JS-USER/UserOrders.JS'
+import { useAuthStore } from '../Authorization/Auth'
+
+const auth = useAuthStore()
 
 const {
-  user, navItems, currentRoute,
+  navItems, currentRoute,
   allOrders, filteredOrders, pagedOrders,
   hasMore, loadMore,
   searchId, filterStatus, filterFromDate, filterToDate,
