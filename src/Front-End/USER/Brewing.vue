@@ -1,4 +1,4 @@
-<!-- Brewing.vue (đã thêm popup thông báo khi "Thêm vào giỏ hàng") -->
+<!-- Brewing.vue -->
 <script setup>
 import { ref, onBeforeUnmount, watch, nextTick } from 'vue'
 import { useBrewing } from '../JS-USER/Brewing.js'
@@ -7,22 +7,20 @@ import driplabLogo2 from '../IMG/DripLab_Logo.png'
 
 const {
   beanOptions, baseOptions, milkOptions, toppingOptions,
+  sizeOptions, iceOptions, sugarOptions,
   STEPS, selection, currentStep, isComplete, stepDone,
   toppingCountLabel,
-  selectBean, selectBase, selectMilk, toggleTopping,
+  selectBean, selectBase, selectMilk, toggleTopping, confirmTopping,
+  selectSize, incQty, decQty,
   goToStep, nextStep, prevStep, reset,
   cupLayers, animTick,
-  selectedBean, selectedBase, selectedMilk,
+  selectedBean, selectedBase, selectedMilk, selectedSize,
   price, formatVnd,
   notice,
   logoUrl,
 } = useBrewing()
 
-
-
-// ─────────────────────────────────────────────────────────────
-// Popup thông báo "đã thêm vào giỏ"
-// ─────────────────────────────────────────────────────────────
+// ─── Popup thông báo "đã thêm vào giỏ" ───────────────────────
 const cartPopupOpen = ref(false)
 const popupBackdropEl = ref(null)
 
@@ -70,7 +68,6 @@ onBeforeUnmount(() => {
         <aside class="cup-panel">
           <div class="cup-panel__inner">
 
-            <!-- Tiêu đề -->
             <div class="cup-panel__header">
               <span class="cup-panel__eyebrow">Xưởng Thủ Công</span>
               <h1 class="cup-panel__title">Tùy Chỉnh Đồ Uống</h1>
@@ -78,15 +75,12 @@ onBeforeUnmount(() => {
 
             <!-- Cốc SVG -->
             <div class="cup-stage">
-
-              <!-- Hơi nước -->
               <div v-if="cupLayers.steam.enabled" class="steam" :key="'st-' + animTick">
                 <span class="waft"></span>
                 <span class="waft"></span>
                 <span class="waft"></span>
               </div>
 
-              <!-- Wrapper cốc -->
               <div class="cup-wrap" :key="'cup-' + animTick">
                 <svg class="cup-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <defs>
@@ -125,40 +119,30 @@ onBeforeUnmount(() => {
                     </filter>
                   </defs>
 
-                  <!-- Bóng mặt bàn -->
                   <ellipse cx="100" cy="286" rx="72" ry="10" fill="#3c2a21" opacity="0.16" filter="url(#dropShadow)" />
 
-                  <!-- ── LỚP LỎNG (clipped) ── -->
                   <g clip-path="url(#cupClip)">
-
                     <rect x="0" y="0" width="200" height="300"
                       :fill="cupLayers.bean.show ? 'rgba(30,12,4,0.08)' : 'rgba(220,210,200,0.10)'" />
 
-                    <!-- Chưa hoàn thành: hiển thị từng tầng riêng biệt -->
                     <g class="layers-split" :style="{ opacity: cupLayers.mixed.enabled ? 0 : 1 }">
-                      <!-- LAYER 1: Coffee (sau khi chọn base) -->
                       <rect v-if="cupLayers.bean.show" class="liq-layer" x="0" :y="272 - cupLayers.bean.height * 2.44"
                         width="200" :height="cupLayers.bean.height * 2.44"
                         :style="{ fill: cupLayers.bean.color, '--delay': '0ms' }" />
-
-                      <!-- LAYER 2: Milk -->
                       <rect v-if="cupLayers.milk.show" class="liq-layer" x="0"
                         :y="272 - (cupLayers.bean.height + cupLayers.milk.height) * 2.44" width="200"
                         :height="cupLayers.milk.height * 2.44"
                         :style="{ fill: cupLayers.milk.color, '--delay': '80ms' }" />
                     </g>
 
-                    <!-- Khi hoàn thành: cốc hoà 1 lớp -->
                     <g class="layers-mixed" :style="{ opacity: cupLayers.mixed.enabled ? 1 : 0 }">
                       <rect v-if="cupLayers.bean.show || cupLayers.base.show" class="liq-layer" x="0"
                         :y="272 - cupLayers.mixed.height * 2.44" width="200" :height="cupLayers.mixed.height * 2.44"
                         :style="{ fill: cupLayers.mixed.color, '--delay': '0ms' }" />
                     </g>
 
-                    <!-- Overlay chiều sâu 2 cạnh -->
                     <rect x="0" y="28" width="200" height="244" fill="url(#depthGrad)" opacity="0.75" />
 
-                    <!-- LAYER 4: Foam -->
                     <g v-if="cupLayers.foam.show" class="foam-group">
                       <ellipse :cx="100"
                         :cy="272 - (cupLayers.bean.height + (cupLayers.milk.show ? cupLayers.milk.height : 0)) * 2.44"
@@ -168,8 +152,6 @@ onBeforeUnmount(() => {
                           :cy="272 - (cupLayers.bean.height + (cupLayers.milk.show ? cupLayers.milk.height : 0)) * 2.44 - 2"
                           :r="1.4 + (i % 3) * 0.8" fill="#fff" />
                       </g>
-
-                      <!-- TOPPING FX -->
                       <g v-if="cupLayers.toppingsFx" class="topping-fx" :key="'fx-' + cupLayers.toppingsFx.fxKey">
                         <g v-if="cupLayers.toppingsFx.dustEnabled" class="fx-dust">
                           <circle v-for="i in 18" :key="'d' + i" :cx="40 + (i * 9) % 120"
@@ -180,7 +162,6 @@ onBeforeUnmount(() => {
                       </g>
                     </g>
 
-                    <!-- Drizzle caramel -->
                     <g v-if="cupLayers.drizzle.enabled" class="drizzle">
                       <path d="M62 108 C70 123 57 133 67 150 S57 166 67 183" />
                       <path d="M88 98  C96 113 83 123 93 140 S83 156 93 173" />
@@ -188,42 +169,30 @@ onBeforeUnmount(() => {
                       <path d="M140 98  C148 113 135 123 145 140 S135 156 145 173" />
                     </g>
 
-                    <!-- Bong bóng cold brew -->
                     <g v-if="cupLayers.bubbles.enabled" class="bubbles">
                       <circle v-for="i in 14" :key="'b' + i" :cx="42 + (i * 11) % 118" :cy="200 + (i * 17) % 60"
-                        :r="1.5 + (i % 4) * 0.7" :style="{
-                          '--dur': (2.2 + (i % 4) * 0.6) + 's',
-                          '--delay-anim': (i * 0.22) + 's',
-                        }" />
+                        :r="1.5 + (i % 4) * 0.7" :style="{ '--dur': (2.2 + (i % 4) * 0.6) + 's', '--delay-anim': (i * 0.22) + 's' }" />
                     </g>
 
-                    <!-- Đá viên cold brew -->
                     <g v-if="cupLayers.bubbles.enabled" class="ice">
-                      <rect x="50" y="158" width="28" height="22" rx="4"
-                        :style="{ '--dur': '3.2s', '--delay-anim': '0s' }" />
-                      <rect x="88" y="170" width="24" height="18" rx="4"
-                        :style="{ '--dur': '2.8s', '--delay-anim': '0.5s' }" opacity="0.85" />
-                      <rect x="120" y="155" width="26" height="20" rx="4"
-                        :style="{ '--dur': '3.5s', '--delay-anim': '1s' }" opacity="0.75" />
+                      <rect x="50" y="158" width="28" height="22" rx="4" :style="{ '--dur': '3.2s', '--delay-anim': '0s' }" />
+                      <rect x="88" y="170" width="24" height="18" rx="4" :style="{ '--dur': '2.8s', '--delay-anim': '0.5s' }" opacity="0.85" />
+                      <rect x="120" y="155" width="26" height="20" rx="4" :style="{ '--dur': '3.5s', '--delay-anim': '1s' }" opacity="0.75" />
                     </g>
 
-                    <!-- Đọng nước (cold brew) -->
                     <g v-if="cupLayers.bubbles.enabled" class="condensation">
                       <ellipse cx="35" cy="140" rx="3" ry="5" :style="{ '--dur': '4s', '--delay-anim': '0.3s' }" />
                       <ellipse cx="165" cy="162" rx="2.5" ry="4" :style="{ '--dur': '3.5s', '--delay-anim': '1.1s' }" />
                       <ellipse cx="44" cy="202" rx="2" ry="3.5" :style="{ '--dur': '5s', '--delay-anim': '0.7s' }" />
                     </g>
 
-                    <!-- Bề mặt lỏng (shimmer) -->
                     <ellipse
                       v-if="cupLayers.bean.show && !cupLayers.mixed.enabled"
                       :cx="100"
                       :cy="272 - (cupLayers.bean.height + (cupLayers.milk.show ? cupLayers.milk.height : 0)) * 2.44"
                       rx="66" ry="2.5" fill="url(#surfaceGrad)" opacity="0.45" />
                   </g>
-                  <!-- ── END CLIP ── -->
 
-                  <!-- THÂN KÍNH -->
                   <path d="M 20 28 L 180 28 L 160 240 Q 158 270 100 272 Q 42 270 40 240 Z" fill="url(#glassGrad)"
                     stroke="rgba(255,255,255,0.45)" stroke-width="2.5" />
                   <path d="M 24 28 L 44 240 Q 43 258 60 266" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="5"
@@ -236,35 +205,20 @@ onBeforeUnmount(() => {
                   <ellipse cx="100" cy="270" rx="60" ry="6" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)"
                     stroke-width="1.5" />
 
-                  <!-- LOGO TRÊN CỐC -->
                   <g v-if="cupLayers.logo && cupLayers.logo.enabled" class="cup-logo">
                     <image :href="dripLabLogo" :xlink:href="dripLabLogo" x="56" y="118" width="88" height="56"
                       preserveAspectRatio="xMidYMid meet" opacity="0.92" />
                   </g>
 
-                  <!-- ỐNG HÚT -->
                   <g v-if="cupLayers.straw.enabled" class="straw">
-                    <path
-                      d="M 150 220 L 150 38 Q 152 14 174 4"
-                      fill="none"
-                      stroke="#4caf50"
-                      stroke-width="8"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M 147 220 L 147 38 Q 149 14 171 4"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.28)"
-                      stroke-width="2.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
+                    <path d="M 150 220 L 150 38 Q 152 14 174 4" fill="none" stroke="#4caf50"
+                      stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 147 220 L 147 38 Q 149 14 171 4" fill="none" stroke="rgba(255,255,255,0.28)"
+                      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                   </g>
                 </svg>
               </div>
 
-              <!-- Label trạng thái cốc -->
               <div class="cup-status">
                 <template v-if="!cupLayers.bean.show">
                   <span class="cup-status__empty">Cốc đang trống</span>
@@ -302,12 +256,26 @@ onBeforeUnmount(() => {
                 <span class="cup-summary__dot" style="background:#c6a562"></span>
                 {{ selection.toppings.size }} topping
               </div>
+              <div v-if="selectedSize" class="cup-summary__row">
+                <span class="cup-summary__dot" style="background:#4caf50"></span>
+                Size {{ selectedSize.label }}
+              </div>
+              <div v-if="currentStep >= 5" class="cup-summary__row">
+                <span class="cup-summary__dot" style="background:#29b6f6"></span>
+                Đá {{ selection.ice }}
+              </div>
+              <div v-if="currentStep >= 5" class="cup-summary__row">
+                <span class="cup-summary__dot" style="background:#f06292"></span>
+                Đường {{ selection.sugar }}
+              </div>
+              <div v-if="currentStep >= 5" class="cup-summary__row">
+                <span class="cup-summary__dot" style="background:#ff9800"></span>
+                Số lượng: {{ selection.quantity }} ly
+              </div>
             </div>
 
-            <!-- Thông báo nhỏ -->
             <div v-if="notice" class="cup-notice">{{ notice }}</div>
 
-            <!-- Nút hành động -->
             <div v-if="isComplete" class="cup-actions">
               <button class="btn-cart" @click="addToCart">Thêm vào giỏ hàng</button>
               <button class="btn-reset" @click="reset">Làm lại</button>
@@ -320,29 +288,22 @@ onBeforeUnmount(() => {
         ══════════════════════════════════════════ -->
         <section class="step-panel">
 
-          <!-- Thanh tìm kiếm -->
-          <div class="search-bar">
-            <input class="search-bar__input" type="text" placeholder="Tìm sản phẩm..." />
-            <button class="search-bar__btn">Tìm kiếm</button>
-          </div>
-
-          <!-- Stepper tabs (4 ô 2x2) -->
+          <!-- Stepper tabs (3×2) -->
           <div class="stepper-grid">
             <button v-for="(step, idx) in STEPS" :key="step.key" class="stepper-cell" :class="{
               'stepper-cell--active': currentStep === idx,
-              'stepper-cell--done': stepDone[step.key] && currentStep !== idx,
-              'stepper-cell--locked': idx > currentStep && !stepDone[step.key],
+              'stepper-cell--done':   stepDone[step.key] && currentStep !== idx,
+              'stepper-cell--locked': idx > currentStep,
             }" @click="goToStep(idx)">
+              <span class="stepper-cell__num">{{ String(idx + 1).padStart(2, '0') }}</span>
               <span class="stepper-cell__label">{{ step.label }}</span>
-              <span v-if="step.key === 'topping'" class="stepper-cell__count">
-                ({{ toppingCountLabel }})
-              </span>
-              <span v-if="step.key === 'bean' && selectedBean" class="stepper-cell__value">{{ selectedBean.label }}</span>
-              <span v-if="step.key === 'base' && selectedBase" class="stepper-cell__value">{{ selectedBase.label }}</span>
-              <span v-if="step.key === 'milk' && selectedMilk" class="stepper-cell__value">{{ selectedMilk.label }}</span>
-              <span v-if="step.key === 'topping' && selection.toppings.size > 0" class="stepper-cell__value">
-                {{ selection.toppings.size }} đã chọn
-              </span>
+              <span v-if="step.key === 'topping'" class="stepper-cell__count">({{ toppingCountLabel }})</span>
+              <span v-if="step.key === 'bean'    && selectedBean"  class="stepper-cell__value">{{ selectedBean.label }}</span>
+              <span v-if="step.key === 'base'    && selectedBase"  class="stepper-cell__value">{{ selectedBase.label }}</span>
+              <span v-if="step.key === 'milk'    && selectedMilk"  class="stepper-cell__value">{{ selectedMilk.label }}</span>
+              <span v-if="step.key === 'topping' && selection.toppings.size > 0" class="stepper-cell__value">{{ selection.toppings.size }} đã chọn</span>
+              <span v-if="step.key === 'size'    && selectedSize"  class="stepper-cell__value">Size {{ selectedSize.label }}</span>
+              <span v-if="step.key === 'confirm' && currentStep >= 5" class="stepper-cell__value">Đá {{ selection.ice }} · Đường {{ selection.sugar }} · {{ selection.quantity }} ly</span>
             </button>
           </div>
 
@@ -411,7 +372,8 @@ onBeforeUnmount(() => {
             <div v-if="currentStep === 3" class="options-section">
               <div class="options-section__head">
                 <span class="options-step-num">04</span>
-                <h2 class="options-section__title">Chọn Topping
+                <h2 class="options-section__title">
+                  Chọn Topping
                   <small class="options-section__limit">(tối đa 3 loại)</small>
                 </h2>
               </div>
@@ -431,11 +393,82 @@ onBeforeUnmount(() => {
               </div>
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
-                <button v-if="!isComplete" class="btn-nav btn-nav--finish" @click="addToCart">
-                  Hoàn thành →
+                <button class="btn-nav btn-nav--finish" @click="confirmTopping">
+                  Tiếp theo →
                 </button>
               </div>
+            </div>
 
+            <!-- ── BƯỚC 4: Chọn Size ── -->
+            <div v-if="currentStep === 4" class="options-section">
+              <div class="options-section__head">
+                <span class="options-step-num">05</span>
+                <h2 class="options-section__title">Chọn Size</h2>
+              </div>
+              <div class="options-grid options-grid--3">
+                <button v-for="s in sizeOptions" :key="s.id" class="option-card option-card--size"
+                  :class="{ 'option-card--selected': selection.size === s.id }" @click="selectSize(s.id)">
+                  <span class="option-card__size-badge">{{ s.label }}</span>
+                  <span class="option-card__name">{{ s.sub }}</span>
+                  <span class="option-card__price">{{ s.priceDelta ? '+' + formatVnd(s.priceDelta) : 'Gốc' }}</span>
+                </button>
+              </div>
+              <div class="options-nav">
+                <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
+              </div>
+            </div>
+
+            <!-- ── BƯỚC 5: Mức đá, đường, số lượng ── -->
+            <div v-if="currentStep === 5" class="options-section">
+              <div class="options-section__head">
+                <span class="options-step-num">06</span>
+                <h2 class="options-section__title">Xác nhận</h2>
+              </div>
+
+              <!-- Mức đá -->
+              <div class="level-group">
+                <div class="level-group__header">
+                  <span class="level-group__label">Mức đá</span>
+                  <span class="level-group__limit">Tối đa 01</span>
+                </div>
+                <div class="level-pills">
+                  <button v-for="opt in iceOptions" :key="opt" class="level-pill"
+                    :class="{ 'level-pill--active': selection.ice === opt }"
+                    @click="selection.ice = opt">{{ opt }}</button>
+                </div>
+              </div>
+
+              <!-- Mức đường -->
+              <div class="level-group">
+                <div class="level-group__header">
+                  <span class="level-group__label">Mức đường</span>
+                  <span class="level-group__limit">Tối đa 01</span>
+                </div>
+                <div class="level-pills">
+                  <button v-for="opt in sugarOptions" :key="opt" class="level-pill"
+                    :class="{ 'level-pill--active': selection.sugar === opt }"
+                    @click="selection.sugar = opt">{{ opt }}</button>
+                </div>
+              </div>
+
+              <!-- Số lượng -->
+              <div class="level-group">
+                <div class="level-group__header">
+                  <span class="level-group__label">Số lượng</span>
+                </div>
+                <div class="qty-row">
+                  <button class="qty-btn" @click="decQty">−</button>
+                  <span class="qty-value">{{ selection.quantity }}</span>
+                  <button class="qty-btn" @click="incQty">+</button>
+                </div>
+              </div>
+
+              <div class="options-nav">
+                <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
+                <button class="btn-nav btn-nav--finish" @click="addToCart">
+                  Thêm vào giỏ →
+                </button>
+              </div>
             </div>
 
           </div>
@@ -444,21 +477,16 @@ onBeforeUnmount(() => {
       </div>
     </main>
 
-    <!-- ══════════════════════════════════════════
-         POPUP THÔNG BÁO "THÊM VÀO GIỎ"
-    ══════════════════════════════════════════ -->
+    <!-- POPUP THÔNG BÁO -->
     <transition name="cart-pop">
       <div v-if="cartPopupOpen" ref="popupBackdropEl" class="cart-pop__backdrop" role="dialog" aria-modal="true"
         @click.self="closeCartPopup" @keydown="onPopupKeydown" tabindex="-1">
         <div class="cart-pop__card">
           <img :src="driplabLogo2" class="cart-pop__logo" alt="Drip Lab" />
-
           <h3 class="cart-pop__title">Thêm vào giỏ hàng thành công!</h3>
-
           <p class="cart-pop__desc">
             Cảm ơn bạn đã tin tưởng Drip Lab! Chúng tôi sẽ xác nhận và giao hàng sớm nhất có thể.
           </p>
-
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>
       </div>
