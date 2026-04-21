@@ -8,7 +8,7 @@
           <div class="avatar-ring">
             <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
-          <h2 class="sidebar-name">{{ user.fullName }}</h2>
+          <h2 class="sidebar-name">{{ user.name }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
 
@@ -32,44 +32,6 @@
 
       <!-- Main Content -->
       <main class="account-main">
-
-        <!-- Tiến trình đơn hàng đang active -->
-        <section v-if="activeOrders.length > 0" class="card">
-          <div class="card-title-row">
-            <div class="card-title-icon">
-              <span class="material-symbols-outlined">local_shipping</span>
-            </div>
-            <h3 class="card-title">Tiến trình giao hàng</h3>
-
-            <!-- Tab chọn đơn nếu có >= 2 đơn active -->
-            <div v-if="activeOrders.length > 1" class="progress-order-tabs">
-              <button
-                v-for="order in activeOrders"
-                :key="order.id"
-                :class="['progress-tab-btn', { active: selectedOrderId === order.id }]"
-                @click="selectOrder(order.id)"
-              >
-                {{ order.name }}
-                <span :class="['order-tab-badge', order.status]">
-                  {{ statusLabel(order.status) }}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <div class="order-steps">
-            <div class="steps-line-bg"></div>
-            <div class="steps-line-progress" :style="{ width: progressWidth }"></div>
-            <div class="steps-row">
-              <div v-for="(step, i) in orderSteps" :key="i" class="step-item">
-                <div :class="['step-circle', step.state]">
-                  <span class="material-symbols-outlined">{{ step.icon }}</span>
-                </div>
-                <span :class="['step-label', step.state]">{{ step.label }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <!-- Bảng tất cả đơn hàng -->
         <section class="card orders-card">
@@ -236,6 +198,36 @@
           </button>
         </div>
 
+        <!-- Timeline tiến trình -->
+        <div class="modal-timeline" v-if="selectedOrder.status !== 'cancelled'">
+          <p class="modal-timeline-label">Tiến trình đơn hàng</p>
+          <div class="modal-steps">
+            <div class="modal-steps-line-bg"></div>
+            <div
+              class="modal-steps-line-progress"
+              :style="{ width: getProgressWidth(selectedOrder.status) }"
+            ></div>
+            <div class="modal-steps-row">
+              <div
+                v-for="(step, i) in getOrderSteps(selectedOrder.status)"
+                :key="i"
+                class="modal-step-item"
+              >
+                <div :class="['modal-step-circle', step.state]">
+                  <span class="material-symbols-outlined">{{ step.icon }}</span>
+                </div>
+                <span :class="['modal-step-label', step.state]">{{ step.label }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Huỷ đơn thông báo -->
+        <div v-if="selectedOrder.status === 'cancelled'" class="modal-cancelled-notice">
+          <span class="material-symbols-outlined">cancel</span>
+          <span>Đơn hàng này đã bị huỷ</span>
+        </div>
+
         <!-- Thông tin giao hàng -->
         <div class="modal-shipping">
           <p class="modal-shipping-label">Địa chỉ giao hàng</p>
@@ -329,8 +321,6 @@ import { useRouter } from 'vue-router'
 
 const {
   user, navItems, currentRoute,
-  orderSteps, progressWidth,
-  activeOrders, selectedOrderId, selectOrder,
   allOrders, filteredOrders, pagedOrders,
   hasMore, loadMore,
   searchId, filterStatus, filterFromDate, filterToDate,
@@ -351,6 +341,29 @@ function statusLabel(status) {
     cancelled:  'Đã huỷ',
   }
   return map[status] ?? status
+}
+
+const STEPS_DEF = [
+  { label: 'Chờ xác nhận',    icon: 'pending_actions', status: 'pending'    },
+  { label: 'Đang xử lý',      icon: 'settings',        status: 'processing' },
+  { label: 'Đang vận chuyển', icon: 'local_shipping',  status: 'shipping'   },
+  { label: 'Đã giao',         icon: 'home',            status: 'delivered'  },
+]
+
+const STATUS_ORDER = ['pending', 'processing', 'shipping', 'delivered']
+
+function getOrderSteps(status) {
+  const idx = STATUS_ORDER.indexOf(status)
+  return STEPS_DEF.map((s, i) => ({
+    ...s,
+    state: i < idx ? 'done' : i === idx ? 'active' : 'pending',
+  }))
+}
+
+function getProgressWidth(status) {
+  const idx   = STATUS_ORDER.indexOf(status)
+  const total = STATUS_ORDER.length - 1
+  return `${Math.max(0, (idx / total) * 100)}%`
 }
 
 const auth = useAuthStore()

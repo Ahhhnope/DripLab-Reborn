@@ -1880,3 +1880,117 @@
   background: #b91c1c;
   transform: translateY(-1px);
 }
+
+/* ── Modal Timeline ── */
+.modal-timeline {
+  padding: 16px 26px 20px;
+  border-bottom: 1px solid rgba(60, 47, 47, 0.07);
+}
+
+.modal-timeline-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(60, 47, 47, 0.4);
+  margin-bottom: 16px;
+}
+
+.modal-steps {
+  position: relative;
+  padding: 4px 0 8px;
+}
+
+.modal-steps-line-bg {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: #f1f5f9;
+  z-index: 0;
+}
+
+.modal-steps-line-progress {
+  position: absolute;
+  top: 22px;
+  left: 20px;
+  height: 2px;
+  background: linear-gradient(to right, #bd490f, #e07040);
+  transition: width 0.5s ease;
+  z-index: 0;
+}
+
+.modal-steps-row {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+.modal-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #fdf8f3;
+  padding: 0 2px;
+}
+
+.modal-step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-step-circle .material-symbols-outlined { font-size: 17px; }
+
+.modal-step-circle.done {
+  background: #bd490f;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(189, 73, 15, 0.3);
+}
+
+.modal-step-circle.active {
+  background: #fdf8f3;
+  border: 2px solid #bd490f;
+  color: #bd490f;
+  box-shadow: 0 3px 10px rgba(189, 73, 15, 0.2);
+}
+
+.modal-step-circle.pending {
+  background: #f8fafc;
+  border: 2px solid #e5e7eb;
+  color: #d1d5db;
+}
+
+.modal-step-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.01em;
+  max-width: 70px;
+}
+
+.modal-step-label.done,
+.modal-step-label.active { color: #bd490f; }
+.modal-step-label.pending { color: #9ca3af; }
+
+/* Thông báo đã huỷ */
+.modal-cancelled-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  background: #fee2e2;
+  border-bottom: 1px solid #fca5a5;
+  font-size: 13px;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.modal-cancelled-notice .material-symbols-outlined { font-size: 18px; }
