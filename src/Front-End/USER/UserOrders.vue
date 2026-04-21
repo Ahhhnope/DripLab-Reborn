@@ -2,13 +2,13 @@
   <div class="account-wrapper">
     <div class="account-inner">
 
-      <!-- Sidebar -->
+      <!-- ══ SIDEBAR ══ -->
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="auth.user?.avatar" alt="Ảnh đại diện" class="avatar-img" />
+            <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
-          <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
+          <h2 class="sidebar-name">{{ user.name }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
         <nav class="sidebar-nav">
@@ -28,10 +28,10 @@
         </nav>
       </aside>
 
+      <!-- ══ MAIN ══ -->
       <main class="account-main">
         <section class="card orders-card">
 
-          <!-- Header -->
           <div class="orders-header">
             <div class="card-title-row" style="margin-bottom:0">
               <div class="card-title-icon">
@@ -41,7 +41,7 @@
             </div>
           </div>
 
-          <!-- Tab lọc trạng thái -->
+          <!-- Tab trạng thái -->
           <div class="status-tab-bar">
             <button
               v-for="tab in STATUS_TABS" :key="tab.value"
@@ -55,7 +55,7 @@
             </button>
           </div>
 
-          <!-- Tìm kiếm + lọc ngày -->
+          <!-- Search bar -->
           <div class="orders-search-bar">
             <div class="search-input-wrap">
               <span class="material-symbols-outlined search-icon">search</span>
@@ -104,7 +104,7 @@
                   </td>
                   <td class="order-payment">{{ order.paymentMethod }}</td>
                   <td>
-                    <span :class="['status-badge', order.status]">
+                    <span :class="['status-badge', `status-badge--${order.status}`]">
                       {{ statusLabel(order.status) }}
                     </span>
                   </td>
@@ -145,223 +145,345 @@
       </main>
     </div>
 
-    <!-- ═══ MODAL CHI TIẾT ═══ -->
-    <div v-if="showModal && selectedOrder" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-box">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title">Chi tiết đơn hàng</h2>
-            <p class="modal-id">{{ selectedOrder.name }}</p>
-            <p class="modal-date">{{ selectedOrder.date }}</p>
-            <span :class="['modal-status-badge', selectedOrder.status]">
-              {{ statusLabel(selectedOrder.status) }}
+    <!-- ══════════════════════════════════════
+         MODAL CHI TIẾT  (style admin)
+    ══════════════════════════════════════ -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="showModal && selectedOrder" class="ud-backdrop" @click.self="closeModal">
+          <div class="ud-container">
+
+            <!-- HEADER -->
+            <div class="ud-header">
+              <div class="ud-header__left">
+                <span class="ud-order-code">#{{ selectedOrder.name }}</span>
+                <span :class="['ud-status-badge', `ud-status-badge--${selectedOrder.status}`]">
+                  {{ statusLabel(selectedOrder.status) }}
+                </span>
+                <span class="ud-date-chip">{{ selectedOrder.date }}</span>
+              </div>
+              <button class="ud-close-btn" @click="closeModal">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- BODY -->
+            <div class="ud-body custom-scrollbar">
+
+              <!-- TIMELINE -->
+              <div class="ud-timeline" v-if="selectedOrder.status !== 'cancelled'">
+                <div class="ud-timeline__title">Tiến trình đơn hàng</div>
+                <div class="ud-steps">
+                  <div class="ud-steps__connector"
+                       :style="{ '--progress': getProgressWidth(selectedOrder.status) }">
+                  </div>
+                  <div
+                    v-for="(step, i) in getVisibleSteps(selectedOrder.status)"
+                    :key="step.key"
+                    :class="['ud-step', getStepClass(step, selectedOrder.status)]"
+                  >
+                    <div class="ud-step__circle">
+                      <!-- doc -->
+                      <svg v-if="step.icon === 'doc'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6M9 13h6M9 17h6"/>
+                      </svg>
+                      <!-- gear -->
+                      <svg v-else-if="step.icon === 'gear'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                      </svg>
+                      <!-- truck -->
+                      <svg v-else-if="step.icon === 'truck'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v10H3z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4l3 3v4h-7z"/>
+                        <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+                      </svg>
+                      <!-- home -->
+                      <svg v-else-if="step.icon === 'home'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 10v10h14V10"/>
+                      </svg>
+                      <!-- x / ban -->
+                      <svg v-else class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/>
+                      </svg>
+                    </div>
+                    <span class="ud-step__label">{{ step.label }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Huỷ notice -->
+              <div v-if="selectedOrder.status === 'cancelled'" class="ud-cancelled-notice">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M15 9l-6 6M9 9l6 6"/>
+                </svg>
+                Đơn hàng này đã bị huỷ
+              </div>
+
+              <!-- GRID: trái + phải -->
+              <div class="ud-grid">
+
+                <!-- CỘT TRÁI -->
+                <div class="ud-col-left">
+
+                  <!-- Địa chỉ giao -->
+                  <section class="ud-section">
+                    <div class="ud-section__header">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ud-section__icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      <span class="ud-section__title">Địa chỉ giao hàng</span>
+                    </div>
+                    <div class="ud-info-card">
+                      <p class="ud-addr-text">
+                        {{ selectedOrder.shippingAddress || 'Chưa có địa chỉ giao hàng' }}
+                      </p>
+                    </div>
+                  </section>
+
+                  <!-- Chi tiết món -->
+                  <section class="ud-section">
+                    <div class="ud-section__header ud-section__header--between">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ud-section__icon">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        <span class="ud-section__title">Chi tiết món</span>
+                      </div>
+                      <span class="ud-qty-badge">{{ selectedOrder.totalQty }} món</span>
+                    </div>
+
+                    <div
+                      v-for="(item, idx) in selectedOrder.receiptData.items"
+                      :key="idx"
+                      class="ud-item-row"
+                    >
+                      <!-- Ảnh -->
+                      <div class="ud-item-img">
+                        <img v-if="item.img" :src="item.img" :alt="item.name" />
+                        <div v-else class="ud-item-img__placeholder">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/>
+                            <rect x="2" y="2" width="20" height="20" rx="3"/>
+                          </svg>
+                        </div>
+                      </div>
+
+                      <!-- Thông tin -->
+                      <div class="ud-item-info">
+                        <p class="ud-item-name">{{ item.name }}</p>
+
+                        <!-- Size -->
+                        <div v-if="item.sizeName" class="ud-item-attr-row">
+                          <span class="ud-item-attr">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" d="M3 6h18M3 12h18M3 18h18"/>
+                            </svg>
+                            Size {{ item.sizeName }}
+                          </span>
+                          <span class="ud-item-attr-price">+{{ formatPrice(item.sizePrice) }}</span>
+                        </div>
+
+                        <!-- Toppings -->
+                        <div v-if="item.toppingList?.length">
+                          <div v-for="t in item.toppingList" :key="t.name" class="ud-item-attr-row">
+                            <span class="ud-item-attr">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" d="M12 5v14M5 12h14"/>
+                              </svg>
+                              {{ t.name }}
+                            </span>
+                            <span class="ud-item-attr-price">+{{ formatPrice(t.price) }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Options tags -->
+                        <div class="ud-item-tags">
+                          <span class="ud-tag ud-tag--sugar">
+                            Đường {{ item.sugar }}%
+                          </span>
+                          <span class="ud-tag ud-tag--ice">
+                            Đá {{ item.ice }}%
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Số lượng + giá -->
+                      <div class="ud-item-right">
+                        <span class="ud-item-qty">x{{ item.qty }}</span>
+                        <span class="ud-item-price">{{ item.price }}</span>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- CỘT PHẢI -->
+                <div class="ud-col-right">
+
+                  <!-- Thanh toán -->
+                  <div class="ud-payment-card">
+                    <span class="ud-section__title" style="display:block;margin-bottom:14px">
+                      Thanh toán
+                    </span>
+                    <div class="ud-payment-row">
+                      <span>Phương thức</span>
+                      <span class="ud-payment-val--bold">{{ selectedOrder.paymentMethod }}</span>
+                    </div>
+                    <div class="ud-payment-row">
+                      <span>Số lượng món</span>
+                      <span>{{ selectedOrder.totalQty }} món</span>
+                    </div>
+                    <div class="ud-payment-total">
+                      <span>Tổng cộng</span>
+                      <span class="ud-payment-total__amount">{{ selectedOrder.price }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Hành động -->
+                  <div class="ud-action-group">
+                    <!-- Xác nhận nhận hàng (delivered, chưa tích điểm) -->
+                    <button
+                      v-if="selectedOrder.status === 'delivered' && !isPointed(selectedOrder.id)"
+                      class="ud-btn ud-btn--receive"
+                      @click="closeModal(); triggerReceiveConfirm(selectedOrder)"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      Xác nhận đã nhận hàng
+                    </button>
+
+                    <!-- Huỷ đơn (chỉ pending) -->
+                    <button
+                      v-if="selectedOrder.status === 'pending'"
+                      class="ud-btn ud-btn--danger"
+                      @click="confirmCancel(selectedOrder); closeModal()"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      Huỷ đơn hàng
+                    </button>
+
+                    <button class="ud-btn ud-btn--ghost" @click="closeModal">Đóng</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ══ POPUP XÁC NHẬN NHẬN HÀNG ══ -->
+    <Teleport to="body">
+      <div v-if="showReceiveConfirm" class="ud-confirm-backdrop">
+        <div class="ud-confirm-card">
+          <div class="ud-confirm-icon ud-confirm-icon--green">
+            <span class="ud-confirm-icon__inner">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
             </span>
           </div>
-          <button class="modal-close-btn" @click="closeModal">
+          <h3 class="ud-confirm-title">Xác nhận đã nhận hàng?</h3>
+          <p class="ud-confirm-desc">
+            Đơn hàng <strong>{{ receiveTarget?.name }}</strong> đã được giao tới bạn.
+            Xác nhận để nhận điểm tích lũy.
+          </p>
+          <div class="ud-points-preview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Nhận <strong>{{ receiveTarget?.earnPoints }}</strong> điểm tích lũy
+          </div>
+          <div class="ud-confirm-actions">
+            <button class="ud-confirm-btn ud-confirm-btn--ghost" @click="dismissReceive">
+              Chưa nhận được
+            </button>
+            <button class="ud-confirm-btn ud-confirm-btn--primary ud-confirm-btn--green" @click="doConfirmReceive">
+              Đã nhận hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ══ TOAST TÍCH ĐIỂM ══ -->
+    <Teleport to="body">
+      <Transition name="toast-slide">
+        <div v-if="showPointsToast" class="points-toast">
+          <div class="points-toast-icon">
+            <span class="material-symbols-outlined">workspace_premium</span>
+          </div>
+          <div class="points-toast-content">
+            <p class="points-toast-title">Tích điểm thành công!</p>
+            <p class="points-toast-desc">
+              +{{ earnedPoints }} điểm đã được cộng vào kho của bạn
+            </p>
+          </div>
+          <button class="points-toast-close" @click="showPointsToast = false">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
+      </Transition>
+    </Teleport>
 
-        <!-- Timeline -->
-        <div v-if="selectedOrder.status !== 'cancelled'" class="modal-timeline">
-          <p class="modal-timeline-label">Tiến trình đơn hàng</p>
-          <div class="modal-steps">
-            <div class="modal-steps-line-bg"></div>
-            <div class="modal-steps-line-progress"
-                 :style="{ width: getProgressWidth(selectedOrder.status) }"></div>
-            <div class="modal-steps-row">
-              <div v-for="(step, i) in getOrderSteps(selectedOrder.status)" :key="i"
-                   class="modal-step-item">
-                <div :class="['modal-step-circle', step.state]">
-                  <span class="material-symbols-outlined">{{ step.icon }}</span>
-                </div>
-                <span :class="['modal-step-label', step.state]">{{ step.label }}</span>
-              </div>
+    <!-- ══ CONFIRM HUỶ ĐƠN ══ -->
+    <Teleport to="body">
+      <Transition name="confirm-pop">
+        <div v-if="showCancelConfirm" class="ud-confirm-backdrop" @click.self="showCancelConfirm = false">
+          <div class="ud-confirm-card">
+            <div class="ud-confirm-icon">
+              <span class="ud-confirm-icon__inner">✦</span>
+            </div>
+            <h3 class="ud-confirm-title">Xác nhận huỷ đơn?</h3>
+            <p class="ud-confirm-desc">
+              Bạn có chắc muốn huỷ đơn hàng
+              <strong>{{ cancelTarget?.name }}</strong>?
+              Hành động này không thể hoàn tác.
+            </p>
+            <div class="ud-confirm-actions">
+              <button class="ud-confirm-btn ud-confirm-btn--ghost" @click="showCancelConfirm = false">
+                Không, giữ lại
+              </button>
+              <button class="ud-confirm-btn ud-confirm-btn--primary" @click="doCancel">
+                Có, huỷ đơn
+              </button>
             </div>
           </div>
         </div>
-
-        <div v-if="selectedOrder.status === 'cancelled'" class="modal-cancelled-notice">
-          <span class="material-symbols-outlined">cancel</span>
-          <span>Đơn hàng này đã bị huỷ</span>
-        </div>
-
-        <!-- Địa chỉ -->
-        <div class="modal-shipping">
-          <p class="modal-shipping-label">Địa chỉ giao hàng</p>
-          <p class="modal-shipping-addr">
-            {{ selectedOrder.shippingAddress || 'Không có thông tin' }}
-          </p>
-        </div>
-
-        <!-- Danh sách sản phẩm — có size + topping riêng -->
-        <div class="modal-products">
-          <div
-            v-for="(item, idx) in selectedOrder.receiptData.items"
-            :key="idx"
-            class="modal-product-item"
-          >
-            <div class="modal-product-img">
-              <img :src="item.img" :alt="item.name" />
-            </div>
-
-            <div class="modal-product-info">
-              <h4>{{ item.name }}</h4>
-
-              <!-- Size -->
-              <div v-if="item.sizeName" class="modal-attr-row">
-                <span class="modal-attr-label">
-                  <span class="material-symbols-outlined">straighten</span>
-                  Size {{ item.sizeName }}
-                </span>
-                <span class="modal-attr-price">+{{ formatPrice(item.sizePrice) }}</span>
-              </div>
-
-              <!-- Từng topping -->
-              <div v-if="item.toppingList?.length" class="modal-topping-block">
-                <div v-for="t in item.toppingList" :key="t.name" class="modal-attr-row">
-                  <span class="modal-attr-label">
-                    <span class="material-symbols-outlined">add_circle</span>
-                    {{ t.name }}
-                  </span>
-                  <span class="modal-attr-price">+{{ formatPrice(t.price) }}</span>
-                </div>
-              </div>
-
-              <p class="modal-item-qty">Số lượng: x{{ item.qty }}</p>
-              <div class="item-options">
-                <span class="option-tag sugar">
-                  <span class="material-symbols-outlined">nutrition</span>
-                  Đường: {{ item.sugar }}%
-                </span>
-                <span class="option-tag ice">
-                  <span class="material-symbols-outlined">ac_unit</span>
-                  Đá: {{ item.ice }}%
-                </span>
-              </div>
-            </div>
-
-            <div class="modal-product-price-col">
-              <p class="modal-product-price">{{ item.price }}</p>
-              <p class="modal-product-price-hint">x{{ item.qty }}</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tổng kết -->
-        <div class="modal-summary">
-          <div class="summary-row">
-            <span>Phương thức thanh toán</span>
-            <span>{{ selectedOrder.paymentMethod }}</span>
-          </div>
-          <div class="summary-row">
-            <span>Tổng số món</span>
-            <span>{{ selectedOrder.totalQty }} món</span>
-          </div>
-          <div class="summary-row total-row">
-            <span>Tổng cộng</span>
-            <span class="total-price">{{ selectedOrder.price }}</span>
-          </div>
-          <div class="modal-footer-btns">
-            <button
-              v-if="selectedOrder.status === 'pending'"
-              class="modal-cancel-btn"
-              @click="confirmCancel(selectedOrder); closeModal()"
-            >
-              <span class="material-symbols-outlined">cancel</span>
-              Huỷ đơn hàng
-            </button>
-            <button class="modal-close-main-btn" @click="closeModal">Đóng</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ POPUP XÁC NHẬN ĐÃ NHẬN HÀNG ═══ -->
-    <div v-if="showReceiveConfirm" class="modal-overlay">
-      <div class="confirm-box receive-box">
-        <div class="receive-icon">
-          <span class="material-symbols-outlined">inventory</span>
-        </div>
-        <h3 class="confirm-title">Bạn đã nhận được hàng?</h3>
-        <p class="confirm-desc">
-          Đơn hàng <strong>{{ receiveTarget?.name }}</strong> đã được giao tới.
-          Xác nhận để hoàn tất và nhận điểm tích lũy.
-        </p>
-        <div class="receive-points-preview">
-          <span class="material-symbols-outlined">loyalty</span>
-          Nhận <strong>{{ receiveTarget?.earnPoints }}</strong> điểm tích lũy
-        </div>
-        <div class="confirm-btns">
-          <button class="confirm-no" @click="dismissReceive">Chưa nhận được</button>
-          <button class="confirm-yes receive-yes" @click="doConfirmReceive">
-            <span class="material-symbols-outlined">check_circle</span>
-            Đã nhận hàng
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ TOAST TÍCH ĐIỂM ═══ -->
-    <transition name="toast-slide">
-      <div v-if="showPointsToast" class="points-toast">
-        <div class="points-toast-icon">
-          <span class="material-symbols-outlined">workspace_premium</span>
-        </div>
-        <div class="points-toast-content">
-          <p class="points-toast-title">Tích điểm thành công!</p>
-          <p class="points-toast-desc">
-            +{{ earnedPoints }} điểm đã được cộng vào kho của bạn
-          </p>
-        </div>
-        <button class="points-toast-close" @click="showPointsToast = false">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-    </transition>
-
-    <!-- ═══ CONFIRM HUỶ ĐƠN ═══ -->
-    <div v-if="showCancelConfirm" class="modal-overlay" @click.self="showCancelConfirm = false">
-      <div class="confirm-box">
-        <div class="confirm-icon">
-          <span class="material-symbols-outlined">warning</span>
-        </div>
-        <h3 class="confirm-title">Xác nhận huỷ đơn?</h3>
-        <p class="confirm-desc">
-          Bạn có chắc muốn huỷ đơn hàng
-          <strong>{{ cancelTarget?.name }}</strong>?
-          Hành động này không thể hoàn tác.
-        </p>
-        <div class="confirm-btns">
-          <button class="confirm-no" @click="showCancelConfirm = false">Không, giữ lại</button>
-          <button class="confirm-yes" @click="doCancel">Có, huỷ đơn</button>
-        </div>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
 
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useUserOrders } from '../JS-USER/UserOrders.JS'
-import { useAuthStore } from '../Authorization/Auth'
-
-const auth = useAuthStore()
 
 const {
-  navItems, currentRoute,
+  user, navItems, currentRoute,
   allOrders, filteredOrders, pagedOrders,
   hasMore, loadMore,
   searchId, filterStatus, filterFromDate, filterToDate,
   hasActiveFilter, resetFilter, setStatusTab, countByStatus,
-  showModal, selectedOrder,
-  openModal, closeModal,
+  showModal, selectedOrder, openModal, closeModal,
   showCancelConfirm, cancelTarget, confirmCancel, doCancel,
-  showReceiveConfirm, receiveTarget, dismissReceive, doConfirmReceive,
+  showReceiveConfirm, receiveTarget,
+  dismissReceive, doConfirmReceive, triggerReceiveConfirm,
   showPointsToast, earnedPoints,
+  isPointed,
   goTo, logout,
 } = useUserOrders()
 
+// ── Tabs ─────────────────────────────────────────────────
 const STATUS_TABS = [
   { label: 'Tất cả',          value: ''           },
   { label: 'Chờ xác nhận',    value: 'pending'    },
@@ -371,9 +493,12 @@ const STATUS_TABS = [
   { label: 'Đã huỷ',          value: 'cancelled'  },
 ]
 
+// ── Labels ───────────────────────────────────────────────
 function statusLabel(s) {
-  return { pending:'Chờ xác nhận', processing:'Đang xử lý',
-           shipping:'Đang vận chuyển', delivered:'Đã giao', cancelled:'Đã huỷ' }[s] ?? s
+  return {
+    pending: 'Chờ xác nhận', processing: 'Đang xử lý',
+    shipping: 'Đang vận chuyển', delivered: 'Đã giao', cancelled: 'Đã huỷ',
+  }[s] ?? s
 }
 
 function formatPrice(val) {
@@ -381,24 +506,42 @@ function formatPrice(val) {
   return Number(val).toLocaleString('vi-VN') + ' đ'
 }
 
-const STEPS_DEF = [
-  { label: 'Chờ xác nhận',    icon: 'pending_actions' },
-  { label: 'Đang xử lý',      icon: 'settings'        },
-  { label: 'Đang vận chuyển', icon: 'local_shipping'  },
-  { label: 'Đã giao',         icon: 'home'            },
+// ── Timeline steps (dùng logic giống admin) ──────────────
+const ALL_STEPS = [
+  { key: 'pending',    label: 'Chờ xác nhận',    icon: 'doc'   },
+  { key: 'processing', label: 'Đang xử lý',      icon: 'gear'  },
+  { key: 'shipping',   label: 'Đang vận chuyển', icon: 'truck' },
+  { key: 'delivered',  label: 'Đã giao',         icon: 'home'  },
+  { key: 'cancelled',  label: 'Đã huỷ',          icon: 'x'     },
 ]
-const STATUS_ORDER = ['pending','processing','shipping','delivered']
 
-function getOrderSteps(status) {
-  const idx = STATUS_ORDER.indexOf(status)
-  return STEPS_DEF.map((s, i) => ({
-    ...s,
-    state: i < idx ? 'done' : i === idx ? 'active' : 'pending',
-  }))
+function getVisibleSteps(status) {
+  if (status === 'delivered') {
+    return ALL_STEPS.filter(s => ['pending','processing','shipping','delivered'].includes(s.key))
+  }
+  if (status === 'cancelled') {
+    return ALL_STEPS.filter(s => ['pending','processing','cancelled'].includes(s.key))
+  }
+  return ALL_STEPS.filter(s => s.key !== 'cancelled')
 }
+
+function getStepClass(step, currentStatus) {
+  const steps   = getVisibleSteps(currentStatus)
+  const curIdx  = steps.findIndex(s => s.key === currentStatus)
+  const stepIdx = steps.findIndex(s => s.key === step.key)
+  return {
+    'ud-step--done':    stepIdx < curIdx,
+    'ud-step--current': stepIdx === curIdx,
+    'ud-step--todo':    stepIdx > curIdx,
+  }
+}
+
 function getProgressWidth(status) {
-  const idx = STATUS_ORDER.indexOf(status)
-  return `${Math.max(0, (idx / (STATUS_ORDER.length - 1)) * 100)}%`
+  const steps  = getVisibleSteps(status)
+  const curIdx = steps.findIndex(s => s.key === status)
+  if (curIdx < 0) return '0%'
+  const pct = Math.min(((curIdx + 0.6) / (steps.length - 1)) * 100, 100)
+  return `${pct}%`
 }
 </script>
 

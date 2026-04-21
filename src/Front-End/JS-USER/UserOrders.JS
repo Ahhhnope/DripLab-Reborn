@@ -160,6 +160,20 @@ export function useUserOrders() {
   const showPointsToast    = ref(false)
   const earnedPoints       = ref(0)
 
+  // Kích hoạt popup xác nhận từ bên ngoài (nút trong modal)
+  function triggerReceiveConfirm(order) {
+    receiveTarget.value = {
+      ...order,
+      earnPoints: Math.round(order.finalPriceNum / 1000),
+    }
+    showReceiveConfirm.value = true
+  }
+
+  // Kiểm tra đơn đã tích điểm chưa (dùng trong template)
+  function isPointed(orderId) {
+    return pointedOrderIds.value.has(orderId)
+  }
+
   function dismissReceive() {
     if (!receiveTarget.value) return
     dismissedReceiveIds.value.add(receiveTarget.value.id)
@@ -281,10 +295,7 @@ export function useUserOrders() {
   async function doCancel() {
     if (!cancelTarget.value) return
     try {
-      await api.put(`/orders/user/cancel/${cancelTarget.value.id}`, { 
-        status: 'Đã huỷ',
-        note: cancelTarget.value.note || ''
-      })
+      await api.put(`/orders/${cancelTarget.value.id}/status`, { status: 'Đã huỷ' })
       const t = allOrders.value.find(o => o.id === cancelTarget.value.id)
       if (t) t.status = 'cancelled'
     } catch (err) {
@@ -317,6 +328,7 @@ export function useUserOrders() {
     showModal, selectedOrder, openModal, closeModal,
     showCancelConfirm, cancelTarget, confirmCancel, doCancel,
     showReceiveConfirm, receiveTarget, dismissReceive, doConfirmReceive,
+    triggerReceiveConfirm, isPointed,
     showPointsToast, earnedPoints,
     goTo, logout,
   }
