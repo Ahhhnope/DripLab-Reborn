@@ -15,6 +15,7 @@ export default {
             query: "",
             selectedId: null,
             toastMessage: null,
+            showClosedModal: false,
             logoUrl: dripLabLogo,
             _toastTimer: null,
             _clockTimer: null,
@@ -126,12 +127,14 @@ export default {
             this.locationText = "";
         },
         selectStore(store) {
-            if (!store.isOpen) return;
+            if (!store.isOpen) {
+                this.showClosedModal = true;
+                return;
+            }
 
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
 
-            // Lưu cửa hàng đã chọn để Homepage dùng lại
             sessionStorage.setItem("selectedStore", JSON.stringify(store));
 
             this.$router.push({ path: "/homepage" });
