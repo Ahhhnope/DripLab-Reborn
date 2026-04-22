@@ -295,7 +295,10 @@ export function useUserOrders() {
   async function doCancel() {
     if (!cancelTarget.value) return
     try {
-      await api.put(`/orders/${cancelTarget.value.id}/status`, { status: 'Đã huỷ' })
+      await api.put(`/orders/user/cancel/${cancelTarget.value.id}`, { 
+        status: 'Đã huỷ',
+        note: cancelTarget.value.note || ''
+      })
       const t = allOrders.value.find(o => o.id === cancelTarget.value.id)
       if (t) t.status = 'cancelled'
     } catch (err) {
@@ -315,7 +318,7 @@ export function useUserOrders() {
   let timer = null
   onMounted(() => {
     fetchAllOrders()
-    timer = setInterval(fetchAllOrders, 15_000)
+    timer = setInterval(fetchAllOrders, 5000)
   })
   onUnmounted(() => { if (timer) clearInterval(timer) })
 
