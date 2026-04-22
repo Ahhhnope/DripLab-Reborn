@@ -30,6 +30,10 @@ export function useCounterOrder() {
     function chooseTakeaway() {
         orderMode.value = 'takeaway'
         createNewOrder()
+        // Auto assign anonCode ngay khi chọn Mang đi
+        if (currentOrder.value && !currentOrder.value.anonCode) {
+            currentOrder.value.anonCode = genAnonCode()
+        }
         appStep.value = 'order'
     }
 
@@ -86,10 +90,9 @@ export function useCounterOrder() {
 
     /* ══ ĐẶT BÀN — tối đa 3 bàn / hóa đơn ════════════════════════ */
     const TOTAL_TABLES   = 10
-    const selectedTables = ref([])   // mảng ≤ 3 bàn cho order hiện tại
+    const selectedTables = ref([])
     const occupiedTables = ref([])
 
-    // backward-compat: selectedTable = bàn cuối cùng được chọn
     const selectedTable = computed(() =>
         selectedTables.value.length ? selectedTables.value[selectedTables.value.length - 1] : null
     )
@@ -103,7 +106,6 @@ export function useCounterOrder() {
         if (occupiedTables.value.includes(num)) return
         const idx = selectedTables.value.indexOf(num)
         if (idx !== -1) {
-            // Bỏ chọn
             selectedTables.value.splice(idx, 1)
         } else {
             if (selectedTables.value.length >= MAX_TABLES_PER_ORDER) {
@@ -264,7 +266,7 @@ export function useCounterOrder() {
     const txId   = ref('')
     const txTime = ref('')
 
-    // Nhập tên / SĐT ngay tại popup thanh toán (cho takeaway hoặc dine chưa nhập)
+    // payNameInput/payPhoneInput kept for internal receipt building but not shown in UI
     const payNameInput  = ref('')
     const payPhoneInput = ref('')
     const payNameError  = ref('')
@@ -299,8 +301,8 @@ export function useCounterOrder() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
         customerMoney.value = ''
         paymentMethod.value = 'cash'
-        // Khởi tạo field nhập tên/SĐT tại popup từ dữ liệu đã có
         const o = currentOrder.value
+        // Sync payNameInput/payPhoneInput từ order hiện tại
         payNameInput.value  = o?.customerName  || customerName.value  || ''
         payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
         payNameError.value  = ''
@@ -324,15 +326,9 @@ export function useCounterOrder() {
 
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
-        // Lấy tên/SĐT: ưu tiên những gì vừa nhập ở popup
-        const resolvedName  = payNameInput.value.trim()  || order?.customerName  || customerName.value  || ''
-        const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
-        // Cập nhật lại order để hiển thị đúng trên đơn
-        if (order) {
-            if (resolvedName)  order.customerName  = resolvedName
-            if (resolvedPhone) order.customerPhone = resolvedPhone
-            if (!resolvedName && !order.anonCode) order.anonCode = genAnonCode()
-        }
+        const resolvedName  = order?.customerName  || customerName.value  || ''
+        const resolvedPhone = order?.customerPhone || customerPhone.value || ''
+        if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
         receiptData.value = {
             finalPrice: finalPrice.value,
             change,
@@ -347,11 +343,6 @@ export function useCounterOrder() {
     }
 
     function goToReview() {
-        // validate phone nếu có nhập
-        if (payPhoneInput.value && payPhoneInput.value.length < 10) {
-            payPhoneError.value = 'Số điện thoại phải đủ 10 số!'
-            return
-        }
         _buildReceiptData(changeAmount.value)
         showPaymentPopup.value = false
         showReviewPopup.value  = true
@@ -499,7 +490,6 @@ export function useCounterOrder() {
         const o = currentOrder.value
         return o?.selectedTables?.length ? o.selectedTables : selectedTables.value
     })
-    // backward-compat
     const displayTableNum = computed(() => {
         const arr = displayTableNums.value
         return arr.length ? arr[arr.length - 1] : null

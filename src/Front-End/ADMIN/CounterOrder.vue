@@ -93,15 +93,22 @@ function availableTableCount() {
   return TOTAL_TABLES - occupiedTables.value.length
 }
 
-// Kiểm tra bàn đang được chọn trong order hiện tại
 function isTableSelected(num) {
   return selectedTables.value.includes(num)
 }
 
-// Format danh sách bàn
 function formatTableNums(nums) {
   if (!nums || !nums.length) return 'Chưa có'
   return nums.map(n => String(n).padStart(2, '0')).join(', ')
+}
+
+// Helper: lấy tên hiển thị cho cột phải (ưu tiên anonCode nếu takeaway không có tên)
+function getDisplayName() {
+  const o = currentOrder.value
+  if (!o) return customerName.value || ''
+  if (o.customerName) return o.customerName
+  if (o.anonCode) return o.anonCode
+  return ''
 }
 </script>
 
@@ -173,7 +180,7 @@ function formatTableNums(nums) {
             </div>
           </div>
 
-          <!-- Đặt bàn — tối đa 3 bàn -->
+          <!-- Đặt bàn -->
           <div class="table-section">
             <p class="section-title">Đặt bàn tại quầy</p>
             <div class="table-count-row">
@@ -188,7 +195,6 @@ function formatTableNums(nums) {
                 </span>
               </template>
             </div>
-            <!-- Bàn đã chọn -->
             <div v-if="selectedTables.length" class="selected-tables-row">
               <span v-for="t in selectedTables" :key="t" class="selected-table-badge">
                 Bàn {{ String(t).padStart(2, '0') }}
@@ -219,7 +225,7 @@ function formatTableNums(nums) {
           <p class="right-sub-title">Khách Hàng</p>
           <div class="right-info-row">
             <span class="right-info-lbl">Họ và tên:</span>
-            <span class="right-info-val">{{ customerName || 'Chưa có' }}</span>
+            <span class="right-info-val">{{ customerName || 'Chưa Có ' }}</span>
           </div>
           <div class="right-info-row">
             <span class="right-info-lbl">Số điện thoại:</span>
@@ -332,7 +338,7 @@ function formatTableNums(nums) {
           <div class="right-info-row">
             <span class="right-info-lbl">Họ và tên:</span>
             <span class="right-info-val" :class="{ anon: currentOrder && currentOrder.anonCode && !currentOrder.customerName }">
-              {{ displayCustomerName || 'Chưa Điền Thông Tin' }}
+              {{ displayCustomerName || (currentOrder && currentOrder.anonCode ? currentOrder.anonCode : 'Chưa Điền Thông Tin') }}
             </span>
           </div>
           <div class="right-info-row">
@@ -450,14 +456,16 @@ function formatTableNums(nums) {
       <div class="payment-popup">
         <h2 class="payment-title">Thanh toán</h2>
 
-        <!-- Nhập tên & SĐT (cho takeaway hoặc dine chưa nhập) -->
+        <!-- Nhập tên & SĐT -->
         <div class="pay-customer-section">
           <p class="pay-customer-title">Thông tin khách hàng <span class="pay-optional">(tuỳ chọn)</span></p>
           <div class="pay-customer-row">
             <div class="pay-field">
               <label>Họ và tên</label>
+              <!-- Placeholder hiển thị anonCode nếu là takeaway không tên -->
               <input :value="payNameInput" @input="onPayNameInput" type="text"
-                placeholder="Nhập tên khách..." class="pay-input" />
+                :placeholder="(currentOrder && currentOrder.anonCode && !currentOrder.customerName) ? currentOrder.anonCode : 'Nhập tên khách...'"
+                class="pay-input" />
             </div>
             <div class="pay-field">
               <label>Số điện thoại</label>
@@ -467,7 +475,9 @@ function formatTableNums(nums) {
               <span v-if="payPhoneError" class="pay-field-err">{{ payPhoneError }}</span>
             </div>
           </div>
-          <p class="pay-hint">Nếu bỏ trống, đơn sẽ hiển thị mã khách ẩn danh và "Không Có Thông Tin"</p>
+          <!-- Hiển thị anonCode nếu có -->
+         
+          <p class="pay-hint">Nếu bỏ trống tên, đơn sẽ hiển thị mã khách ẩn danh</p>
         </div>
 
         <div class="payment-methods">
@@ -659,7 +669,7 @@ function formatTableNums(nums) {
     <MomoPopup
       :visible="showMomoQR"
       :amount="finalPrice"
-      :orderInfo="`Thanh toan DripLab - ${displayCustomerName || 'Khach le'}`"
+      :orderInfo="`Thanh toan DripLab - ${displayCustomerName || (currentOrder && currentOrder.anonCode) || 'Khach le'}`"
       @close="closeMomoQR"
       @paid="onMomoPaid"
     />

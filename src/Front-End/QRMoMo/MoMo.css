@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════════════
-   MOMO PAYMENT PORTAL — CSS
-   Font: Be Vietnam Pro
-═══════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
 .momo-overlay {
@@ -139,7 +135,7 @@
 .mp-right::-webkit-scrollbar { width: 5px; }
 .mp-right::-webkit-scrollbar-thumb { background: #e0c0d0; border-radius: 3px; }
 
-/* Screen 1 */
+/* ── Screen 1: Method ── */
 .mp-method-title { font-size: 16px; font-weight: 800; color: #222; margin: 0 0 16px; }
 
 .mp-info-banner {
@@ -161,11 +157,7 @@
 .mp-method-item.mp-active { background: #fdf0f7; }
 .mp-method-item.mp-disabled { opacity: 0.42; cursor: not-allowed; pointer-events: none; }
 
-/* Logo ảnh MoMo trong method list */
-.mp-method-logo-img {
-    width: 40px; height: 40px; border-radius: 8px;
-    object-fit: cover; flex-shrink: 0;
-}
+.mp-method-logo-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
 
 .mp-method-ico {
     width: 40px; height: 40px; border-radius: 8px;
@@ -192,98 +184,156 @@
 }
 .mp-continue-btn:hover { background: #8f1558; transform: translateY(-1px); }
 
-/* ── Screen 2: ATM ── */
-.mp-atm-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.mp-atm-header-ico {
-    width: 28px; height: 28px; border-radius: 6px;
-    background: linear-gradient(135deg, #0c6fc8, #0096d6);
-    color: #fff; font-size: 10px; font-weight: 900;
-    display: flex; align-items: center; justify-content: center;
-}
-.mp-atm-header-title { font-size: 16px; font-weight: 800; color: #222; }
+/* ══════════════════════════════════════════════
+   Screen 2: ATM
+══════════════════════════════════════════════ */
 
-/* ── Thẻ compact — thiết kế như napas thật ── */
+/* Tiêu đề căn giữa */
+.mp-atm-header-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #222;
+    text-align: center;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* ── Wrapper căn giữa thẻ ── */
+.mp-card-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* ── Thẻ dùng ảnh THENGANHANG.png làm nền ── */
 .mp-card {
-    background: linear-gradient(135deg, #be1d6f 0%, #e91e8c 50%, #ff6bbc 100%);
-    border-radius: 14px;
-    padding: 14px 18px 14px;
-    margin-bottom: 18px;
-    color: #fff;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 16px;
+    width: 380px;
+    height: 240px;
+    max-width: 100%;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.28);
     position: relative;
     overflow: hidden;
-    width: 100%;
-    max-width: 320px;
-    box-shadow: 0 6px 20px rgba(174,32,112,0.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 24px 22px;
+    isolation: isolate;
 }
 
-/* decoration circles */
+/* Overlay mờ nhẹ */
 .mp-card::before {
-    content:''; position: absolute; top: -30px; right: -30px;
-    width: 110px; height: 110px; border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-}
-.mp-card::after {
-    content:''; position: absolute; bottom: -24px; left: -18px;
-    width: 90px; height: 90px; border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-}
-
-.mp-card-top-row {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 10px; position: relative; z-index: 1;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 16px;
+    z-index: 0;
+    pointer-events: none;
 }
 
-.mp-card-chip {
-    width: 28px; height: 20px; border-radius: 4px;
-    background: linear-gradient(135deg, #d4a843, #f0c040);
-}
-
-.mp-card-napas-badge {
-    font-size: 10px; font-weight: 700;
-    color: rgba(255,255,255,0.85);
-    letter-spacing: 0.5px;
-}
-
+/* Số thẻ */
 .mp-card-num {
-    font-size: 15px; font-weight: 800;
-    letter-spacing: 2.5px;
-    margin-bottom: 12px;
-    color: rgba(255,255,255,0.7);
-    position: relative; z-index: 1;
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 58%;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     font-variant-numeric: tabular-nums;
+    font-family: 'Courier New', 'Be Vietnam Pro', monospace;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+/* Hàng dưới: Tên + Ngày */
+.mp-card-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1;
+    gap: 12px;
+}
+
+/* Group wrapper cho từng cột */
+.mp-card-holder-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.mp-card-expiry-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* Label nhỏ phía trên giá trị */
+.mp-card-label {
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.80);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
     line-height: 1;
 }
-.mp-card-num.filled { color: #fff; }
 
-.mp-card-bottom-row {
-    display: flex; align-items: flex-end;
-    justify-content: space-between;
-    position: relative; z-index: 1;
-}
-
-.mp-card-holder-lbl {
-    font-size: 8px; color: rgba(255,255,255,0.65);
-    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;
-}
+/* Tên chủ thẻ */
 .mp-card-holder {
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 0.5px; text-transform: uppercase;
-    color: rgba(255,255,255,0.9);
-    max-width: 160px; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap;
+ position: absolute;
+    left: 24px;
+    bottom: 15px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 45%;
+    z-index: 1;
 }
 
-.mp-card-expiry { text-align: right; }
-.mp-card-expiry-lbl {
-    font-size: 8px; color: rgba(255,255,255,0.65);
-    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px;
+/* Ngày hết hạn */
+.mp-card-expiry-val {
+   position: absolute;
+    left: 41%;
+    bottom: 15px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    white-space: nowrap;
+    z-index: 1;
 }
-.mp-card-expiry-val { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9); }
 
-/* Form */
-.mp-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
-.mp-form-row { display: flex; gap: 14px; }
-.mp-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+/* ── Form nhập — 4 ô bằng nhau ── */
+.mp-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.mp-form-row { display: flex; gap: 12px; }
+
+.mp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.mp-optional-lbl { font-size: 10px; color: #bbb; font-weight: 400; }
 .mp-field label { font-size: 11px; font-weight: 700; color: #555; }
 .mp-field input {
     border: 2px solid #e8e8e8; border-radius: 8px; padding: 9px 12px;
@@ -296,6 +346,7 @@
 .mp-field input::placeholder { color: #c8c8c8; }
 .mp-field-err { font-size: 11px; color: #e53e3e; font-weight: 600; }
 
+/* Nút Thanh Toán */
 .mp-pay-btn {
     width: 100%; background: #ae2070; color: #fff; border: none;
     border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 800;
@@ -306,14 +357,14 @@
 .mp-pay-btn:hover:not(:disabled) { background: #8f1558; transform: translateY(-1px); }
 .mp-pay-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
-/* Banks — ảnh thật */
+/* Ngân hàng */
 .mp-banks-title { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 10px; }
 
 .mp-banks-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
 }
 
 .mp-bank {
@@ -337,16 +388,9 @@
     text-overflow: ellipsis; white-space: nowrap;
 }
 
-.mp-banks-toggle {
-    text-align: center; font-size: 12px; font-weight: 700; color: #ae2070;
-    cursor: pointer; margin-bottom: 8px; transition: opacity 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 4px;
-}
-.mp-banks-toggle:hover { opacity: 0.7; }
-
 .mp-atm-back { text-align: center; margin-top: 4px; }
 
-/* Screen 3: Success */
+/* ── Screen 3: Success ── */
 .mp-success {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 36px 20px; text-align: center; flex: 1;
@@ -388,7 +432,7 @@
 }
 .mp-success-back:hover { opacity: 0.7; }
 
-/* Screen 4: Timeout */
+/* ── Screen 4: Timeout ── */
 .mp-timeout {
     display: flex; flex-direction: column; align-items: center;
     justify-content: center; padding: 40px 20px; text-align: center; flex: 1;
@@ -404,9 +448,21 @@
 }
 .mp-timeout-btn:hover { background: #8f1558; transform: translateY(-1px); }
 
+/* ── Fade transition ── */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
 /* Responsive */
 @media (max-width: 700px) {
     .mp-body { flex-direction: column; }
     .mp-left { width: 100%; min-width: 0; border-right: none; border-bottom: 1.5px solid #f0f0f0; }
     .mp-banks-grid { grid-template-columns: repeat(4, 1fr); }
+    .mp-card { width: 100%; height: auto; min-height: 200px; }
 }

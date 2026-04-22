@@ -5,6 +5,9 @@ function getBankImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
 
+/* ── Ảnh thẻ ngân hàng nền ── */
+export const CARD_BG_IMG = new URL('../IMG/THENGANHANG.png', import.meta.url).href
+
 /* ── Chỉ giữ ngân hàng có ảnh thật ── */
 export const BANK_LIST = [
     { code: 'VCB',  name: 'Vietcombank',  img: getBankImg('Vietcombank.jpg') },
@@ -82,6 +85,7 @@ export function useMomoPayment(props, emit) {
     const errors     = ref({ number: '', expiry: '', holder: '' })
     const submitting = ref(false)
 
+    /* Hiển thị số thẻ đầy đủ (có khoảng cách nhóm 4) — không che */
     const cardNumDisplay = computed(() => {
         const raw = cardNumber.value
         const groups = []
@@ -89,11 +93,15 @@ export function useMomoPayment(props, emit) {
         return groups.join(' ')
     })
 
+    /* Số thẻ hiển thị trên hình thẻ — đầy đủ, không che */
     const cardVisualNum = computed(() => {
-        const raw = cardNumber.value.padEnd(16, '')
-        const g2 = raw.slice(8, 12) || '••••'
-        const g3 = raw.slice(12, 16) || '••••'
-        return `•••• •••• ${g2} ${g3}`
+        const raw = cardNumber.value
+        if (!raw) return '•••• •••• •••• ••••'
+        // Nhóm 4 chữ số, hiện đầy đủ
+        const groups = []
+        const padded = raw.padEnd(16, '•')
+        for (let i = 0; i < 16; i += 4) groups.push(padded.slice(i, i + 4))
+        return groups.join(' ')
     })
 
     /* ── Input handlers ── */
@@ -220,5 +228,6 @@ export function useMomoPayment(props, emit) {
         onNumberInput, onExpiryInput, onHolderInput, onPhoneInput,
         submitPayment, goToAtm, backToMethod, handleClose, resetSession,
         BANK_LIST,
+        CARD_BG_IMG,
     }
 }
