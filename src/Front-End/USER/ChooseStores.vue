@@ -10,10 +10,39 @@
             <circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2" />
           </svg>
         </div>
-        <p class="cs-locationText" :title="locationText">
-          {{ locationText || 'Vị trí của bạn...' }}
+
+        <!-- Chưa có vị trí: nút GPS -->
+        <button
+          v-if="!locationText && !locating"
+          class="cs-locateBtn"
+          type="button"
+          @click="detectLocation"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Dùng vị trí hiện tại
+        </button>
+
+        <!-- Đang lấy GPS -->
+        <span v-else-if="locating" class="cs-locatingText">
+          <span class="cs-spinner" aria-hidden="true"></span>
+          Đang xác định vị trí...
+        </span>
+
+        <!-- Đã có vị trí -->
+        <p v-else class="cs-locationText" :title="locationText">
+          {{ locationText }}
         </p>
-        <button class="cs-iconBtn" type="button" title="Xóa vị trí" @click="clearLocation">
+
+        <button
+          v-if="locationText && !locating"
+          class="cs-iconBtn"
+          type="button"
+          title="Xóa vị trí"
+          @click="clearLocation"
+        >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>

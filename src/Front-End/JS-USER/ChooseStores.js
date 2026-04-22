@@ -1,5 +1,31 @@
 import dripLabLogo from "../IMG/dripLab_Logo_Footer.png";
 
+// Tính khoảng cách Haversine (km)
+function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Reverse geocode miễn phí bằng OpenStreetMap Nominatim
+async function reverseGeocode(lat, lng) {
+    try {
+        const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=vi`
+        );
+        const data = await res.json();
+        return data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    } catch {
+        return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    }
+}
+
 function isOpenNow(openHour = 8, closeHour = 22) {
     const now = new Date();
     const total = now.getHours() * 60 + now.getMinutes();
@@ -10,8 +36,8 @@ export default {
     name: "ChooseStores",
     data() {
         return {
-            locationText:
-                "Quang Trung High School, Đường Quang Trung, Quang Trung, Hà Đông, Hanoi",
+            locationText: "",
+            locating: false,
             query: "",
             selectedId: null,
             toastMessage: null,
@@ -20,62 +46,64 @@ export default {
             _toastTimer: null,
             _clockTimer: null,
             openStatus: {},
+            userLat: null,
+            userLng: null,
             stores: [
                 {
                     id: "hn-hk",
                     code: "Drip Lab-Vincom Bà Triệu",
                     address: "191 Bà Triệu, Lê Đại Hành, Hai Bà Trưng, Hà Nội, Vietnam",
-                    distanceKm: 2.5,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 21.0134, lng: 105.8497,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-th",
                     code: "Drip Lab-Thái Hà",
                     address: "Tòa nhà Viet Tower, 1 Thái Hà, Trung Liệt, Đống Đa, Hà Nội, Vietnam",
-                    distanceKm: 4.8,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 21.0197, lng: 105.8363,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-cg",
                     code: "Drip Lab-Indochina Plaza",
                     address: "241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam",
-                    distanceKm: 7.2,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 21.0380, lng: 105.7846,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-tx",
                     code: "Drip Lab-Aeon Mall Hà Đông",
                     address: "Khu Dân cư Hoàng Văn Thụ, Dương Nội, Hà Đông, Hà Nội, Vietnam",
-                    distanceKm: 5.6,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 20.9812, lng: 105.7469,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-lb",
                     code: "Drip Lab-Aeon Mall Long Biên",
                     address: "27 Cổ Linh, Long Biên, Hà Nội, Vietnam",
-                    distanceKm: 8.5,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 21.0486, lng: 105.9001,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-hd",
                     code: "Drip Lab-Xuân Diệu",
                     address: "27 Xuân Diệu, Tây Hồ, Hà Nội, Vietnam",
-                    distanceKm: 8.5,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 21.0612, lng: 105.8382,
+                    openHour: 8, closeHour: 22,
                 },
                 {
                     id: "hn-gl",
                     code: "Drip Lab-Ocean Park",
                     address: "Khu đô thị Vinhomes Ocean Park, Đa Tốn, Gia Lâm, Hà Nội, Vietnam",
-                    distanceKm: 11.8,
-                    openHour: 8,
-                    closeHour: 22,
+                    distanceKm: null,
+                    lat: 20.9893, lng: 105.9451,
+                    openHour: 8, closeHour: 22,
                 },
             ],
         };
@@ -83,11 +111,17 @@ export default {
     computed: {
         filteredStores() {
             const q = String(this.query || "").trim().toLowerCase();
-            const list = q
+            let list = q
                 ? this.stores.filter((s) =>
                       `${s.code} ${s.address}`.toLowerCase().includes(q)
                   )
-                : this.stores;
+                : [...this.stores];
+
+            // Sắp xếp gần nhất lên đầu nếu đã có vị trí
+            if (this.userLat !== null) {
+                list.sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
+            }
+
             return list.map((s) => ({
                 ...s,
                 isOpen: this.openStatus[s.id] ?? false,
@@ -103,6 +137,46 @@ export default {
         if (this._clockTimer) window.clearInterval(this._clockTimer);
     },
     methods: {
+        // ── GPS: lấy vị trí thật của khách ──────────────────────────────────
+        detectLocation() {
+            if (!navigator.geolocation) {
+                this.showToast("Trình duyệt không hỗ trợ GPS");
+                return;
+            }
+            this.locating = true;
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    this.userLat = pos.coords.latitude;
+                    this.userLng = pos.coords.longitude;
+                    this._recalcDistances();
+                    // Lấy tên địa chỉ từ OpenStreetMap (miễn phí, không cần key)
+                    this.locationText = await reverseGeocode(this.userLat, this.userLng);
+                    this.locating = false;
+                },
+                (err) => {
+                    this.locating = false;
+                    const msg = {
+                        1: "Bạn đã từ chối quyền truy cập vị trí",
+                        2: "Không xác định được vị trí",
+                        3: "Hết thời gian chờ GPS",
+                    }[err.code] || "Không lấy được vị trí";
+                    this.showToast(msg);
+                },
+                { timeout: 10_000, maximumAge: 60_000, enableHighAccuracy: true }
+            );
+        },
+
+        // Tính lại khoảng cách tất cả cửa hàng từ vị trí khách
+        _recalcDistances() {
+            if (this.userLat == null) return;
+            this.stores = this.stores.map((s) => ({
+                ...s,
+                distanceKm: parseFloat(
+                    haversine(this.userLat, this.userLng, s.lat, s.lng).toFixed(2)
+                ),
+            }));
+        },
+
         _updateStatus() {
             const status = {};
             this.stores.forEach((s) => {
@@ -110,7 +184,9 @@ export default {
             });
             this.openStatus = status;
         },
+
         toKm(value) {
+            if (value == null) return "— km";
             const n = Number(value);
             if (Number.isFinite(n)) return `${n.toFixed(2)} km`;
             return "—";
@@ -125,18 +201,19 @@ export default {
         },
         clearLocation() {
             this.locationText = "";
+            this.userLat = null;
+            this.userLng = null;
+            // Reset khoảng cách về null
+            this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
         },
         selectStore(store) {
             if (!store.isOpen) {
                 this.showClosedModal = true;
                 return;
             }
-
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
-
             sessionStorage.setItem("selectedStore", JSON.stringify(store));
-
             this.$router.push({ path: "/homepage" });
         },
     },
