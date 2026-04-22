@@ -18,8 +18,8 @@ const {
   customerSaved, isEditingInfo,
   onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
 
-  TOTAL_TABLES, selectedTable, occupiedTables,
-  availableTables, tablesFull, selectTable,
+  TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
+  availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
 
   showConfirmInfo, confirmWarning, confirmWarningTable,
   goToConfirm, backToInfo, proceedToOrder, backFromConfirmToInfo,
@@ -34,6 +34,8 @@ const {
 
   checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
   cashMaxWarning, onCashInput,
+  payNameInput, payPhoneInput, payNameError, payPhoneError,
+  onPayNameInput, onPayPhoneInput,
   goToReview, backFromReview,
   showReviewPopup,
   confirmPayment, closePaymentPopup,
@@ -43,17 +45,15 @@ const {
   selectedIce, selectedSugar, iceOptions, sugarOptions, SIZE_PRICES,
   openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
 
-  displayCustomerName, displayCustomerPhone, displayTableNum,
+  displayCustomerName, displayCustomerPhone, displayTableNum, displayTableNums,
 
   MAX_CASH,
 } = useCounterOrder()
 
-// ── Trạng thái popup MoMo QR ──────────────────────────────────────
+// ── MoMo QR ──────────────────────────────────────
 const showMomoQR = ref(false)
 
-/** Gọi khi user chọn phương thức MoMo rồi bấm "Kiểm tra" */
 function openMomoPayment() {
-  // Đóng popup thanh toán thường, mở QR MoMo
   showPaymentPopup.value = false
   showMomoQR.value = true
 }
@@ -63,25 +63,21 @@ function closeMomoQR() {
   showPaymentPopup.value = true
 }
 
-// Khach quet QR MoMo xong, nhan vien bam "Da thanh toan"
-// -> Tao receiptData roi confirmPayment luon (khong hien review popup)
 function onMomoPaid() {
   showMomoQR.value = false
   paymentMethod.value = 'momo'
-  // Build receipt data
   const order = currentOrder.value
   receiptData.value = {
     finalPrice: finalPrice.value,
     change: 0,
     items: JSON.parse(JSON.stringify(orderedItems.value)),
-    customerName:  order?.customerName  || customerName.value  || '',
-    customerPhone: order?.customerPhone || customerPhone.value || '',
-    tableNum:      order?.tableNum      || selectedTable.value || null,
-    anonCode:      order?.anonCode      || '',
+    customerName:  payNameInput.value.trim() || order?.customerName  || customerName.value  || '',
+    customerPhone: payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || '',
+    tableNums:     order?.selectedTables || selectedTables.value || [],
+    anonCode:      order?.anonCode || '',
     discountPercent: discountPercent.value,
     originalPrice:   totalPrice.value,
   }
-  // Hien popup thanh cong luon
   confirmPayment()
 }
 
@@ -95,6 +91,17 @@ function getTableLabel(num) {
 
 function availableTableCount() {
   return TOTAL_TABLES - occupiedTables.value.length
+}
+
+// Kiểm tra bàn đang được chọn trong order hiện tại
+function isTableSelected(num) {
+  return selectedTables.value.includes(num)
+}
+
+// Format danh sách bàn
+function formatTableNums(nums) {
+  if (!nums || !nums.length) return 'Chưa có'
+  return nums.map(n => String(n).padStart(2, '0')).join(', ')
 }
 </script>
 
@@ -149,7 +156,7 @@ function availableTableCount() {
                   placeholder="Nhập họ và tên..." type="text" />
                 <p v-if="nameError" class="input-error-msg">{{ nameError }}</p>
               </div>
-              <span v-else class="info-value-display">{{ customerName || 'Chưa có' }}</span>
+              <span v-else class="info-value-display">{{ customerName || 'Chưa Điền Thông Tin' }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Số điện thoại:</span>
@@ -158,7 +165,7 @@ function availableTableCount() {
                   @input="onPhoneInput" placeholder="Nhập số điện thoại..." type="tel" inputmode="numeric" maxlength="10" />
                 <p v-if="phoneError" class="input-error-msg">{{ phoneError }}</p>
               </div>
-              <span v-else class="info-value-display">{{ customerPhone || 'Chưa có' }}</span>
+              <span v-else class="info-value-display">{{ customerPhone || 'Chưa Điền Thông Tin' }}</span>
             </div>
             <div class="info-actions">
               <button v-if="isEditingInfo" class="btn-save" @click="saveCustomerInfo">Lưu</button>
@@ -166,7 +173,7 @@ function availableTableCount() {
             </div>
           </div>
 
-          <!-- Đặt bàn -->
+          <!-- Đặt bàn — tối đa 3 bàn -->
           <div class="table-section">
             <p class="section-title">Đặt bàn tại quầy</p>
             <div class="table-count-row">
@@ -174,12 +181,23 @@ function availableTableCount() {
                 <span class="table-count-full">⚠ FULL BÀN — Không còn bàn trống!</span>
               </template>
               <template v-else>
-                Số lượng bàn còn trống: <strong>{{ String(availableTableCount()).padStart(2, '0') }}</strong>
+                Bàn trống: <strong>{{ String(availableTableCount()).padStart(2, '0') }}</strong>
+                &nbsp;|&nbsp;
+                <span class="table-selected-hint">
+                  Đã chọn: <strong>{{ selectedTables.length }}</strong>/{{ MAX_TABLES_PER_ORDER }}
+                </span>
               </template>
+            </div>
+            <!-- Bàn đã chọn -->
+            <div v-if="selectedTables.length" class="selected-tables-row">
+              <span v-for="t in selectedTables" :key="t" class="selected-table-badge">
+                Bàn {{ String(t).padStart(2, '0') }}
+                <button class="badge-remove" @click="selectTable(t)">✕</button>
+              </span>
             </div>
             <div class="table-grid">
               <button v-for="num in availableTables" :key="num" class="table-btn" :class="{
-                selected: selectedTable === num,
+                selected: isTableSelected(num),
                 occupied: occupiedTables.includes(num)
               }" @click="selectTable(num)" :disabled="occupiedTables.includes(num)">
                 {{ getTableLabel(num) }}
@@ -209,7 +227,7 @@ function availableTableCount() {
           </div>
           <div class="right-table-row" style="margin-top:8px">
             <span class="right-info-lbl">Đặt bàn:</span>
-            <span class="right-table-val">{{ selectedTable ? String(selectedTable).padStart(2, '0') : 'Chưa chọn' }}</span>
+            <span class="right-table-val">{{ selectedTables.length ? formatTableNums(selectedTables) : 'Chưa chọn' }}</span>
           </div>
         </div>
         <div class="right-products-block">
@@ -243,15 +261,15 @@ function availableTableCount() {
         <div class="confirm-divider"></div>
         <div class="confirm-row">
           <span class="confirm-lbl">Họ và tên:</span>
-          <span class="confirm-val">{{ customerName || 'Chưa có' }}</span>
+          <span class="confirm-val">{{ customerName || 'Chưa Điền Thông Tin' }}</span>
         </div>
         <div class="confirm-row">
           <span class="confirm-lbl">Số điện thoại:</span>
-          <span class="confirm-val">{{ customerPhone || 'Chưa có' }}</span>
+          <span class="confirm-val">{{ customerPhone || 'Chưa Điền Thông Tin' }}</span>
         </div>
         <div v-if="confirmWarning" class="confirm-warning">{{ confirmWarning }}</div>
         <div class="confirm-divider"></div>
-        <p class="confirm-table">Đặt bàn: {{ selectedTable ? String(selectedTable).padStart(2, '0') : 'Chưa có' }}</p>
+        <p class="confirm-table">Đặt bàn: {{ selectedTables.length ? formatTableNums(selectedTables) : 'Chưa có' }}</p>
         <div v-if="confirmWarningTable" class="confirm-warning-table">{{ confirmWarningTable }}</div>
         <div class="confirm-btns">
           <button class="btn-back" @click="backFromConfirmToInfo">Quay Lại</button>
@@ -314,7 +332,7 @@ function availableTableCount() {
           <div class="right-info-row">
             <span class="right-info-lbl">Họ và tên:</span>
             <span class="right-info-val" :class="{ anon: currentOrder && currentOrder.anonCode && !currentOrder.customerName }">
-              {{ displayCustomerName || 'Chưa có' }}
+              {{ displayCustomerName || 'Chưa Điền Thông Tin' }}
             </span>
           </div>
           <div class="right-info-row">
@@ -323,7 +341,7 @@ function availableTableCount() {
           </div>
           <div class="right-table-row" style="margin-top:6px">
             <span class="right-info-lbl">Đặt bàn:</span>
-            <span class="right-table-val">{{ displayTableNum ? String(displayTableNum).padStart(2, '0') : 'Chưa có' }}</span>
+            <span class="right-table-val">{{ displayTableNums.length ? formatTableNums(displayTableNums) : 'Chưa có' }}</span>
           </div>
         </div>
         <div class="right-products-block">
@@ -431,13 +449,32 @@ function availableTableCount() {
     <div v-if="showPaymentPopup" class="popup-overlay">
       <div class="payment-popup">
         <h2 class="payment-title">Thanh toán</h2>
+
+        <!-- Nhập tên & SĐT (cho takeaway hoặc dine chưa nhập) -->
+        <div class="pay-customer-section">
+          <p class="pay-customer-title">Thông tin khách hàng <span class="pay-optional">(tuỳ chọn)</span></p>
+          <div class="pay-customer-row">
+            <div class="pay-field">
+              <label>Họ và tên</label>
+              <input :value="payNameInput" @input="onPayNameInput" type="text"
+                placeholder="Nhập tên khách..." class="pay-input" />
+            </div>
+            <div class="pay-field">
+              <label>Số điện thoại</label>
+              <input :value="payPhoneInput" @input="onPayPhoneInput" type="text"
+                inputmode="numeric" placeholder="Nhập số điện thoại..." maxlength="10"
+                class="pay-input" :class="{ error: payPhoneError }" />
+              <span v-if="payPhoneError" class="pay-field-err">{{ payPhoneError }}</span>
+            </div>
+          </div>
+          <p class="pay-hint">Nếu bỏ trống, đơn sẽ hiển thị mã khách ẩn danh và "Không Có Thông Tin"</p>
+        </div>
+
         <div class="payment-methods">
-          <!-- Tiền mặt -->
           <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }"
             @click="paymentMethod = 'cash'">
             💵 Tiền mặt
           </div>
-          <!-- MoMo — chỉ giữ icon, không có logic cũ -->
           <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
             @click="paymentMethod = 'momo'">
             <img :src="logoMomo" class="momo-tab-logo" alt="MoMo" /> MoMo
@@ -478,7 +515,7 @@ function availableTableCount() {
           </div>
         </template>
 
-        <!-- MoMo — chỉ nút mở QR, KHÔNG có form nhập SĐT nữa -->
+        <!-- MoMo -->
         <template v-else>
           <div class="momo-header">
             <img :src="logoMomo" class="momo-logo" alt="MoMo" />
@@ -493,7 +530,7 @@ function availableTableCount() {
           <div class="payment-footer">
             <button class="btn-cancel" @click="closePaymentPopup">Hủy</button>
             <button class="btn-confirm momo-btn" @click="openMomoPayment">
-              📱 Mở QR MoMo
+              💳 Thanh toán thẻ ATM
             </button>
           </div>
         </template>
@@ -507,15 +544,15 @@ function availableTableCount() {
         <p class="review-section-title">Thông Tin Khách Hàng</p>
         <div class="review-row">
           <span class="review-lbl">Họ và tên</span>
-          <span class="review-val">{{ receiptData.customerName || receiptData.anonCode || 'Chưa có' }}</span>
+          <span class="review-val">{{ receiptData.customerName || receiptData.anonCode || 'Chưa Điền Thông Tin' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Số điện thoại</span>
-          <span class="review-val">{{ receiptData.customerPhone || 'Chưa có' }}</span>
+          <span class="review-val">{{ receiptData.customerPhone || 'Không Có Thông Tin' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Đặt bàn</span>
-          <span class="review-val">{{ receiptData.tableNum ? String(receiptData.tableNum).padStart(2, '0') : 'Chưa có' }}</span>
+          <span class="review-val">{{ receiptData.tableNums && receiptData.tableNums.length ? formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
@@ -578,9 +615,12 @@ function availableTableCount() {
               <img v-if="paymentMethod === 'momo'" :src="logoMomo" class="receipt-logo" alt="MoMo" />
               <span class="receipt-label">Biên lai {{ paymentMethod === 'cash' ? 'thanh toán' : 'chuyển tiền' }}</span>
             </div>
-            <div class="success-row b"><span>Họ và tên</span><span>{{ receiptData.customerName || receiptData.anonCode || 'Chưa có' }}</span></div>
-            <div class="success-row b"><span>Số điện thoại</span><span>{{ receiptData.customerPhone || 'Chưa có' }}</span></div>
-            <div class="success-row b"><span>Đặt bàn</span><span>{{ receiptData.tableNum ? String(receiptData.tableNum).padStart(2, '0') : 'Chưa có' }}</span></div>
+            <div class="success-row b"><span>Họ và tên</span><span>{{ receiptData.customerName || receiptData.anonCode || 'Không Có Thông Tin' }}</span></div>
+            <div class="success-row b"><span>Số điện thoại</span><span>{{ receiptData.customerPhone || 'Không Có Thông Tin' }}</span></div>
+            <div class="success-row b">
+              <span>Đặt bàn</span>
+              <span>{{ receiptData.tableNums && receiptData.tableNums.length ? formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
+            </div>
             <div class="receipt-divider"></div>
             <div class="success-row b"><span>Hình thức</span><span>{{ paymentMethod === 'cash' ? 'Tiền mặt' : 'Ví MoMo' }}</span></div>
             <div class="success-row b"><span>Mã giao dịch</span><span class="tx-id" :class="{ pink: paymentMethod === 'momo' }">{{ txId }}</span></div>
@@ -616,13 +656,6 @@ function availableTableCount() {
     </div>
 
     <!-- ==================== POPUP QR MOMO ==================== -->
-    <!--
-      Momo.Vue được dùng như một component độc lập.
-      - :visible   → bật/tắt popup
-      - :amount    → số tiền cần thanh toán
-      - :orderInfo → mô tả đơn
-      - @close     → đóng popup, quay lại chọn phương thức
-    -->
     <MomoPopup
       :visible="showMomoQR"
       :amount="finalPrice"
@@ -631,5 +664,5 @@ function availableTableCount() {
       @paid="onMomoPaid"
     />
 
-  </div><!-- end .counter-root -->
+  </div>
 </template>

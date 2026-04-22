@@ -1,6 +1,4 @@
 // src/Front-End/JS/CounterOrder.JS
-// ── Đã xóa toàn bộ logic MoMo (momoPhone, momoName, momoStep, v.v.)
-// ── MoMo được xử lý bởi QRMoMo/MoMo.JS + QRMoMo/Momo.Vue
 import { ref, computed } from 'vue'
 
 function getImg(filename) {
@@ -8,8 +6,8 @@ function getImg(filename) {
 }
 
 const DISCOUNT_CODES = { KM50: 50, KM20: 20, KM10: 10 }
-
 const MAX_CASH = 500_000_000
+export const MAX_TABLES_PER_ORDER = 3
 
 function genTxId() {
     return String(Math.floor(10000000000 + Math.random() * 89999999999))
@@ -86,10 +84,15 @@ export function useCounterOrder() {
 
     function editCustomerInfo() { isEditingInfo.value = true }
 
-    /* ══ ĐẶT BÀN ═══════════════════════════════════════════════════ */
-    const TOTAL_TABLES    = 10
-    const selectedTable   = ref(null)
-    const occupiedTables  = ref([])
+    /* ══ ĐẶT BÀN — tối đa 3 bàn / hóa đơn ════════════════════════ */
+    const TOTAL_TABLES   = 10
+    const selectedTables = ref([])   // mảng ≤ 3 bàn cho order hiện tại
+    const occupiedTables = ref([])
+
+    // backward-compat: selectedTable = bàn cuối cùng được chọn
+    const selectedTable = computed(() =>
+        selectedTables.value.length ? selectedTables.value[selectedTables.value.length - 1] : null
+    )
 
     const availableTables = computed(() =>
         Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1)
@@ -98,8 +101,18 @@ export function useCounterOrder() {
 
     function selectTable(num) {
         if (occupiedTables.value.includes(num)) return
-        selectedTable.value = num
-        if (currentOrder.value) currentOrder.value.tableNum = num
+        const idx = selectedTables.value.indexOf(num)
+        if (idx !== -1) {
+            // Bỏ chọn
+            selectedTables.value.splice(idx, 1)
+        } else {
+            if (selectedTables.value.length >= MAX_TABLES_PER_ORDER) {
+                alert(`Mỗi hóa đơn chỉ được chọn tối đa ${MAX_TABLES_PER_ORDER} bàn!`)
+                return
+            }
+            selectedTables.value.push(num)
+        }
+        if (currentOrder.value) currentOrder.value.selectedTables = [...selectedTables.value]
     }
 
     /* ══ XÁC NHẬN THÔNG TIN ════════════════════════════════════════ */
@@ -115,30 +128,31 @@ export function useCounterOrder() {
         } else if (!customerName.value) {
             confirmWarning.value = 'Thông báo: Chưa có Tên khách hàng!\nBạn có muốn thêm không?'
         }
-        if (!selectedTable.value) {
+        if (!selectedTables.value.length) {
             if (tablesFull.value) {
                 confirmWarningTable.value = '⚠ Tất cả bàn đã FULL! Không thể đặt bàn.'
             } else {
-                confirmWarningTable.value = 'Chưa chọn bàn — Đơn sẽ được tạo không có bàn.'
+                confirmWarningTable.value = 'Thông Báo: Bạn chưa chọn bàn! Bạn có muốn đặt bàn không?'
             }
         }
         showConfirmInfo.value = true
     }
 
-    function backToInfo()           { showConfirmInfo.value = false }
-    function backFromConfirmToInfo(){ showConfirmInfo.value = false }
+    function backToInfo()            { showConfirmInfo.value = false }
+    function backFromConfirmToInfo() { showConfirmInfo.value = false }
 
     function proceedToOrder() {
         showConfirmInfo.value = false
         if (currentOrder.value) {
             if (!customerName.value && !currentOrder.value.anonCode)
                 currentOrder.value.anonCode = genAnonCode()
-            if (selectedTable.value && !currentOrder.value.tableNum)
-                currentOrder.value.tableNum = selectedTable.value
+            if (selectedTables.value.length)
+                currentOrder.value.selectedTables = [...selectedTables.value]
             currentOrder.value.step = 'order'
         }
-        if (selectedTable.value && !occupiedTables.value.includes(selectedTable.value))
-            occupiedTables.value.push(selectedTable.value)
+        selectedTables.value.forEach(t => {
+            if (!occupiedTables.value.includes(t)) occupiedTables.value.push(t)
+        })
         appStep.value = 'order'
     }
 
@@ -164,10 +178,10 @@ export function useCounterOrder() {
     }
 
     /* ══ HÓA ĐƠN ═══════════════════════════════════════════════════ */
-    const MAX_ORDERS  = 10
-    const orderList   = ref([])
-    const currentOrder= ref(null)
-    const orderedItems= ref([])
+    const MAX_ORDERS   = 10
+    const orderList    = ref([])
+    const currentOrder = ref(null)
+    const orderedItems = ref([])
 
     function createNewOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 10 hóa đơn!'); return }
@@ -175,7 +189,7 @@ export function useCounterOrder() {
             id: Date.now(), items: [],
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: customerName.value || '', customerPhone: customerPhone.value || '',
-            tableNum: selectedTable.value || null, anonCode: '', step: 'info',
+            selectedTables: [], anonCode: '', step: 'info',
         }
         orderList.value.push(order)
         selectOrder(order)
@@ -183,13 +197,14 @@ export function useCounterOrder() {
     }
 
     function selectOrder(order) {
-        currentOrder.value     = order
-        orderedItems.value     = order.items
-        discountInput.value    = order.discountInput
-        appliedCode.value      = order.appliedCode
-        discountPercent.value  = order.discountPercent
-        discountMessage.value  = order.discountMessage
-        appStep.value          = order.step || 'info'
+        currentOrder.value    = order
+        orderedItems.value    = order.items
+        discountInput.value   = order.discountInput
+        appliedCode.value     = order.appliedCode
+        discountPercent.value = order.discountPercent
+        discountMessage.value = order.discountMessage
+        selectedTables.value  = order.selectedTables ? [...order.selectedTables] : []
+        appStep.value         = order.step || 'info'
     }
 
     /* ══ GIỎ HÀNG ══════════════════════════════════════════════════ */
@@ -246,8 +261,27 @@ export function useCounterOrder() {
     const paymentMethod    = ref('cash')
     const customerMoney    = ref('')
     const cashMaxWarning   = ref('')
-    const txId  = ref('')
-    const txTime= ref('')
+    const txId   = ref('')
+    const txTime = ref('')
+
+    // Nhập tên / SĐT ngay tại popup thanh toán (cho takeaway hoặc dine chưa nhập)
+    const payNameInput  = ref('')
+    const payPhoneInput = ref('')
+    const payNameError  = ref('')
+    const payPhoneError = ref('')
+
+    function onPayNameInput(e) {
+        const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
+        payNameInput.value = val
+        e.target.value = val
+        payNameError.value = ''
+    }
+    function onPayPhoneInput(e) {
+        const val = e.target.value.replace(/\D/g, '').slice(0, 10)
+        payPhoneInput.value = val
+        e.target.value = val
+        payPhoneError.value = ''
+    }
 
     const customerMoneyNum = computed(() => {
         if (!customerMoney.value) return 0
@@ -257,7 +291,7 @@ export function useCounterOrder() {
 
     const receiptData = ref({
         finalPrice: 0, change: 0, items: [],
-        customerName: '', customerPhone: '', tableNum: null,
+        customerName: '', customerPhone: '', tableNums: [],
         anonCode: '', discountPercent: 0, originalPrice: 0,
     })
 
@@ -265,6 +299,12 @@ export function useCounterOrder() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
         customerMoney.value = ''
         paymentMethod.value = 'cash'
+        // Khởi tạo field nhập tên/SĐT tại popup từ dữ liệu đã có
+        const o = currentOrder.value
+        payNameInput.value  = o?.customerName  || customerName.value  || ''
+        payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
+        payNameError.value  = ''
+        payPhoneError.value = ''
         showPaymentPopup.value = true
     }
 
@@ -282,19 +322,37 @@ export function useCounterOrder() {
         customerMoney.value = raw
     }
 
-    function goToReview() {
+    function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
+        // Lấy tên/SĐT: ưu tiên những gì vừa nhập ở popup
+        const resolvedName  = payNameInput.value.trim()  || order?.customerName  || customerName.value  || ''
+        const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
+        // Cập nhật lại order để hiển thị đúng trên đơn
+        if (order) {
+            if (resolvedName)  order.customerName  = resolvedName
+            if (resolvedPhone) order.customerPhone = resolvedPhone
+            if (!resolvedName && !order.anonCode) order.anonCode = genAnonCode()
+        }
         receiptData.value = {
             finalPrice: finalPrice.value,
-            change: changeAmount.value,
+            change,
             items: JSON.parse(JSON.stringify(orderedItems.value)),
-            customerName:  order?.customerName  || customerName.value  || '',
-            customerPhone: order?.customerPhone || customerPhone.value || '',
-            tableNum:      order?.tableNum      || selectedTable.value || null,
-            anonCode:      order?.anonCode      || '',
+            customerName:    resolvedName,
+            customerPhone:   resolvedPhone,
+            tableNums:       order?.selectedTables || selectedTables.value || [],
+            anonCode:        order?.anonCode || '',
             discountPercent: discountPercent.value,
             originalPrice:   totalPrice.value,
         }
+    }
+
+    function goToReview() {
+        // validate phone nếu có nhập
+        if (payPhoneInput.value && payPhoneInput.value.length < 10) {
+            payPhoneError.value = 'Số điện thoại phải đủ 10 số!'
+            return
+        }
+        _buildReceiptData(changeAmount.value)
         showPaymentPopup.value = false
         showReviewPopup.value  = true
     }
@@ -316,12 +374,14 @@ export function useCounterOrder() {
 
     function closeSuccessPopup() {
         showSuccessPopup.value = false
-        const tbl = currentOrder.value?.tableNum
-        if (tbl) {
-            const idx = occupiedTables.value.indexOf(tbl)
-            if (idx !== -1) occupiedTables.value.splice(idx, 1)
+        const order = currentOrder.value
+        if (order?.selectedTables) {
+            order.selectedTables.forEach(t => {
+                const idx = occupiedTables.value.indexOf(t)
+                if (idx !== -1) occupiedTables.value.splice(idx, 1)
+            })
         }
-        const idx = orderList.value.indexOf(currentOrder.value)
+        const idx = orderList.value.indexOf(order)
         if (idx !== -1) orderList.value.splice(idx, 1)
         if (!orderList.value.length) {
             appStep.value          = 'welcome'
@@ -337,21 +397,21 @@ export function useCounterOrder() {
             customerPhoneInput.value = ''
             customerSaved.value    = false
             isEditingInfo.value    = true
-            selectedTable.value    = null
+            selectedTables.value   = []
         } else {
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
 
     /* ══ POPUP TOPPING ══════════════════════════════════════════════ */
-    const showPopup      = ref(false)
-    const selectedProduct= ref(null)
+    const showPopup       = ref(false)
+    const selectedProduct = ref(null)
     const selectedToppings= ref([])
-    const selectedSize   = ref('S')
-    const selectedQty    = ref(1)
-    const selectedIce    = ref('0%')
-    const selectedSugar  = ref('0%')
-    const popupStateCache= ref({})
+    const selectedSize    = ref('S')
+    const selectedQty     = ref(1)
+    const selectedIce     = ref('0%')
+    const selectedSugar   = ref('0%')
+    const popupStateCache = ref({})
 
     const toppingList = [
         { id: 1, name: 'Trân châu đen',   price: 5000 },
@@ -433,11 +493,16 @@ export function useCounterOrder() {
     })
     const displayCustomerPhone = computed(() => {
         const o = currentOrder.value
-        return o?.customerPhone || customerPhone.value || 'Chưa có'
+        return o?.customerPhone || customerPhone.value || 'Không Có Thông Tin'
     })
-    const displayTableNum = computed(() => {
+    const displayTableNums = computed(() => {
         const o = currentOrder.value
-        return o?.tableNum || selectedTable.value || null
+        return o?.selectedTables?.length ? o.selectedTables : selectedTables.value
+    })
+    // backward-compat
+    const displayTableNum = computed(() => {
+        const arr = displayTableNums.value
+        return arr.length ? arr[arr.length - 1] : null
     })
 
     /* ══ EXPORT ════════════════════════════════════════════════════ */
@@ -451,8 +516,9 @@ export function useCounterOrder() {
         customerSaved, isEditingInfo,
         onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
 
-        TOTAL_TABLES, selectedTable, occupiedTables,
+        TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
         availableTables, tablesFull, selectTable,
+        MAX_TABLES_PER_ORDER,
 
         showConfirmInfo, confirmWarning, confirmWarningTable,
         goToConfirm, backToInfo, proceedToOrder, backFromConfirmToInfo,
@@ -467,6 +533,8 @@ export function useCounterOrder() {
 
         checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
         cashMaxWarning, onCashInput,
+        payNameInput, payPhoneInput, payNameError, payPhoneError,
+        onPayNameInput, onPayPhoneInput,
         goToReview, backFromReview,
         showReviewPopup,
         confirmPayment, closePaymentPopup,
@@ -476,7 +544,7 @@ export function useCounterOrder() {
         selectedIce, selectedSugar, iceOptions, sugarOptions, SIZE_PRICES,
         openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
 
-        displayCustomerName, displayCustomerPhone, displayTableNum,
+        displayCustomerName, displayCustomerPhone, displayTableNum, displayTableNums,
 
         MAX_CASH,
     }
