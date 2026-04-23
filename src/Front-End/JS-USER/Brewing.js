@@ -187,7 +187,12 @@ watch(
 
 watch(
   () => selection.milk,
-  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+  (newVal, oldVal) => {
+    // Chỉ animate lần đầu VÀ chỉ khi chọn có sữa (không phải 'none')
+    if (oldVal === null && newVal !== null && newVal !== 'none') animTick.value++
+    // Khi chọn 'none' → tăng animTick để trigger hiệu ứng đá
+    if (newVal === 'none') animTick.value++
+  }
 )
 
   watch(currentStep, (n) => {
@@ -272,7 +277,7 @@ watch(
         fxKey: toppingFxKey.value,
       },
       drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
-      bubbles:  { enabled: isColdBrew && hasBase },
+      bubbles:  { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
       steam:    { enabled: isHot },
       straw:    { enabled: isComplete.value },
       logo:     { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
