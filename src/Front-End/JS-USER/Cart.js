@@ -1,6 +1,3 @@
-// ============================================================
-//  Cart.js – DripLab POS Logic
-// ============================================================
 import { useCartStore } from '../../stores/cart.js'
 import { useAuthStore } from '../Authorization/Auth.js'
 import api from '../../api/axios'
@@ -53,12 +50,18 @@ export default {
   },
 
   computed: {
+    // ✅ Map raw cart items
     cartItems() {
       return this.cartStore.items.map((item) => ({
         id: item.id,
         productId: item.drinkId,
         name: item.drink?.name || 'Drink',
         image: item.drink?.imageUrl || '/placeholder.png',
+        drinkBasePrice: item.drink?.basePrice || 0,
+        sizePrice: item.size?.price || 0,
+        sizeName: item.size?.name || '',
+        toppingPrice: item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0,
+        // ✅ basePrice = drinkBase + size + toppings
         basePrice:
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
@@ -67,30 +70,63 @@ export default {
         sugar: item.sugar || '100%',
         ice: item.ice || '100%',
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
+        // ✅ Key để gộp các đơn giống nhau
+        mergeKey: [
+          item.drinkId,
+          item.size?.id || '',
+          item.sugar || '',
+          item.ice || '',
+          (item.toppings?.map(t => t.topping?.id).sort().join(',') || '')
+        ].join('|')
       }))
     },
 
-    selectedItems() {
-      return this.cartItems.filter((i) => this.selectedIds.includes(i.id))
+    // ✅ Gộp các đơn hàng giống nhau
+    mergedCartItems() {
+      const map = new Map()
+      for (const item of this.cartItems) {
+        if (map.has(item.mergeKey)) {
+          const existing = map.get(item.mergeKey)
+          existing.quantity += item.quantity
+          existing.ids.push(item.id)
+        } else {
+          map.set(item.mergeKey, { ...item, ids: [item.id] })
+        }
+      }
+      return Array.from(map.values())
     },
+
+    selectedItems() {
+      // ✅ Chỉ lấy các item có id trong selectedIds
+      return this.mergedCartItems.filter(item =>
+        item.ids.some(id => this.selectedIds.includes(id))
+      )
+    },
+
     selectedSubtotal() {
       return this.selectedItems.reduce((s, i) => s + i.basePrice * i.quantity, 0)
     },
+
     shippingFee() {
       if (!this.selectedItems.length) return 0
       return this.selectedSubtotal >= 100000 ? 0 : 20000
     },
+
     selectedTotal() {
       return this.selectedSubtotal + this.shippingFee
     },
+
     grandTotal() {
       return Math.max(0, this.selectedTotal - this.couponDiscount)
     },
+
     isAllSelected() {
-      return this.cartItems.length > 0 && this.selectedIds.length === this.cartItems.length
+      return this.cartItems.length > 0 &&
+        this.cartItems.every(i => this.selectedIds.includes(i.id))
     },
+
     isSomeSelected() {
-      return this.selectedIds.length > 0 && this.selectedIds.length < this.cartItems.length
+      return this.selectedIds.length > 0 && !this.isAllSelected
     },
   },
 
@@ -102,7 +138,6 @@ export default {
     }
   },
 
-  // Đảm bảo unlock scroll nếu component bị destroy khi modal đang mở
   unmounted() {
     document.body.style.overflow = ''
   },
@@ -116,9 +151,19 @@ export default {
       }).format(amount)
     },
 
-    toggleSelect(id) {
-      const idx = this.selectedIds.indexOf(id)
-      idx === -1 ? this.selectedIds.push(id) : this.selectedIds.splice(idx, 1)
+    // ✅ Toggle chọn theo mergedItem (chọn/bỏ tất cả ids trong group)
+    toggleSelect(mergedItem) {
+      const allSelected = mergedItem.ids.every(id => this.selectedIds.includes(id))
+      if (allSelected) {
+        this.selectedIds = this.selectedIds.filter(id => !mergedItem.ids.includes(id))
+      } else {
+        const toAdd = mergedItem.ids.filter(id => !this.selectedIds.includes(id))
+        this.selectedIds.push(...toAdd)
+      }
+    },
+
+    isItemSelected(mergedItem) {
+      return mergedItem.ids.every(id => this.selectedIds.includes(id))
     },
 
     toggleSelectAll(e) {
@@ -126,31 +171,32 @@ export default {
     },
 
     async increaseQty(item) {
-      const storeItem = this.cartStore.items.find((i) => i.id === item.id)
-      if (storeItem) {
-        const newQty = storeItem.quantity + 1
-        try {
-          await api.put(`/carts/items/${item.id}/quantity`, { 
-            quantity: newQty 
-          })
-          storeItem.quantity = newQty
-        } catch (e) {
-          console.error("Quantity update failed:", e)
+      // ✅ Tăng quantity của tất cả ids trong group
+      for (const id of item.ids) {
+        const storeItem = this.cartStore.items.find(i => i.id === id)
+        if (storeItem) {
+          const newQty = storeItem.quantity + 1
+          try {
+            await api.put(`/carts/items/${id}/quantity`, { quantity: newQty })
+            storeItem.quantity = newQty
+          } catch (e) {
+            console.error('Quantity update failed:', e)
+          }
         }
       }
     },
 
     async decreaseQty(item) {
-      const storeItem = this.cartStore.items.find((i) => i.id === item.id)
-      if (storeItem) {
-        const newQty = storeItem.quantity - 1
-        try {
-          await api.put(`/carts/items/${item.id}/quantity`, { 
-            quantity: newQty 
-          })
-          storeItem.quantity = newQty
-        } catch (e) {
-          console.error("Quantity update failed:", e)
+      for (const id of item.ids) {
+        const storeItem = this.cartStore.items.find(i => i.id === id)
+        if (storeItem && storeItem.quantity > 1) {
+          const newQty = storeItem.quantity - 1
+          try {
+            await api.put(`/carts/items/${id}/quantity`, { quantity: newQty })
+            storeItem.quantity = newQty
+          } catch (e) {
+            console.error('Quantity update failed:', e)
+          }
         }
       }
     },
@@ -160,15 +206,17 @@ export default {
 
     async executeDelete() {
       if (!this.deleteTarget) return
-      const id = this.deleteTarget.id
-      try {
-        await api.delete(`/carts/remove/${id}`)
-        this.cartStore.items = this.cartStore.items.filter((i) => i.id !== id)
-        this.selectedIds = this.selectedIds.filter((s) => s !== id)
-        this.deleteTarget = null
-      } catch (e) {
-        alert('Lỗi khi xóa sản phẩm')
+      // ✅ Xóa tất cả ids trong group
+      for (const id of this.deleteTarget.ids) {
+        try {
+          await api.delete(`/carts/remove/${id}`)
+          this.cartStore.items = this.cartStore.items.filter(i => i.id !== id)
+          this.selectedIds = this.selectedIds.filter(s => s !== id)
+        } catch (e) {
+          console.error('Delete failed:', e)
+        }
       }
+      this.deleteTarget = null
     },
 
     openOrderModal() {
@@ -176,7 +224,6 @@ export default {
       this.paymentMethod = 'COD'
       this.resetMomo()
       this.showOrderModal = true
-      // Khóa scroll body bên ngoài khi modal mở
       document.body.style.overflow = 'hidden'
     },
 
@@ -184,7 +231,6 @@ export default {
       this.showOrderModal = false
       this.paymentMethod = 'COD'
       this.resetMomo()
-      // Mở lại scroll body
       document.body.style.overflow = ''
     },
 
@@ -194,7 +240,7 @@ export default {
       if (code === 'CAFE10') {
         this.couponDiscount = Math.round(this.selectedSubtotal * 0.1)
         this.couponApplied = true
-        this.couponMessage = `✓ Giảm 10% đơn hàng! (-${this.formatVND(this.couponDiscount)})`
+        this.couponMessage = `✓ Giảm 10%! (-${this.formatVND(this.couponDiscount)})`
       } else if (code === 'FREESHIP') {
         this.couponDiscount = 20000
         this.couponApplied = true
@@ -213,40 +259,26 @@ export default {
       this.couponMessage = ''
     },
 
-    openMomoFlow() {
-      this.resetMomo()
-      this.paymentMethod = 'MOMO'
-    },
-
-    backToPaymentSelect() {
-      this.paymentMethod = 'COD'
-      this.resetMomo()
-    },
+    openMomoFlow() { this.resetMomo(); this.paymentMethod = 'MOMO' },
+    backToPaymentSelect() { this.paymentMethod = 'COD'; this.resetMomo() },
 
     resetMomo() {
-      this.momoPhone = ''
-      this.momoName = ''
-      this.momoStep = 1
-      this.momoError = ''
-      this.momoLoading = false
+      this.momoPhone = ''; this.momoName = ''
+      this.momoStep = 1; this.momoError = ''; this.momoLoading = false
     },
 
     onMomoPhoneInput(e) {
       const clean = e.target.value.replace(/\D/g, '').slice(0, 10)
       this.momoPhone = clean
-      this.momoError = ''
-      this.momoName = ''
-      this.momoLoading = false
+      this.momoError = ''; this.momoName = ''; this.momoLoading = false
       if (clean.length === 10) {
         this.momoLoading = true
         setTimeout(() => {
           this.momoLoading = false
           if (MOMO_ACCOUNTS[clean]) {
-            this.momoName = MOMO_ACCOUNTS[clean]
-            this.momoError = ''
+            this.momoName = MOMO_ACCOUNTS[clean]; this.momoError = ''
           } else {
-            this.momoName = ''
-            this.momoError = 'Không tìm thấy tên tài khoản'
+            this.momoName = ''; this.momoError = 'Không tìm thấy tên tài khoản'
           }
         }, 900)
       }
@@ -260,8 +292,12 @@ export default {
     async placeOrder() {
       this.isPlacingOrder = true
       try {
+        // ✅ Chỉ gửi selectedIds lên backend
+        const selectedCartItemIds = this.selectedItems.flatMap(i => i.ids)
+
         const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
         const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
+          cartItemIds: selectedCartItemIds, // ✅ gửi đúng items được chọn
           note: this.couponApplied
             ? `${orderNote} - Coupon: ${this.couponCode}`
             : orderNote,
@@ -271,10 +307,14 @@ export default {
         this.lastOrderId = response.data.orderNumber
         this.showOrderModal = false
         this.showSuccessModal = true
-        // Giữ overflow:hidden vì success modal vẫn đang mở
 
-        this.cartStore.items = []
-        this.selectedIds = []
+        // ✅ Chỉ xóa các item đã thanh toán khỏi store
+        this.cartStore.items = this.cartStore.items.filter(
+          i => !selectedCartItemIds.includes(i.id)
+        )
+        this.selectedIds = this.selectedIds.filter(
+          id => !selectedCartItemIds.includes(id)
+        )
       } catch (error) {
         console.error('Lỗi checkout:', error)
         const msg = error.response?.data?.message || 'Không thể đặt hàng. Vui lòng thử lại!'
@@ -286,7 +326,6 @@ export default {
 
     closeSuccessModal() {
       this.showSuccessModal = false
-      // Mở lại scroll body
       document.body.style.overflow = ''
       this.$router.push('/menu')
     },
