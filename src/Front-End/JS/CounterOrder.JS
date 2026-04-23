@@ -1,5 +1,7 @@
 // src/Front-End/JS/CounterOrder.JS
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import api from '../../api/axios.js'
+
 
 function getImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
@@ -160,15 +162,33 @@ export function useCounterOrder() {
     const searchText = ref('')
 
     const allProducts = ref([
-        { id: 1, name: 'Bạc xỉu kem xốp',  image: getImg('bacxiukemxop.jpg'), price: 40000 },
-        { id: 2, name: 'Cà phê phin đen',   image: getImg('cfphin.jpg'),       price: 29000 },
-        { id: 3, name: 'Cà phê phin nâu',   image: getImg('cfphinnau.png'),    price: 29000 },
-        { id: 4, name: 'Cafee latte',        image: getImg('cflatte.jpg'),      price: 60000 },
-        { id: 5, name: 'Capuchino',          image: getImg('capu.jpg'),         price: 35000 },
-        { id: 6, name: 'Geisha',             image: getImg('geisha.jpg'),       price: 35000 },
-        { id: 7, name: 'Hồng trà sữa',      image: getImg('tsua.png'),         price: 35000 },
+        // { id: 1, name: 'Bạc xỉu kem xốp',  image: getImg('bacxiukemxop.jpg'), price: 40000 },
+        // { id: 2, name: 'Cà phê phin đen',   image: getImg('cfphin.jpg'),       price: 29000 },
+        // { id: 3, name: 'Cà phê phin nâu',   image: getImg('cfphinnau.png'),    price: 29000 },
+        // { id: 4, name: 'Cafee latte',        image: getImg('cflatte.jpg'),      price: 60000 },
+        // { id: 5, name: 'Capuchino',          image: getImg('capu.jpg'),         price: 35000 },
+        // { id: 6, name: 'Geisha',             image: getImg('geisha.jpg'),       price: 35000 },
+        // { id: 7, name: 'Hồng trà sữa',      image: getImg('tsua.png'),         price: 35000 },
     ])
-    const products = ref([...allProducts.value])
+    const products = ref([])
+
+    async function fetchDrinks() {
+        try {
+            const res = await api.get('/drinks/active')
+            products.value = res.data.map(d => ({
+                id: d.id,
+                name: d.name,
+                image: d.imageUrl,
+                price: d.basePrice,
+                category: d.category
+            }))
+        } catch (error) {
+            console.log("error fetching drinks: "+error)
+        }
+        
+    }
+
+
 
     function searchProducts() {
         const kw = searchText.value.toLowerCase().trim()
@@ -413,19 +433,44 @@ export function useCounterOrder() {
     const selectedSugar   = ref('0%')
     const popupStateCache = ref({})
 
-    const toppingList = [
-        { id: 1, name: 'Trân châu đen',   price: 5000 },
-        { id: 2, name: 'Thạch cà phê',    price: 5000 },
-        { id: 3, name: 'Kem cheese',       price: 8000 },
-        { id: 4, name: 'Pudding trứng',    price: 8000 },
-        { id: 5, name: 'Kem béo',          price: 6000 },
-        { id: 6, name: 'Kem cheese đặc',   price: 10000 },
-        { id: 7, name: 'Machiato',         price: 5000 },
-        { id: 8, name: 'Whipping cream',   price: 8000 },
-    ]
+    const toppingList = ref([
+        // { id: 1, name: 'Trân châu đen',   price: 5000 },
+        // { id: 2, name: 'Thạch cà phê',    price: 5000 },
+        // { id: 3, name: 'Kem cheese',       price: 8000 },
+        // { id: 4, name: 'Pudding trứng',    price: 8000 },
+        // { id: 5, name: 'Kem béo',          price: 6000 },
+        // { id: 6, name: 'Kem cheese đặc',   price: 10000 },
+        // { id: 7, name: 'Machiato',         price: 5000 },
+        // { id: 8, name: 'Whipping cream',   price: 8000 },
+    ])
     const iceOptions   = ['0%', '30%', '50%', '70%', '100%']
     const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
-    const SIZE_PRICES  = { S: 0, M: 5000, L: 10000 }
+    const SIZE_PRICES  = reactive({})
+
+    async function fetchToppings() {
+        try {
+            const res = await api.get('/ingredients/toppings')
+            toppingList.value = res.data.map(t => ({
+                id: t.id,
+                name: t.name,
+                price: t.price
+            }))
+        } catch (error) {
+            console.log("error fetching toppings: "+error)
+        }
+    }
+
+    async function fetchSizes() {
+        try {
+            const res = await api.get('/sizes')
+            res.data.forEach(s => {
+                SIZE_PRICES[s.name] = s.price
+            })
+        } catch (error) {
+            console.log("error fetching sizes: "+error)
+        }
+    }
+
 
     function openPopup(product) {
         selectedProduct.value = product
@@ -505,8 +550,28 @@ export function useCounterOrder() {
         return arr.length ? arr[arr.length - 1] : null
     })
 
+
+    let timer = null
+    onMounted(() => {
+        fetchDrinks()
+        fetchToppings()
+        fetchSizes()
+
+        timer = setInterval(() => {
+            fetchDrinks(),
+            fetchToppings(),
+            fetchSizes()
+        }, 5000)
+    })
+
+    onUnmounted(() => {
+        if (timer) clearInterval(timer)
+    })
+
     /* ══ EXPORT ════════════════════════════════════════════════════ */
     return {
+        fetchDrinks, fetchToppings,
+
         appStep, orderMode,
         goToChoice, chooseTakeaway, chooseDine,
 
