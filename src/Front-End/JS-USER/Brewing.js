@@ -176,9 +176,19 @@ export function useBrewing() {
   const toppingFxKey = ref(0)
 
   watch(
-    () => [selection.bean, selection.base, selection.milk],
-    () => { animTick.value++ },
-  )
+  () => selection.bean,
+  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+)
+
+watch(
+  () => selection.base,
+  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+)
+
+watch(
+  () => selection.milk,
+  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+)
 
   watch(currentStep, (n) => {
     if (n >= 3 && !toppingAnimPlayed.value) {
