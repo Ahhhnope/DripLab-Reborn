@@ -1,5 +1,5 @@
 // src/Front-End/QRMoMo/MoMo.js
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 
 function getBankImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
@@ -66,17 +66,6 @@ export function useMomoPayment(props, emit) {
         }, 1000)
     }
 
-    function resetSession() {
-        clearInterval(timerRef)
-        secsRemain.value = TOTAL_SEC
-        orderId.value    = genOrderId()
-        screen.value     = 'method'
-        resetForm()
-        startTimer()
-    }
-
-    onUnmounted(() => clearInterval(timerRef))
-
     /* ── ATM Form state ── */
     const cardNumber = ref('')
     const cardExpiry = ref('')
@@ -84,6 +73,42 @@ export function useMomoPayment(props, emit) {
     const cardPhone  = ref('')
     const errors     = ref({ number: '', expiry: '', holder: '' })
     const submitting = ref(false)
+
+    function resetForm() {
+        cardNumber.value = ''
+        cardExpiry.value = ''
+        cardHolder.value = ''
+        cardPhone.value  = ''
+        errors.value     = { number: '', expiry: '', holder: '' }
+        submitting.value = false
+    }
+
+    // FIX: Hàm reset toàn bộ session — gọi mỗi khi popup được mở lại
+    function resetSession() {
+        clearInterval(timerRef)
+        secsRemain.value = TOTAL_SEC
+        orderId.value    = genOrderId()
+        screen.value     = 'method'       // ← luôn về màn chọn phương thức
+        resetForm()
+        startTimer()
+    }
+
+    // FIX: Watch prop visible — mỗi lần visible chuyển thành true thì reset toàn bộ
+    // Điều này đảm bảo lần mở thứ 2, thứ 3... luôn bắt đầu sạch từ đầu
+    watch(
+        () => props.visible,
+        (newVal) => {
+            if (newVal === true) {
+                resetSession()
+            } else {
+                // Khi đóng popup: dừng timer, không reset state ngay
+                // (để tránh flicker khi transition đóng)
+                clearInterval(timerRef)
+            }
+        }
+    )
+
+    onUnmounted(() => clearInterval(timerRef))
 
     /* Hiển thị số thẻ đầy đủ (có khoảng cách nhóm 4) — không che */
     const cardNumDisplay = computed(() => {
@@ -97,7 +122,6 @@ export function useMomoPayment(props, emit) {
     const cardVisualNum = computed(() => {
         const raw = cardNumber.value
         if (!raw) return '•••• •••• •••• ••••'
-        // Nhóm 4 chữ số, hiện đầy đủ
         const groups = []
         const padded = raw.padEnd(16, '•')
         for (let i = 0; i < 16; i += 4) groups.push(padded.slice(i, i + 4))
@@ -168,15 +192,6 @@ export function useMomoPayment(props, emit) {
         return ok
     }
 
-    function resetForm() {
-        cardNumber.value = ''
-        cardExpiry.value = ''
-        cardHolder.value = ''
-        cardPhone.value  = ''
-        errors.value     = { number: '', expiry: '', holder: '' }
-        submitting.value = false
-    }
-
     /* ── Submit ── */
     async function submitPayment() {
         if (!validate()) return
@@ -217,7 +232,11 @@ export function useMomoPayment(props, emit) {
     function backToMethod() { screen.value = 'method'; resetForm() }
     function handleClose()  { clearInterval(timerRef); emit('close') }
 
-    startTimer()
+    // Không gọi startTimer() ở đây nữa vì watch(visible) sẽ lo
+    // Nhưng nếu visible ban đầu là true thì cần khởi động ngay
+    if (props.visible) {
+        startTimer()
+    }
 
     return {
         screen, orderId,

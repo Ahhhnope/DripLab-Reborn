@@ -142,7 +142,7 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
                                         <div class="mp-card-num">{{ cardVisualNum }}</div>
                                         <div class="mp-card-bottom-row">
                                             <!-- Chỉ hiện giá trị tên, không hiện label (label đã trong ảnh) -->
-                                            <div class="mp-card-holder">{{ cardHolder || 'NGUYEN VAN A' }}</div>
+                                            <div class="mp-card-holder">{{ cardHolder || '' }}</div>
                                             <!-- Chỉ hiện giá trị ngày, không hiện label -->
                                             <div class="mp-card-expiry-val">{{ cardExpiry || 'MM/YY' }}</div>
                                         </div>
