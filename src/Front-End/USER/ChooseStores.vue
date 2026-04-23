@@ -95,7 +95,10 @@
               <div class="cs-cardMeta">
                 <p class="cs-distance">{{ toKm(store.distanceKm) }}</p>
                 <p class="cs-status" :class="store.isOpen ? 'is-open' : 'is-closed'">
-                  {{ store.isOpen ? 'Đang mở cửa' : 'Đang đóng cửa' }}
+                  <span v-if="store.isOpen">
+                    {{ store.isClosingSoon ? 'Sắp đóng cửa' : 'Đang mở cửa' }}
+                  </span>
+                  <span v-else>Đang đóng cửa</span>
                 </p>
               </div>
             </div>
