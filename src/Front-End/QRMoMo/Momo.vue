@@ -3,9 +3,9 @@ import { computed } from 'vue'
 import { useMomoPayment, BANK_LIST } from './MoMo.js'
 
 const props = defineProps({
-    visible:   { type: Boolean, default: false },
-    amount:    { type: Number,  default: 0 },
-    orderInfo: { type: String,  default: 'Thanh toan DripLab' },
+    visible: { type: Boolean, default: false },
+    amount: { type: Number, default: 0 },
+    orderInfo: { type: String, default: 'Thanh toan DripLab' },
 })
 const emit = defineEmits(['close', 'paid'])
 
@@ -19,6 +19,7 @@ const {
     errors, submitting,
     onNumberInput, onExpiryInput, onHolderInput, onPhoneInput,
     submitPayment, goToAtm, backToMethod, handleClose, resetSession,
+    CARD_BG_IMG,
 } = useMomoPayment(props, emit)
 
 const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
@@ -104,7 +105,8 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
 
                                 <div class="mp-info-banner">
                                     <span class="mp-info-banner-icon">ℹ️</span>
-                                    <span>Bạn đang sử dụng giải pháp thanh toán được xây dựng và cung cấp bởi MoMo</span>
+                                    <span>Bạn đang sử dụng giải pháp thanh toán được xây dựng và cung cấp bởi
+                                        MoMo</span>
                                 </div>
 
                                 <div class="mp-methods">
@@ -130,60 +132,53 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
 
                             <!-- ══ SCREEN 2: Nhập thẻ ATM ══ -->
                             <template v-else-if="screen === 'atm'">
-                                <div class="mp-atm-header">
-                                    <div class="mp-atm-header-ico">ATM</div>
-                                    <span class="mp-atm-header-title">Nhập thông tin thẻ để thanh toán</span>
-                                </div>
+                                <!-- Tiêu đề căn giữa -->
+                                <p class="mp-atm-header-title">Nhập thông tin thẻ để thanh toán</p>
 
-                                <!-- Hình thẻ — thiết kế lại compact như napas thật -->
-                                <div class="mp-card">
-                                    <div class="mp-card-top-row">
-                                        <div class="mp-card-chip"></div>
-                                        <span class="mp-card-napas-badge">napas 💳</span>
-                                    </div>
-                                    <div class="mp-card-num" :class="{ filled: cardNumber.length > 0 }">
-                                        {{ cardNumber.length > 0 ? cardVisualNum : '•••• •••• •••• ••••' }}
-                                    </div>
-                                    <div class="mp-card-bottom-row">
-                                        <div class="mp-card-holder-wrap">
-                                            <div class="mp-card-holder-lbl">TÊN CHỦ THẺ</div>
-                                            <div class="mp-card-holder">{{ cardHolder || 'NGUYEN VAN A' }}</div>
-                                        </div>
-                                        <div class="mp-card-expiry">
-                                            <div class="mp-card-expiry-lbl">HẠN SỬ DỤNG</div>
+                                <!-- ── Thẻ dùng THENGANHANG.png làm nền ── -->
+                                <div class="mp-card-wrapper">
+                                    <div class="mp-card" :style="{ backgroundImage: `url(${CARD_BG_IMG})` }">
+                                        <!-- Số thẻ đầy đủ -->
+                                        <div class="mp-card-num">{{ cardVisualNum }}</div>
+                                        <div class="mp-card-bottom-row">
+                                            <!-- Chỉ hiện giá trị tên, không hiện label (label đã trong ảnh) -->
+                                            <div class="mp-card-holder">{{ cardHolder || '' }}</div>
+                                            <!-- Chỉ hiện giá trị ngày, không hiện label -->
                                             <div class="mp-card-expiry-val">{{ cardExpiry || 'MM/YY' }}</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Form -->
+                                <!-- Form — 4 ô bằng nhau -->
                                 <div class="mp-form">
-                                    <div class="mp-field">
-                                        <label>Số thẻ</label>
-                                        <input :value="cardNumDisplay" @input="onNumberInput" type="text"
-                                            inputmode="numeric" placeholder="Nhập số thẻ" maxlength="23"
-                                            :class="{ err: errors.number }" />
-                                        <span v-if="errors.number" class="mp-field-err">{{ errors.number }}</span>
-                                    </div>
                                     <div class="mp-form-row">
+                                        <div class="mp-field">
+                                            <label>Số thẻ</label>
+                                            <input :value="cardNumDisplay" @input="onNumberInput" type="text"
+                                                inputmode="numeric" placeholder="Nhập số thẻ" maxlength="23"
+                                                :class="{ err: errors.number }" />
+                                            <span v-if="errors.number" class="mp-field-err">{{ errors.number }}</span>
+                                        </div>
                                         <div class="mp-field">
                                             <label>Ngày phát hành</label>
                                             <input :value="cardExpiry" @input="onExpiryInput" type="text"
                                                 placeholder="MM/YY" maxlength="5" :class="{ err: errors.expiry }" />
                                             <span v-if="errors.expiry" class="mp-field-err">{{ errors.expiry }}</span>
                                         </div>
-                                        <div class="mp-field">
-                                            <label>Số điện thoại <span style="color:#bbb;font-weight:400;font-size:10px">(tuỳ chọn)</span></label>
-                                            <input :value="cardPhone" @input="onPhoneInput" type="text"
-                                                inputmode="numeric" placeholder="Nhập số điện thoại" maxlength="10" />
-                                        </div>
                                     </div>
-                                    <div class="mp-field">
-                                        <label>Tên chủ thẻ</label>
-                                        <input :value="cardHolder" @input="onHolderInput" type="text"
-                                            placeholder="Nhập tên chủ thẻ" style="text-transform:uppercase"
-                                            :class="{ err: errors.holder }" />
-                                        <span v-if="errors.holder" class="mp-field-err">{{ errors.holder }}</span>
+                                    <div class="mp-form-row">
+                                        <div class="mp-field">
+                                            <label>Tên chủ thẻ</label>
+                                            <input :value="cardHolder" @input="onHolderInput" type="text"
+                                                placeholder="Nhập tên chủ thẻ" style="text-transform:uppercase"
+                                                :class="{ err: errors.holder }" />
+                                            <span v-if="errors.holder" class="mp-field-err">{{ errors.holder }}</span>
+                                        </div>
+                                        <div class="mp-field">
+                                            <label>Số điện thoại <span class="mp-optional-lbl">(tuỳ chọn)</span></label>
+                                            <input :value="cardPhone" @input="onPhoneInput" type="text"
+                                                inputmode="numeric" placeholder="Nhập SĐT" maxlength="10" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -191,7 +186,6 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
                                     🔒 {{ submitting ? 'Đang xử lý...' : 'Thanh Toán' }}
                                 </button>
 
-                                <!-- Ngân hàng — dùng ảnh thật -->
                                 <p class="mp-banks-title">Ngân hàng chấp nhận thanh toán</p>
                                 <div class="mp-banks-grid">
                                     <div v-for="bank in BANK_LIST" :key="bank.code" class="mp-bank" :title="bank.name">
@@ -199,7 +193,6 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
                                         <span class="mp-bank-name">{{ bank.name }}</span>
                                     </div>
                                 </div>
-                                <p class="mp-banks-toggle">Thu gọn ▲</p>
 
                                 <div class="mp-atm-back">
                                     <button class="mp-back-link" @click="backToMethod">← Chọn phương thức khác</button>
@@ -229,7 +222,8 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
                                 <div class="mp-timeout">
                                     <div class="mp-timeout-ico">⏰</div>
                                     <h2 class="mp-timeout-title">Đơn hàng đã hết hạn</h2>
-                                    <p class="mp-timeout-desc">Thời gian thanh toán đã kết thúc.<br />Vui lòng tạo lại đơn hàng.</p>
+                                    <p class="mp-timeout-desc">Thời gian thanh toán đã kết thúc.<br />Vui lòng tạo lại
+                                        đơn hàng.</p>
                                     <button class="mp-timeout-btn" @click="resetSession">Thử lại</button>
                                 </div>
                             </template>
@@ -241,8 +235,3 @@ const amountFmt = computed(() => props.amount.toLocaleString('vi-VN') + 'đ')
         </transition>
     </teleport>
 </template>
-
-<style>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-</style>

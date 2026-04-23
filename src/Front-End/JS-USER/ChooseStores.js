@@ -26,16 +26,11 @@ async function reverseGeocode(lat, lng) {
     }
 }
 
-function isOpenNow(openHour = 8, closeHour = 22) {
-    const now = new Date();
-    const total = now.getHours() * 60 + now.getMinutes();
-    return total >= openHour * 60 && total < closeHour * 60;
-}
-
 export default {
     name: "ChooseStores",
     data() {
         return {
+            nowTick: Date.now(),      // trigger reactive cho computed, cập nhật mỗi phút
             locationText: "",
             locating: false,
             query: "",
@@ -45,7 +40,6 @@ export default {
             logoUrl: dripLabLogo,
             _toastTimer: null,
             _clockTimer: null,
-            openStatus: {},
             userLat: null,
             userLng: null,
             stores: [
@@ -55,7 +49,7 @@ export default {
                     address: "191 Bà Triệu, Lê Đại Hành, Hai Bà Trưng, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0134, lng: 105.8497,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-th",
@@ -63,7 +57,7 @@ export default {
                     address: "Tòa nhà Viet Tower, 1 Thái Hà, Trung Liệt, Đống Đa, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0197, lng: 105.8363,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-cg",
@@ -71,7 +65,7 @@ export default {
                     address: "241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0380, lng: 105.7846,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-tx",
@@ -79,7 +73,7 @@ export default {
                     address: "Khu Dân cư Hoàng Văn Thụ, Dương Nội, Hà Đông, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 20.9812, lng: 105.7469,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-lb",
@@ -87,7 +81,7 @@ export default {
                     address: "27 Cổ Linh, Long Biên, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0486, lng: 105.9001,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-hd",
@@ -95,7 +89,7 @@ export default {
                     address: "27 Xuân Diệu, Tây Hồ, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0612, lng: 105.8382,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
                 {
                     id: "hn-gl",
@@ -103,13 +97,15 @@ export default {
                     address: "Khu đô thị Vinhomes Ocean Park, Đa Tốn, Gia Lâm, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 20.9893, lng: 105.9451,
-                    openHour: 8, closeHour: 22,
+                    openTime: "08:00", closeTime: "22:00",
                 },
             ],
         };
     },
     computed: {
         filteredStores() {
+            this.nowTick; // đọc để Vue track dependency → tự re-compute mỗi phút
+
             const q = String(this.query || "").trim().toLowerCase();
             let list = q
                 ? this.stores.filter((s) =>
@@ -117,27 +113,45 @@ export default {
                   )
                 : [...this.stores];
 
-            // Sắp xếp gần nhất lên đầu nếu đã có vị trí
             if (this.userLat !== null) {
                 list.sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999));
             }
 
             return list.map((s) => ({
                 ...s,
-                isOpen: this.openStatus[s.id] ?? false,
+                isOpen: this.isOpenNow(s.openTime, s.closeTime),
+                isClosingSoon: this.isClosingSoon(s.openTime, s.closeTime),
             }));
         },
     },
     mounted() {
-        this._updateStatus();
-        this._clockTimer = setInterval(() => this._updateStatus(), 30_000);
+        // Cập nhật nowTick mỗi phút → computed tự re-run
+        this._clockTimer = setInterval(() => {
+            this.nowTick = Date.now();
+        }, 60_000);
     },
     beforeUnmount() {
         if (this._toastTimer) window.clearTimeout(this._toastTimer);
         if (this._clockTimer) window.clearInterval(this._clockTimer);
     },
     methods: {
-        // ── GPS: lấy vị trí thật của khách ──────────────────────────────────
+        isOpenNow(openTime, closeTime) {
+            const now = new Date();
+            const current = now.getHours() * 60 + now.getMinutes();
+            const [oh, om] = openTime.split(":").map(Number);
+            const [ch, cm] = closeTime.split(":").map(Number);
+            return current >= oh * 60 + om && current < ch * 60 + cm;
+        },
+
+        isClosingSoon(openTime, closeTime) {
+            const now = new Date();
+            const current = now.getHours() * 60 + now.getMinutes();
+            const [ch, cm] = closeTime.split(":").map(Number);
+            const close = ch * 60 + cm;
+            const diff = close - current;
+            return diff <= 30 && diff > 0;
+        },
+
         detectLocation() {
             if (!navigator.geolocation) {
                 this.showToast("Trình duyệt không hỗ trợ GPS");
@@ -149,7 +163,6 @@ export default {
                     this.userLat = pos.coords.latitude;
                     this.userLng = pos.coords.longitude;
                     this._recalcDistances();
-                    // Lấy tên địa chỉ từ OpenStreetMap (miễn phí, không cần key)
                     this.locationText = await reverseGeocode(this.userLat, this.userLng);
                     this.locating = false;
                 },
@@ -166,7 +179,6 @@ export default {
             );
         },
 
-        // Tính lại khoảng cách tất cả cửa hàng từ vị trí khách
         _recalcDistances() {
             if (this.userLat == null) return;
             this.stores = this.stores.map((s) => ({
@@ -177,20 +189,13 @@ export default {
             }));
         },
 
-        _updateStatus() {
-            const status = {};
-            this.stores.forEach((s) => {
-                status[s.id] = isOpenNow(s.openHour, s.closeHour);
-            });
-            this.openStatus = status;
-        },
-
         toKm(value) {
             if (value == null) return "— km";
             const n = Number(value);
             if (Number.isFinite(n)) return `${n.toFixed(2)} km`;
             return "—";
         },
+
         showToast(message) {
             this.toastMessage = message;
             if (this._toastTimer) window.clearTimeout(this._toastTimer);
@@ -199,13 +204,14 @@ export default {
                 this._toastTimer = null;
             }, 2200);
         },
+
         clearLocation() {
             this.locationText = "";
             this.userLat = null;
             this.userLng = null;
-            // Reset khoảng cách về null
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
         },
+
         selectStore(store) {
             if (!store.isOpen) {
                 this.showClosedModal = true;

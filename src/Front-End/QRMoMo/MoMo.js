@@ -1,9 +1,12 @@
 // src/Front-End/QRMoMo/MoMo.js
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 
 function getBankImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
+
+/* ── Ảnh thẻ ngân hàng nền ── */
+export const CARD_BG_IMG = new URL('../IMG/THENGANHANG.png', import.meta.url).href
 
 /* ── Chỉ giữ ngân hàng có ảnh thật ── */
 export const BANK_LIST = [
@@ -63,17 +66,6 @@ export function useMomoPayment(props, emit) {
         }, 1000)
     }
 
-    function resetSession() {
-        clearInterval(timerRef)
-        secsRemain.value = TOTAL_SEC
-        orderId.value    = genOrderId()
-        screen.value     = 'method'
-        resetForm()
-        startTimer()
-    }
-
-    onUnmounted(() => clearInterval(timerRef))
-
     /* ── ATM Form state ── */
     const cardNumber = ref('')
     const cardExpiry = ref('')
@@ -82,6 +74,43 @@ export function useMomoPayment(props, emit) {
     const errors     = ref({ number: '', expiry: '', holder: '' })
     const submitting = ref(false)
 
+    function resetForm() {
+        cardNumber.value = ''
+        cardExpiry.value = ''
+        cardHolder.value = ''
+        cardPhone.value  = ''
+        errors.value     = { number: '', expiry: '', holder: '' }
+        submitting.value = false
+    }
+
+    // FIX: Hàm reset toàn bộ session — gọi mỗi khi popup được mở lại
+    function resetSession() {
+        clearInterval(timerRef)
+        secsRemain.value = TOTAL_SEC
+        orderId.value    = genOrderId()
+        screen.value     = 'method'       // ← luôn về màn chọn phương thức
+        resetForm()
+        startTimer()
+    }
+
+    // FIX: Watch prop visible — mỗi lần visible chuyển thành true thì reset toàn bộ
+    // Điều này đảm bảo lần mở thứ 2, thứ 3... luôn bắt đầu sạch từ đầu
+    watch(
+        () => props.visible,
+        (newVal) => {
+            if (newVal === true) {
+                resetSession()
+            } else {
+                // Khi đóng popup: dừng timer, không reset state ngay
+                // (để tránh flicker khi transition đóng)
+                clearInterval(timerRef)
+            }
+        }
+    )
+
+    onUnmounted(() => clearInterval(timerRef))
+
+    /* Hiển thị số thẻ đầy đủ (có khoảng cách nhóm 4) — không che */
     const cardNumDisplay = computed(() => {
         const raw = cardNumber.value
         const groups = []
@@ -89,11 +118,14 @@ export function useMomoPayment(props, emit) {
         return groups.join(' ')
     })
 
+    /* Số thẻ hiển thị trên hình thẻ — đầy đủ, không che */
     const cardVisualNum = computed(() => {
-        const raw = cardNumber.value.padEnd(16, '')
-        const g2 = raw.slice(8, 12) || '••••'
-        const g3 = raw.slice(12, 16) || '••••'
-        return `•••• •••• ${g2} ${g3}`
+        const raw = cardNumber.value
+        if (!raw) return '•••• •••• •••• ••••'
+        const groups = []
+        const padded = raw.padEnd(16, '•')
+        for (let i = 0; i < 16; i += 4) groups.push(padded.slice(i, i + 4))
+        return groups.join(' ')
     })
 
     /* ── Input handlers ── */
@@ -160,15 +192,6 @@ export function useMomoPayment(props, emit) {
         return ok
     }
 
-    function resetForm() {
-        cardNumber.value = ''
-        cardExpiry.value = ''
-        cardHolder.value = ''
-        cardPhone.value  = ''
-        errors.value     = { number: '', expiry: '', holder: '' }
-        submitting.value = false
-    }
-
     /* ── Submit ── */
     async function submitPayment() {
         if (!validate()) return
@@ -209,7 +232,11 @@ export function useMomoPayment(props, emit) {
     function backToMethod() { screen.value = 'method'; resetForm() }
     function handleClose()  { clearInterval(timerRef); emit('close') }
 
-    startTimer()
+    // Không gọi startTimer() ở đây nữa vì watch(visible) sẽ lo
+    // Nhưng nếu visible ban đầu là true thì cần khởi động ngay
+    if (props.visible) {
+        startTimer()
+    }
 
     return {
         screen, orderId,
@@ -220,5 +247,6 @@ export function useMomoPayment(props, emit) {
         onNumberInput, onExpiryInput, onHolderInput, onPhoneInput,
         submitPayment, goToAtm, backToMethod, handleClose, resetSession,
         BANK_LIST,
+        CARD_BG_IMG,
     }
 }

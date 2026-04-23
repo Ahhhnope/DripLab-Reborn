@@ -23,7 +23,8 @@
 
   font-family: 'Be Vietnam Pro', sans-serif;
   width: 100%;
-  height: 100vh;   /* Dùng 100vh thay vì 100% để chắc chắn có chiều cao */
+  height: 100vh;
+  /* Dùng 100vh thay vì 100% để chắc chắn có chiều cao */
   overflow: hidden;
   display: block;
   box-sizing: border-box;
@@ -869,7 +870,8 @@
   border-left: 2px solid var(--cream-dark);
   display: flex;
   flex-direction: column;
-  height: 100vh;       /* Luôn chiếm đúng chiều cao viewport */
+  height: 100vh;
+  /* Luôn chiếm đúng chiều cao viewport */
   overflow: hidden;
   flex-shrink: 0;
   outline: none;
@@ -882,7 +884,7 @@
   font-weight: 800;
   text-align: center;
   padding: 0 21px;
-  height: 60px;          
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -893,7 +895,8 @@
 .right-customer-block {
   border-bottom: 1.5px solid var(--cream-dark);
   padding: 10px 14px;
-  flex-shrink: 0;  /* Phần khách hàng cố định, không co */
+  flex-shrink: 0;
+  /* Phần khách hàng cố định, không co */
 }
 
 .right-sub-title {
@@ -949,12 +952,15 @@
 
 /* FIX: Sản phẩm mua — scroll dọc độc lập, chiếm toàn bộ không gian còn lại */
 .right-products-block {
-  flex: 1;           /* Chiếm hết không gian còn lại giữa customer block và footer */
-  overflow-y: auto;  /* Chỉ phần này scroll dọc */
+  flex: 1;
+  /* Chiếm hết không gian còn lại giữa customer block và footer */
+  overflow-y: auto;
+  /* Chỉ phần này scroll dọc */
   overflow-x: hidden;
   padding: 8px 10px;
   border-bottom: 1.5px solid var(--cream-dark);
-  min-height: 0;     /* Quan trọng để flex hoạt động đúng */
+  min-height: 0;
+  /* Quan trọng để flex hoạt động đúng */
 }
 
 .right-products-block::-webkit-scrollbar {
@@ -2315,14 +2321,17 @@
 .badge-remove {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 11px;
   cursor: pointer;
   padding: 0;
   line-height: 1;
   transition: color 0.15s;
 }
-.badge-remove:hover { color: #fff; }
+
+.badge-remove:hover {
+  color: #fff;
+}
 
 /* ── Nhập tên/SĐT tại popup thanh toán ── */
 .pay-customer-section {
@@ -2378,8 +2387,13 @@
   transition: border-color 0.2s;
 }
 
-.pay-input:focus { border-color: var(--brown-light); }
-.pay-input.error { border-color: var(--red); }
+.pay-input:focus {
+  border-color: var(--brown-light);
+}
+
+.pay-input.error {
+  border-color: var(--red);
+}
 
 .pay-field-err {
   font-size: 11px;
@@ -2392,4 +2406,21 @@
   color: var(--gray);
   font-style: italic;
   line-height: 1.4;
+}
+
+
+.pay-anon-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--brown);
+}
+
+.pay-anon-code {
+  background: var(--brown-dark);
+  color: var(--white);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
