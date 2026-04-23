@@ -3008,3 +3008,8 @@
   .ud-step__label { font-size: 10px; }
   .ud-step__circle { width: 42px; height: 42px; }
 }
+
+.ud-status-badge{
+  color: red;
+  background-color: rgb(82, 36, 9);
+}
