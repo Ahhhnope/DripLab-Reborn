@@ -30,7 +30,7 @@ export default {
     name: "ChooseStores",
     data() {
         return {
-            nowTick: Date.now(),      // trigger reactive cho computed, cập nhật mỗi phút
+            nowTick: Date.now(),
             locationText: "",
             locating: false,
             query: "",
@@ -45,6 +45,7 @@ export default {
             stores: [
                 {
                     id: "hn-hk",
+                    db_id: 1,                          // ID tương ứng trong bảng stores (SQL)
                     code: "Drip Lab-Vincom Bà Triệu",
                     address: "191 Bà Triệu, Lê Đại Hành, Hai Bà Trưng, Hà Nội, Vietnam",
                     distanceKm: null,
@@ -53,6 +54,7 @@ export default {
                 },
                 {
                     id: "hn-th",
+                    db_id: 2,
                     code: "Drip Lab-Thái Hà",
                     address: "Tòa nhà Viet Tower, 1 Thái Hà, Trung Liệt, Đống Đa, Hà Nội, Vietnam",
                     distanceKm: null,
@@ -61,6 +63,7 @@ export default {
                 },
                 {
                     id: "hn-cg",
+                    db_id: 3,
                     code: "Drip Lab-Indochina Plaza",
                     address: "241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam",
                     distanceKm: null,
@@ -69,6 +72,7 @@ export default {
                 },
                 {
                     id: "hn-tx",
+                    db_id: 4,
                     code: "Drip Lab-Aeon Mall Hà Đông",
                     address: "Khu Dân cư Hoàng Văn Thụ, Dương Nội, Hà Đông, Hà Nội, Vietnam",
                     distanceKm: null,
@@ -77,26 +81,11 @@ export default {
                 },
                 {
                     id: "hn-lb",
+                    db_id: 5,
                     code: "Drip Lab-Aeon Mall Long Biên",
                     address: "27 Cổ Linh, Long Biên, Hà Nội, Vietnam",
                     distanceKm: null,
                     lat: 21.0486, lng: 105.9001,
-                    openTime: "08:00", closeTime: "22:00",
-                },
-                {
-                    id: "hn-hd",
-                    code: "Drip Lab-Xuân Diệu",
-                    address: "27 Xuân Diệu, Tây Hồ, Hà Nội, Vietnam",
-                    distanceKm: null,
-                    lat: 21.0612, lng: 105.8382,
-                    openTime: "08:00", closeTime: "22:00",
-                },
-                {
-                    id: "hn-gl",
-                    code: "Drip Lab-Ocean Park",
-                    address: "Khu đô thị Vinhomes Ocean Park, Đa Tốn, Gia Lâm, Hà Nội, Vietnam",
-                    distanceKm: null,
-                    lat: 20.9893, lng: 105.9451,
                     openTime: "08:00", closeTime: "22:00",
                 },
             ],
@@ -104,7 +93,7 @@ export default {
     },
     computed: {
         filteredStores() {
-            this.nowTick; // đọc để Vue track dependency → tự re-compute mỗi phút
+            this.nowTick;
 
             const q = String(this.query || "").trim().toLowerCase();
             let list = q
@@ -125,7 +114,6 @@ export default {
         },
     },
     mounted() {
-        // Cập nhật nowTick mỗi phút → computed tự re-run
         this._clockTimer = setInterval(() => {
             this.nowTick = Date.now();
         }, 60_000);
@@ -220,7 +208,9 @@ export default {
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
             sessionStorage.setItem("selectedStore", JSON.stringify(store));
-            this.$router.push({ path: "/homepage" });
+
+            // Navigate sang trang chi tiết cửa hàng, truyền db_id qua query param
+            this.$router.push({ path: "/stores", query: { id: store.db_id } });
         },
     },
 };

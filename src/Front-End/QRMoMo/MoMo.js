@@ -10,23 +10,23 @@ export const CARD_BG_IMG = new URL('../IMG/THENGANHANG.png', import.meta.url).hr
 
 /* ── Chỉ giữ ngân hàng có ảnh thật ── */
 export const BANK_LIST = [
-    { code: 'VCB',  name: 'Vietcombank',  img: getBankImg('Vietcombank.jpg') },
-    { code: 'VIB',  name: 'VIB Bank',     img: getBankImg('VIB.png') },
-    { code: 'MBB',  name: 'MBBank',       img: getBankImg('MBBANK.jpg') },
-    { code: 'CTG',  name: 'VietinBank',   img: getBankImg('VietTinBank.png') },
-    { code: 'TPB',  name: 'TPBank',       img: getBankImg('TPBank.jpg') },
-    { code: 'HDB',  name: 'HDBank',       img: getBankImg('HDBank.jpg') },
-    { code: 'TCB',  name: 'Techcombank',  img: getBankImg('techcombank.png') },
-    { code: 'SCM',  name: 'Sacombank',    img: getBankImg('SacomBank.png') },
-    { code: 'OCB',  name: 'OCB',          img: getBankImg('OCB.jpg') },
-    { code: 'ACB',  name: 'ACB',          img: getBankImg('ACB.png') },
-    { code: 'AGR',  name: 'Agribank',     img: getBankImg('Agribank.jpg') },
-    { code: 'VPB',  name: 'VPBank',       img: getBankImg('VPBank.jpg') },
-    { code: 'IND',  name: 'Indovina',     img: getBankImg('Indovia.png') },
-    { code: 'GPB',  name: 'GPBank',       img: getBankImg('GPBank.jpg') },
-    { code: 'OCN',  name: 'OceanBank',    img: getBankImg('OceanBank.png') },
-    { code: 'VCR',  name: 'VietCredit',   img: getBankImg('VietCredit.png') },
-    { code: 'KLB',  name: 'KienLongBank', img: getBankImg('KienLongBank.jpg') },
+    { code: 'VCB', name: 'Vietcombank', img: getBankImg('Vietcombank.jpg') },
+    { code: 'VIB', name: 'VIB Bank', img: getBankImg('VIB.png') },
+    { code: 'MBB', name: 'MBBank', img: getBankImg('MBBANK.jpg') },
+    { code: 'CTG', name: 'VietinBank', img: getBankImg('VietTinBank.png') },
+    { code: 'TPB', name: 'TPBank', img: getBankImg('TPBank.jpg') },
+    { code: 'HDB', name: 'HDBank', img: getBankImg('HDBank.jpg') },
+    { code: 'TCB', name: 'Techcombank', img: getBankImg('techcombank.png') },
+    { code: 'SCM', name: 'Sacombank', img: getBankImg('SacomBank.png') },
+    { code: 'OCB', name: 'OCB', img: getBankImg('OCB.jpg') },
+    { code: 'ACB', name: 'ACB', img: getBankImg('ACB.png') },
+    { code: 'AGR', name: 'Agribank', img: getBankImg('Agribank.jpg') },
+    { code: 'VPB', name: 'VPBank', img: getBankImg('VPBank.jpg') },
+    { code: 'IND', name: 'Indovina', img: getBankImg('Indovia.png') },
+    { code: 'GPB', name: 'GPBank', img: getBankImg('GPBank.jpg') },
+    { code: 'OCN', name: 'OceanBank', img: getBankImg('OceanBank.png') },
+    { code: 'VCR', name: 'VietCredit', img: getBankImg('VietCredit.png') },
+    { code: 'KLB', name: 'KienLongBank', img: getBankImg('KienLongBank.jpg') },
 ]
 
 /* ── Sinh mã đơn hàng ── */
@@ -40,13 +40,13 @@ export function genOrderId() {
 export function useMomoPayment(props, emit) {
 
     // Screens: 'method' | 'atm' | 'success' | 'timeout'
-    const screen  = ref('method')
+    const screen = ref('method')
     const orderId = ref(genOrderId())
 
     /* ── Countdown: 1h 40m = 6000 giây ── */
-    const TOTAL_SEC  = 6000
+    const TOTAL_SEC = 6000
     const secsRemain = ref(TOTAL_SEC)
-    let   timerRef   = null
+    let timerRef = null
 
     const hh = computed(() => String(Math.floor(secsRemain.value / 3600)).padStart(2, '0'))
     const mm = computed(() => String(Math.floor((secsRemain.value % 3600) / 60)).padStart(2, '0'))
@@ -70,16 +70,16 @@ export function useMomoPayment(props, emit) {
     const cardNumber = ref('')
     const cardExpiry = ref('')
     const cardHolder = ref('')
-    const cardPhone  = ref('')
-    const errors     = ref({ number: '', expiry: '', holder: '' })
+    const cardPhone = ref('')
+    const errors = ref({ number: '', expiry: '', holder: '' })
     const submitting = ref(false)
 
     function resetForm() {
         cardNumber.value = ''
         cardExpiry.value = ''
         cardHolder.value = ''
-        cardPhone.value  = ''
-        errors.value     = { number: '', expiry: '', holder: '' }
+        cardPhone.value = ''
+        errors.value = { number: '', expiry: '', holder: '' }
         submitting.value = false
     }
 
@@ -87,14 +87,12 @@ export function useMomoPayment(props, emit) {
     function resetSession() {
         clearInterval(timerRef)
         secsRemain.value = TOTAL_SEC
-        orderId.value    = genOrderId()
-        screen.value     = 'method'       // ← luôn về màn chọn phương thức
+        orderId.value = genOrderId()
+        screen.value = 'method'       // ← luôn về màn chọn phương thức
         resetForm()
         startTimer()
     }
 
-    // FIX: Watch prop visible — mỗi lần visible chuyển thành true thì reset toàn bộ
-    // Điều này đảm bảo lần mở thứ 2, thứ 3... luôn bắt đầu sạch từ đầu
     watch(
         () => props.visible,
         (newVal) => {
@@ -141,8 +139,8 @@ export function useMomoPayment(props, emit) {
             val = val + '/'
         }
         if (val.length > 5) val = val.slice(0, 5)
-        cardExpiry.value    = val
-        e.target.value      = val
+        cardExpiry.value = val
+        e.target.value = val
         errors.value.expiry = ''
     }
 
@@ -156,15 +154,15 @@ export function useMomoPayment(props, emit) {
             .replace(/[ÌÍỊỈĨ]/g, 'I').replace(/[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]/g, 'O')
             .replace(/[ÙÚỤỦŨƯỪỨỰỬỮ]/g, 'U').replace(/[ỲÝỴỶỸ]/g, 'Y').replace(/[Đ]/g, 'D')
             .toUpperCase().replace(/[^A-Z\s]/g, '')
-        cardHolder.value    = val
-        e.target.value      = val
+        cardHolder.value = val
+        e.target.value = val
         errors.value.holder = ''
     }
 
     function onPhoneInput(e) {
         let val = e.target.value.replace(/\D/g, '').slice(0, 10)
         cardPhone.value = val
-        e.target.value  = val
+        e.target.value = val
     }
 
     /* ── Validation ── */
@@ -202,13 +200,13 @@ export function useMomoPayment(props, emit) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    orderId:    orderId.value,
-                    amount:     props.amount,
+                    orderId: orderId.value,
+                    amount: props.amount,
                     cardNumber: cardNumber.value,
                     cardExpiry: cardExpiry.value,
                     cardHolder: cardHolder.value.trim(),
-                    cardPhone:  cardPhone.value || null,
-                    orderInfo:  props.orderInfo,
+                    cardPhone: cardPhone.value || null,
+                    orderInfo: props.orderInfo,
                 }),
             })
             const data = await res.json()
@@ -228,12 +226,10 @@ export function useMomoPayment(props, emit) {
     }
 
     /* ── Navigation ── */
-    function goToAtm()      { screen.value = 'atm' }
+    function goToAtm() { screen.value = 'atm' }
     function backToMethod() { screen.value = 'method'; resetForm() }
-    function handleClose()  { clearInterval(timerRef); emit('close') }
+    function handleClose() { clearInterval(timerRef); emit('close') }
 
-    // Không gọi startTimer() ở đây nữa vì watch(visible) sẽ lo
-    // Nhưng nếu visible ban đầu là true thì cần khởi động ngay
     if (props.visible) {
         startTimer()
     }

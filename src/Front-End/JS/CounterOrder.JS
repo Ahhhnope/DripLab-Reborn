@@ -1,4 +1,3 @@
-// src/Front-End/JS/CounterOrder.JS
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import api from '../../api/axios.js'
 
@@ -164,13 +163,7 @@ export function useCounterOrder() {
     const searchText = ref('')
 
     const allProducts = ref([
-        // { id: 1, name: 'Bạc xỉu kem xốp',  image: getImg('bacxiukemxop.jpg'), price: 40000 },
-        // { id: 2, name: 'Cà phê phin đen',   image: getImg('cfphin.jpg'),       price: 29000 },
-        // { id: 3, name: 'Cà phê phin nâu',   image: getImg('cfphinnau.png'),    price: 29000 },
-        // { id: 4, name: 'Cafee latte',        image: getImg('cflatte.jpg'),      price: 60000 },
-        // { id: 5, name: 'Capuchino',          image: getImg('capu.jpg'),         price: 35000 },
-        // { id: 6, name: 'Geisha',             image: getImg('geisha.jpg'),       price: 35000 },
-        // { id: 7, name: 'Hồng trà sữa',      image: getImg('tsua.png'),         price: 35000 },
+       
     ])
     const products = ref([])
 
@@ -425,14 +418,7 @@ export function useCounterOrder() {
     const popupStateCache = ref({})
 
     const toppingList = ref([
-        // { id: 1, name: 'Trân châu đen',   price: 5000 },
-        // { id: 2, name: 'Thạch cà phê',    price: 5000 },
-        // { id: 3, name: 'Kem cheese',       price: 8000 },
-        // { id: 4, name: 'Pudding trứng',    price: 8000 },
-        // { id: 5, name: 'Kem béo',          price: 6000 },
-        // { id: 6, name: 'Kem cheese đặc',   price: 10000 },
-        // { id: 7, name: 'Machiato',         price: 5000 },
-        // { id: 8, name: 'Whipping cream',   price: 8000 },
+     
     ])
     const iceOptions   = ['0%', '30%', '50%', '70%', '100%']
     const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
