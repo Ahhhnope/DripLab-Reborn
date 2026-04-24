@@ -6,9 +6,9 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="auth.user?.avatar" alt="Ảnh đại diện" class="avatar-img" />
+            <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
-          <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
+          <h2 class="sidebar-name">{{ user.name }}</h2>
           <p class="sidebar-role">Thành viên cao cấp</p>
         </div>
         <nav class="sidebar-nav">
@@ -467,9 +467,6 @@
 <script setup>
 import { computed } from 'vue'
 import { useUserOrders } from '../JS-USER/UserOrders.JS'
-import { useAuthStore } from '../Authorization/Auth'
-
-const auth = useAuthStore()
 
 const {
   user, navItems, currentRoute,
@@ -488,19 +485,24 @@ const {
 
 // ── Tabs ─────────────────────────────────────────────────
 const STATUS_TABS = [
-  { label: 'Tất cả',          value: ''           },
-  { label: 'Chờ xác nhận',    value: 'pending'    },
-  { label: 'Đang xử lý',      value: 'processing' },
-  { label: 'Đang vận chuyển', value: 'shipping'   },
-  { label: 'Đã giao',         value: 'delivered'  },
-  { label: 'Đã huỷ',          value: 'cancelled'  },
+  { label: 'Tất cả',                    value: ''           },
+  { label: 'Chờ xác nhận',              value: 'pending'    },
+  { label: 'Đang xử lý',                value: 'processing' },
+  { label: 'Đang vận chuyển',           value: 'shipping'   },
+  { label: 'Đã giao',                   value: 'delivered'  },
+  { label: 'Không thành công',          value: 'failed'     },
+  { label: 'Đã huỷ',                    value: 'cancelled'  },
 ]
 
 // ── Labels ───────────────────────────────────────────────
 function statusLabel(s) {
   return {
-    pending: 'Chờ xác nhận', processing: 'Đang xử lý',
-    shipping: 'Đang vận chuyển', delivered: 'Đã giao', cancelled: 'Đã huỷ',
+    pending:    'Chờ xác nhận',
+    processing: 'Đang xử lý',
+    shipping:   'Đang vận chuyển',
+    delivered:  'Đã giao',
+    failed:     'Giao hàng không thành công',
+    cancelled:  'Đã huỷ',
   }[s] ?? s
 }
 
@@ -511,21 +513,26 @@ function formatPrice(val) {
 
 // ── Timeline steps (dùng logic giống admin) ──────────────
 const ALL_STEPS = [
-  { key: 'pending',    label: 'Chờ xác nhận',    icon: 'doc'   },
-  { key: 'processing', label: 'Đang xử lý',      icon: 'gear'  },
-  { key: 'shipping',   label: 'Đang vận chuyển', icon: 'truck' },
-  { key: 'delivered',  label: 'Đã giao',         icon: 'home'  },
-  { key: 'cancelled',  label: 'Đã huỷ',          icon: 'x'     },
+  { key: 'pending',    label: 'Chờ xác nhận',              icon: 'doc'   },
+  { key: 'processing', label: 'Đang xử lý',                icon: 'gear'  },
+  { key: 'shipping',   label: 'Đang vận chuyển',           icon: 'truck' },
+  { key: 'delivered',  label: 'Đã giao',                   icon: 'home'  },
+  { key: 'failed',     label: 'Giao không thành công',     icon: 'x'     },
+  { key: 'cancelled',  label: 'Đã huỷ',                    icon: 'x'     },
 ]
 
 function getVisibleSteps(status) {
   if (status === 'delivered') {
     return ALL_STEPS.filter(s => ['pending','processing','shipping','delivered'].includes(s.key))
   }
+  if (status === 'failed') {
+    return ALL_STEPS.filter(s => ['pending','processing','shipping','failed'].includes(s.key))
+  }
   if (status === 'cancelled') {
     return ALL_STEPS.filter(s => ['pending','processing','cancelled'].includes(s.key))
   }
-  return ALL_STEPS.filter(s => s.key !== 'cancelled')
+  // pending / processing / shipping → hiện full (trừ cancelled và failed)
+  return ALL_STEPS.filter(s => !['cancelled','failed'].includes(s.key))
 }
 
 function getStepClass(step, currentStatus) {

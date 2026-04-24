@@ -1555,6 +1555,7 @@
 .order-status-dot.shipping   { background: #8b5cf6; }
 .order-status-dot.delivered  { background: #10b981; }
 .order-status-dot.cancelled  { background: #ef4444; }
+.order-status-dot.failed     { background: #f97316; }
 
 .order-code {
   font-size: 13px;
@@ -1597,6 +1598,7 @@
 .status-badge.processing { background: #dbeafe; color: #1d4ed8; }
 .status-badge.shipping   { background: #ede9fe; color: #6d28d9; }
 .status-badge.delivered  { background: #dcfce7; color: #15803d; }
+.status-badge.failed     { background: #fff7ed; color: #9a3412; }
 .status-badge.cancelled  { background: #fee2e2; color: #dc2626; }
 
 /* Nút hành động */
@@ -2417,6 +2419,7 @@
 .ud-status-badge--shipping   { background: #e0e7ff; color: #3730a3; border-color: #a5b4fc; }
 .ud-status-badge--delivered  { background: #dcfce7; color: #166534; border-color: #86efac; }
 .ud-status-badge--cancelled  { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+.ud-status-badge--failed     { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
 
 /* Body */
 .ud-body {
@@ -2574,7 +2577,6 @@
 }
 
 /* Sections */
-
 
 .ud-section__header {
   display: flex;
@@ -3007,9 +3009,4 @@
   .ud-col-left { border-right: none; padding-right: 0; border-bottom: 1px solid #f1efe8; padding-bottom: 16px; }
   .ud-step__label { font-size: 10px; }
   .ud-step__circle { width: 42px; height: 42px; }
-}
-
-.ud-status-badge{
-  color: red;
-  background-color: rgb(82, 36, 9);
 }

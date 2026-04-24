@@ -22,11 +22,12 @@ export function useUserOrders() {
 
   // ── Status ───────────────────────────────────────────────
   const STATUS_MAP = {
-    'Chờ xác nhận':    'pending',
-    'Đang xử lý':      'processing',
-    'Đang vận chuyển': 'shipping',
-    'Đã giao':         'delivered',
-    'Đã huỷ':          'cancelled',
+    'Chờ xác nhận':                'pending',
+    'Đang xử lý':                  'processing',
+    'Đang vận chuyển':             'shipping',
+    'Đã giao':                     'delivered',
+    'Giao hàng không thành công':  'failed',
+    'Đã huỷ':                      'cancelled',
   }
 
   function mapStatus(s) {
@@ -295,10 +296,7 @@ export function useUserOrders() {
   async function doCancel() {
     if (!cancelTarget.value) return
     try {
-      await api.put(`/orders/user/cancel/${cancelTarget.value.id}`, { 
-        status: 'Đã huỷ',
-        note: cancelTarget.value.note || ''
-      })
+      await api.put(`/orders/${cancelTarget.value.id}/status`, { status: 'Đã huỷ' })
       const t = allOrders.value.find(o => o.id === cancelTarget.value.id)
       if (t) t.status = 'cancelled'
     } catch (err) {
@@ -318,7 +316,7 @@ export function useUserOrders() {
   let timer = null
   onMounted(() => {
     fetchAllOrders()
-    timer = setInterval(fetchAllOrders, 5000)
+    timer = setInterval(fetchAllOrders, 15_000)
   })
   onUnmounted(() => { if (timer) clearInterval(timer) })
 
