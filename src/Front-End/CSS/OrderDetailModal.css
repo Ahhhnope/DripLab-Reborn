@@ -102,7 +102,7 @@
   border-color: #fca5a5;
 }
 
-/* ── CONFIRM MODAL (đẹp như mẫu) ───────────────────── */
+/* ── CONFIRM MODAL ────────────────────────────────── */
 .confirm-backdrop {
   position: fixed;
   inset: 0;
@@ -147,6 +147,12 @@
   box-shadow: 0 12px 26px rgba(60, 42, 33, 0.12);
 }
 
+/* Icon nguy hiểm (huỷ / giao thất bại) */
+.confirm-icon__inner--danger {
+  color: #b91c1c;
+  box-shadow: 0 12px 26px rgba(185, 28, 28, 0.12);
+}
+
 .confirm-title {
   margin: 0;
   font-size: 28px;
@@ -163,6 +169,59 @@
   color: #64748b;
 }
 
+/* ── TEXTAREA LÝ DO ───────────────────────────────── */
+.confirm-reason {
+  text-align: left;
+  margin: 0 0 20px;
+}
+
+.confirm-reason__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 7px;
+}
+
+.confirm-reason__required {
+  color: #b91c1c;
+  margin-left: 2px;
+}
+
+.confirm-reason__input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: none;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  color: #3c2a21;
+  background: #faf9f7;
+  transition: border-color 0.15s;
+}
+
+.confirm-reason__input:focus {
+  outline: none;
+  border-color: #3c2a21;
+}
+
+.confirm-reason__input::placeholder {
+  color: #c4bfb8;
+}
+
+.confirm-reason__hint {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+/* ── CONFIRM ACTIONS ──────────────────────────────── */
 .confirm-actions {
   display: flex;
   gap: 12px;
@@ -192,8 +251,13 @@
   box-shadow: 0 14px 30px rgba(60, 42, 33, 0.25);
 }
 
-.confirm-btn--primary:hover {
+.confirm-btn--primary:hover:not(:disabled) {
   filter: brightness(1.05);
+}
+
+.confirm-btn--primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .confirm-btn--ghost {
@@ -250,7 +314,7 @@
   }
 }
 
-/* ── TIMELINE ───────────────────────── */
+/* ── TIMELINE ─────────────────────────────────────── */
 .status-timeline {
   border: 1px solid #ede9e2;
   background: #fff;
@@ -330,7 +394,7 @@
   border: 3px solid #e5e7eb;
   color: #9ca3af;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .status-step__icon {
@@ -346,7 +410,6 @@
   line-height: 1.3;
 }
 
-/* Trạng thái */
 .status-step.is-done .status-step__circle,
 .status-step.is-current .status-step__circle {
   background: #c2410c;
@@ -377,8 +440,6 @@
   60%  { transform: scale(1.12); }
   100% { transform: scale(1); }
 }
-
-
 
 /* ── LEFT / RIGHT ─────────────────────────────────── */
 .modal-col-left {
@@ -473,6 +534,16 @@
 .info-value--note {
   color: #a8a098;
   font-style: italic;
+}
+
+/* ── GHI CHÚ ──────────────────────────────────────── */
+.note-text {
+  font-size: 13px;
+  color: #3c2a21;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ── QTY BADGE ────────────────────────────────────── */
@@ -598,7 +669,6 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
-/* Xác nhận: mặc định trắng, hover/nhấn đổi sang nâu */
 .btn--primary {
   background: #ffffff;
   color: #3c2a21;
@@ -612,8 +682,6 @@
   background: #2a1d17;
   border-color: #2a1d17;
 }
-
-/* Huỷ: mặc định trắng, hover/nhấn đổi sang đỏ */
 .btn--danger {
   background: #ffffff;
   color: #b91c1c;
@@ -628,7 +696,6 @@
   background: #991b1b;
   border-color: #991b1b;
 }
-
 .btn--ghost {
   background: transparent;
   color: #9c9589;

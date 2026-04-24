@@ -47,7 +47,7 @@
                 <div class="status-timeline__title">Trạng thái đơn hàng hiện tại</div>
 
                 <div class="status-steps">
-                  <!-- Thanh ngang trắng nối tất cả các trạng thái -->
+                  <!-- Thanh ngang nối tất cả các trạng thái -->
                   <div class="status-timeline__connector" :style="{ '--progress': progressWidth }"></div>
 
                   <template v-for="(st, idx) in visibleSteps" :key="st.key">
@@ -59,7 +59,6 @@
                       :title="st.label"
                     >
                       <span class="status-step__circle" aria-hidden="true">
-                        <!-- Icon -->
                         <svg v-if="st.icon === 'doc'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6" />
@@ -92,13 +91,11 @@
                 <div class="status-timeline__hint">Nhấn vào trạng thái để cập nhật (sẽ hỏi xác nhận).</div>
               </div>
 
-              <!-- Phần còn lại giữ nguyên -->
               <div class="modal-grid">
                 <!-- CỘT TRÁI -->
                 <div class="modal-col-left">
-                  <!-- Khách hàng, Thông tin đơn, Chi tiết món... (giữ nguyên như code cũ của bạn) -->
-                  <!-- Tôi rút gọn để ngắn, bạn copy phần này từ code cũ của bạn -->
 
+                  <!-- Thông tin khách hàng -->
                   <section class="info-section">
                     <div class="section-header">
                       <div class="avatar">{{ initials(props.order.customer?.name) }}</div>
@@ -142,6 +139,20 @@
                         <span class="info-label">Ngày giao</span>
                         <span class="info-value">{{ props.order.deadline || "-" }}</span>
                       </div>
+                    </div>
+                  </section>
+
+                  <!-- Ghi chú khách hàng -->
+                  <section class="info-section">
+                    <div class="section-header">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span class="section-title">Ghi chú</span>
+                    </div>
+                    <div class="info-card">
+                      <p v-if="props.order.note" class="note-text">{{ props.order.note }}</p>
+                      <p v-else class="note-text info-value--empty">Không có ghi chú</p>
                     </div>
                   </section>
 
@@ -211,12 +222,38 @@
         <Transition name="confirm-pop">
           <div v-if="confirmOpen" class="confirm-backdrop" @click.self="closeConfirm">
             <div class="confirm-card">
-              <div class="confirm-icon"><span class="confirm-icon__inner">✦</span></div>
+              <div class="confirm-icon">
+                <span class="confirm-icon__inner" :class="{ 'confirm-icon__inner--danger': requiresReason }">
+                  <svg v-if="requiresReason" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  <template v-else>✦</template>
+                </span>
+              </div>
               <h3 class="confirm-title">{{ confirmTitle }}</h3>
               <p class="confirm-desc">{{ confirmDesc }}</p>
+
+              <!-- Textarea lý do: chỉ hiện khi cancelled / failed -->
+              <div v-if="requiresReason" class="confirm-reason">
+                <label class="confirm-reason__label">
+                  Lý do <span class="confirm-reason__required">*</span>
+                </label>
+                <textarea
+                  v-model="cancelReason"
+                  class="confirm-reason__input"
+                  rows="3"
+                  placeholder="Nhập lý do..."
+                ></textarea>
+                <p class="confirm-reason__hint">Lý do sẽ được lưu vào ghi chú của khách hàng.</p>
+              </div>
+
               <div class="confirm-actions">
                 <button class="confirm-btn confirm-btn--ghost" @click="closeConfirm">Huỷ</button>
-                <button class="confirm-btn confirm-btn--primary" @click="confirmProceed">{{ confirmPrimaryText }}</button>
+                <button
+                  class="confirm-btn confirm-btn--primary"
+                  :disabled="requiresReason && !cancelReason.trim()"
+                  @click="confirmProceed"
+                >{{ confirmPrimaryText }}</button>
               </div>
             </div>
           </div>
@@ -241,15 +278,25 @@ const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 const { money, statusText } = useOrderTable(() => {});
 const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } = useOrderDetailModal(props, emit, { money, statusText });
 
+// Confirm modal state
 const confirmOpen = ref(false);
 const confirmTitle = ref("Vui lòng xác nhận");
 const confirmDesc = ref("");
 const confirmPrimaryText = ref("Tiếp tục");
 const pendingStatus = ref(null);
+const cancelReason = ref("");
+
+// Các trạng thái bắt buộc nhập lý do
+const REASON_REQUIRED_STATUSES = ["cancelled", "failed"];
+
+const requiresReason = computed(() =>
+  REASON_REQUIRED_STATUSES.includes(pendingStatus.value)
+);
 
 function openConfirmStatus(st) {
   if (!st) return;
   pendingStatus.value = st.key;
+  cancelReason.value = "";
   confirmTitle.value = "Vui lòng xác nhận";
   confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
   confirmOpen.value = true;
@@ -258,11 +305,13 @@ function openConfirmStatus(st) {
 function closeConfirm() {
   confirmOpen.value = false;
   pendingStatus.value = null;
+  cancelReason.value = "";
 }
 
 function confirmProceed() {
   if (!pendingStatus.value) return closeConfirm();
-  requestChangeStatus(pendingStatus.value);
+  if (requiresReason.value && !cancelReason.value.trim()) return;
+  requestChangeStatus(pendingStatus.value, cancelReason.value.trim() || null);
   closeConfirm();
 }
 
@@ -277,7 +326,7 @@ const currentStatusIndex = computed(() => {
 const progressWidth = computed(() => {
   const cur = currentStatusIndex.value;
   const total = visibleSteps.value.length;
-  if (cur < 0) return '0%';
+  if (cur < 0) return "0%";
   return `${Math.min(((cur + 0.6) / (total - 1)) * 100, 100)}%`;
 });
 
@@ -293,8 +342,8 @@ function stepClass(st, idx) {
 function initials(name) {
   if (!name) return "?";
   const parts = name.trim().split(" ");
-  return parts.length >= 2 
-    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase() 
+  return parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     : parts[0].slice(0, 2).toUpperCase();
 }
 </script>
