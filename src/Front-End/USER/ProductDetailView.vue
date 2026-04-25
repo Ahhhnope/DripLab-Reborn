@@ -35,25 +35,35 @@ const selections = reactive({
   ice: '100%',   
   cup: 'cup_plastic',
   toppings: new Set(),
+  size: 'S'
 })
 
 // --- OPTIONS (Sync with CafeDB) ---
 const sugarItems = ['0%', '30%', '50%', '70%', '100%']
 const iceItems = ['0%', '30%', '50%', '70%', '100%']
-const toppingItems = [
-  { id: 1, label: 'Trân châu Đen', price: 5000 },
-  { id: 2, label: 'Trân Châu Ngọc Trai', price: 5000 },
-  { id: 3, label: 'Thạch cà phê', price: 5000 },
-  { id: 4, label: 'Kem cheese đặc', price: 10000 },
-  { id: 5, label: 'Kem béo', price: 6000 },
+const sizeItems = [
+  {id: 1, label: 'S', price: 0},
+  {id: 2, label: 'M', price: 5000},
+  {id: 3, label: 'L', price: 10000},
 ]
+const toppingItems = ref([])
 
 // --- FETCH DATA ---
 onMounted(async () => {
   try {
     const id = route.params.id
-    const res = await api.get(`/drinks/${id}`)
-    product.value = res.data
+    const [drinkRes, toppingRes] = await Promise.all([
+      api.get(`/drinks/${id}`),
+      api.get('/ingredients/toppings')
+    ])
+
+    product.value = drinkRes.data 
+    toppingItems.value = toppingRes.data.map(t => ({
+      id: t.id,
+      label: t.name,
+      price: t.price
+    }))
+
   } catch (error) {
     console.error("Lỗi lấy chi tiết sản phẩm:", error)
     showNotice({ 
@@ -69,12 +79,16 @@ onMounted(async () => {
 // --- CALCULATIONS ---
 const lineTotal = computed(() => {
   if (!product.value) return 0
+
   let toppingExtra = 0
   selections.toppings.forEach(id => {
-    const t = toppingItems.find(x => x.id === id)
+    const t = toppingItems.value.find(x => x.id === id)
     if (t) toppingExtra += t.price
   })
-  return (product.value.basePrice + toppingExtra) * qty.value
+
+  const selectedSize = sizeItems.find(s => s.label === selections.size)
+
+  return (product.value.basePrice + toppingExtra + selectedSize.price) * qty.value
 })
 
 // --- ACTIONS ---
@@ -103,11 +117,13 @@ async function handleAddToCart() {
     return
   }
 
+  const selectedSize = sizeItems.find(s => s.label === selections.size)
+
   const payload = {
     userId: userId,
     drinkId: product.value.id,
     quantity: qty.value,
-    sizeId: 1,
+    sizeId: selectedSize ? selectedSize.id : 1,
     sugar: selections.sugar,
     ice: selections.ice,
     toppings: Array.from(selections.toppings)
@@ -198,7 +214,7 @@ function closeNotice() {
 
           <section>
             <div class="flex justify-between items-end mb-6">
-              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Topping yêu thích</h3>
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Topping yêu thích (tối đa 3 loại)</h3>
               <span class="text-[10px] font-bold text-slate-300">TỐI ĐA 03 LOẠI</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -214,6 +230,18 @@ function closeNotice() {
                 </div>
                 <span class="text-xs font-medium text-slate-400">+{{ formatVnd(t.price) }}</span>
               </div>
+            </div>
+          </section>
+
+          <section class="sm:col-span-2 border-b border-slate-100 pb-8 pl-1">
+            <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">Kích cỡ</h3>
+            <div class="flex flex-wrap gap-2">
+              <button v-for="sz in sizeItems" :key="sz.id" 
+                @click="selections.size = sz.label"
+                class="px-6 py-2 rounded-xl text-sm font-bold border-2 transition"
+                :class="selections.size === sz.label ? 'border-[#126b23] bg-[#126b23] text-white' : 'border-slate-100 text-slate-400 hover:border-slate-200'">
+                {{ sz.label }} <span class="ml-1 opacity-70" v-if="sz.price > 0">+{{ formatVnd(sz.price) }}</span>
+              </button>
             </div>
           </section>
 

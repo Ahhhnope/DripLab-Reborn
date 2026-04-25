@@ -15,6 +15,7 @@ async function loadInvoices() {
     const res = await api.get("/invoices");
     
     // Transform Spring Boot Entity -> Vue Template Structure
+    console.log(res.data);
     invoices.value = res.data.map(inv => ({
       invoice_id: `HD_${inv.id}`,
       order_id: inv.order?.id || "N/A",
