@@ -119,74 +119,253 @@
   font-weight: 600;
 }
 
-/* ===== RIGHT: ORDER ===== */
+/* ===== CỘT PHẢI — copy y nguyên CounterOrder ===== */
 .order-section {
   width: 300px;
-  background: #fff;
+  min-width: 300px;
+  background: #ffffff;
+  border-left: 2px solid #ede5d8;
   display: flex;
   flex-direction: column;
-  padding: 18px;
-  border-left: 1px solid #e2e8f0;
-  overflow-y: auto;
-  box-shadow: -2px 0 10px rgba(0,0,0,0.05);
+  height: 100vh;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.order-title {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  color: #111827;
+.order-section-title {
+  background: #5c3317;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
   text-align: center;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #f1f5f9;
+  padding: 0 21px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
-.order-list {
+.right-customer-block {
+  border-bottom: 1.5px solid #ede5d8;
+  padding: 10px 14px;
+  flex-shrink: 0;
+}
+
+.right-sub-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #3e2010;
+  text-align: center;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.right-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+.right-info-lbl {
+  font-weight: 700;
+  color: #5c3317;
+}
+
+.right-info-val {
+  font-weight: 600;
+  color: #2c1a0e;
+  text-align: right;
+  max-width: 150px;
+  word-break: break-word;
+}
+
+.right-products-block {
   flex: 1;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  overflow-x: hidden;
+  padding: 8px 10px;
+  border-bottom: 1.5px solid #ede5d8;
+  min-height: 0;
 }
 
-.order-item {
-  display: flex;
-  align-items: flex-start;
-  background: #f8fafc;
+.right-products-block::-webkit-scrollbar { width: 4px; }
+.right-products-block::-webkit-scrollbar-thumb {
+  background: #c5b89a;
+  border-radius: 2px;
+}
+
+.right-products-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #3e2010;
+  text-align: center;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.right-product-card {
+  background: #f5f0e8;
+  border: 1px solid #e0d8cc;
   border-radius: 8px;
   padding: 8px 10px;
-  gap: 6px;
-  font-size: 13px;
-  border: 1px solid #e2e8f0;
+  margin-bottom: 7px;
+  position: relative;
 }
 
-.item-info { flex: 1; }
+.right-pc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 18px;
+}
 
-.item-name {
-  font-size: 12.5px;
-  color: #374151;
+.right-pc-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2c1a0e;
   line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
 }
 
-.item-price {
-  color: #4caf50;
+.right-pc-price {
+  background: #4a7c59;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
-  font-size: 12.5px;
+  flex-shrink: 0;
+  margin-left: 6px;
 }
 
-.remove-btn {
+.right-pc-remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
   background: none;
   border: none;
-  color: #ef4444;
+  color: #c0392b;
+  font-size: 14px;
   cursor: pointer;
-  font-size: 13px;
-  padding: 0 2px;
   line-height: 1;
+  transition: transform 0.15s;
 }
 
-.remove-btn:hover { color: #b91c1c; }
+.right-pc-remove:hover { transform: scale(1.3); }
+
+/* Footer block */
+.order-footer-block {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border-top: 1.5px solid #ede5d8;
+  background: #ffffff;
+}
+
+.discount-section { margin-bottom: 8px; }
+
+.discount-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c3317;
+  margin-bottom: 5px;
+}
+
+.discount-bar { display: flex; gap: 6px; }
+
+.discount-select {
+  flex: 1;
+  border: 1.5px solid #ddd4c4;
+  border-radius: 7px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: #f5f0e8;
+  outline: none;
+  color: #2c1a0e;
+}
+
+.discount-btn {
+  background: #5c3317;
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.discount-btn:hover { background: #3e2010; }
+
+.discount-message {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.discount-message.success { color: #4a7c59; }
+.discount-message.error   { color: #c0392b; }
+
+.original-price-row {
+  font-size: 11px;
+  color: #aaa;
+  text-decoration: line-through;
+  text-align: right;
+  margin-bottom: 2px;
+}
+
+.discount-badge {
+  background: #c0392b;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  margin-top: 6px;
+}
+
+.total-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3e2010;
+}
+
+.total-amount {
+  font-size: 15px;
+  font-weight: 900;
+  color: #3e2010;
+}
+
+.checkout-btn {
+  width: 100%;
+  background: #4a7c59;
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.checkout-btn:hover { background: #3a6045; transform: translateY(-1px); }
+.checkout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Discount */
 .discount-section {

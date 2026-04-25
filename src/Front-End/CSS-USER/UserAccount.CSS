@@ -2577,6 +2577,7 @@
 }
 
 /* Sections */
+.ud-section {}
 
 .ud-section__header {
   display: flex;
@@ -3009,4 +3010,95 @@
   .ud-col-left { border-right: none; padding-right: 0; border-bottom: 1px solid #f1efe8; padding-bottom: 16px; }
   .ud-step__label { font-size: 10px; }
   .ud-step__circle { width: 42px; height: 42px; }
+}
+
+/* ══════════════════════════════════════
+   HISTORY — XEM THÊM / THU GỌN
+══════════════════════════════════════ */
+.history-total-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  background: #f1f1f1;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.history-footer {
+  position: relative;
+  margin-top: 4px;
+}
+
+/* Gradient che phần dưới khi thu gọn */
+.history-fade {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(to bottom, transparent, #fff);
+  pointer-events: none;
+}
+
+.history-footer-btns {
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f1f1;
+}
+
+.history-expand-btn,
+.history-collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 99px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.history-expand-btn:hover {
+  border-color: #bd490f;
+  color: #bd490f;
+  background: #fdf0eb;
+}
+
+.history-collapse-btn:hover {
+  border-color: #bd490f;
+  color: #bd490f;
+  background: #fdf0eb;
+}
+
+.history-expand-btn .material-symbols-outlined,
+.history-collapse-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.history-expand-count {
+  font-size: 11.5px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Transition cho từng dòng history */
+.history-item-enter-active {
+  transition: all 0.25s ease;
+}
+.history-item-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.history-item-leave-active {
+  transition: all 0.18s ease;
+}
+.history-item-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }

@@ -109,33 +109,21 @@
             — chọn voucher để đổi ngay
           </p>
 
-          <!-- Empty state -->
           <p v-if="vouchers.length === 0" class="empty-hint">
             Hiện chưa có voucher nào để đổi 😢
           </p>
 
-          <!-- Voucher grid -->
           <div class="voucher-grid" v-else>
             <div
               v-for="v in vouchers"
               :key="v.id"
-              :class="[
-                'voucher-card',
-                { 'voucher-disabled': !canRedeem(v) || isAlreadySaved(v.id) }
-              ]"
+              :class="['voucher-card', { 'voucher-disabled': !canRedeem(v) || isAlreadySaved(v.id) }]"
             >
-              <!-- Tag loại -->
               <span :class="['voucher-tag', tagColor(v)]">
                 {{ v.category === 'PHẦN TRĂM' ? 'Giảm %' : 'Giảm tiền' }}
               </span>
-
-              <!-- Badge số lượng còn lại -->
               <span class="voucher-remain">Còn {{ v.quantity }} mã</span>
-
-              <!-- Tên -->
               <p class="voucher-name">{{ v.name }}</p>
-
-              <!-- Mô tả -->
               <p class="voucher-desc">
                 Mã: <strong>{{ v.code }}</strong>
                 <template v-if="v.minOrderValue > 0">
@@ -143,15 +131,11 @@
                 </template>
                 &nbsp;·&nbsp;HSD: {{ v.endDate?.split('T')[0] }}
               </p>
-
               <div class="voucher-footer">
-                <!-- Giá trị giảm -->
                 <div class="voucher-cost">
                   <span class="material-symbols-outlined cost-icon">sell</span>
                   <strong>{{ fmtValue(v) }}</strong>
                 </div>
-
-                <!-- Nút đổi -->
                 <button
                   class="btn-doi"
                   :disabled="!canRedeem(v) || isAlreadySaved(v.id)"
@@ -174,33 +158,70 @@
               <span class="material-symbols-outlined">history</span>
             </div>
             <h3 class="card-title">Lịch sử điểm</h3>
+            <!-- Tổng số giao dịch -->
+            <span class="history-total-badge">
+              {{ pointHistory.length }} giao dịch
+            </span>
           </div>
 
+          <!-- Danh sách (chỉ hiện visibleHistory) -->
           <div class="history-list">
-            <div
-              v-for="(h, i) in pointHistory"
-              :key="i"
-              class="history-row"
-            >
-              <div class="history-left">
-                <div :class="['history-dot',
-                  h.type === 'earn' ? 'dot-earn' : 'dot-use']">
+            <TransitionGroup name="history-item">
+              <div
+                v-for="(h, i) in visibleHistory"
+                :key="h.date + h.desc + i"
+                class="history-row"
+              >
+                <div class="history-left">
+                  <div :class="['history-dot', h.type === 'earn' ? 'dot-earn' : 'dot-use']"></div>
+                  <div>
+                    <p class="history-desc">{{ h.desc }}</p>
+                    <p class="history-date">{{ h.date }}</p>
+                  </div>
                 </div>
-                <div>
-                  <p class="history-desc">{{ h.desc }}</p>
-                  <p class="history-date">{{ h.date }}</p>
-                </div>
+                <span :class="['history-pts', h.type === 'earn' ? 'pts-earn' : 'pts-use']">
+                  {{ h.type === 'earn' ? '+' : '−' }}{{ h.pts.toLocaleString('vi-VN') }}
+                </span>
               </div>
-              <span :class="['history-pts',
-                h.type === 'earn' ? 'pts-earn' : 'pts-use']">
-                {{ h.type === 'earn' ? '+' : '−' }}{{ h.pts.toLocaleString('vi-VN') }}
-              </span>
-            </div>
+            </TransitionGroup>
 
             <p v-if="pointHistory.length === 0" class="empty-hint">
               Chưa có lịch sử điểm nào.
             </p>
           </div>
+
+          <!-- Footer: xem thêm / thu gọn -->
+          <div v-if="pointHistory.length > HISTORY_INIT" class="history-footer">
+
+            <!-- Thanh gradient che nội dung khi thu gọn -->
+            <div v-if="!isExpanded" class="history-fade"></div>
+
+            <div class="history-footer-btns">
+              <!-- Xem thêm -->
+              <button
+                v-if="!isExpanded"
+                class="history-expand-btn"
+                @click="showMoreHistory"
+              >
+                <span class="material-symbols-outlined">expand_more</span>
+                Xem thêm
+                <span class="history-expand-count">
+                  ({{ pointHistory.length - historyVisible }} giao dịch còn lại)
+                </span>
+              </button>
+
+              <!-- Thu gọn (khi đã xem hết) -->
+              <button
+                v-if="isExpanded"
+                class="history-collapse-btn"
+                @click="collapseHistory"
+              >
+                <span class="material-symbols-outlined">expand_less</span>
+                Thu gọn
+              </button>
+            </div>
+          </div>
+
         </section>
 
       </main>
@@ -209,10 +230,10 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { useRouter }           from 'vue-router'
-import { useAuthStore }        from '../Authorization/Auth'
-import { useUserPoints }       from '../JS-USER/UserPoints.JS'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter }                from 'vue-router'
+import { useAuthStore }             from '../Authorization/Auth'
+import { useUserPoints }            from '../JS-USER/UserPoints.JS'
 
 const auth   = useAuthStore()
 const router = useRouter()
@@ -235,6 +256,29 @@ function logout() {
 }
 
 onMounted(() => initPage())
+
+// ── Lịch sử điểm: xem thêm / thu gọn ────────────────────
+const HISTORY_INIT   = 3
+const historyVisible = ref(HISTORY_INIT)
+
+const isExpanded = computed(
+  () => historyVisible.value >= pointHistory.value.length
+)
+
+const visibleHistory = computed(
+  () => pointHistory.value.slice(0, historyVisible.value)
+)
+
+function showMoreHistory() {
+  historyVisible.value = Math.min(
+    historyVisible.value + 5,
+    pointHistory.value.length
+  )
+}
+
+function collapseHistory() {
+  historyVisible.value = HISTORY_INIT
+}
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>
