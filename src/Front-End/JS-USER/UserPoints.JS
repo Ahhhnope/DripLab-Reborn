@@ -32,7 +32,7 @@ export function useUserPoints() {
     if (!userId.value) return
     try {
       // GET /customers/me → trả về { loyaltyPoint, usedPoint, ... }
-      const res = await api.get('/customers/me')
+      const res = await api.get('/users/me')
       myPoints.value   = res.data.loyaltyPoint ?? 0
       usedPoints.value = res.data.usedPoint    ?? 0
     } catch (e) {
@@ -41,28 +41,47 @@ export function useUserPoints() {
   }
 
   // ── Hạng thành viên ────────────────────────────────────────
-  const TIERS = [
-    { name: 'Bạc',       min: 0,      next: 'Vàng',      nextMin: 50000  },
-    { name: 'Vàng',      min: 50000,  next: 'Kim cương', nextMin: 150000 },
-    { name: 'Kim cương', min: 150000, next: null,        nextMin: null   },
-  ]
+  const TIERS = ref([
+    { name: 'Bạc',       minPoint: 0,      next: 'Vàng',      nextMin: 50000  },
+    { name: 'Vàng',      minPoint: 50000,  next: 'Kim cương', nextMin: 150000 },
+    { name: 'Kim cương', minPoint: 150000, next: null,        nextMin: null   },
+  ]) //backup data :))))
 
-  const currentTierObj = computed(() =>
-    [...TIERS].reverse().find(t => myPoints.value >= t.min) ?? TIERS[0]
-  )
+  async function loadTiers() {
+    if (!userId.value) return
+    try {
+      const res = await api.get('/tiers')
+
+      const sorted = res.data.sort((a, b) => a.minPoint - b.minPoint)
+
+      TIERS.value = sorted.map((t, index) => ({
+        id: t.id,
+        name: t.name,
+        minPoint: t.minPoint,
+        next: sorted[index + 1] ? sorted[index + 1].name : 'GOD ALMIGHTY',
+        nextMin: sorted[index + 1] ? sorted[index + 1].minPoint : null
+      }))
+    } catch (e) {
+      console.error('Lỗi tải tier thành viên: ', e)
+    }
+  }
+
+  const currentTierObj = computed(() => {
+    if (TIERS.value.length === 0) return { name: '...', minPoint: 0 }
+    return [...TIERS.value].reverse().find(t => myPoints.value >= t.minPoint) || TIERS.value[0]
+  })
 
   const currentTier    = computed(() => currentTierObj.value.name)
-  const nextTier       = computed(() => currentTierObj.value.next ?? 'Tối đa')
-  const nextTierPoints = computed(() => currentTierObj.value.nextMin ?? myPoints.value)
 
   const progress = computed(() => {
-    const base = currentTierObj.value.min
-    const top  = nextTierPoints.value
-    if (!currentTierObj.value.next) return 100
-    return Math.min(
-      Math.round(((myPoints.value - base) / (top - base)) * 100),
-      100
-    )
+    const currentMin = currentTierObj.value.min || 0
+    const nextTarget = currentTierObj.value.nextMin
+
+    if (!currentTierObj.value.next) return 100 // 100% reached
+    const totalNeededForNext = nextTarget - currentMin
+    const pointsGainedInCurrentTier = myPoints.value - currentMin
+      
+    return Math.max(0, Math.min(Math.round((pointsGainedInCurrentTier / totalNeededForNext) * 100), 100))
   })
 
   // ══════════════════════════════════════════════════════════
@@ -213,7 +232,7 @@ export function useUserPoints() {
   return {
     user, navItems, currentRoute,
     myPoints, usedPoints,
-    currentTier, nextTier, nextTierPoints, progress,
+    currentTier, progress,
     vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
     pointHistory,
     toastVisible, toastMessage, toastType,

@@ -6,10 +6,10 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Ảnh đại diện" class="avatar-img" />
+            <img :src="auth.user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
-          <h2 class="sidebar-name">{{ user.name }}</h2>
-          <p class="sidebar-role">Thành viên cao cấp</p>
+          <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
+          <p class="sidebar-role">{{ user.tier?.name }}</p>
         </div>
         <nav class="sidebar-nav">
           <a
@@ -467,6 +467,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useUserOrders } from '../JS-USER/UserOrders.JS'
+import { useAuthStore } from '../Authorization/Auth'
+
+const auth = useAuthStore()
 
 const {
   user, navItems, currentRoute,

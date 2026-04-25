@@ -8,7 +8,7 @@
             <img :src="user.avatar" alt="Avatar" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.fullName }}</h2>
-          <p class="sidebar-role">Thành viên cao cấp</p>
+          <p class="sidebar-role">{{ user.tier?.name }}</p>
         </div>
 
         <nav class="sidebar-nav">
@@ -142,6 +142,7 @@
 import { useUserAccount } from "../JS-USER/UserAccount.JS";
 import { useAuthStore } from "../Authorization/Auth";
 import { useRouter } from "vue-router";
+
 
 const {
   form, passwordForm,
