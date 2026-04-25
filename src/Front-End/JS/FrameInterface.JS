@@ -2,11 +2,11 @@ import { ref, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../Authorization/Auth'
 
-import { 
-  HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon, 
-  DocumentTextIcon, TicketIcon, NewspaperIcon, 
-  UserCircleIcon, AdjustmentsHorizontalIcon, 
-  ChartBarIcon, UserGroupIcon
+import {
+    HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon,
+    DocumentTextIcon, TicketIcon, NewspaperIcon,
+    UserCircleIcon, AdjustmentsHorizontalIcon,
+    ChartBarIcon, UserGroupIcon
 } from '@heroicons/vue/24/outline'
 
 export function useAdminMenu() {
@@ -30,13 +30,21 @@ export function useAdminMenu() {
         {
             title: 'Quản lý bán hàng',
             items: [
-                { id: 2, label: 'Đơn tại quầy', icon: ShoppingCartIcon, path: '/QuanLyDonTaiQuay' },
-                { 
+                {
+                    id: 2,
+                    label: 'Đơn tại quầy',
+                    icon: ShoppingCartIcon,
+                    path: '/QuanLyDonTaiQuay', // vẫn có link
+                    children: [
+                        { id: 21, label: 'Đặt bàn', path: '/QuanLyDatBan' }
+                    ]
+                },
+                {
                     id: 3, label: 'Sản phẩm', icon: CubeIcon,
                     children: [
                         { id: 31, label: 'Sản phẩm', path: '/QuanLySanPham' },
-                        { 
-                            id: 32, label: 'Thành phần', 
+                        {
+                            id: 32, label: 'Thành phần',
                             subChildren: [
                                 { id: 321, label: 'Hạt cà phê', path: '/SanPhamHatCaPhe' },
                                 { id: 322, label: 'Sữa', path: '/SanPhamSua' },
@@ -44,7 +52,7 @@ export function useAdminMenu() {
                                 { id: 324, label: 'Kem lạnh', path: '/SanPhamKem' },
                                 { id: 325, label: 'Cách thức', path: '/QuanLyCachThuc' },
                                 { id: 326, label: 'Topping', path: '/QuanLyTopping' },
-                            ] 
+                            ]
                         },
                     ]
                 },
@@ -56,7 +64,7 @@ export function useAdminMenu() {
             title: 'Quản lý hệ thống',
             items: [
                 { id: 5, label: 'Khuyến mãi', icon: TicketIcon, path: '/QuanLyKhuyenMai' },
-                { 
+                {
                     id: 8, label: 'Tài khoản', icon: UserCircleIcon,
                     children: [
                         { id: 81, label: 'Nhân viên', icon: UserGroupIcon, path: '/QuanLyNhanVien' },
@@ -152,8 +160,12 @@ export function useAdminMenu() {
             openMenu.value = openMenu.value === item.id ? null : item.id
         } else {
             openMenu.value = null
-            if (item.path) router.push(item.path)
         }
+
+        if (item.path && route.path !== item.path) {
+            router.push(item.path)
+        }
+
         openSub.value = null
     }
 
@@ -183,14 +195,14 @@ export function useAdminMenu() {
         setActiveFromRoute()
     })
 
-    return { 
-        menuGroups, 
-        activeIndex, 
-        openMenu, 
-        openSub, 
-        logout, 
-        clickMenu, 
-        clickSub, 
-        clickSubChild 
+    return {
+        menuGroups,
+        activeIndex,
+        openMenu,
+        openSub,
+        logout,
+        clickMenu,
+        clickSub,
+        clickSubChild
     }
 }

@@ -22,7 +22,9 @@ import QuanLySPKemBeo from '@/Front-End/ADMIN/QuanLySPKemBeo.vue'
 import Toppings from '../Front-End/ADMIN/Toppings.vue'
 import AdminDashboard from '../Front-End/ADMIN/AdminDashboard.vue'
 import Login from '../Front-End/Authorization/Login.vue'
+import QuanLyDatBan from '@/Front-End/ADMIN/AdminDatBan.vue'
 import { useAuthStore } from '../Front-End/Authorization/Auth'
+import AdminDatBan from '@/Front-End/ADMIN/AdminDatBan.vue'
 
 const pinia = createPinia()
 const routes = [
@@ -45,6 +47,7 @@ const routes = [
             { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe },
             { path: 'QuanLyCachThuc', component: QuanLySPCachThuc },
             { path: 'QuanLyTopping', component: Toppings },
+            { path: 'QuanLyDatBan', component: AdminDatBan },
             { path: 'Dashboard', component: AdminDashboard },
         ]
     },
@@ -67,10 +70,10 @@ app.mount('#app')
 
 router.beforeEach(async (to, from, next) => {
     const auth = useAuthStore()
-      if (!auth.isInitialized) {
-          await auth.init()
-      }
-      console.log('Admin guard - user:', auth.user, 'role:', auth.user?.role);
+    if (!auth.isInitialized) {
+        await auth.init()
+    }
+    console.log('Admin guard - user:', auth.user, 'role:', auth.user?.role);
     // Non-ADMIN → redirect to user site
     if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
         window.location.replace('http://localhost:5173/homepage')

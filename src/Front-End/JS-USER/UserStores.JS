@@ -57,9 +57,7 @@ export default {
   },
 
   methods: {
-    // ──────────────────────────────────────────
     // Fetch thông tin cửa hàng từ API
-    // ──────────────────────────────────────────
     async fetchStore() {
       try {
         const res = await fetch(`/api/stores/${this.storeId}`);
@@ -73,9 +71,7 @@ export default {
       }
     },
 
-    // ──────────────────────────────────────────
     // Fetch danh sách đánh giá từ API
-    // ──────────────────────────────────────────
     async fetchReviews() {
       try {
         const res = await fetch(`/api/stores/${this.storeId}/reviews`);
@@ -103,25 +99,19 @@ export default {
       }
     },
 
-    // ──────────────────────────────────────────
     // Mở Google Maps
-    // ──────────────────────────────────────────
     openMaps() {
       const url = this.store?.maps_url;
       if (url) window.open(url, "_blank");
     },
 
-    // ──────────────────────────────────────────
     // Hiện / ẩn form đánh giá
-    // ──────────────────────────────────────────
     toggleForm() {
       this.showForm = !this.showForm;
       this.newReview = { stars: 0, text: "" };
     },
 
-    // ──────────────────────────────────────────
     // Gửi đánh giá lên API (POST) rồi reload
-    // ──────────────────────────────────────────
     async submitReview() {
       if (!this.newReview.stars || !this.newReview.text.trim()) {
         alert("Vui lòng chọn số sao và nhập nội dung!");
