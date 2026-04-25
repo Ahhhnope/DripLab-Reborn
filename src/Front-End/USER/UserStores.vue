@@ -19,9 +19,7 @@
       <!-- ===== ẢNH CỬA HÀNG (từ SQL image_url) ===== -->
       <section class="photo-single">
         <div class="photo-bg">
-          <img
-          :src="store.image_url"
-          :alt="store.code"/>
+          <img :src="`${store.image_url}`"/>
         </div>
       </section>
 
