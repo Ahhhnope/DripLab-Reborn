@@ -18,6 +18,11 @@ const heavyCreams = ref([]);
 const iceCreams = ref([]);
 const instructions = ref([]);
 
+function getImageUrl(url) {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+}
+
 const newDrink = ref({
     name: "",
     category: "Cà phê",
@@ -143,7 +148,7 @@ const pagedDrinks = computed(() => {
                 <tr v-for="(drink, index) in pagedDrinks" :key="drink.id">
                     <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                     <td>
-                        <img v-if="drink.imageUrl" :src="drink.imageUrl" class="drink-thumb" alt="ảnh" />
+                        <img v-if="drink.imageUrl" :src="getImageUrl(drink.imageUrl)" class="drink-thumb" alt="ảnh" />
                         <span v-else class="no-img">—</span>
                     </td>
                     <td>{{ drink.name }}</td>
@@ -193,7 +198,7 @@ const pagedDrinks = computed(() => {
                     <label>Ảnh sản phẩm</label>
                     <input type="file" accept="image/*" @change="handleImageUpload($event, 'new')" />
                     <div v-if="newDrink.imageUrl" class="preview-wrap">
-                        <img :src="`http://localhost:8080${newDrink.imageUrl}`" class="img-preview" />
+                        <img :src="getImageUrl(newDrink.imageUrl)" class="img-preview" />
                     </div>
                 </div>
 
@@ -270,7 +275,7 @@ const pagedDrinks = computed(() => {
                     <label>Ảnh sản phẩm</label>
                     <input type="file" accept="image/*" @change="handleImageUpload($event, 'edit')" />
                     <div v-if="selectedDrink.imageUrl" class="preview-wrap">
-                        <img :src="`http://localhost:8080${selectedDrink.imageUrl}`" class="img-preview" />
+                        <img :src="getImageUrl(selectedDrink.imageUrl)" class="img-preview" />
                     </div>
                 </div>
 
