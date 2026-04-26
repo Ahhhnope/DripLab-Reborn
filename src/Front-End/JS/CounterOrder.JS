@@ -1,13 +1,12 @@
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import api from '../../api/axios.js'
 
-
 function getImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
 
 const DISCOUNT_CODES = { KM50: 50, KM20: 20, KM10: 10 }
-const MAX_CASH = 500_000_000
+export const MAX_CASH = 500_000_000
 export const MAX_TABLES_PER_ORDER = 3
 
 function genTxId() {
@@ -26,12 +25,11 @@ export function useCounterOrder() {
     const appStep   = ref('welcome')
     const orderMode = ref('')
 
-    function goToChoice()   { appStep.value = 'choice' }
+    function goToChoice() { appStep.value = 'choice' }
 
     function chooseTakeaway() {
         orderMode.value = 'takeaway'
         createNewOrder()
-        // Auto assign anonCode ngay khi chọn Mang đi
         if (currentOrder.value && !currentOrder.value.anonCode) {
             currentOrder.value.anonCode = genAnonCode()
         }
@@ -45,14 +43,14 @@ export function useCounterOrder() {
     }
 
     /* ══ THÔNG TIN KHÁCH HÀNG ═══════════════════════════════════════ */
-    const customerName      = ref('')
-    const customerPhone     = ref('')
-    const customerNameInput = ref('')
-    const customerPhoneInput= ref('')
-    const nameError         = ref('')
-    const phoneError        = ref('')
-    const customerSaved     = ref(false)
-    const isEditingInfo     = ref(true)
+    const customerName       = ref('')
+    const customerPhone      = ref('')
+    const customerNameInput  = ref('')
+    const customerPhoneInput = ref('')
+    const nameError          = ref('')
+    const phoneError         = ref('')
+    const customerSaved      = ref(false)
+    const isEditingInfo      = ref(true)
 
     function onNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
@@ -89,7 +87,7 @@ export function useCounterOrder() {
 
     function editCustomerInfo() { isEditingInfo.value = true }
 
-    /* ══ ĐẶT BÀN — tối đa 3 bàn / hóa đơn ════════════════════════ */
+    /* ══ ĐẶT BÀN ═══════════════════════════════════════════════════ */
     const TOTAL_TABLES   = 10
     const selectedTables = ref([])
     const occupiedTables = ref([])
@@ -119,9 +117,9 @@ export function useCounterOrder() {
     }
 
     /* ══ XÁC NHẬN THÔNG TIN ════════════════════════════════════════ */
-    const showConfirmInfo      = ref(false)
-    const confirmWarning       = ref('')
-    const confirmWarningTable  = ref('')
+    const showConfirmInfo     = ref(false)
+    const confirmWarning      = ref('')
+    const confirmWarningTable = ref('')
 
     function goToConfirm() {
         confirmWarning.value = ''
@@ -141,7 +139,6 @@ export function useCounterOrder() {
         showConfirmInfo.value = true
     }
 
-    function backToInfo()            { showConfirmInfo.value = false }
     function backFromConfirmToInfo() { showConfirmInfo.value = false }
 
     function proceedToOrder() {
@@ -161,11 +158,7 @@ export function useCounterOrder() {
 
     /* ══ SẢN PHẨM ══════════════════════════════════════════════════ */
     const searchText = ref('')
-
-    const allProducts = ref([
-       
-    ])
-    const products = ref([])
+    const products   = ref([])
 
     async function fetchDrinks() {
         try {
@@ -178,18 +171,19 @@ export function useCounterOrder() {
                 category: d.category
             }))
         } catch (error) {
-            console.log("error fetching drinks: "+error)
+            console.log('error fetching drinks: ' + error)
         }
-        
     }
 
-
-
+    const _allProducts = ref([])
     function searchProducts() {
         const kw = searchText.value.toLowerCase().trim()
-        products.value = kw
-            ? allProducts.value.filter(p => p.name.toLowerCase().includes(kw))
-            : [...allProducts.value]
+        if (!kw) {
+            // reload from API instead of stale cache
+            fetchDrinks()
+            return
+        }
+        products.value = products.value.filter(p => p.name.toLowerCase().includes(kw))
     }
 
     /* ══ HÓA ĐƠN ═══════════════════════════════════════════════════ */
@@ -203,12 +197,12 @@ export function useCounterOrder() {
         const order = {
             id: Date.now(), items: [],
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
-            customerName: customerName.value || '', customerPhone: customerPhone.value || '',
+            customerName: '', customerPhone: '',
             selectedTables: [], anonCode: '', step: 'info',
+            note: '',
         }
         orderList.value.push(order)
         selectOrder(order)
-        appStep.value = 'info'
     }
 
     function selectOrder(order) {
@@ -219,6 +213,7 @@ export function useCounterOrder() {
         discountPercent.value = order.discountPercent
         discountMessage.value = order.discountMessage
         selectedTables.value  = order.selectedTables ? [...order.selectedTables] : []
+        orderNote.value       = order.note || ''
         appStep.value         = order.step || 'info'
     }
 
@@ -269,6 +264,14 @@ export function useCounterOrder() {
             : totalPrice.value
     )
 
+    /* ══ GHI CHÚ ═══════════════════════════════════════════════════ */
+    const orderNote = ref('')
+
+    function onNoteInput(e) {
+        orderNote.value = e.target.value
+        if (currentOrder.value) currentOrder.value.note = orderNote.value
+    }
+
     /* ══ THANH TOÁN ════════════════════════════════════════════════ */
     const showPaymentPopup = ref(false)
     const showSuccessPopup = ref(false)
@@ -279,23 +282,24 @@ export function useCounterOrder() {
     const txId   = ref('')
     const txTime = ref('')
 
-    // payNameInput/payPhoneInput kept for internal receipt building but not shown in UI
     const payNameInput  = ref('')
     const payPhoneInput = ref('')
-    const payNameError  = ref('')
     const payPhoneError = ref('')
 
     function onPayNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
         payNameInput.value = val
         e.target.value = val
-        payNameError.value = ''
+        // Sync vào order hiện tại ngay lập tức để hiển thị đúng
+        if (currentOrder.value) currentOrder.value.customerName = val.trim()
     }
+
     function onPayPhoneInput(e) {
         const val = e.target.value.replace(/\D/g, '').slice(0, 10)
         payPhoneInput.value = val
         e.target.value = val
         payPhoneError.value = ''
+        if (currentOrder.value) currentOrder.value.customerPhone = val.trim()
     }
 
     const customerMoneyNum = computed(() => {
@@ -307,18 +311,17 @@ export function useCounterOrder() {
     const receiptData = ref({
         finalPrice: 0, change: 0, items: [],
         customerName: '', customerPhone: '', tableNums: [],
-        anonCode: '', discountPercent: 0, originalPrice: 0,
+        anonCode: '', discountPercent: 0, originalPrice: 0, note: '',
     })
 
     function checkout() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
         customerMoney.value = ''
+        cashMaxWarning.value = ''
         paymentMethod.value = 'cash'
         const o = currentOrder.value
-        // Sync payNameInput/payPhoneInput từ order hiện tại
         payNameInput.value  = o?.customerName  || customerName.value  || ''
         payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
-        payNameError.value  = ''
         payPhoneError.value = ''
         showPaymentPopup.value = true
     }
@@ -339,8 +342,9 @@ export function useCounterOrder() {
 
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
-        const resolvedName  = order?.customerName  || customerName.value  || ''
-        const resolvedPhone = order?.customerPhone || customerPhone.value || ''
+        // Ưu tiên payNameInput (người dùng vừa nhập trong popup)
+        const resolvedName  = payNameInput.value.trim() || order?.customerName || customerName.value || ''
+        const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
         if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
         receiptData.value = {
             finalPrice: finalPrice.value,
@@ -352,6 +356,7 @@ export function useCounterOrder() {
             anonCode:        order?.anonCode || '',
             discountPercent: discountPercent.value,
             originalPrice:   totalPrice.value,
+            note:            orderNote.value || order?.note || '',
         }
     }
 
@@ -379,47 +384,53 @@ export function useCounterOrder() {
     function closeSuccessPopup() {
         showSuccessPopup.value = false
         const order = currentOrder.value
+
+        // Giải phóng bàn
         if (order?.selectedTables) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
                 if (idx !== -1) occupiedTables.value.splice(idx, 1)
             })
         }
-        const idx = orderList.value.indexOf(order)
+
+        // Xoá hóa đơn đã thanh toán khỏi danh sách
+        const idx = orderList.value.findIndex(o => o.id === order?.id)
         if (idx !== -1) orderList.value.splice(idx, 1)
+
         if (!orderList.value.length) {
-            appStep.value          = 'welcome'
-            currentOrder.value     = null
-            orderedItems.value     = []
-            discountInput.value    = ''
-            appliedCode.value      = ''
-            discountPercent.value  = 0
-            discountMessage.value  = ''
-            customerName.value     = ''
-            customerPhone.value    = ''
+            // Không còn hóa đơn nào → về welcome, reset toàn bộ
+            appStep.value         = 'welcome'
+            currentOrder.value    = null
+            orderedItems.value    = []
+            discountInput.value   = ''
+            appliedCode.value     = ''
+            discountPercent.value = 0
+            discountMessage.value = ''
+            customerName.value    = ''
+            customerPhone.value   = ''
             customerNameInput.value  = ''
             customerPhoneInput.value = ''
-            customerSaved.value    = false
-            isEditingInfo.value    = true
-            selectedTables.value   = []
+            customerSaved.value   = false
+            isEditingInfo.value   = true
+            selectedTables.value  = []
+            orderNote.value       = ''
         } else {
+            // Còn hóa đơn → chuyển sang hóa đơn gần nhất
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
 
     /* ══ POPUP TOPPING ══════════════════════════════════════════════ */
-    const showPopup       = ref(false)
-    const selectedProduct = ref(null)
-    const selectedToppings= ref([])
-    const selectedSize    = ref('S')
-    const selectedQty     = ref(1)
-    const selectedIce     = ref('0%')
-    const selectedSugar   = ref('0%')
-    const popupStateCache = ref({})
+    const showPopup        = ref(false)
+    const selectedProduct  = ref(null)
+    const selectedToppings = ref([])
+    const selectedSize     = ref('S')
+    const selectedQty      = ref(1)
+    const selectedIce      = ref('0%')
+    const selectedSugar    = ref('0%')
+    const popupStateCache  = ref({})
 
-    const toppingList = ref([
-     
-    ])
+    const toppingList  = ref([])
     const iceOptions   = ['0%', '30%', '50%', '70%', '100%']
     const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
     const SIZE_PRICES  = reactive({})
@@ -427,27 +438,20 @@ export function useCounterOrder() {
     async function fetchToppings() {
         try {
             const res = await api.get('/ingredients/toppings')
-            toppingList.value = res.data.map(t => ({
-                id: t.id,
-                name: t.name,
-                price: t.price
-            }))
+            toppingList.value = res.data.map(t => ({ id: t.id, name: t.name, price: t.price }))
         } catch (error) {
-            console.log("error fetching toppings: "+error)
+            console.log('error fetching toppings: ' + error)
         }
     }
 
     async function fetchSizes() {
         try {
             const res = await api.get('/sizes')
-            res.data.forEach(s => {
-                SIZE_PRICES[s.name] = s.price
-            })
+            res.data.forEach(s => { SIZE_PRICES[s.name] = s.price })
         } catch (error) {
-            console.log("error fetching sizes: "+error)
+            console.log('error fetching sizes: ' + error)
         }
     }
-
 
     function openPopup(product) {
         selectedProduct.value = product
@@ -526,23 +530,19 @@ export function useCounterOrder() {
         return arr.length ? arr[arr.length - 1] : null
     })
 
-
+    /* ══ LIFECYCLE ══════════════════════════════════════════════════ */
     let timer = null
     onMounted(() => {
         fetchDrinks()
         fetchToppings()
         fetchSizes()
-
         timer = setInterval(() => {
-            fetchDrinks(),
-            fetchToppings(),
+            fetchDrinks()
+            fetchToppings()
             fetchSizes()
         }, 5000)
     })
-
-    onUnmounted(() => {
-        if (timer) clearInterval(timer)
-    })
+    onUnmounted(() => { if (timer) clearInterval(timer) })
 
     /* ══ EXPORT ════════════════════════════════════════════════════ */
     return {
@@ -558,11 +558,10 @@ export function useCounterOrder() {
         onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
 
         TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
-        availableTables, tablesFull, selectTable,
-        MAX_TABLES_PER_ORDER,
+        availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
 
         showConfirmInfo, confirmWarning, confirmWarningTable,
-        goToConfirm, backToInfo, proceedToOrder, backFromConfirmToInfo,
+        goToConfirm, proceedToOrder, backFromConfirmToInfo,
 
         searchText, products, searchProducts,
 
@@ -572,9 +571,11 @@ export function useCounterOrder() {
 
         discountInput, discountCodeList, appliedCode, discountPercent, discountMessage, applyDiscount, finalPrice,
 
+        orderNote, onNoteInput,
+
         checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
         cashMaxWarning, onCashInput,
-        payNameInput, payPhoneInput, payNameError, payPhoneError,
+        payNameInput, payPhoneInput, payPhoneError,
         onPayNameInput, onPayPhoneInput,
         goToReview, backFromReview,
         showReviewPopup,

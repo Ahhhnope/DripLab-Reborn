@@ -22,7 +22,7 @@ const {
   availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
 
   showConfirmInfo, confirmWarning, confirmWarningTable,
-  goToConfirm, backToInfo, proceedToOrder, backFromConfirmToInfo,
+  goToConfirm, proceedToOrder, backFromConfirmToInfo,
 
   searchText, products, searchProducts,
 
@@ -32,9 +32,11 @@ const {
 
   discountInput, discountCodeList, appliedCode, discountPercent, discountMessage, applyDiscount, finalPrice,
 
+  orderNote, onNoteInput,
+
   checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
   cashMaxWarning, onCashInput,
-  payNameInput, payPhoneInput, payNameError, payPhoneError,
+  payNameInput, payPhoneInput, payPhoneError,
   onPayNameInput, onPayPhoneInput,
   goToReview, backFromReview,
   showReviewPopup,
@@ -71,22 +73,19 @@ function onMomoPaid() {
     finalPrice: finalPrice.value,
     change: 0,
     items: JSON.parse(JSON.stringify(orderedItems.value)),
-    customerName:  payNameInput.value.trim() || order?.customerName  || customerName.value  || '',
+    customerName: payNameInput.value.trim() || order?.customerName || customerName.value || '',
     customerPhone: payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || '',
-    tableNums:     order?.selectedTables || selectedTables.value || [],
-    anonCode:      order?.anonCode || '',
+    tableNums: order?.selectedTables || selectedTables.value || [],
+    anonCode: order?.anonCode || '',
     discountPercent: discountPercent.value,
-    originalPrice:   totalPrice.value,
+    originalPrice: totalPrice.value,
+    note: orderNote.value || order?.note || '',
   }
   confirmPayment()
 }
 
 function goAdmin() {
   router.push('/AdminPOS')
-}
-
-function getTableLabel(num) {
-  return occupiedTables.value.includes(num) ? 'Hết bàn' : `Bàn ${String(num).padStart(2, '0')}`
 }
 
 function availableTableCount() {
@@ -102,13 +101,8 @@ function formatTableNums(nums) {
   return nums.map(n => String(n).padStart(2, '0')).join(', ')
 }
 
-// Helper: lấy tên hiển thị cho cột phải (ưu tiên anonCode nếu takeaway không có tên)
-function getDisplayName() {
-  const o = currentOrder.value
-  if (!o) return customerName.value || ''
-  if (o.customerName) return o.customerName
-  if (o.anonCode) return o.anonCode
-  return ''
+function getTableLabel(num) {
+  return occupiedTables.value.includes(num) ? 'Hết bàn' : `Bàn ${String(num).padStart(2, '0')}`
 }
 </script>
 
@@ -146,8 +140,12 @@ function getDisplayName() {
 
         <div class="order-tabs-bar">
           <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa đơn</button>
-          <button v-for="(order, idx) in orderList" :key="order.id" class="order-tab"
-            :class="{ active: currentOrder && currentOrder.id === order.id }" @click="selectOrder(order)">
+          <button
+            v-for="(order, idx) in orderList" :key="order.id"
+            class="order-tab"
+            :class="{ active: currentOrder && currentOrder.id === order.id }"
+            @click="selectOrder(order)"
+          >
             Hóa đơn {{ idx + 1 }}
           </button>
         </div>
@@ -159,8 +157,8 @@ function getDisplayName() {
             <div class="info-row">
               <span class="info-label">Họ và tên:</span>
               <div class="info-input-wrap" v-if="isEditingInfo">
-                <input class="info-input" :class="{ error: nameError }" :value="customerNameInput" @input="onNameInput"
-                  placeholder="Nhập họ và tên..." type="text" />
+                <input class="info-input" :class="{ error: nameError }" :value="customerNameInput"
+                  @input="onNameInput" placeholder="Nhập họ và tên..." type="text" />
                 <p v-if="nameError" class="input-error-msg">{{ nameError }}</p>
               </div>
               <span v-else class="info-value-display">{{ customerName || 'Chưa Điền Thông Tin' }}</span>
@@ -169,7 +167,8 @@ function getDisplayName() {
               <span class="info-label">Số điện thoại:</span>
               <div class="info-input-wrap" v-if="isEditingInfo">
                 <input class="info-input" :class="{ error: phoneError }" :value="customerPhoneInput"
-                  @input="onPhoneInput" placeholder="Nhập số điện thoại..." type="tel" inputmode="numeric" maxlength="10" />
+                  @input="onPhoneInput" placeholder="Nhập số điện thoại..." type="tel"
+                  inputmode="numeric" maxlength="10" />
                 <p v-if="phoneError" class="input-error-msg">{{ phoneError }}</p>
               </div>
               <span v-else class="info-value-display">{{ customerPhone || 'Chưa Điền Thông Tin' }}</span>
@@ -202,10 +201,13 @@ function getDisplayName() {
               </span>
             </div>
             <div class="table-grid">
-              <button v-for="num in availableTables" :key="num" class="table-btn" :class="{
-                selected: isTableSelected(num),
-                occupied: occupiedTables.includes(num)
-              }" @click="selectTable(num)" :disabled="occupiedTables.includes(num)">
+              <button
+                v-for="num in availableTables" :key="num"
+                class="table-btn"
+                :class="{ selected: isTableSelected(num), occupied: occupiedTables.includes(num) }"
+                @click="selectTable(num)"
+                :disabled="occupiedTables.includes(num)"
+              >
                 {{ getTableLabel(num) }}
               </button>
             </div>
@@ -225,7 +227,7 @@ function getDisplayName() {
           <p class="right-sub-title">Khách Hàng</p>
           <div class="right-info-row">
             <span class="right-info-lbl">Họ và tên:</span>
-            <span class="right-info-val">{{ customerName || 'Chưa Có ' }}</span>
+            <span class="right-info-val">{{ customerName || 'Chưa Có' }}</span>
           </div>
           <div class="right-info-row">
             <span class="right-info-lbl">Số điện thoại:</span>
@@ -292,8 +294,12 @@ function getDisplayName() {
         <div class="top-bar">ĐƠN TẠI QUẦY</div>
         <div class="tabs-bar">
           <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa đơn</button>
-          <button v-for="(order, idx) in orderList" :key="order.id" class="order-tab"
-            :class="{ active: currentOrder && currentOrder.id === order.id }" @click="selectOrder(order)">
+          <button
+            v-for="(order, idx) in orderList" :key="order.id"
+            class="order-tab"
+            :class="{ active: currentOrder && currentOrder.id === order.id }"
+            @click="selectOrder(order)"
+          >
             Hóa đơn {{ idx + 1 }}
           </button>
         </div>
@@ -406,20 +412,19 @@ function getDisplayName() {
         </div>
         <p class="popup-label">Mức đá <span class="popup-limit">Tối đa 01</span></p>
         <div class="option-group">
-          <button v-for="opt in iceOptions" :key="opt" class="option-btn" :class="{ selected: selectedIce === opt }"
-            @click="selectedIce = opt">{{ opt }}</button>
+          <button v-for="opt in iceOptions" :key="opt" class="option-btn"
+            :class="{ selected: selectedIce === opt }" @click="selectedIce = opt">{{ opt }}</button>
         </div>
         <p class="popup-label">Mức đường <span class="popup-limit">Tối đa 01</span></p>
         <div class="option-group">
-          <button v-for="opt in sugarOptions" :key="opt" class="option-btn" :class="{ selected: selectedSugar === opt }"
-            @click="selectedSugar = opt">{{ opt }}</button>
+          <button v-for="opt in sugarOptions" :key="opt" class="option-btn"
+            :class="{ selected: selectedSugar === opt }" @click="selectedSugar = opt">{{ opt }}</button>
         </div>
         <p class="popup-label">Topping <span class="popup-limit">Tối đa 03 loại</span></p>
         <div class="topping-grid">
-          <div v-for="topping in toppingList" :key="topping.id" class="topping-card" :class="{
-            selected: isToppingSelected(topping),
-            disabled: selectedToppings.length >= 3 && !isToppingSelected(topping)
-          }" @click="toggleTopping(topping)">
+          <div v-for="topping in toppingList" :key="topping.id" class="topping-card"
+            :class="{ selected: isToppingSelected(topping), disabled: selectedToppings.length >= 3 && !isToppingSelected(topping) }"
+            @click="toggleTopping(topping)">
             <span class="topping-name">{{ topping.name }}</span>
             <span class="topping-price">+{{ topping.price.toLocaleString() }}đ</span>
           </div>
@@ -428,8 +433,8 @@ function getDisplayName() {
           <div class="size-col">
             <p class="popup-label">Size</p>
             <div class="size-group">
-              <button v-for="s in ['S', 'M', 'L']" :key="s" class="size-btn" :class="{ selected: selectedSize === s }"
-                @click="selectedSize = s">
+              <button v-for="s in ['S', 'M', 'L']" :key="s" class="size-btn"
+                :class="{ selected: selectedSize === s }" @click="selectedSize = s">
                 {{ s }}
                 <span class="size-price-hint">{{ SIZE_PRICES[s] ? '+' + SIZE_PRICES[s].toLocaleString() + 'đ' : 'Gốc' }}</span>
               </button>
@@ -462,31 +467,49 @@ function getDisplayName() {
           <div class="pay-customer-row">
             <div class="pay-field">
               <label>Họ và tên</label>
-              <!-- Placeholder hiển thị anonCode nếu là takeaway không tên -->
-              <input :value="payNameInput" @input="onPayNameInput" type="text"
+              <input
+                :value="payNameInput"
+                @input="onPayNameInput"
+                type="text"
                 :placeholder="(currentOrder && currentOrder.anonCode && !currentOrder.customerName) ? currentOrder.anonCode : 'Nhập tên khách...'"
-                class="pay-input" />
+                class="pay-input"
+              />
             </div>
             <div class="pay-field">
               <label>Số điện thoại</label>
-              <input :value="payPhoneInput" @input="onPayPhoneInput" type="text"
-                inputmode="numeric" placeholder="Nhập số điện thoại..." maxlength="10"
-                class="pay-input" :class="{ error: payPhoneError }" />
+              <input
+                :value="payPhoneInput"
+                @input="onPayPhoneInput"
+                type="text"
+                inputmode="numeric"
+                placeholder="Nhập số điện thoại..."
+                maxlength="10"
+                class="pay-input"
+                :class="{ error: payPhoneError }"
+              />
               <span v-if="payPhoneError" class="pay-field-err">{{ payPhoneError }}</span>
             </div>
           </div>
-          <!-- Hiển thị anonCode nếu có -->
-         
           <p class="pay-hint">Nếu bỏ trống tên, đơn sẽ hiển thị mã khách ẩn danh</p>
         </div>
 
+        <!-- Ghi chú -->
+        <div class="note-section">
+          <p class="note-label">Ghi chú</p>
+          <textarea
+            class="note-textarea"
+            :value="orderNote"
+            @input="onNoteInput"
+            placeholder="Nhập ghi chú cho đơn hàng (không bắt buộc)..."
+          ></textarea>
+        </div>
+
+        <!-- Hình thức thanh toán -->
         <div class="payment-methods">
-          <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }"
-            @click="paymentMethod = 'cash'">
+          <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }" @click="paymentMethod = 'cash'">
             💵 Tiền mặt
           </div>
-          <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
-            @click="paymentMethod = 'momo'">
+          <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }" @click="paymentMethod = 'momo'">
             <img :src="logoMomo" class="momo-tab-logo" alt="MoMo" /> MoMo
           </div>
         </div>
@@ -539,9 +562,7 @@ function getDisplayName() {
           </p>
           <div class="payment-footer">
             <button class="btn-cancel" @click="closePaymentPopup">Hủy</button>
-            <button class="btn-confirm momo-btn" @click="openMomoPayment">
-              💳 Thanh toán thẻ ATM
-            </button>
+            <button class="btn-confirm momo-btn" @click="openMomoPayment">💳 Thanh toán thẻ ATM</button>
           </div>
         </template>
       </div>
@@ -567,6 +588,10 @@ function getDisplayName() {
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
           <span class="review-val">{{ paymentMethod === 'cash' ? '💵 Tiền mặt' : '🟣 Ví MoMo' }}</span>
+        </div>
+        <div class="review-row">
+          <span class="review-lbl">Ghi chú</span>
+          <span class="review-val review-note-val">{{ receiptData.note || 'Không có ghi chú' }}</span>
         </div>
         <div class="review-divider"></div>
         <p class="review-section-title">Sản Phẩm Đặt</p>
@@ -613,13 +638,21 @@ function getDisplayName() {
     <!-- ==================== POPUP THÀNH CÔNG ==================== -->
     <div v-if="showSuccessPopup" class="popup-overlay">
       <div class="success-popup">
+
+        <!-- Header cố định -->
         <div class="success-header" :class="{ 'success-header--cash': paymentMethod === 'cash' }">
           <img :src="logoDrip" alt="DripLab" class="success-header-logo" />
           <p class="success-header-title">Kết Quả Giao Dịch</p>
         </div>
-        <div class="success-body">
+
+        <!-- Tiêu đề + số tiền cố định -->
+        <div class="success-fixed-top">
           <h2 class="success-title">Giao dịch thành công</h2>
           <p class="success-amount">{{ receiptData.finalPrice.toLocaleString() }}đ</p>
+        </div>
+
+        <!-- Vùng cuộn — chỉ biên lai -->
+        <div class="success-scroll-body">
           <div class="success-receipt">
             <div class="success-receipt-header" :class="{ 'success-receipt-header--cash': paymentMethod === 'cash' }">
               <img v-if="paymentMethod === 'momo'" :src="logoMomo" class="receipt-logo" alt="MoMo" />
@@ -630,6 +663,10 @@ function getDisplayName() {
             <div class="success-row b">
               <span>Đặt bàn</span>
               <span>{{ receiptData.tableNums && receiptData.tableNums.length ? formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
+            </div>
+            <div class="success-row b">
+              <span>Ghi chú</span>
+              <span class="receipt-note-val">{{ receiptData.note || 'Không có ghi chú' }}</span>
             </div>
             <div class="receipt-divider"></div>
             <div class="success-row b"><span>Hình thức</span><span>{{ paymentMethod === 'cash' ? 'Tiền mặt' : 'Ví MoMo' }}</span></div>
@@ -658,10 +695,16 @@ function getDisplayName() {
               <div class="success-row b"><span>Tiền thừa trả khách</span><span class="cash-change">{{ receiptData.change.toLocaleString() }} VNĐ</span></div>
             </template>
           </div>
-          <button class="success-close-btn" :class="{ 'success-close-btn--cash': paymentMethod === 'cash' }" @click="closeSuccessPopup">
+        </div>
+
+        <!-- Nút hoàn thành cố định dưới -->
+        <div class="success-fixed-bottom">
+          <button class="success-close-btn" :class="{ 'success-close-btn--cash': paymentMethod === 'cash' }"
+            @click="closeSuccessPopup">
             Hoàn thành
           </button>
         </div>
+
       </div>
     </div>
 

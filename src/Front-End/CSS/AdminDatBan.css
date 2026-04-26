@@ -1,0 +1,593 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+
+/* ══════════════════════════════════════════
+   ROOT & BIẾN MÀU
+══════════════════════════════════════════ */
+.admin-datban-root {
+    --brown:       #5c3317;
+    --brown-dark:  #3e2010;
+    --brown-light: #8b5e3c;
+    --cream:       #f5f0e8;
+    --cream-dark:  #ede5d8;
+    --green:       #4a7c59;
+    --green-dark:  #3a6045;
+    --red:         #c0392b;
+    --red-dark:    #a93226;
+    --white:       #ffffff;
+    --gray:        #aaa;
+    --shadow:      0 4px 20px rgba(92, 51, 23, 0.15);
+
+    font-family: 'Be Vietnam Pro', sans-serif;
+    width: 100%;
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.admin-datban-root *,
+.admin-datban-root *::before,
+.admin-datban-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+.adb-header {
+    width: 100%;
+    background: var(--brown-dark);
+    color: var(--white);
+    text-align: center;
+    padding: 18px 0 14px;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 16px rgba(62, 32, 16, 0.28);
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   LƯỚI BÀN
+══════════════════════════════════════════ */
+.adb-grid-wrap {
+    width: 100%;
+    max-width: 900px;
+    padding: 36px 24px;
+}
+
+.adb-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+.adb-table-card {
+    background: var(--white);
+    border: 2px solid #e0d4c0;
+    border-radius: 16px;
+    padding: 18px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.adb-table-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(92, 51, 23, 0.2);
+}
+
+.adb-table-num {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--brown-dark);
+}
+
+/* Badge trạng thái */
+.adb-badge {
+    border-radius: 8px;
+    padding: 6px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: filter 0.2s, transform 0.15s;
+}
+
+.adb-badge:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.adb-badge.occupied {
+    background: var(--red);
+    color: var(--white);
+}
+
+.adb-badge.available {
+    background: var(--green);
+    color: var(--white);
+}
+
+/* Nút Chi Tiết */
+.adb-detail-btn {
+    width: 100%;
+    background: var(--brown);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+}
+
+.adb-detail-btn:hover {
+    background: var(--brown-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 32, 16, 0.25);
+}
+
+.adb-detail-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* ══════════════════════════════════════════
+   OVERLAY & MODAL
+══════════════════════════════════════════ */
+.adb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 16px;
+}
+
+.adb-modal {
+    background: var(--white);
+    border-radius: 18px;
+    width: 820px;
+    max-width: 98vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 60px rgba(0, 0, 0, 0.3);
+    animation: adb-fadeUp 0.3s ease;
+}
+
+@keyframes adb-fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Modal top bar ── */
+.adb-modal-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 2px solid var(--cream-dark);
+    flex-shrink: 0;
+    background: var(--cream);
+}
+
+.adb-modal-table-id {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--brown-dark);
+}
+
+.adb-modal-status {
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.adb-modal-status.occupied  { background: #fde8e8; color: var(--red); }
+.adb-modal-status.available { background: #e8f5ee; color: var(--green-dark); }
+
+.adb-modal-close {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f0ece4;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brown-dark);
+    transition: background 0.2s, transform 0.15s;
+}
+
+.adb-modal-close:hover {
+    background: #e0d8cc;
+    transform: scale(1.12);
+}
+
+/* ── Modal body ── */
+.adb-modal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Cột trái — scroll */
+.adb-modal-left {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 20px 20px;
+    min-height: 0;
+}
+
+.adb-modal-left::-webkit-scrollbar        { width: 5px; }
+.adb-modal-left::-webkit-scrollbar-thumb  { background: #c5b89a; border-radius: 3px; }
+
+/* Cột phải — cố định */
+.adb-modal-right {
+    width: 240px;
+    min-width: 240px;
+    border-left: 2px solid var(--cream-dark);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+    gap: 10px;
+    flex-shrink: 0;
+    background: var(--cream);
+}
+
+/* ══════════════════════════════════════════
+   NỘI DUNG CỘT TRÁI
+══════════════════════════════════════════ */
+
+/* Logo + Tiêu đề */
+.adb-detail-logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+.adb-logo-img {
+    height: 64px;
+    object-fit: contain;
+}
+
+.adb-logo-fallback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 64px;
+}
+
+.adb-logo-fallback img {
+    height: 64px;
+    object-fit: contain;
+}
+
+.adb-detail-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--brown-dark);
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Section chung */
+.adb-section {
+    background: var(--white);
+    border: 1.5px solid #ddd4c4;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+
+.adb-section-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--brown-dark);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--cream-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Info rows */
+.adb-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0ece4;
+}
+
+.adb-info-row:last-child { border-bottom: none; }
+
+.adb-info-lbl { font-weight: 700; color: var(--brown); }
+.adb-info-val { font-weight: 600; color: var(--brown-dark); text-align: right; max-width: 55%; word-break: break-word; }
+
+/* Sản phẩm */
+.adb-product-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0ece4;
+}
+
+.adb-product-item:last-child { border-bottom: none; }
+
+.adb-product-img-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--cream-dark);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.adb-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.adb-product-info { flex: 1; min-width: 0; }
+
+.adb-product-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--brown-dark);
+    margin-bottom: 5px;
+}
+
+.adb-product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 5px;
+}
+
+.adb-tag {
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--brown);
+}
+
+.adb-tag.size    { background: var(--brown-dark); }
+.adb-tag.topping { background: var(--brown-light); }
+
+.adb-product-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--green-dark);
+}
+
+/* Ghi chú */
+.adb-note-text {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Empty state */
+.adb-empty {
+    text-align: center;
+    color: var(--gray);
+    font-size: 13px;
+    padding: 20px 0;
+}
+
+/* ══════════════════════════════════════════
+   CỘT PHẢI — THANH TOÁN
+══════════════════════════════════════════ */
+.adb-right-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--brown-dark);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 10px;
+    border-bottom: 1.5px solid #d0c8bc;
+}
+
+.adb-price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.adb-price-row span:first-child { color: var(--gray); font-weight: 600; }
+.adb-price-row span:last-child  { font-weight: 700; color: var(--brown-dark); }
+
+.adb-price-row .discount { color: var(--red); }
+
+.adb-divider {
+    height: 1.5px;
+    background: #d0c8bc;
+    margin: 4px 0;
+}
+
+.adb-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 4px;
+}
+
+.adb-total-lbl { font-size: 14px; font-weight: 700;  color: var(--brown-dark); }
+.adb-total-val { font-size: 18px; font-weight: 900; color: var(--brown-dark); }
+
+/* Nút xác nhận hoàn thành */
+.adb-btn-done {
+    width: 100%;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+    margin-top: 4px;
+}
+
+.adb-btn-done:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(58, 96, 69, 0.3);
+}
+
+.adb-btn-done:active { transform: translateY(0); }
+
+/* Nút huỷ đơn */
+.adb-btn-cancel {
+    width: 100%;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.15s;
+}
+
+.adb-btn-cancel:hover {
+    background: var(--red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(169, 50, 38, 0.3);
+}
+
+.adb-btn-cancel:active { transform: translateY(0); }
+
+/* Bàn trống */
+.adb-empty-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--gray);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.adb-empty-icon { font-size: 40px; }
+
+/* ══════════════════════════════════════════
+   CONFIRM MINI POPUP
+══════════════════════════════════════════ */
+.adb-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.adb-confirm-popup {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 360px;
+    max-width: 95vw;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+    animation: adb-fadeUp 0.25s ease;
+}
+
+.adb-confirm-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--brown-dark);
+    margin-bottom: 8px;
+}
+
+.adb-confirm-sub {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.adb-confirm-btns {
+    display: flex;
+    gap: 12px;
+}
+
+.adb-confirm-back {
+    flex: 1;
+    background: #f0ece4;
+    color: var(--brown-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.adb-confirm-back:hover {
+    background: #e0d8cc;
+    transform: translateY(-1px);
+}
+
+.adb-confirm-ok {
+    flex: 1;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.adb-confirm-ok:hover {
+    background: var(--green-dark);
+    transform: translateY(-1px);
+}
