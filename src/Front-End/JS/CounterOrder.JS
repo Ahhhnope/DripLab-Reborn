@@ -88,7 +88,7 @@ export function useCounterOrder() {
     function editCustomerInfo() { isEditingInfo.value = true }
 
     /* ══ ĐẶT BÀN ═══════════════════════════════════════════════════ */
-    const TOTAL_TABLES   = 10
+    const TOTAL_TABLES   = 15
     const selectedTables = ref([])
     const occupiedTables = ref([])
 
@@ -179,7 +179,6 @@ export function useCounterOrder() {
     function searchProducts() {
         const kw = searchText.value.toLowerCase().trim()
         if (!kw) {
-            // reload from API instead of stale cache
             fetchDrinks()
             return
         }
@@ -290,7 +289,6 @@ export function useCounterOrder() {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
         payNameInput.value = val
         e.target.value = val
-        // Sync vào order hiện tại ngay lập tức để hiển thị đúng
         if (currentOrder.value) currentOrder.value.customerName = val.trim()
     }
 
@@ -342,7 +340,6 @@ export function useCounterOrder() {
 
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
-        // Ưu tiên payNameInput (người dùng vừa nhập trong popup)
         const resolvedName  = payNameInput.value.trim() || order?.customerName || customerName.value || ''
         const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
         if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
@@ -385,7 +382,6 @@ export function useCounterOrder() {
         showSuccessPopup.value = false
         const order = currentOrder.value
 
-        // Giải phóng bàn
         if (order?.selectedTables) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
@@ -393,12 +389,10 @@ export function useCounterOrder() {
             })
         }
 
-        // Xoá hóa đơn đã thanh toán khỏi danh sách
         const idx = orderList.value.findIndex(o => o.id === order?.id)
         if (idx !== -1) orderList.value.splice(idx, 1)
 
         if (!orderList.value.length) {
-            // Không còn hóa đơn nào → về welcome, reset toàn bộ
             appStep.value         = 'welcome'
             currentOrder.value    = null
             orderedItems.value    = []
@@ -415,7 +409,6 @@ export function useCounterOrder() {
             selectedTables.value  = []
             orderNote.value       = ''
         } else {
-            // Còn hóa đơn → chuyển sang hóa đơn gần nhất
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
