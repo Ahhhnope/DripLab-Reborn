@@ -1,6 +1,11 @@
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import api from '../../api/axios.js'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
 function getImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
@@ -166,7 +171,7 @@ export function useCounterOrder() {
             products.value = res.data.map(d => ({
                 id: d.id,
                 name: d.name,
-                image: d.imageUrl,
+                image: getImageUrl(d.imageUrl),
                 price: d.basePrice,
                 category: d.category
             }))

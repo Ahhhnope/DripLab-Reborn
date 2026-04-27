@@ -7,6 +7,11 @@ import api from '../../api/axios'
 import { useCartStore } from '../../stores/cart' // Assuming standard path
 import { useAuthStore } from '../Authorization/Auth'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
 export function useMenuView() {
   const router = useRouter()
   const cartStore = useCartStore()
@@ -47,7 +52,7 @@ export function useMenuView() {
         price: p.basePrice,
         isHot: p.isHot || false,
         isNew: p.isNew || false,
-        imageUrl: p.imageUrl 
+        imageUrl: getImageUrl(p.imageUrl) 
       }))
     } catch (error) {
       console.error("Failed to fetch menu:", error)
