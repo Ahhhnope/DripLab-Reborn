@@ -52,30 +52,24 @@ const MOCK_ORDERS = {
 //  COMPOSABLE
 // ─────────────────────────────────────────
 export function useAdminDatBan() {
-    const TOTAL_TABLES   = 10
+    const TOTAL_TABLES = 15
 
-    // Bàn đang có khách (sẽ đến từ API sau)
-    const occupiedTables = ref([1])
-
-    // Modal state
+    const occupiedTables  = ref([1])
     const showDetail      = ref(false)
     const selectedTable   = ref(null)
     const selectedOrder   = ref(null)
     const showConfirmDone = ref(false)
 
-    // ── Helpers ──────────────────────────
     function isOccupied(num) {
         return occupiedTables.value.includes(num)
     }
 
     function getTableLabel(num) {
-        return `Bàn ${String(num).padStart(2, '0')}`
+        return `Bàn ${num}`
     }
 
-    // ── Mở modal chi tiết ────────────────
     function openDetail(num) {
         selectedTable.value = num
-        // TODO: thay bằng API call: api.get(`/tables/${num}/orders`)
         selectedOrder.value = MOCK_ORDERS[num] ?? {
             tableNum: num,
             customerName: null,
@@ -88,22 +82,19 @@ export function useAdminDatBan() {
     }
 
     function closeDetail() {
-        showDetail.value     = false
-        selectedTable.value  = null
-        selectedOrder.value  = null
+        showDetail.value      = false
+        selectedTable.value   = null
+        selectedOrder.value   = null
         showConfirmDone.value = false
     }
 
-    // ── Xác nhận hoàn thành ──────────────
     function confirmDone() {
-        // TODO: gọi API cập nhật trạng thái bàn -> available
         const idx = occupiedTables.value.indexOf(selectedTable.value)
         if (idx !== -1) occupiedTables.value.splice(idx, 1)
         showConfirmDone.value = false
         closeDetail()
     }
 
-    // ── Tổng tiền ────────────────────────
     const totalPrice = computed(() => {
         if (!selectedOrder.value?.items?.length) return 0
         return selectedOrder.value.items.reduce(

@@ -17,13 +17,12 @@ const {
     totalPrice,
 } = useAdminDatBan()
 
-// Hình sản phẩm — khi có API thì imageUrl từ server trả về
 function getProductImg(item) {
     if (item.imageUrl) return item.imageUrl
     const map = {
-        'Bạc Xỉu':     new URL('../IMG/coffee_latte.jpg', import.meta.url).href,
-        'Cà Phê Muối':  new URL('../IMG/Matcha_tea.jpg',  import.meta.url).href,
-        'Cold Brew':    new URL('../IMG/Cold brew.jpg',   import.meta.url).href,
+        'Bạc Xỉu':    new URL('../IMG/coffee_latte.jpg', import.meta.url).href,
+        'Cà Phê Muối': new URL('../IMG/Matcha_tea.jpg',  import.meta.url).href,
+        'Cold Brew':   new URL('../IMG/Cold brew.jpg',   import.meta.url).href,
     }
     return map[item.name] ?? ''
 }
@@ -34,72 +33,51 @@ function getProductImg(item) {
 <template>
   <div class="admin-datban-root">
 
-    <!-- ══════════════════ HEADER ══════════════════ -->
+    <!-- HEADER -->
     <div class="adb-header">QUẢN LÝ ĐẶT BÀN</div>
 
-    <!-- ══════════════════ LƯỚI BÀN ══════════════════ -->
+    <!-- LƯỚI BÀN -->
     <div class="adb-grid-wrap">
       <div class="adb-grid">
         <div
           v-for="num in TOTAL_TABLES"
           :key="num"
           class="adb-table-card"
+          :class="{ 'occupied-card': isOccupied(num) }"
+          @click="openDetail(num)"
         >
           <span class="adb-table-num">{{ getTableLabel(num) }}</span>
-
-          <span
-            class="adb-badge"
-            :class="isOccupied(num) ? 'occupied' : 'available'"
-          >
-            {{ isOccupied(num) ? 'Hết Bàn' : 'Sẵn Bàn' }}
-          </span>
-
-          <button class="adb-detail-btn" @click="openDetail(num)">
-            Chi Tiết
-          </button>
         </div>
       </div>
     </div>
 
-    <!-- ══════════════════ MODAL CHI TIẾT ══════════════════ -->
+    <!-- MODAL CHI TIẾT -->
     <div v-if="showDetail" class="adb-overlay" @click.self="closeDetail">
       <div class="adb-modal">
 
-        <!-- Top bar -->
         <div class="adb-modal-topbar">
-          <span class="adb-modal-table-id">
-            {{ getTableLabel(selectedTable) }}
-          </span>
+          <span class="adb-modal-table-id">{{ getTableLabel(selectedTable) }}</span>
           <span
             class="adb-modal-status"
             :class="isOccupied(selectedTable) ? 'occupied' : 'available'"
           >
-            {{ isOccupied(selectedTable) ? 'Hết Bàn' : 'Sẵn Bàn' }}
+            {{ isOccupied(selectedTable) ? 'Đang Sử Dụng' : 'Sẵn Bàn' }}
           </span>
           <button class="adb-modal-close" @click="closeDetail">✕</button>
         </div>
 
-        <!-- Body -->
         <div class="adb-modal-body">
 
-          <!-- ── Cột trái (scroll được) ── -->
+          <!-- Cột trái — scroll nội bộ -->
           <div class="adb-modal-left">
-
-            <!-- Logo + Tiêu đề -->
             <div class="adb-detail-logo-wrap">
-              <img
-                :src="logoDrip"
-                alt="DripLab"
-                class="adb-logo-img"
-                @error="$event.target.style.display = 'none'"
-              />
+              <img :src="logoDrip" alt="DripLab" class="adb-logo-img"
+                   @error="$event.target.style.display='none'" />
               <p class="adb-detail-title">Chi Tiết Đặt Bàn</p>
             </div>
 
-            <!-- Thông tin khách hàng -->
             <div class="adb-section">
               <p class="adb-section-title">Thông Tin Khách Hàng</p>
-
               <div class="adb-info-row">
                 <span class="adb-info-lbl">Họ và tên</span>
                 <span class="adb-info-val">{{ selectedOrder?.customerName || '—' }}</span>
@@ -118,57 +96,37 @@ function getProductImg(item) {
               </div>
             </div>
 
-            <!-- Thông tin sản phẩm -->
             <div class="adb-section">
               <p class="adb-section-title">Thông Tin Sản Phẩm</p>
-
-              <p v-if="!selectedOrder?.items?.length" class="adb-empty">
-                Chưa có sản phẩm
-              </p>
-
-              <div
-                v-for="item in selectedOrder?.items"
-                :key="item.id"
-                class="adb-product-item"
-              >
+              <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
+              <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
                 <div class="adb-product-img-wrap">
-                  <img
-                    v-if="getProductImg(item)"
-                    :src="getProductImg(item)"
-                    :alt="item.name"
-                    class="adb-product-img"
-                    @error="$event.target.style.display = 'none'"
-                  />
+                  <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.name"
+                       class="adb-product-img" @error="$event.target.style.display='none'" />
                   <span v-else>☕</span>
                 </div>
-
                 <div class="adb-product-info">
                   <p class="adb-product-name">{{ item.name }} × {{ item.qty }}</p>
                   <div class="adb-product-tags">
                     <span class="adb-tag size">Size: {{ item.size }}</span>
                     <span class="adb-tag">Đá: {{ item.ice }}</span>
                     <span class="adb-tag">Đường: {{ item.sugar }}</span>
-                    <span
-                      v-if="item.toppings && item.toppings !== 'Không có'"
-                      class="adb-tag topping"
-                    >{{ item.toppings }}</span>
+                    <span v-if="item.toppings && item.toppings !== 'Không có'" class="adb-tag topping">
+                      {{ item.toppings }}
+                    </span>
                   </div>
-                  <p class="adb-product-price">
-                    {{ (item.price * item.qty).toLocaleString() }}đ
-                  </p>
+                  <p class="adb-product-price">{{ (item.price * item.qty).toLocaleString() }}đ</p>
                 </div>
               </div>
             </div>
 
-            <!-- Ghi chú -->
             <div class="adb-section">
-              <p class="adb-section-title" style="margin-bottom: 4px">Ghi Chú</p>
+              <p class="adb-section-title" style="margin-bottom:4px">Ghi Chú</p>
               <p class="adb-note-text">Không có ghi chú</p>
             </div>
+          </div>
 
-          </div><!-- /modal-left -->
-
-          <!-- ── Cột phải (thanh toán) ── -->
+          <!-- Cột phải — cố định -->
           <div class="adb-modal-right">
             <p class="adb-right-title">Thanh Toán</p>
 
@@ -186,12 +144,8 @@ function getProductImg(item) {
                 <span class="adb-total-lbl">Tổng cộng</span>
                 <span class="adb-total-val">{{ totalPrice.toLocaleString() }} đ</span>
               </div>
-              <button class="adb-btn-done" @click="showConfirmDone = true">
-                Xác nhận hoàn thành
-              </button>
-              <button class="adb-btn-cancel" @click="closeDetail">
-                Huỷ đơn
-              </button>
+              <button class="adb-btn-done" @click="showConfirmDone = true">Xác nhận hoàn thành</button>
+              <button class="adb-btn-cancel" @click="closeDetail">Huỷ đơn</button>
             </template>
 
             <template v-else>
@@ -200,26 +154,20 @@ function getProductImg(item) {
                 <span>Bàn đang trống<br />Chưa có đơn hàng</span>
               </div>
             </template>
-          </div><!-- /modal-right -->
+          </div>
 
-        </div><!-- /modal-body -->
-      </div><!-- /modal -->
-    </div><!-- /overlay -->
+        </div>
+      </div>
+    </div>
 
-    <!-- ══════════════════ CONFIRM HOÀN THÀNH ══════════════════ -->
+    <!-- CONFIRM POPUP -->
     <div v-if="showConfirmDone" class="adb-confirm-overlay">
       <div class="adb-confirm-popup">
         <p class="adb-confirm-title">Xác nhận hoàn thành?</p>
-        <p class="adb-confirm-sub">
-          Bàn sẽ được giải phóng và đơn hàng kết thúc.
-        </p>
+        <p class="adb-confirm-sub">Bàn sẽ được giải phóng và đơn hàng kết thúc.</p>
         <div class="adb-confirm-btns">
-          <button class="adb-confirm-back" @click="showConfirmDone = false">
-            Quay lại
-          </button>
-          <button class="adb-confirm-ok" @click="confirmDone">
-            ✓ Xác nhận
-          </button>
+          <button class="adb-confirm-back" @click="showConfirmDone = false">Quay lại</button>
+          <button class="adb-confirm-ok" @click="confirmDone">✓ Xác nhận</button>
         </div>
       </div>
     </div>
