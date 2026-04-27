@@ -66,8 +66,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round" d="M9 17h6" />
                         </svg>
                         <svg v-else-if="st.icon === 'gear'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.8 1.8 0 00.35 1.98l.06.06-1.6 2.77-.08-.03a1.9 1.9 0 00-2.1.53l-.04.04-3.2-1.85a1.9 1.9 0 000-1.06L9.6 21l-.04-.04a1.9 1.9 0 00-2.1-.53l-.08.03-1.6-2.77.06-.06A1.8 1.8 0 006.6 15l-.02-.08H3v-3.2h3.58l.02-.08A1.8 1.8 0 006.25 9.6l-.06-.06 1.6-2.77.08.03c.76.3 1.63.13 2.1-.53l.04-.04L13.2 4.4c.32.32.52.75.52 1.2v.04c0 .36-.1.71-.28 1.02l-.02.03 3.2 1.85.04-.04c.47-.66 1.34-.83 2.1-.53l.08-.03 1.6 2.77-.06.06A1.8 1.8 0 0019.4 9l.02.08H21v3.2h-1.58z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <svg v-else-if="st.icon === 'truck'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v10H3z" />
@@ -81,6 +81,9 @@
                         </svg>
                         <svg v-else-if="st.icon === 'x'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                        <svg v-else-if="st.icon === 'ban'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                       </span>
                       <span class="status-step__label">{{ st.label }}</span>
@@ -233,7 +236,7 @@
               <h3 class="confirm-title">{{ confirmTitle }}</h3>
               <p class="confirm-desc">{{ confirmDesc }}</p>
 
-              <!-- Textarea lý do: chỉ hiện khi cancelled / failed -->
+              <!-- Textarea lý do: chỉ hiện khi cancelled / delivery_failed -->
               <div v-if="requiresReason" class="confirm-reason">
                 <label class="confirm-reason__label">
                   Lý do <span class="confirm-reason__required">*</span>
@@ -287,7 +290,7 @@ const pendingStatus = ref(null);
 const cancelReason = ref("");
 
 // Các trạng thái bắt buộc nhập lý do
-const REASON_REQUIRED_STATUSES = ["cancelled", "failed"];
+const REASON_REQUIRED_STATUSES = ["cancelled", "delivery_failed"];
 
 const requiresReason = computed(() =>
   REASON_REQUIRED_STATUSES.includes(pendingStatus.value)

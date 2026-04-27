@@ -10,21 +10,25 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     { key: "processing", label: "Đang xử lý", icon: "gear" },
     { key: "shipping", label: "Đang vận chuyển", icon: "truck" },
     { key: "delivered", label: "Đã giao", icon: "home" },
-    { key: "failed", label: "Giao không thành công", icon: "x" },
+    { key: "delivery_failed", label: "Giao không thành công", icon: "x" },
     { key: "cancelled", label: "Đã huỷ", icon: "ban" },
   ];
 
   // ✅ Chỉ ẩn bớt khi rơi vào 1 trong 3 trạng thái kết thúc
-  // - delivered  -> ẩn failed, cancelled
-  // - failed     -> ẩn delivered, cancelled
-  // - cancelled  -> ẩn delivered, failed
+  // - delivered        -> ẩn delivery_failed, cancelled
+  // - delivery_failed  -> ẩn delivered, cancelled
+  // - cancelled        -> ẩn delivered, delivery_failed
   // Còn lại (pending/processing/shipping/khác) -> HIỆN FULL tất cả trạng thái
   function getVisibleSteps(currentStatus) {
     if (currentStatus === "delivered") {
-      return statusSteps.filter((s) => ["pending", "processing", "shipping", "delivered"].includes(s.key));
+      return statusSteps.filter((s) =>
+        ["pending", "processing", "shipping", "delivered"].includes(s.key)
+      );
     }
-    if (currentStatus === "failed") {
-      return statusSteps.filter((s) => ["pending", "processing", "shipping", "failed"].includes(s.key));
+    if (currentStatus === "delivery_failed") {
+      return statusSteps.filter((s) =>
+        ["pending", "processing", "shipping", "delivery_failed"].includes(s.key)
+      );
     }
     if (currentStatus === "cancelled") {
       return statusSteps.filter((s) => ["pending", "processing", "cancelled"].includes(s.key));
@@ -37,24 +41,20 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
   }
 
   function emitConfirm() {
-    // emit("confirm", props.order);
     requestChangeStatus("processing");
-    // close();
   }
 
   function emitCancel() {
-    // emit("cancel", props.order);
     requestChangeStatus("cancelled");
-    // close();
   }
 
   // ✅ Đổi trạng thái (confirm đã xử lý ở UI)
   function requestChangeStatus(nextStatus) {
     if (!props.order) return;
 
-    emit("set-status", { 
-      id: props.order.id, 
-      status: nextStatus
+    emit("set-status", {
+      id: props.order.id,
+      status: nextStatus,
     });
   }
 
