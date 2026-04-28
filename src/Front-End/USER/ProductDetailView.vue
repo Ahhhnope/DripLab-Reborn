@@ -31,8 +31,8 @@ const notice = reactive({
 
 // --- SELECTIONS ---
 const selections = reactive({
-  sugar: '100%', 
-  ice: '100%', 
+  sugar: 100, 
+  ice: 100, 
   cup: 'cup_plastic',
   toppings: new Set(),
   size: 'S'
@@ -197,7 +197,7 @@ function closeNotice() {
                   @click="selections.sugar = s"
                   class="px-4 py-2 rounded-xl text-sm font-bold border-2 transition"
                   :class="selections.sugar === s ? 'border-[#126b23] bg-[#126b23] text-white' : 'border-slate-100 text-slate-400 hover:border-slate-200'">
-                  {{ s }}
+                  {{ s }}%
                 </button>
               </div>
             </section>
@@ -209,7 +209,7 @@ function closeNotice() {
                   @click="selections.ice = i"
                   class="px-4 py-2 rounded-xl text-sm font-bold border-2 transition"
                   :class="selections.ice === i ? 'border-[#126b23] bg-[#126b23] text-white' : 'border-slate-100 text-slate-400 hover:border-slate-200'">
-                  {{ i }}
+                  {{ i }}%
                 </button>
               </div>
             </section>
