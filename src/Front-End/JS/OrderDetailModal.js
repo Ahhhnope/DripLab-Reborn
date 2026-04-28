@@ -2,16 +2,16 @@ import { ref, watch } from "vue";
 
 export function useOrderDetailModal(props, emit, { money, statusText }) {
   const loading = ref(false);
-  const error = ref("");
+  const error   = ref("");
 
   // icon: tên dùng trong template (svg inline)
   const statusSteps = [
-    { key: "pending", label: "Chờ xác nhận", icon: "doc" },
-    { key: "processing", label: "Đang xử lý", icon: "gear" },
-    { key: "shipping", label: "Đang vận chuyển", icon: "truck" },
-    { key: "delivered", label: "Đã giao", icon: "home" },
-    { key: "delivery_failed", label: "Giao không thành công", icon: "x" },
-    { key: "cancelled", label: "Đã huỷ", icon: "ban" },
+    { key: "pending",         label: "Chờ xác nhận",          icon: "doc"   },
+    { key: "processing",      label: "Đang xử lý",             icon: "gear"  },
+    { key: "shipping",        label: "Đang vận chuyển",        icon: "truck" },
+    { key: "delivered",       label: "Đã giao",                icon: "home"  },
+    { key: "delivery_failed", label: "Giao không thành công",  icon: "x"     },
+    { key: "cancelled",       label: "Đã huỷ",                 icon: "ban"   },
   ];
 
   // ✅ Chỉ ẩn bớt khi rơi vào 1 trong 3 trạng thái kết thúc
@@ -31,7 +31,9 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
       );
     }
     if (currentStatus === "cancelled") {
-      return statusSteps.filter((s) => ["pending", "processing", "cancelled"].includes(s.key));
+      return statusSteps.filter((s) =>
+        ["pending", "processing", "cancelled"].includes(s.key)
+      );
     }
     return statusSteps;
   }
@@ -49,12 +51,13 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
   }
 
   // ✅ Đổi trạng thái (confirm đã xử lý ở UI)
-  function requestChangeStatus(nextStatus) {
+  function requestChangeStatus(nextStatus, reason = null) {
     if (!props.order) return;
 
     emit("set-status", {
-      id: props.order.id,
+      id:     props.order.id,
       status: nextStatus,
+      reason,
     });
   }
 
@@ -63,7 +66,7 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     if (!code) return;
 
     loading.value = true;
-    error.value = "";
+    error.value   = "";
 
     try {
       // TODO: thay URL này theo backend thật của bạn
@@ -81,7 +84,7 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     () => props.open,
     (isOpen) => {
       if (!isOpen) {
-        error.value = "";
+        error.value   = "";
         loading.value = false;
       }
     }
