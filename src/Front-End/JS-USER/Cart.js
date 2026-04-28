@@ -61,7 +61,7 @@ export default {
         sizePrice: item.size?.price || 0,
         sizeName: item.size?.name || '',
         toppingPrice: item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0,
-        // ✅ basePrice = drinkBase + size + toppings
+        // basePrice = drinkBase + size + toppings
         basePrice:
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
@@ -69,38 +69,12 @@ export default {
         quantity: item.quantity,
         sugar: item.sugar || '100%',
         ice: item.ice || '100%',
-        toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
-        // ✅ Key để gộp các đơn giống nhau
-        mergeKey: [
-          item.drinkId,
-          item.size?.id || '',
-          item.sugar || '',
-          item.ice || '',
-          (item.toppings?.map(t => t.topping?.id).sort().join(',') || '')
-        ].join('|')
+        toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || []
       }))
     },
 
-    // ✅ Gộp các đơn hàng giống nhau
-    mergedCartItems() {
-      const map = new Map()
-      for (const item of this.cartItems) {
-        if (map.has(item.mergeKey)) {
-          const existing = map.get(item.mergeKey)
-          existing.quantity += item.quantity
-          existing.ids.push(item.id)
-        } else {
-          map.set(item.mergeKey, { ...item, ids: [item.id] })
-        }
-      }
-      return Array.from(map.values())
-    },
-
     selectedItems() {
-      // ✅ Chỉ lấy các item có id trong selectedIds
-      return this.mergedCartItems.filter(item =>
-        item.ids.some(id => this.selectedIds.includes(id))
-      )
+      return this.cartItems.filter(item => this.selectedIds.includes(item.id))
     },
 
     selectedSubtotal() {
@@ -171,33 +145,24 @@ export default {
     },
 
     async increaseQty(item) {
-      // ✅ Tăng quantity của tất cả ids trong group
-      for (const id of item.ids) {
-        const storeItem = this.cartStore.items.find(i => i.id === id)
-        if (storeItem) {
-          const newQty = storeItem.quantity + 1
-          try {
-            await api.put(`/carts/items/${id}/quantity`, { quantity: newQty })
-            storeItem.quantity = newQty
-          } catch (e) {
-            console.error('Quantity update failed:', e)
-          }
-        }
+      try {
+        await api.put(`/carts/items/${item.id}/quantity`, { quantity: newQty })
+        const storeItem = this.cartStore.items.find(i => i.id === item.id)
+        if (storeItem) storeItem.quantity = newQty
+      } catch (e) {
+        console.error('Quantity update failed:', e)
       }
     },
 
     async decreaseQty(item) {
-      for (const id of item.ids) {
-        const storeItem = this.cartStore.items.find(i => i.id === id)
-        if (storeItem && storeItem.quantity > 1) {
-          const newQty = storeItem.quantity - 1
-          try {
-            await api.put(`/carts/items/${id}/quantity`, { quantity: newQty })
-            storeItem.quantity = newQty
-          } catch (e) {
-            console.error('Quantity update failed:', e)
-          }
-        }
+      if (item.quantity <= 1) return
+      const newQty = item.quantity - 1
+      try {
+        await api.put(`/carts/items/${item.id}/quantity`, { quantity: newQty })
+        const storeItem = this.cartStore.items.find(i => i.id === item.id)
+        if (storeItem) storeItem.quantity = newQty
+      } catch (e) {
+        console.error('Quantity update failed:', e)
       }
     },
 
@@ -206,15 +171,12 @@ export default {
 
     async executeDelete() {
       if (!this.deleteTarget) return
-      // ✅ Xóa tất cả ids trong group
-      for (const id of this.deleteTarget.ids) {
-        try {
-          await api.delete(`/carts/remove/${id}`)
-          this.cartStore.items = this.cartStore.items.filter(i => i.id !== id)
-          this.selectedIds = this.selectedIds.filter(s => s !== id)
-        } catch (e) {
-          console.error('Delete failed:', e)
-        }
+      try {
+        await api.delete(`/carts/remove/${this.deleteTarget.id}`)
+        this.cartStore.items = this.cartStore.items.filter(i => i.id !== this.deleteTarget.id)
+        this.selectedIds = this.selectedIds.filter(id => id !== this.deleteTarget.id)
+      } catch (e) {
+        console.error('Delete failed:', e)
       }
       this.deleteTarget = null
     },
@@ -292,7 +254,6 @@ export default {
     async placeOrder() {
       this.isPlacingOrder = true
       try {
-        // ✅ Chỉ gửi selectedIds lên backend
         const selectedCartItemIds = this.selectedItems.flatMap(i => i.ids)
 
         const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
