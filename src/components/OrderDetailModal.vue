@@ -94,6 +94,19 @@
                 <div class="status-timeline__hint">Nhấn vào trạng thái để cập nhật (sẽ hỏi xác nhận).</div>
               </div>
 
+              <!-- BANNER LÝ DO HUỶ ĐƠN -->
+              <div
+                v-if="props.order.status === 'cancelled' && props.order.cancelReason"
+                class="cancel-reason-banner"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cancel-reason-banner__icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+                <span>
+                  <strong>Đơn hàng đã bị huỷ</strong> — {{ props.order.cancelReason }}
+                </span>
+              </div>
+
               <div class="modal-grid">
                 <!-- CỘT TRÁI -->
                 <div class="modal-col-left">
@@ -236,17 +249,21 @@
               <h3 class="confirm-title">{{ confirmTitle }}</h3>
               <p class="confirm-desc">{{ confirmDesc }}</p>
 
-              <!-- Textarea lý do: chỉ hiện khi cancelled / delivery_failed -->
+              <!-- Combo box lý do: chỉ hiện khi cancelled / delivery_failed -->
               <div v-if="requiresReason" class="confirm-reason">
                 <label class="confirm-reason__label">
                   Lý do <span class="confirm-reason__required">*</span>
                 </label>
-                <textarea
-                  v-model="cancelReason"
-                  class="confirm-reason__input"
-                  rows="3"
-                  placeholder="Nhập lý do..."
-                ></textarea>
+
+                <select v-model="cancelReason" class="confirm-reason__select">
+                  <option value="" disabled>-- Chọn lý do --</option>
+                  <option
+                    v-for="opt in reasonOptions"
+                    :key="opt"
+                    :value="opt"
+                  >{{ opt }}</option>
+                </select>
+
                 <p class="confirm-reason__hint">Lý do sẽ được lưu vào ghi chú của khách hàng.</p>
               </div>
 
@@ -281,34 +298,59 @@ const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 const { money, statusText } = useOrderTable(() => {});
 const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } = useOrderDetailModal(props, emit, { money, statusText });
 
-// Confirm modal state
-const confirmOpen = ref(false);
-const confirmTitle = ref("Vui lòng xác nhận");
-const confirmDesc = ref("");
+// ── Confirm modal state ────────────────────────────
+const confirmOpen        = ref(false);
+const confirmTitle       = ref("Vui lòng xác nhận");
+const confirmDesc        = ref("");
 const confirmPrimaryText = ref("Tiếp tục");
-const pendingStatus = ref(null);
-const cancelReason = ref("");
+const pendingStatus      = ref(null);
+const cancelReason       = ref("");
 
-// Các trạng thái bắt buộc nhập lý do
+// Các trạng thái bắt buộc chọn lý do
 const REASON_REQUIRED_STATUSES = ["cancelled", "delivery_failed"];
+
+// Danh sách lý do theo từng trạng thái
+const REASON_OPTIONS = {
+  cancelled: [
+    "Khách hàng tự huỷ đơn",
+    "Khách hàng đặt nhầm / đặt trùng",
+    "Hết nguyên liệu, không thể thực hiện",
+    "Khách hàng không phản hồi khi xác nhận",
+    "Đơn hàng nằm ngoài khu vực giao",
+    "Nhà hàng tạm ngừng hoạt động",
+  ],
+  delivery_failed: [
+    "Khách hàng không có mặt tại địa chỉ",
+    "Địa chỉ giao hàng không chính xác",
+    "Khách hàng không nghe máy khi liên hệ",
+    "Khách hàng từ chối nhận hàng",
+    "Sự cố giao thông / thời tiết",
+    "Shipper gặp sự cố trên đường giao",
+  ],
+};
 
 const requiresReason = computed(() =>
   REASON_REQUIRED_STATUSES.includes(pendingStatus.value)
 );
 
+const reasonOptions = computed(
+  () => REASON_OPTIONS[pendingStatus.value] ?? []
+);
+
 function openConfirmStatus(st) {
   if (!st) return;
-  pendingStatus.value = st.key;
-  cancelReason.value = "";
-  confirmTitle.value = "Vui lòng xác nhận";
-  confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
-  confirmOpen.value = true;
+  pendingStatus.value      = st.key;
+  cancelReason.value       = "";          // reset khi đổi trạng thái
+  confirmTitle.value       = "Vui lòng xác nhận";
+  confirmDesc.value        = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
+  confirmPrimaryText.value = "Tiếp tục";
+  confirmOpen.value        = true;
 }
 
 function closeConfirm() {
-  confirmOpen.value = false;
+  confirmOpen.value   = false;
   pendingStatus.value = null;
-  cancelReason.value = "";
+  cancelReason.value  = "";
 }
 
 function confirmProceed() {
@@ -318,7 +360,7 @@ function confirmProceed() {
   closeConfirm();
 }
 
-// Computed
+// ── Computed ───────────────────────────────────────
 const visibleSteps = computed(() => getVisibleSteps(props.order?.status));
 
 const currentStatusIndex = computed(() => {
@@ -327,7 +369,7 @@ const currentStatusIndex = computed(() => {
 });
 
 const progressWidth = computed(() => {
-  const cur = currentStatusIndex.value;
+  const cur   = currentStatusIndex.value;
   const total = visibleSteps.value.length;
   if (cur < 0) return "0%";
   return `${Math.min(((cur + 0.6) / (total - 1)) * 100, 100)}%`;
@@ -337,8 +379,8 @@ function stepClass(st, idx) {
   const cur = currentStatusIndex.value;
   return {
     "is-current": idx === cur,
-    "is-done": cur >= 0 && idx < cur,
-    "is-todo": cur < 0 || idx > cur,
+    "is-done":    cur >= 0 && idx < cur,
+    "is-todo":    cur < 0 || idx > cur,
   };
 }
 
