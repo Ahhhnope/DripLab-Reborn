@@ -27,11 +27,27 @@ function genAnonCode() {
 export function useCounterOrder() {
 
     /* ══ BƯỚC MỞ ĐẦU ═══════════════════════════════════════════════ */
-    const appStep   = ref('welcome')
+    const appStep = ref('welcome')
     const orderMode = ref('')
 
-    function goToChoice() { appStep.value = 'choice' }
+    // FIX 2: Theo dõi trạng thái "đã từng tạo hóa đơn và quay lại"
+    const hasExistingSession = ref(false)
 
+    // Bấm "Tạo hóa đơn" → thẳng vào info
+    function goToChoice() {
+        // FIX 2: Nếu đã có hóa đơn (quay lại từ info), không tạo thêm
+        if (orderList.value.length === 0) {
+            createNewOrder()
+        } else {
+            // Chọn lại hóa đơn đầu tiên / hiện tại
+            if (!currentOrder.value) {
+                selectOrder(orderList.value[0])
+            }
+        }
+        appStep.value = 'info'
+    }
+
+    // Giữ lại để tương thích nhưng không dùng nữa
     function chooseTakeaway() {
         orderMode.value = 'takeaway'
         createNewOrder()
@@ -47,15 +63,101 @@ export function useCounterOrder() {
         appStep.value = 'info'
     }
 
+    /* ══ HÌNH THỨC PHỤC VỤ ══════════════════════════════════════════ */
+    // null = chưa chọn, false = mang đi, true = tại quán
+    const dineMode = ref(null)
+
+    /* ══ POPUP HỦY HÓA ĐƠN ══════════════════════════════════════════ */
+    // FIX 1: Popup xác nhận hủy hóa đơn
+    const showCancelOrderPopup = ref(false)
+    const cancelTargetOrder = ref(null)
+
+    function requestCancelOrder(order) {
+        cancelTargetOrder.value = order
+        showCancelOrderPopup.value = true
+    }
+
+    function confirmCancelOrder() {
+        showCancelOrderPopup.value = false
+        const order = cancelTargetOrder.value
+        if (!order) return
+
+        // Giải phóng bàn đã chiếm
+        if (order.selectedTables) {
+            order.selectedTables.forEach(t => {
+                const idx = occupiedTables.value.indexOf(t)
+                if (idx !== -1) occupiedTables.value.splice(idx, 1)
+            })
+        }
+
+        const idx = orderList.value.findIndex(o => o.id === order.id)
+        if (idx !== -1) orderList.value.splice(idx, 1)
+
+        if (!orderList.value.length) {
+            // Không còn hóa đơn nào → về welcome
+            appStep.value = 'welcome'
+            currentOrder.value = null
+            orderedItems.value = []
+            _resetOrderState()
+        } else {
+            // Chuyển sang hóa đơn trước đó (hoặc cuối list)
+            const newIdx = Math.max(0, idx - 1)
+            selectOrder(orderList.value[newIdx])
+        }
+        cancelTargetOrder.value = null
+    }
+
+    function closeCancelOrderPopup() {
+        showCancelOrderPopup.value = false
+        cancelTargetOrder.value = null
+    }
+
+    function _resetOrderState() {
+        discountInput.value = ''
+        appliedCode.value = ''
+        discountPercent.value = 0
+        discountMessage.value = ''
+        customerName.value = ''
+        customerPhone.value = ''
+        customerNameInput.value = ''
+        customerPhoneInput.value = ''
+        customerSaved.value = false
+        isEditingInfo.value = true
+        selectedTables.value = []
+        orderNote.value = ''
+        dineMode.value = null
+    }
+
+    /* ══ POPUP CHỌN HÌNH THỨC + BÀN ════════════════════════════════ */
+    const showTablePopup = ref(false)
+
+    function openTablePopup() {
+        showTablePopup.value = true
+    }
+
+    function closeTablePopup() {
+        showTablePopup.value = false
+        if (currentOrder.value) {
+            currentOrder.value.selectedTables = [...selectedTables.value]
+            currentOrder.value.dineMode = dineMode.value
+        }
+        // Cập nhật occupiedTables khi chọn tại quán
+        if (dineMode.value === true) {
+            selectedTables.value.forEach(t => {
+                if (!occupiedTables.value.includes(t)) occupiedTables.value.push(t)
+            })
+        }
+    }
+
     /* ══ THÔNG TIN KHÁCH HÀNG ═══════════════════════════════════════ */
-    const customerName       = ref('')
-    const customerPhone      = ref('')
-    const customerNameInput  = ref('')
+    const customerName = ref('')
+    const customerPhone = ref('')
+    const customerNameInput = ref('')
     const customerPhoneInput = ref('')
-    const nameError          = ref('')
-    const phoneError         = ref('')
-    const customerSaved      = ref(false)
-    const isEditingInfo      = ref(true)
+    const nameError = ref('')
+    const phoneError = ref('')
+    const customerSaved = ref(false)
+    const isEditingInfo = ref(true)
 
     function onNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
@@ -73,19 +175,19 @@ export function useCounterOrder() {
 
     function saveCustomerInfo() {
         let valid = true
-        nameError.value  = ''
+        nameError.value = ''
         phoneError.value = ''
         if (customerPhoneInput.value && customerPhoneInput.value.length < 10) {
             phoneError.value = 'Số điện thoại phải đủ 10 số!'
             valid = false
         }
         if (!valid) return
-        customerName.value  = customerNameInput.value.trim()
+        customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
         customerSaved.value = true
         isEditingInfo.value = false
         if (currentOrder.value) {
-            currentOrder.value.customerName  = customerName.value
+            currentOrder.value.customerName = customerName.value
             currentOrder.value.customerPhone = customerPhone.value
         }
     }
@@ -93,7 +195,7 @@ export function useCounterOrder() {
     function editCustomerInfo() { isEditingInfo.value = true }
 
     /* ══ ĐẶT BÀN ═══════════════════════════════════════════════════ */
-    const TOTAL_TABLES   = 15
+    const TOTAL_TABLES = 15
     const selectedTables = ref([])
     const occupiedTables = ref([])
 
@@ -122,24 +224,35 @@ export function useCounterOrder() {
     }
 
     /* ══ XÁC NHẬN THÔNG TIN ════════════════════════════════════════ */
-    const showConfirmInfo     = ref(false)
-    const confirmWarning      = ref('')
+    const showConfirmInfo = ref(false)
+    const confirmWarning = ref('')
     const confirmWarningTable = ref('')
 
     function goToConfirm() {
+        let valid = true
+        nameError.value = ''
+        phoneError.value = ''
+        if (customerPhoneInput.value && customerPhoneInput.value.length < 10) {
+            phoneError.value = 'Số điện thoại phải đủ 10 số!'
+            valid = false
+        }
+        if (!valid) return
+
+        customerName.value = customerNameInput.value.trim()
+        customerPhone.value = customerPhoneInput.value.trim()
+
+        if (currentOrder.value) {
+            currentOrder.value.customerName = customerName.value
+            currentOrder.value.customerPhone = customerPhone.value
+        }
+
         confirmWarning.value = ''
         confirmWarningTable.value = ''
+
         if (!customerName.value && !customerPhone.value) {
             confirmWarning.value = 'Thông báo: Không có Tên và Số điện thoại!\nBạn có muốn thêm không?'
         } else if (!customerName.value) {
             confirmWarning.value = 'Thông báo: Chưa có Tên khách hàng!\nBạn có muốn thêm không?'
-        }
-        if (!selectedTables.value.length) {
-            if (tablesFull.value) {
-                confirmWarningTable.value = '⚠ Tất cả bàn đã FULL! Không thể đặt bàn.'
-            } else {
-                confirmWarningTable.value = 'Thông Báo: Bạn chưa chọn bàn! Bạn có muốn đặt bàn không?'
-            }
         }
         showConfirmInfo.value = true
     }
@@ -151,19 +264,14 @@ export function useCounterOrder() {
         if (currentOrder.value) {
             if (!customerName.value && !currentOrder.value.anonCode)
                 currentOrder.value.anonCode = genAnonCode()
-            if (selectedTables.value.length)
-                currentOrder.value.selectedTables = [...selectedTables.value]
             currentOrder.value.step = 'order'
         }
-        selectedTables.value.forEach(t => {
-            if (!occupiedTables.value.includes(t)) occupiedTables.value.push(t)
-        })
         appStep.value = 'order'
     }
 
     /* ══ SẢN PHẨM ══════════════════════════════════════════════════ */
     const searchText = ref('')
-    const products   = ref([])
+    const products = ref([])
 
     async function fetchDrinks() {
         try {
@@ -191,8 +299,8 @@ export function useCounterOrder() {
     }
 
     /* ══ HÓA ĐƠN ═══════════════════════════════════════════════════ */
-    const MAX_ORDERS   = 10
-    const orderList    = ref([])
+    const MAX_ORDERS = 10
+    const orderList = ref([])
     const currentOrder = ref(null)
     const orderedItems = ref([])
 
@@ -203,22 +311,23 @@ export function useCounterOrder() {
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: '', customerPhone: '',
             selectedTables: [], anonCode: '', step: 'info',
-            note: '',
+            note: '', dineMode: null,
         }
         orderList.value.push(order)
         selectOrder(order)
     }
 
     function selectOrder(order) {
-        currentOrder.value    = order
-        orderedItems.value    = order.items
-        discountInput.value   = order.discountInput
-        appliedCode.value     = order.appliedCode
+        currentOrder.value = order
+        orderedItems.value = order.items
+        discountInput.value = order.discountInput
+        appliedCode.value = order.appliedCode
         discountPercent.value = order.discountPercent
         discountMessage.value = order.discountMessage
-        selectedTables.value  = order.selectedTables ? [...order.selectedTables] : []
-        orderNote.value       = order.note || ''
-        appStep.value         = order.step || 'info'
+        selectedTables.value = order.selectedTables ? [...order.selectedTables] : []
+        orderNote.value = order.note || ''
+        dineMode.value = order.dineMode !== undefined ? order.dineMode : null
+        appStep.value = order.step || 'info'
     }
 
     /* ══ GIỎ HÀNG ══════════════════════════════════════════════════ */
@@ -231,10 +340,10 @@ export function useCounterOrder() {
     }
 
     /* ══ MÃ GIẢM GIÁ ═══════════════════════════════════════════════ */
-    const discountInput    = ref('')
-    const appliedCode      = ref('')
-    const discountPercent  = ref(0)
-    const discountMessage  = ref('')
+    const discountInput = ref('')
+    const appliedCode = ref('')
+    const discountPercent = ref(0)
+    const discountMessage = ref('')
 
     const discountCodeList = ref([
         { code: 'KM50', label: 'Giảm 50%' },
@@ -245,11 +354,11 @@ export function useCounterOrder() {
     function applyDiscount() {
         const code = discountInput.value.trim().toUpperCase()
         if (DISCOUNT_CODES[code]) {
-            appliedCode.value     = code
+            appliedCode.value = code
             discountPercent.value = DISCOUNT_CODES[code]
             discountMessage.value = `Áp dụng thành công! Giảm ${DISCOUNT_CODES[code]}%`
         } else {
-            appliedCode.value     = ''
+            appliedCode.value = ''
             discountPercent.value = 0
             discountMessage.value = 'Mã không hợp lệ!'
         }
@@ -279,14 +388,14 @@ export function useCounterOrder() {
     /* ══ THANH TOÁN ════════════════════════════════════════════════ */
     const showPaymentPopup = ref(false)
     const showSuccessPopup = ref(false)
-    const showReviewPopup  = ref(false)
-    const paymentMethod    = ref('cash')
-    const customerMoney    = ref('')
-    const cashMaxWarning   = ref('')
-    const txId   = ref('')
+    const showReviewPopup = ref(false)
+    const paymentMethod = ref('cash')
+    const customerMoney = ref('')
+    const cashMaxWarning = ref('')
+    const txId = ref('')
     const txTime = ref('')
 
-    const payNameInput  = ref('')
+    const payNameInput = ref('')
     const payPhoneInput = ref('')
     const payPhoneError = ref('')
 
@@ -314,7 +423,7 @@ export function useCounterOrder() {
     const receiptData = ref({
         finalPrice: 0, change: 0, items: [],
         customerName: '', customerPhone: '', tableNums: [],
-        anonCode: '', discountPercent: 0, originalPrice: 0, note: '',
+        anonCode: '', discountPercent: 0, originalPrice: 0, note: '', dineMode: null,
     })
 
     function checkout() {
@@ -323,9 +432,10 @@ export function useCounterOrder() {
         cashMaxWarning.value = ''
         paymentMethod.value = 'cash'
         const o = currentOrder.value
-        payNameInput.value  = o?.customerName  || customerName.value  || ''
+        payNameInput.value = o?.customerName || customerName.value || ''
         payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
         payPhoneError.value = ''
+        dineMode.value = o?.dineMode !== undefined ? o.dineMode : null
         showPaymentPopup.value = true
     }
 
@@ -345,37 +455,38 @@ export function useCounterOrder() {
 
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
-        const resolvedName  = payNameInput.value.trim() || order?.customerName || customerName.value || ''
+        const resolvedName = payNameInput.value.trim() || order?.customerName || customerName.value || ''
         const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
         if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
         receiptData.value = {
             finalPrice: finalPrice.value,
             change,
             items: JSON.parse(JSON.stringify(orderedItems.value)),
-            customerName:    resolvedName,
-            customerPhone:   resolvedPhone,
-            tableNums:       order?.selectedTables || selectedTables.value || [],
-            anonCode:        order?.anonCode || '',
+            customerName: resolvedName,
+            customerPhone: resolvedPhone,
+            tableNums: order?.selectedTables || selectedTables.value || [],
+            anonCode: order?.anonCode || '',
             discountPercent: discountPercent.value,
-            originalPrice:   totalPrice.value,
-            note:            orderNote.value || order?.note || '',
+            originalPrice: totalPrice.value,
+            note: orderNote.value || order?.note || '',
+            dineMode: dineMode.value,
         }
     }
 
     function goToReview() {
         _buildReceiptData(changeAmount.value)
         showPaymentPopup.value = false
-        showReviewPopup.value  = true
+        showReviewPopup.value = true
     }
 
     function backFromReview() {
-        showReviewPopup.value  = false
+        showReviewPopup.value = false
         showPaymentPopup.value = true
     }
 
     function confirmPayment() {
         showReviewPopup.value = false
-        txId.value   = genTxId()
+        txId.value = genTxId()
         txTime.value = new Date().toLocaleString('vi-VN')
         if (paymentMethod.value === 'cash') receiptData.value.change = changeAmount.value
         showSuccessPopup.value = true
@@ -398,40 +509,29 @@ export function useCounterOrder() {
         if (idx !== -1) orderList.value.splice(idx, 1)
 
         if (!orderList.value.length) {
-            appStep.value         = 'welcome'
-            currentOrder.value    = null
-            orderedItems.value    = []
-            discountInput.value   = ''
-            appliedCode.value     = ''
-            discountPercent.value = 0
-            discountMessage.value = ''
-            customerName.value    = ''
-            customerPhone.value   = ''
-            customerNameInput.value  = ''
-            customerPhoneInput.value = ''
-            customerSaved.value   = false
-            isEditingInfo.value   = true
-            selectedTables.value  = []
-            orderNote.value       = ''
+            appStep.value = 'welcome'
+            currentOrder.value = null
+            orderedItems.value = []
+            _resetOrderState()
         } else {
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
 
     /* ══ POPUP TOPPING ══════════════════════════════════════════════ */
-    const showPopup        = ref(false)
-    const selectedProduct  = ref(null)
+    const showPopup = ref(false)
+    const selectedProduct = ref(null)
     const selectedToppings = ref([])
-    const selectedSize     = ref('S')
-    const selectedQty      = ref(1)
-    const selectedIce      = ref('0%')
-    const selectedSugar    = ref('0%')
-    const popupStateCache  = ref({})
+    const selectedSize = ref('S')
+    const selectedQty = ref(1)
+    const selectedIce = ref('0%')
+    const selectedSugar = ref('0%')
+    const popupStateCache = ref({})
 
-    const toppingList  = ref([])
-    const iceOptions   = ['0%', '30%', '50%', '70%', '100%']
+    const toppingList = ref([])
+    const iceOptions = ['0%', '30%', '50%', '70%', '100%']
     const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
-    const SIZE_PRICES  = reactive({})
+    const SIZE_PRICES = reactive({})
 
     async function fetchToppings() {
         try {
@@ -456,16 +556,16 @@ export function useCounterOrder() {
         const cache = popupStateCache.value[product.id]
         if (cache) {
             selectedToppings.value = [...cache.toppings]
-            selectedSize.value     = cache.size
-            selectedQty.value      = cache.qty
-            selectedIce.value      = cache.ice
-            selectedSugar.value    = cache.sugar
+            selectedSize.value = cache.size
+            selectedQty.value = cache.qty
+            selectedIce.value = cache.ice
+            selectedSugar.value = cache.sugar
         } else {
             selectedToppings.value = []
-            selectedSize.value     = 'S'
-            selectedQty.value      = 1
-            selectedIce.value      = '0%'
-            selectedSugar.value    = '0%'
+            selectedSize.value = 'S'
+            selectedQty.value = 1
+            selectedIce.value = '0%'
+            selectedSugar.value = '0%'
         }
         showPopup.value = true
     }
@@ -491,8 +591,8 @@ export function useCounterOrder() {
 
     function confirmOrder() {
         const toppingPrice = selectedToppings.value.reduce((s, t) => s + t.price, 0)
-        const sizePrice    = SIZE_PRICES[selectedSize.value] || 0
-        const unitPrice    = selectedProduct.value.price + toppingPrice + sizePrice
+        const sizePrice = SIZE_PRICES[selectedSize.value] || 0
+        const unitPrice = selectedProduct.value.price + toppingPrice + sizePrice
         orderedItems.value.push({
             id: selectedProduct.value.id, name: selectedProduct.value.name,
             image: selectedProduct.value.image,
@@ -512,7 +612,7 @@ export function useCounterOrder() {
         const o = currentOrder.value
         if (!o) return customerName.value || ''
         if (o.customerName) return o.customerName
-        if (o.anonCode)     return o.anonCode
+        if (o.anonCode) return o.anonCode
         return ''
     })
     const displayCustomerPhone = computed(() => {
@@ -526,6 +626,14 @@ export function useCounterOrder() {
     const displayTableNum = computed(() => {
         const arr = displayTableNums.value
         return arr.length ? arr[arr.length - 1] : null
+    })
+
+    // FIX 4: computed hiển thị hình thức
+    const displayDineMode = computed(() => {
+        const o = currentOrder.value
+        const mode = o?.dineMode !== undefined ? o.dineMode : dineMode.value
+        if (mode === null || mode === undefined) return null
+        return mode
     })
 
     /* ══ LIFECYCLE ══════════════════════════════════════════════════ */
@@ -548,6 +656,10 @@ export function useCounterOrder() {
 
         appStep, orderMode,
         goToChoice, chooseTakeaway, chooseDine,
+
+        // FIX 1: Popup hủy hóa đơn
+        showCancelOrderPopup, cancelTargetOrder,
+        requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
 
         customerName, customerPhone,
         customerNameInput, customerPhoneInput,
@@ -585,7 +697,11 @@ export function useCounterOrder() {
         openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
 
         displayCustomerName, displayCustomerPhone, displayTableNum, displayTableNums,
+        displayDineMode,
 
         MAX_CASH,
+
+        showTablePopup, openTablePopup, closeTablePopup,
+        dineMode,
     }
 }
