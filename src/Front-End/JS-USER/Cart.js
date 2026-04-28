@@ -50,7 +50,6 @@ export default {
   },
 
   computed: {
-    // ✅ Map raw cart items
     cartItems() {
       return this.cartStore.items.map((item) => ({
         id: item.id,
@@ -125,19 +124,18 @@ export default {
       }).format(amount)
     },
 
-    // ✅ Toggle chọn theo mergedItem (chọn/bỏ tất cả ids trong group)
-    toggleSelect(mergedItem) {
-      const allSelected = mergedItem.ids.every(id => this.selectedIds.includes(id))
-      if (allSelected) {
-        this.selectedIds = this.selectedIds.filter(id => !mergedItem.ids.includes(id))
+    toggleSelect(item) {
+      if (this.selectedIds.includes(item.id)) {
+        // Remove if already selected
+        this.selectedIds = this.selectedIds.filter(id => id !== item.id);
       } else {
-        const toAdd = mergedItem.ids.filter(id => !this.selectedIds.includes(id))
-        this.selectedIds.push(...toAdd)
+        // Add if not selected
+        this.selectedIds.push(item.id);
       }
     },
 
-    isItemSelected(mergedItem) {
-      return mergedItem.ids.every(id => this.selectedIds.includes(id))
+    isItemSelected(item) {
+      return this.selectedIds.includes(item.id);
     },
 
     toggleSelectAll(e) {
@@ -145,6 +143,7 @@ export default {
     },
 
     async increaseQty(item) {
+      const newQty = item.quantity + 1
       try {
         await api.put(`/carts/items/${item.id}/quantity`, { quantity: newQty })
         const storeItem = this.cartStore.items.find(i => i.id === item.id)
@@ -254,7 +253,7 @@ export default {
     async placeOrder() {
       this.isPlacingOrder = true
       try {
-        const selectedCartItemIds = this.selectedItems.flatMap(i => i.ids)
+        const selectedCartItemIds = this.selectedItems.map(i => i.id)
 
         const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
         const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {

@@ -23,8 +23,8 @@
         <!-- Thay phần v-for cart-card -->
         <transition-group name="slide" tag="div" class="cart-list">
           <div
-            v-for="item in mergedCartItems"
-            :key="item.mergeKey"
+            v-for="item in cartItems"
+            :key="item.id"
             class="cart-card"
             :class="{ 'is-selected': isItemSelected(item) }"
             @click="toggleSelect(item)"
