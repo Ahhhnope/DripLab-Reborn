@@ -17,6 +17,13 @@
               />
               Chọn tất cả
             </label>
+            <button
+              v-if="selectedIds.length > 0"
+              class="btn-delete-selected"
+              @click="confirmDeleteSelected"
+            >
+              🗑 Xóa ({{ selectedIds.length }})
+            </button>
           </div>
         </div>
 
@@ -64,10 +71,10 @@
 
               <div class="card-specs">
                 <span class="card-spec"
-                  >Đường: <strong>{{ item.sugar }}</strong></span
+                  >Đường: <strong>{{ item.sugar }}%</strong></span
                 >
                 <span class="card-spec"
-                  >Đá: <strong>{{ item.ice }}</strong></span
+                  >Đá: <strong>{{ item.ice }}%</strong></span
                 >
               </div>
             </div>
@@ -154,23 +161,31 @@
       </aside>
     </main>
 
-    <!-- ══ CONFIRM XÓA ══ -->
+    <!-- ══ CONFIRM XÓA NHIỀU ══ -->
     <Teleport to="body">
       <transition name="fade">
-        <div v-if="deleteTarget" class="overlay" @click.self="cancelDelete">
+        <div
+          v-if="showDeleteSelected"
+          class="overlay"
+          @click.self="cancelDeleteSelected"
+        >
           <div class="confirm-dialog">
             <div class="confirm-icon">🗑️</div>
-            <div class="confirm-title">Xóa sản phẩm?</div>
+            <div class="confirm-title">
+              Xóa {{ selectedIds.length }} sản phẩm?
+            </div>
             <p class="confirm-msg">
               Bạn có chắc muốn xóa
               <span class="confirm-product-name"
-                >"{{ deleteTarget.name }}"</span
+                >{{ selectedIds.length }} sản phẩm đã chọn</span
               >
               khỏi giỏ hàng không?
             </p>
             <div class="confirm-actions">
-              <button class="btn-cancel" @click="cancelDelete">Hủy bỏ</button>
-              <button class="btn-confirm-delete" @click="executeDelete">
+              <button class="btn-cancel" @click="cancelDeleteSelected">
+                Hủy bỏ
+              </button>
+              <button class="btn-confirm-delete" @click="executeDeleteSelected">
                 Xóa ngay
               </button>
             </div>
@@ -237,7 +252,7 @@
                         <template v-if="item.sizeName">
                           • {{ item.sizeName }}</template
                         >
-                        • Đường {{ item.sugar }} • Đá {{ item.ice }}
+                        • Đường {{ item.sugar }}% • Đá {{ item.ice }}%
                         <template v-if="item.toppings && item.toppings.length">
                           • {{ item.toppings.join(", ") }}
                         </template>
@@ -285,6 +300,15 @@
                     :class="couponApplied ? 'success' : 'error'"
                   >
                     {{ couponMessage }}
+                  </div>
+                  <div class="modal-section">
+                    <div class="modal-section-label">Ghi chú đơn hàng</div>
+                    <textarea
+                      v-model="orderNote"
+                      class="order-note-input"
+                      placeholder="Ví dụ: ít đá hơn, không đường, giao trước 12h..."
+                      rows="3"
+                    ></textarea>
                   </div>
                 </div>
 

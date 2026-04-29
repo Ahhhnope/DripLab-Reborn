@@ -1434,3 +1434,80 @@
 
 .pay-input:focus { border-color: #4caf50; }
 .pay-hint { font-size: 10px; color: #9ca3af; font-style: italic; }
+/* ===== CỘT PHẢI — fix màu giống CounterOrder ===== */
+
+/* Ghi đè discount-section trong order-footer-block */
+.order-footer-block .discount-section {
+  border-top: none;
+  padding-top: 0;
+  display: block;
+  gap: 0;
+}
+
+.order-footer-block .discount-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5c3317;        /* ✅ nâu */
+  margin-bottom: 5px;
+}
+
+.order-footer-block .discount-bar {
+  display: flex;
+  gap: 6px;
+}
+
+.order-footer-block .discount-select {
+  flex: 1;
+  border: 1.5px solid #ddd4c4;
+  border-radius: 7px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: #f5f0e8;   /* ✅ kem */
+  outline: none;
+  color: #2c1a0e;
+}
+
+.order-footer-block .discount-btn {
+  background: #5c3317;   /* ✅ nâu */
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.order-footer-block .discount-btn:hover {
+  background: #3e2010;
+}
+
+.order-footer-block .discount-message {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.order-footer-block .discount-message.success { color: #4a7c59; }
+.order-footer-block .discount-message.error   { color: #c0392b; }
+
+.order-footer-block .checkout-btn {
+  width: 100%;
+  background: #4a7c59;   /* ✅ xanh lá CounterOrder */
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.order-footer-block .checkout-btn:hover {
+  background: #3a6045;
+  transform: translateY(-1px);
+}

@@ -5,7 +5,7 @@
     <!-- ========== CỘT TRÁI: Custom Builder ========== -->
     <section class="products">
       <div class="pos-header">
-        <h1 class="pos-title">☕ CUSTOM DRINK</h1>
+        <h1 class="pos-title">☕ TỰ PHA CHẾ</h1>
         <p class="pos-subtitle">Tạo ly cà phê theo phong cách của bạn</p>
       </div>
 
@@ -151,13 +151,11 @@
         <p class="right-sub-title">Khách Hàng</p>
         <div class="right-info-row">
           <span class="right-info-lbl">Họ và tên:</span>
-          <span class="right-info-val">{{
-            orderedItems.length ? "Khách lẻ" : "Chưa Có"
-          }}</span>
+          <span class="right-info-val">{{ customerName || "Khách lẻ" }}</span>
         </div>
         <div class="right-info-row">
           <span class="right-info-lbl">Số điện thoại:</span>
-          <span class="right-info-val">Không Có Thông Tin</span>
+          <span class="right-info-val">{{ customerPhone || "Không có" }}</span>
         </div>
       </div>
 
@@ -718,11 +716,21 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { usePOS } from "../JS/AdminPOS.JS";
-import MomoPopup from "../QRMoMo/Momo.Vue";
+import { onMounted, ref } from 'vue'
+import { usePOS } from '../JS/AdminPOS.JS'
+import MomoPopup from '../QRMoMo/Momo.Vue'
 
-const logoMomo = new URL("../IMG/logoMOMO.png", import.meta.url).href;
+const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
+
+// ✅ Lấy thông tin khách từ CounterOrder đã lưu
+const customerName  = ref('')
+const customerPhone = ref('')
+
+onMounted(() => {
+  customerName.value  = sessionStorage.getItem('co_customerName')  || ''
+  customerPhone.value = sessionStorage.getItem('co_customerPhone') || ''
+  loadProducts()
+})
 
 const {
   search,
