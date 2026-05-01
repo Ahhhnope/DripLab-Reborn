@@ -93,8 +93,6 @@ export function useCounterOrder() {
             orderedItems.value = []
             _resetOrderState()
         } else {
-            // FIX 1: Chuyển sang hóa đơn cuối list (giữ nguyên các hóa đơn còn lại)
-            // Ưu tiên hóa đơn ở vị trí trước đó, nếu không có thì lấy hóa đơn cuối
             const newIdx = idx > 0 ? idx - 1 : 0
             selectOrder(orderList.value[Math.min(newIdx, orderList.value.length - 1)])
         }
@@ -128,8 +126,6 @@ export function useCounterOrder() {
     const tempSelectedTables = ref([])
 
     function openTablePopup() {
-        // FIX 2: Khi mở popup, giải phóng bàn của order hiện tại khỏi occupiedTables
-        // để user có thể chọn lại / đổi bàn tự do
         const order = currentOrder.value
         if (order && order.selectedTables && order.selectedTables.length) {
             order.selectedTables.forEach(t => {
@@ -330,7 +326,6 @@ export function useCounterOrder() {
     }
 
     function selectOrder(order) {
-        // FIX 1: Khi switch hóa đơn, đồng bộ đúng state từ order đó
         currentOrder.value = order
         orderedItems.value = order.items
         discountInput.value = order.discountInput
@@ -340,7 +335,6 @@ export function useCounterOrder() {
         selectedTables.value = order.selectedTables ? [...order.selectedTables] : []
         orderNote.value = order.note || ''
         dineMode.value = order.dineMode !== undefined ? order.dineMode : null
-        // FIX 1: Đồng bộ thông tin khách hàng từ order
         customerNameInput.value = order.customerName || ''
         customerPhoneInput.value = order.customerPhone || ''
         appStep.value = order.step || 'info'

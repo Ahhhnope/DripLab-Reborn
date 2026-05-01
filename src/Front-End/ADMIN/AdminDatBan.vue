@@ -51,7 +51,6 @@ function getProductImg(item) {
     return ''
 }
 
-// Tên hiển thị khách hàng (ưu tiên tên thật, rồi anonCode)
 function getCustomerDisplay(order) {
     return order?.customerName || order?.anonCode || '—'
 }
