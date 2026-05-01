@@ -2,8 +2,8 @@ import { ref, computed } from 'vue'
 
 if (!window.__dripShared) {
     window.__dripShared = {
-        occupiedTables: [],     
-        orderList: [],         
+        occupiedTables: [],
+        orderList: [],
         pendingSelectOrderId: null,
     }
 }
@@ -21,11 +21,11 @@ export function useAdminDatBan() {
     let _router = null
     function setRouter(r) { _router = r }
 
-    const showDetail      = ref(false)
-    const selectedTable   = ref(null)
-    const selectedOrder   = ref(null)
+    const showDetail = ref(false)
+    const selectedTable = ref(null)
+    const selectedOrder = ref(null)
     const showConfirmDone = ref(false)
-    const activeFilter    = ref('all')
+    const activeFilter = ref('all')
 
     function isOccupied(num) {
         return occupiedTables.value.includes(num)
@@ -65,15 +65,15 @@ export function useAdminDatBan() {
 
     function openDetailForInvoice(invoice) {
         syncFromShared()
-        selectedTable.value  = invoice.selectedTables?.[0] ?? null
-        selectedOrder.value  = { ...invoice }
-        showDetail.value     = true
+        selectedTable.value = invoice.selectedTables?.[0] ?? null
+        selectedOrder.value = { ...invoice }
+        showDetail.value = true
     }
 
     function closeDetail() {
-        showDetail.value      = false
-        selectedTable.value   = null
-        selectedOrder.value   = null
+        showDetail.value = false
+        selectedTable.value = null
+        selectedOrder.value = null
         showConfirmDone.value = false
     }
 
@@ -108,7 +108,6 @@ export function useAdminDatBan() {
         closeDetail()
 
         if (_router) {
-            // Navigate tới route đặt món (dùng tên route hoặc path thực tế của bạn)
             _router.push({ path: '/QuanLyDonTaiQuay', query: { selectOrder: order.id } })
         }
     }
@@ -126,9 +125,7 @@ export function useAdminDatBan() {
     })
 
     const activeInvoices = computed(() => {
-        return (window.__dripShared.orderList || []).filter(o =>
-            o.selectedTables && o.selectedTables.length > 0 && o.dineMode === true
-        )
+        return (window.__dripShared.orderList || []).filter(o => o.selectedTables && o.selectedTables.length > 0 && o.dineMode === true)
     })
 
     const totalPrice = computed(() => {
@@ -152,7 +149,7 @@ export function useAdminDatBan() {
         return !!(tables?.length) || isOccupied(selectedTable.value)
     }
 
-    function countOccupied()  { return occupiedTables.value.length }
+    function countOccupied() { return occupiedTables.value.length }
     function countAvailable() { return TOTAL_TABLES - countOccupied() }
 
     return {

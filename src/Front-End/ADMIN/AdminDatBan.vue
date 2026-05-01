@@ -274,11 +274,6 @@ function getCustomerDisplay(order) {
               </div>
             </div>
 
-            <!-- Ghi chú -->
-            <div class="adb-section">
-              <p class="adb-section-title" style="margin-bottom:4px">Ghi Chú</p>
-              <p class="adb-note-text">{{ selectedOrder?.note || 'Không có ghi chú' }}</p>
-            </div>
           </div>
 
           <!-- Cột phải: thanh toán -->
