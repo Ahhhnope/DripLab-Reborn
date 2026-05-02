@@ -1,3 +1,5 @@
+import { useAuthStore } from "../Authorization/Auth";
+
 export default {
   name: "UserStores",
 
@@ -20,8 +22,14 @@ export default {
   },
 
   computed: {
-    // ✅ Ưu tiên query param ?id=, fallback về localStorage (persist qua navigation)
+    // ✅ Chỉ đọc localStorage khi đang đăng nhập
+    // Nếu chưa login → storeId = null → hiện error "Không tìm thấy thông tin cửa hàng"
     storeId() {
+      const authStore = useAuthStore();
+      const isLoggedIn = !!authStore.user || !!authStore.token;
+
+      if (!isLoggedIn) return null;
+
       return this.$route.query.id || localStorage.getItem("selectedStoreId") || null;
     },
 
@@ -123,7 +131,6 @@ export default {
             review_text: this.newReview.text.trim(),
           }),
         });
-        // Dù thành công hay thất bại đều thêm optimistic review
         this.reviews.unshift(optimisticReview);
       } catch {
         this.reviews.unshift(optimisticReview);
