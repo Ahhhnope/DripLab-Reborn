@@ -4,9 +4,7 @@ import { useRouter } from 'vue-router'
 export function useHeader() {
   const router = useRouter()
 
-  // ==============================
   // MENU DROPDOWN
-  // ==============================
   const showMenuDropdown = ref(false)
   const activeMenuOption = ref(null)
   let menuEnterTimer = null
@@ -40,9 +38,7 @@ export function useHeader() {
     activeMenuOption.value = name
   }
 
-  // ==============================
   // USER DROPDOWN
-  // ==============================
   const showUserDropdown = ref(false)
   const activeUserAction = ref(null)
 
@@ -54,9 +50,8 @@ export function useHeader() {
     showUserDropdown.value = false
   }
 
-  // ==============================
+
   // NAVIGATION
-  // ==============================
   function goToLogin() {
     activeUserAction.value = 'login'
     closeUserDropdown()
@@ -79,9 +74,7 @@ export function useHeader() {
     router.push('/account')
   }
 
-  // ==============================
-  // AUTO RESET SAU MỖI NAVIGATE
-  // ==============================
+
   router.afterEach(() => {
     activeMenuOption.value = null
     activeUserAction.value = null
