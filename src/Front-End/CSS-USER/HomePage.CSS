@@ -1,4 +1,3 @@
-
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -6,8 +5,13 @@
   font-family: 'Segoe UI', 'Inter', sans-serif;
 }
 
-.section-gap  { margin-bottom: 30px; }
-.special-gap  { margin-bottom: 40px; }
+.section-gap {
+  margin-bottom: 30px;
+}
+
+.special-gap {
+  margin-bottom: 40px;
+}
 
 .slider-wrapper {
   position: relative;
@@ -25,9 +29,12 @@
 .slide {
   min-width: 100%;
   height: 0;
-  padding-bottom: 50%;        /* tỉ lệ 2:1 khớp ảnh Canva 1000x500 */
-  background-size: cover;     /* ← đổi từ cover → contain */
-  background-repeat: no-repeat;  /* ← thêm dòng này */
+  padding-bottom: 50%;
+  /* tỉ lệ 2:1 khớp ảnh Canva 1000x500 */
+  background-size: cover;
+  /* ← đổi từ cover → contain */
+  background-repeat: no-repeat;
+  /* ← thêm dòng này */
   background-position: center;
   position: relative;
   flex-shrink: 0;
@@ -47,7 +54,7 @@
 .slide-caption-title {
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 900;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   margin-bottom: 0.75rem;
 }
 
@@ -57,15 +64,15 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 0.5rem 1.25rem;
-  border: 1.5px solid rgba(255,255,255,0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
   border-radius: 0.4rem;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
   transition: background 0.2s;
 }
 
 .slide:hover .slide-caption-cta {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Prev / Next buttons */
@@ -93,8 +100,13 @@
   transform: translateY(-50%) scale(1.08);
 }
 
-.slider-btn-left  { left: 1.5rem; }
-.slider-btn-right { right: 1.5rem; }
+.slider-btn-left {
+  left: 1.5rem;
+}
+
+.slider-btn-right {
+  right: 1.5rem;
+}
 
 /* Dots */
 .slider-dots {
@@ -112,7 +124,7 @@
   height: 8px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.4);
-  border: 1.5px solid rgba(255,255,255,0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: all 0.35s ease;
   padding: 0;
@@ -131,23 +143,28 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   z-index: 10;
 }
 
 .slider-progress-bar {
   height: 100%;
-  background: rgba(255,255,255,0.75);
+  background: rgba(255, 255, 255, 0.75);
   width: 0%;
   animation: progressFill linear forwards;
 }
 
 @keyframes progressFill {
-  from { width: 0%; }
-  to   { width: 100%; }
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
-/* ── Enjoy ──────────────────────────────────────────────────────────────────── */
+/* ── Enjoy ────────── */
 .enjoy-section {
   max-width: 1200px;
   margin-left: auto;
@@ -172,7 +189,7 @@
   line-height: 1.7;
 }
 
-/* ── Bento ──────────────────────────────────────────────────────────────────── */
+/* ── Bento ───────── */
 .bento-section {
   max-width: 1200px;
   margin-left: auto;
@@ -184,7 +201,9 @@
 }
 
 @media (min-width: 768px) {
-  .bento-section { grid-template-columns: 1fr 1fr; }
+  .bento-section {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .bento-card {
@@ -204,7 +223,9 @@
   display: block;
 }
 
-.bento-card:hover img { transform: scale(1.08); }
+.bento-card:hover img {
+  transform: scale(1.08);
+}
 
 .bento-overlay {
   position: absolute;
@@ -214,12 +235,10 @@
   justify-content: flex-end;
   padding: 2rem;
   color: #fff;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.85),
-    rgba(0, 0, 0, 0.2),
-    transparent
-  );
+  background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.85),
+      rgba(0, 0, 0, 0.2),
+      transparent);
 }
 
 .bento-title {
@@ -228,7 +247,9 @@
   line-height: 1.2;
 }
 
-.bento-overlay-2 { overflow: hidden; }
+.bento-overlay-2 {
+  overflow: hidden;
+}
 
 .bento-sub {
   margin-top: 0.75rem;
@@ -244,7 +265,7 @@
   transform: translateY(0);
 }
 
-/* ── Split Sections ─────────────────────────────────────────────────────────── */
+/* ── Split Sections ──────── */
 .split-section {
   width: 100%;
   background-color: #b8a48a;
@@ -256,8 +277,13 @@
 }
 
 @media (min-width: 768px) {
-  .split-section { flex-direction: row; }
-  .split-reverse { flex-direction: row-reverse; }
+  .split-section {
+    flex-direction: row;
+  }
+
+  .split-reverse {
+    flex-direction: row-reverse;
+  }
 }
 
 .split-img {
@@ -291,7 +317,7 @@
   line-height: 1.2;
 }
 
-/* ── Section Button ─────────────────────────────────────────────────────────── */
+/* ── Section Button ──── */
 .section-btn {
   margin-top: 1.5rem;
   padding: 0.75rem 2rem;

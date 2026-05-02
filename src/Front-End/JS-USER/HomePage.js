@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
-// ── Import ảnh trực tiếp (Vite xử lý đúng) ───────────────────────────────────
+// ── Import ảnh trực tiếp ────────
 import imgBg     from '../IMG/anh-1.jpg'
 import imgBanner from '../IMG/anh-1.jpg'
 import imgShop   from '../IMG/anh-1.jpg'
