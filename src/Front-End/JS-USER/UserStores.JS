@@ -22,8 +22,6 @@ export default {
   },
 
   computed: {
-    // ✅ Chỉ đọc localStorage khi đang đăng nhập
-    // Nếu chưa login → storeId = null → hiện error "Không tìm thấy thông tin cửa hàng"
     storeId() {
       const authStore = useAuthStore();
       const isLoggedIn = !!authStore.user || !!authStore.token;
