@@ -3,33 +3,28 @@ export default {
 
   data() {
     return {
-      // Dữ liệu cửa hàng từ SQL
       store: null,
       loading: true,
       error: null,
 
-      // Rating tổng hợp
       avgRating: 0,
       totalReviews: 0,
-      ratingBars: { 5: 0, 4: 0, 3: 0 }, // phần trăm
+      ratingBars: { 5: 0, 4: 0, 3: 0 },
 
-      // Reviews
       reviews: [],
       allLoaded: false,
 
-      // Form đánh giá
       showForm: false,
       newReview: { stars: 0, text: "" },
     };
   },
 
   computed: {
-    // store_id lấy từ query param ?id=1
+    // ✅ Ưu tiên query param ?id=, fallback về localStorage (persist qua navigation)
     storeId() {
-      return this.$route.query.id || null;
+      return this.$route.query.id || localStorage.getItem("selectedStoreId") || null;
     },
 
-    // Parse amenities từ JSON string
     amenities() {
       if (!this.store?.amenities) return [];
       try {
@@ -39,7 +34,6 @@ export default {
       }
     },
 
-    // Giờ mở cửa dạng "HH:MM - HH:MM"
     openHours() {
       if (!this.store) return "";
       return `${this.store.open_time} - ${this.store.close_time}`;
@@ -57,7 +51,6 @@ export default {
   },
 
   methods: {
-    // Fetch thông tin cửa hàng từ API
     async fetchStore() {
       try {
         const res = await fetch(`/api/stores/${this.storeId}`);
@@ -71,7 +64,6 @@ export default {
       }
     },
 
-    // Fetch danh sách đánh giá từ API
     async fetchReviews() {
       try {
         const res = await fetch(`/api/stores/${this.storeId}/reviews`);
@@ -82,7 +74,6 @@ export default {
         this.totalReviews = data.total || this.reviews.length;
         this.avgRating = data.avg_rating || 0;
 
-        // Tính phần trăm từng sao
         const counts = { 5: 0, 4: 0, 3: 0 };
         this.reviews.forEach((r) => {
           if (r.stars >= 3 && r.stars <= 5) counts[r.stars]++;
@@ -94,29 +85,34 @@ export default {
           3: Math.round((counts[3] / total) * 100),
         };
       } catch {
-        // Nếu API lỗi, không hiện reviews
         this.reviews = [];
       }
     },
 
-    // Mở Google Maps
     openMaps() {
       const url = this.store?.maps_url;
       if (url) window.open(url, "_blank");
     },
 
-    // Hiện / ẩn form đánh giá
     toggleForm() {
       this.showForm = !this.showForm;
       this.newReview = { stars: 0, text: "" };
     },
 
-    // Gửi đánh giá lên API (POST) rồi reload
     async submitReview() {
       if (!this.newReview.stars || !this.newReview.text.trim()) {
         alert("Vui lòng chọn số sao và nhập nội dung!");
         return;
       }
+
+      const optimisticReview = {
+        id: Date.now(),
+        initials: "B",
+        reviewer_name: "Bạn",
+        stars: this.newReview.stars,
+        review_date: new Date().toISOString(),
+        review_text: this.newReview.text.trim(),
+      };
 
       try {
         const res = await fetch(`/api/stores/${this.storeId}/reviews`, {
@@ -127,47 +123,16 @@ export default {
             review_text: this.newReview.text.trim(),
           }),
         });
-
-        if (res.ok) {
-          // Thêm tạm vào đầu danh sách (optimistic update)
-          this.reviews.unshift({
-            id: Date.now(),
-            initials: "B",
-            reviewer_name: "Bạn",
-            stars: this.newReview.stars,
-            review_date: new Date().toISOString(),
-            review_text: this.newReview.text.trim(),
-          });
-        } else {
-          // Nếu API chưa sẵn sàng, vẫn hiện optimistic
-          this.reviews.unshift({
-            id: Date.now(),
-            initials: "B",
-            reviewer_name: "Bạn",
-            stars: this.newReview.stars,
-            review_date: new Date().toISOString(),
-            review_text: this.newReview.text.trim(),
-          });
-        }
+        // Dù thành công hay thất bại đều thêm optimistic review
+        this.reviews.unshift(optimisticReview);
       } catch {
-        // Offline fallback
-        this.reviews.unshift({
-          id: Date.now(),
-          initials: "B",
-          reviewer_name: "Bạn",
-          stars: this.newReview.stars,
-          review_date: new Date().toISOString(),
-          review_text: this.newReview.text.trim(),
-        });
+        this.reviews.unshift(optimisticReview);
       }
 
       this.showForm = false;
       this.newReview = { stars: 0, text: "" };
     },
 
-    // ──────────────────────────────────────────
-    // Format ngày đánh giá
-    // ──────────────────────────────────────────
     formatDate(dateStr) {
       if (!dateStr) return "";
       const date = new Date(dateStr);
@@ -182,14 +147,10 @@ export default {
       return `${Math.floor(diffDays / 30)} tháng trước`;
     },
 
-    // Tải thêm (placeholder)
     loadMore() {
       this.allLoaded = true;
     },
 
-    // ──────────────────────────────────────────
-    // Hiển thị icon ngôi sao dựa trên rating
-    // ──────────────────────────────────────────
     getStarIcon(index, rating) {
       if (index <= Math.floor(rating)) return "star";
       if (index === Math.ceil(rating) && rating % 1 >= 0.5) return "star_half";

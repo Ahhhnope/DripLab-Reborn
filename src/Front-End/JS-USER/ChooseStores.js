@@ -8,8 +8,8 @@ function haversine(lat1, lng1, lat2, lng2) {
     const a =
         Math.sin(dLat / 2) ** 2 +
         Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLng / 2) ** 2;
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
@@ -45,7 +45,7 @@ export default {
             stores: [
                 {
                     id: "hn-hk",
-                    db_id: 1,                          // ID tương ứng trong bảng stores (SQL)
+                    db_id: 1,
                     code: "Drip Lab-Vincom Bà Triệu",
                     address: "191 Bà Triệu, Lê Đại Hành, Hai Bà Trưng, Hà Nội, Vietnam",
                     distanceKm: null,
@@ -98,8 +98,8 @@ export default {
             const q = String(this.query || "").trim().toLowerCase();
             let list = q
                 ? this.stores.filter((s) =>
-                      `${s.code} ${s.address}`.toLowerCase().includes(q)
-                  )
+                    `${s.code} ${s.address}`.toLowerCase().includes(q)
+                )
                 : [...this.stores];
 
             if (this.userLat !== null) {
@@ -114,6 +114,15 @@ export default {
         },
     },
     mounted() {
+        // Khôi phục highlight cửa hàng đã chọn trước đó (nếu có)
+        const savedId = localStorage.getItem("selectedStoreId");
+        if (savedId) {
+            const matched = this.stores.find((s) => String(s.db_id) === savedId);
+            if (matched) {
+                this.selectedId = matched.id;
+            }
+        }
+
         this._clockTimer = setInterval(() => {
             this.nowTick = Date.now();
         }, 60_000);
@@ -205,12 +214,16 @@ export default {
                 this.showClosedModal = true;
                 return;
             }
+
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
-            sessionStorage.setItem("selectedStore", JSON.stringify(store));
 
-            // Navigate sang trang chi tiết cửa hàng, truyền db_id qua query param
-            this.$router.push({ path: "/stores", query: { id: store.db_id } });
+            // Chỉ bị xóa khi người dùng logout
+            localStorage.setItem("selectedStore", JSON.stringify(store));
+            localStorage.setItem("selectedStoreId", String(store.db_id));
+
+            // ✅ Về trang chủ sau khi chọn, không ở lại trang stores
+            this.$router.push("/");
         },
     },
 };

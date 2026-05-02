@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
 
-/* ══════════════════════════════════════════
-   ROOT & BIẾN MÀU
-══════════════════════════════════════════ */
 .admin-datban-root {
     --brown:       #5c3317;
     --brown-dark:  #3e2010;
@@ -602,12 +599,6 @@
     color: var(--green-dark);
 }
 
-.adb-note-text {
-    font-size: 13px;
-    color: var(--gray);
-    margin-top: 4px;
-    font-style: italic;
-}
 
 .adb-empty {
     text-align: center;
