@@ -30,11 +30,8 @@
   min-width: 100%;
   height: 0;
   padding-bottom: 50%;
-  /* tỉ lệ 2:1 khớp ảnh Canva 1000x500 */
   background-size: cover;
-  /* ← đổi từ cover → contain */
   background-repeat: no-repeat;
-  /* ← thêm dòng này */
   background-position: center;
   position: relative;
   flex-shrink: 0;
@@ -75,7 +72,6 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Prev / Next buttons */
 .slider-btn {
   position: absolute;
   top: 50%;

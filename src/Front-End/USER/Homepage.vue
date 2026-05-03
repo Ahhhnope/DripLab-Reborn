@@ -1,52 +1,4 @@
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import imgBg from '../IMG/Banner1.png'
-import imgBanner from '../IMG/Banner2.png'
-import imgShop from '../IMG/Banner3.png'
-
-const autoPlayMs = 4500
-
-const slides = [
-  { img: imgBg },
-  { img: imgBanner },
-  { img: imgShop },
-]
-
-const sliderIndex = ref(0)
-const isPlaying = ref(true)
-let timer = null  
-
-const startTimer = () => {
-  clearInterval(timer)
-  timer = setInterval(() => {
-    sliderIndex.value = (sliderIndex.value + 1) % slides.length
-  }, autoPlayMs)
-}
-
-const nextSlide = () => { 
-  sliderIndex.value = (sliderIndex.value + 1) % slides.length; startTimer() 
-}
-
-const prevSlide = () => { 
-  sliderIndex.value = (sliderIndex.value - 1 + slides.length) % slides.length; startTimer() 
-}
-
-const goToSlide = (i) => { 
-  sliderIndex.value = i; startTimer() 
-}
-
-const pauseSlider = () => { 
-  isPlaying.value = false; clearInterval(timer) 
-}
-
-const resumeSlider = () => { 
-  isPlaying.value = true; startTimer() 
-}
-
-onMounted(() => startTimer())
-onUnmounted(() => clearInterval(timer))
-</script>
-
+<script setup> </script>
 <template>
   <div class="page-wrapper">
 
@@ -144,3 +96,4 @@ onUnmounted(() => clearInterval(timer))
 </template>
 
 <style src="../CSS-USER/HomePage.CSS"></style>
+<script src="../JS-USER/HomePage.js"></script>
