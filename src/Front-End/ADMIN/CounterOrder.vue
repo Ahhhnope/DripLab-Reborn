@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCounterOrder } from '../JS/CounterOrder.JS'
-import MomoPopup from '../QRMoMo/Momo.Vue'
+import Momo from '../QRMoMo/Momo.vue'
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
@@ -12,7 +12,6 @@ const {
   appStep, orderMode,
   goToChoice, chooseTakeaway, chooseDine,
 
-  // FIX 1
   showCancelOrderPopup, cancelTargetOrder,
   requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
 
@@ -114,7 +113,6 @@ function getTableLabel(num) {
   return occupiedTables.value.includes(num) ? 'Hết bàn' : `Bàn ${String(num).padStart(2, '0')}`
 }
 
-// FIX 1: Xử lý click vào tab hóa đơn
 function onOrderTabClick(order) {
   if (currentOrder.value && currentOrder.value.id === order.id) {
     // Click vào tab đang active → hỏi hủy
@@ -124,7 +122,6 @@ function onOrderTabClick(order) {
   }
 }
 
-// FIX 3: Xử lý chuyển từ tại quán → mang đi → reset bàn
 function onDineModeChange(val) {
   dineMode.value = val
   // Nếu chuyển sang mang đi, reset bàn đã chọn trong session hiện tại
@@ -144,7 +141,6 @@ function onDineModeChange(val) {
   }
 }
 
-// FIX 4: Label hình thức hiển thị
 function getDineModeLabel(mode) {
   if (mode === null || mode === undefined) return 'Chưa chọn'
   return mode ? 'Tại quán' : 'Mang đi'
@@ -172,15 +168,11 @@ function getDineModeLabel(mode) {
         <div class="info-header">ĐƠN TẠI QUẦY</div>
 
         <div class="order-tabs-bar">
-          <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa đơn</button>
-          <!-- FIX 1: Click tab active → hỏi hủy -->
-          <button
-            v-for="(order, idx) in orderList" :key="order.id"
-            class="order-tab"
-            :class="{ active: currentOrder && currentOrder.id === order.id }"
-            @click="onOrderTabClick(order)"
-          >
-            Hóa đơn {{ idx + 1 }}
+          <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa
+            đơn</button>
+          <button v-for="(order, idx) in orderList" :key="order.id" class="order-tab"
+            :class="{ active: currentOrder && currentOrder.id === order.id }" @click="onOrderTabClick(order)">
+            Hóa đơn {{ order.orderNumber }}
           </button>
         </div>
 
@@ -194,26 +186,15 @@ function getDineModeLabel(mode) {
             <div class="info-simple-fields">
               <div class="info-simple-field">
                 <label>Họ và tên</label>
-                <input
-                  class="info-simple-input" :class="{ error: nameError }"
-                  :value="customerNameInput"
-                  @input="onNameInput"
-                  placeholder="Nhập họ và tên..."
-                  type="text"
-                />
+                <input class="info-simple-input" :class="{ error: nameError }" :value="customerNameInput"
+                  @input="onNameInput" placeholder="Nhập họ và tên..." type="text" />
                 <p v-if="nameError" class="input-error-msg">{{ nameError }}</p>
               </div>
               <div class="info-simple-field">
                 <label>Số điện thoại</label>
-                <input
-                  class="info-simple-input" :class="{ error: phoneError }"
-                  :value="customerPhoneInput"
-                  @input="onPhoneInput"
-                  placeholder="Nhập số điện thoại..."
-                  type="tel"
-                  inputmode="numeric"
-                  maxlength="10"
-                />
+                <input class="info-simple-input" :class="{ error: phoneError }" :value="customerPhoneInput"
+                  @input="onPhoneInput" placeholder="Nhập số điện thoại..." type="tel" inputmode="numeric"
+                  maxlength="10" />
                 <p v-if="phoneError" class="input-error-msg">{{ phoneError }}</p>
               </div>
             </div>
@@ -243,10 +224,10 @@ function getDineModeLabel(mode) {
             <span class="right-info-lbl">Đặt bàn:</span>
             <span class="right-table-val">Chưa chọn</span>
           </div>
-          <!-- FIX 4: Hình thức ở info page -->
           <div class="right-table-row" style="margin-top:6px">
             <span class="right-info-lbl">Hình thức:</span>
-            <span class="right-table-val" :class="displayDineMode === true ? 'mode-dine' : displayDineMode === false ? 'mode-takeaway' : ''">
+            <span class="right-table-val"
+              :class="displayDineMode === true ? 'mode-dine' : displayDineMode === false ? 'mode-takeaway' : ''">
               {{ getDineModeLabel(displayDineMode) }}
             </span>
           </div>
@@ -299,15 +280,11 @@ function getDineModeLabel(mode) {
       <div class="product-section">
         <div class="top-bar">ĐƠN TẠI QUẦY</div>
         <div class="tabs-bar">
-          <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa đơn</button>
-          <!-- FIX 1: Click tab active → hỏi hủy -->
-          <button
-            v-for="(order, idx) in orderList" :key="order.id"
-            class="order-tab"
-            :class="{ active: currentOrder && currentOrder.id === order.id }"
-            @click="onOrderTabClick(order)"
-          >
-            Hóa đơn {{ idx + 1 }}
+          <button class="add-order-tab" @click="createNewOrder" :disabled="orderList.length >= MAX_ORDERS">+ Thêm hóa
+            đơn</button>
+          <button v-for="(order, idx) in orderList" :key="order.id" class="order-tab"
+            :class="{ active: currentOrder && currentOrder.id === order.id }" @click="onOrderTabClick(order)">
+            Hóa đơn {{ order.orderNumber }}
           </button>
         </div>
         <div class="product-main">
@@ -350,8 +327,9 @@ function getDineModeLabel(mode) {
           <p class="right-sub-title">Khách Hàng</p>
           <div class="right-info-row">
             <span class="right-info-lbl">Họ và tên:</span>
-            <span class="right-info-val" :class="{ anon: currentOrder && currentOrder.anonCode && !currentOrder.customerName }">
-              {{ displayCustomerName || (currentOrder && currentOrder.anonCode ? currentOrder.anonCode : 'Chưa Điền Thông Tin') }}
+            <span class="right-info-val"
+              :class="{ anon: currentOrder && currentOrder.anonCode && !currentOrder.customerName }">
+              {{ displayCustomerName || (currentOrder && currentOrder.anonCode ? currentOrder.anonCode : 'Chưa ĐiềnThông Tin') }}
             </span>
           </div>
           <div class="right-info-row">
@@ -360,15 +338,13 @@ function getDineModeLabel(mode) {
           </div>
           <div class="right-table-row" style="margin-top:6px">
             <span class="right-info-lbl">Đặt bàn:</span>
-            <span class="right-table-val">{{ displayTableNums.length ? formatTableNums(displayTableNums) : 'Chưa có' }}</span>
+            <span class="right-table-val">{{ displayTableNums.length ? formatTableNums(displayTableNums) : 'Chưa có'
+            }}</span>
           </div>
-          <!-- FIX 4: Hình thức ở order page -->
           <div class="right-table-row" style="margin-top:6px">
             <span class="right-info-lbl">Hình thức:</span>
-            <span
-              class="right-table-val"
-              :class="displayDineMode === true ? 'mode-dine' : displayDineMode === false ? 'mode-takeaway' : ''"
-            >
+            <span class="right-table-val"
+              :class="displayDineMode === true ? 'mode-dine' : displayDineMode === false ? 'mode-takeaway' : ''">
               {{ getDineModeLabel(displayDineMode) }}
             </span>
           </div>
@@ -376,7 +352,8 @@ function getDineModeLabel(mode) {
 
         <div class="right-products-block">
           <p class="right-products-title">Sản Phẩm Mua</p>
-          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản phẩm</p>
+          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản
+            phẩm</p>
           <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
             <button class="right-pc-remove" @click="removeItem(index)">✕</button>
             <div class="right-pc-header">
@@ -419,22 +396,14 @@ function getDineModeLabel(mode) {
           </div>
           <div class="right-action-btns right-action-btns--footer">
             <button class="right-mode-btn" @click="openTablePopup">Hình thức</button>
-            <button
-              v-if="orderedItems.length > 0"
-              class="right-pay-btn"
-              @click="checkout"
-            >Thanh toán</button>
-            <button
-              v-else
-              class="right-pay-btn right-pay-btn--disabled"
-              disabled
-            >Thanh toán</button>
+            <button v-if="orderedItems.length > 0" class="right-pay-btn" @click="checkout">Thanh toán</button>
+            <button v-else class="right-pay-btn right-pay-btn--disabled" disabled>Thanh toán</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ==================== POPUP HỦY HÓA ĐƠN (FIX 1) ==================== -->
+    <!-- ==================== POPUP HỦY HÓA ĐƠN ==================== -->
     <div v-if="showCancelOrderPopup" class="confirm-overlay">
       <div class="confirm-popup cancel-order-popup">
         <div class="confirm-logo">
@@ -454,20 +423,11 @@ function getDineModeLabel(mode) {
       <div class="table-mode-popup">
         <p class="table-mode-title">Chọn Hình Thức & Bàn</p>
 
-        <!-- FIX 3: Dùng onDineModeChange để reset bàn khi chuyển mang đi -->
         <div class="mode-choice-row">
-          <button
-            class="mode-choice-btn"
-            :class="{ active: dineMode === false }"
-            @click="onDineModeChange(false)"
-          >
+          <button class="mode-choice-btn" :class="{ active: dineMode === false }" @click="onDineModeChange(false)">
             Mang đi
           </button>
-          <button
-            class="mode-choice-btn"
-            :class="{ active: dineMode === true }"
-            @click="onDineModeChange(true)"
-          >
+          <button class="mode-choice-btn" :class="{ active: dineMode === true }" @click="onDineModeChange(true)">
             Tại quán
           </button>
         </div>
@@ -493,13 +453,9 @@ function getDineModeLabel(mode) {
             </span>
           </div>
           <div class="table-grid" style="margin-top:10px">
-            <button
-              v-for="num in availableTables" :key="num"
-              class="table-btn"
+            <button v-for="num in availableTables" :key="num" class="table-btn"
               :class="{ selected: isTableSelected(num), occupied: occupiedTables.includes(num) }"
-              @click="selectTable(num)"
-              :disabled="occupiedTables.includes(num)"
-            >
+              @click="selectTable(num)" :disabled="occupiedTables.includes(num)">
               {{ getTableLabel(num) }}
             </button>
           </div>
@@ -521,13 +477,13 @@ function getDineModeLabel(mode) {
         </div>
         <p class="popup-label">Mức đá <span class="popup-limit">Tối đa 01</span></p>
         <div class="option-group">
-          <button v-for="opt in iceOptions" :key="opt" class="option-btn"
-            :class="{ selected: selectedIce === opt }" @click="selectedIce = opt">{{ opt }}</button>
+          <button v-for="opt in iceOptions" :key="opt" class="option-btn" :class="{ selected: selectedIce === opt }"
+            @click="selectedIce = opt">{{ opt }}</button>
         </div>
         <p class="popup-label">Mức đường <span class="popup-limit">Tối đa 01</span></p>
         <div class="option-group">
-          <button v-for="opt in sugarOptions" :key="opt" class="option-btn"
-            :class="{ selected: selectedSugar === opt }" @click="selectedSugar = opt">{{ opt }}</button>
+          <button v-for="opt in sugarOptions" :key="opt" class="option-btn" :class="{ selected: selectedSugar === opt }"
+            @click="selectedSugar = opt">{{ opt }}</button>
         </div>
         <p class="popup-label">Topping <span class="popup-limit">Tối đa 03 loại</span></p>
         <div class="topping-grid">
@@ -542,10 +498,11 @@ function getDineModeLabel(mode) {
           <div class="size-col">
             <p class="popup-label">Size</p>
             <div class="size-group">
-              <button v-for="s in ['S', 'M', 'L']" :key="s" class="size-btn"
-                :class="{ selected: selectedSize === s }" @click="selectedSize = s">
+              <button v-for="s in ['S', 'M', 'L']" :key="s" class="size-btn" :class="{ selected: selectedSize === s }"
+                @click="selectedSize = s">
                 {{ s }}
-                <span class="size-price-hint">{{ SIZE_PRICES[s] ? '+' + SIZE_PRICES[s].toLocaleString() + 'đ' : 'Gốc' }}</span>
+                <span class="size-price-hint">{{ SIZE_PRICES[s] ? '+' + SIZE_PRICES[s].toLocaleString() + 'đ' : 'Gốc'
+                }}</span>
               </button>
             </div>
           </div>
@@ -570,7 +527,8 @@ function getDineModeLabel(mode) {
       <div class="payment-popup">
         <div class="payment-title-row">
           <h2 class="payment-title">Thanh toán</h2>
-          <span class="payment-mode-badge" :class="dineMode === true ? 'badge--dine' : dineMode === false ? 'badge--takeaway' : 'badge--none'">
+          <span class="payment-mode-badge"
+            :class="dineMode === true ? 'badge--dine' : dineMode === false ? 'badge--takeaway' : 'badge--none'">
             {{ dineMode === true ? 'Tại quán' : dineMode === false ? 'Mang đi' : 'Chưa chọn' }}
           </span>
         </div>
@@ -581,26 +539,15 @@ function getDineModeLabel(mode) {
           <div class="pay-customer-row">
             <div class="pay-field">
               <label>Họ và tên</label>
-              <input
-                :value="payNameInput"
-                @input="onPayNameInput"
-                type="text"
+              <input :value="payNameInput" @input="onPayNameInput" type="text"
                 :placeholder="(currentOrder && currentOrder.anonCode && !currentOrder.customerName) ? currentOrder.anonCode : 'Nhập tên khách...'"
-                class="pay-input"
-              />
+                class="pay-input" />
             </div>
             <div class="pay-field">
               <label>Số điện thoại</label>
-              <input
-                :value="payPhoneInput"
-                @input="onPayPhoneInput"
-                type="text"
-                inputmode="numeric"
-                placeholder="Nhập số điện thoại..."
-                maxlength="10"
-                class="pay-input"
-                :class="{ error: payPhoneError }"
-              />
+              <input :value="payPhoneInput" @input="onPayPhoneInput" type="text" inputmode="numeric"
+                placeholder="Nhập số điện thoại..." maxlength="10" class="pay-input"
+                :class="{ error: payPhoneError }" />
               <span v-if="payPhoneError" class="pay-field-err">{{ payPhoneError }}</span>
             </div>
           </div>
@@ -610,20 +557,18 @@ function getDineModeLabel(mode) {
         <!-- Ghi chú -->
         <div class="note-section">
           <p class="note-label">Ghi chú</p>
-          <textarea
-            class="note-textarea"
-            :value="orderNote"
-            @input="onNoteInput"
-            placeholder="Nhập ghi chú cho đơn hàng (không bắt buộc)..."
-          ></textarea>
+          <textarea class="note-textarea" :value="orderNote" @input="onNoteInput"
+            placeholder="Nhập ghi chú cho đơn hàng (không bắt buộc)..."></textarea>
         </div>
 
         <!-- Phương thức thanh toán -->
         <div class="payment-methods">
-          <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }" @click="paymentMethod = 'cash'">
+          <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }"
+            @click="paymentMethod = 'cash'">
             💵 Tiền mặt
           </div>
-          <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }" @click="paymentMethod = 'momo'">
+          <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
+            @click="paymentMethod = 'momo'">
             <img :src="logoMomo" class="momo-tab-logo" alt="MoMo" /> MoMo
           </div>
         </div>
@@ -649,7 +594,8 @@ function getDineModeLabel(mode) {
             </div>
           </div>
           <p v-if="cashMaxWarning" class="cash-maxed">{{ cashMaxWarning }}</p>
-          <p v-if="customerMoney && (parseInt(customerMoney.replace(/\./g, '')) || 0) < finalPrice" class="cash-insufficient">
+          <p v-if="customerMoney && (parseInt(customerMoney.replace(/\./g, '')) || 0) < finalPrice"
+            class="cash-insufficient">
             ⚠ Số tiền khách đưa chưa đủ, còn thiếu
             {{ (finalPrice - (parseInt(customerMoney.replace(/\./g, '')) || 0)).toLocaleString() }} VND
           </p>
@@ -689,7 +635,7 @@ function getDineModeLabel(mode) {
         <p class="review-section-title">Thông Tin Khách Hàng</p>
         <div class="review-row">
           <span class="review-lbl">Họ và tên</span>
-          <span class="review-val">{{ receiptData.customerName || receiptData.anonCode || 'Chưa Điền Thông Tin' }}</span>
+          <span class="review-val">{{ receiptData.customerName || receiptData.anonCode || 'Chưa Điền Thông Tin'}}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Số điện thoại</span>
@@ -697,7 +643,8 @@ function getDineModeLabel(mode) {
         </div>
         <div class="review-row">
           <span class="review-lbl">Đặt bàn</span>
-          <span class="review-val">{{ receiptData.tableNums && receiptData.tableNums.length ? formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
+          <span class="review-val">{{ receiptData.tableNums && receiptData.tableNums.length ?
+            formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Thanh Toán</span>
@@ -706,7 +653,7 @@ function getDineModeLabel(mode) {
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
           <span class="review-val review-mode-badge" :class="receiptData.dineMode === true ? 'dine' : 'takeaway'">
-            {{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? '🛍 Mang đi' : 'Chưa chọn' }}
+            {{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? '🛍 Mang đi' : 'Chưa chọn'}}
           </span>
         </div>
         <div class="review-row">
@@ -720,7 +667,7 @@ function getDineModeLabel(mode) {
           <div class="review-item-meta">
             Đá: {{ item.ice }} | Đường: {{ item.sugar }}
             <span v-if="item.toppingDetails && item.toppingDetails.length">
-              | Topping: {{ item.toppingDetails.map(t => t.name).join(', ') }}
+              | Topping: {{item.toppingDetails.map(t => t.name).join(', ')}}
             </span>
           </div>
           <div class="review-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
@@ -736,11 +683,13 @@ function getDineModeLabel(mode) {
         </div>
         <div v-if="paymentMethod === 'cash'" class="review-row">
           <span class="review-lbl">Khách đưa</span>
-          <span class="review-val">{{ (parseInt((customerMoney || '').replace(/\./g, '')) || 0).toLocaleString() }} VND</span>
+          <span class="review-val">{{ (parseInt((customerMoney || '').replace(/\./g, '')) || 0).toLocaleString() }}
+            VND</span>
         </div>
         <div v-if="paymentMethod === 'cash'" class="review-row">
           <span class="review-lbl">Tiền thừa</span>
-          <span class="review-val" style="color:#4a7c59;font-weight:900">{{ receiptData.change.toLocaleString() }} VND</span>
+          <span class="review-val" style="color:#4a7c59;font-weight:900">{{ receiptData.change.toLocaleString() }}
+            VND</span>
         </div>
         <div class="review-total-row">
           <span class="review-total-lbl">Tổng thanh toán</span>
@@ -775,8 +724,14 @@ function getDineModeLabel(mode) {
               <img v-if="paymentMethod === 'momo'" :src="logoMomo" class="receipt-logo" alt="MoMo" />
               <span class="receipt-label">Biên lai {{ paymentMethod === 'cash' ? 'thanh toán' : 'chuyển tiền' }}</span>
             </div>
-            <div class="success-row b"><span>Họ và tên</span><span>{{ receiptData.customerName || receiptData.anonCode || 'Không Có Thông Tin' }}</span></div>
-            <div class="success-row b"><span>Số điện thoại</span><span>{{ receiptData.customerPhone || 'Không Có Thông Tin' }}</span></div>
+            <div class="success-row b">
+              <span>Họ và tên</span>
+              <span>{{ receiptData.customerName || receiptData.anonCode ||'Không Có Thông Tin' }}</span>
+            </div>
+            <div class="success-row b">
+              <span>Số điện thoại</span>
+              <span>{{ receiptData.customerPhone || 'Không Có Thông Tin' }}</span>
+            </div>
             <div class="success-row b">
               <span>Đặt bàn</span>
               <span>{{ receiptData.tableNums && receiptData.tableNums.length ? formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span>
@@ -790,9 +745,17 @@ function getDineModeLabel(mode) {
               <span class="receipt-note-val">{{ receiptData.note || 'Không có ghi chú' }}</span>
             </div>
             <div class="receipt-divider"></div>
-            <div class="success-row b"><span>Thanh toán</span><span>{{ paymentMethod === 'cash' ? 'Tiền mặt' : 'Ví MoMo' }}</span></div>
-            <div class="success-row b"><span>Mã giao dịch</span><span class="tx-id" :class="{ pink: paymentMethod === 'momo' }">{{ txId }}</span></div>
-            <div class="success-row b"><span>Thời gian thanh toán</span><span>{{ txTime }}</span></div>
+            <div class="success-row b">
+              <span>Thanh toán</span>
+              <span>{{ paymentMethod === 'cash' ? 'Tiền mặt' : 'Ví MoMo'}}</span>
+            </div>
+            <div class="success-row b">
+              <span>Mã giao dịch</span>
+              <span class="tx-id" :class="{ pink: paymentMethod === 'momo' }">{{ txId }}</span>
+            </div>
+            <div class="success-row b">
+              <span>Thời gian thanh toán</span><span>{{ txTime }}</span>
+            </div>
             <div class="receipt-divider"></div>
             <div class="receipt-items-section">
               <p class="receipt-items-title">Sản phẩm đã mua</p>
@@ -801,25 +764,39 @@ function getDineModeLabel(mode) {
                 <div class="receipt-item-meta">
                   Đá: {{ item.ice }} | Đường: {{ item.sugar }}
                   <span v-if="item.toppingDetails && item.toppingDetails.length">
-                    | Topping: {{ item.toppingDetails.map(t => t.name).join(', ') }}
+                    | Topping: {{item.toppingDetails.map(t => t.name).join(', ')}}
                   </span>
                 </div>
                 <div class="receipt-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
               </div>
             </div>
             <div class="receipt-divider"></div>
-            <div v-if="receiptData.discountPercent > 0" class="success-row b"><span>Giá gốc</span><span>{{ receiptData.originalPrice.toLocaleString() }} VNĐ</span></div>
-            <div v-if="receiptData.discountPercent > 0" class="success-row b"><span>Giảm giá</span><span>-{{ receiptData.discountPercent }}%</span></div>
-            <div class="success-row b"><span>Số tiền thanh toán</span><span class="cash-need">{{ receiptData.finalPrice.toLocaleString() }} VNĐ</span></div>
+            <div v-if="receiptData.discountPercent > 0" class="success-row b">
+              <span>Giá gốc</span><span>{{receiptData.originalPrice.toLocaleString() }} VNĐ</span>
+            </div>
+            <div v-if="receiptData.discountPercent > 0" class="success-row b">
+              <span>Giảm giá</span><span>-{{ receiptData.discountPercent }}%</span>
+            </div>
+            <div class="success-row b">
+              <span>Số tiền thanh toán</span>
+              <span class="cash-need">{{receiptData.finalPrice.toLocaleString() }} VNĐ</span>
+            </div>
             <template v-if="paymentMethod === 'cash'">
-              <div class="success-row b"><span>Khách đưa</span><span>{{ (parseInt((customerMoney || '').replace(/\./g, '')) || 0).toLocaleString() }} VNĐ</span></div>
-              <div class="success-row b"><span>Tiền thừa trả khách</span><span class="cash-change">{{ receiptData.change.toLocaleString() }} VNĐ</span></div>
+              <div class="success-row b">
+                <span>Khách đưa</span>
+                <span>{{ (parseInt((customerMoney ||'').replace(/\./g, '')) || 0).toLocaleString() }} VNĐ</span>
+              </div>
+              <div class="success-row b">
+                <span>Tiền thừa trả khách</span>
+                <span class="cash-change">{{receiptData.change.toLocaleString() }} VNĐ</span>
+              </div>
             </template>
           </div>
         </div>
 
         <div class="success-fixed-bottom">
-          <button class="success-close-btn" :class="{ 'success-close-btn--cash': paymentMethod === 'cash' }"
+          <button class="success-close-btn" 
+            :class="{ 'success-close-btn--cash': paymentMethod === 'cash' }"
             @click="closeSuccessPopup">
             Hoàn thành
           </button>
@@ -829,13 +806,9 @@ function getDineModeLabel(mode) {
     </div>
 
     <!-- ==================== POPUP QR MOMO ==================== -->
-    <MomoPopup
-      :visible="showMomoQR"
-      :amount="finalPrice"
+    <Momo :visible="showMomoQR" :amount="finalPrice"
       :orderInfo="`Thanh toan DripLab - ${displayCustomerName || (currentOrder && currentOrder.anonCode) || 'Khach le'}`"
-      @close="closeMomoQR"
-      @paid="onMomoPaid"
-    />
+      @close="closeMomoQR" @paid="onMomoPaid" />
 
   </div>
 </template>

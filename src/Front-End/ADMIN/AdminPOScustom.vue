@@ -705,7 +705,7 @@
     </Teleport>
 
     <!-- MoMo QR -->
-    <MomoPopup
+    <Momo
       :visible="showMomoQR"
       :amount="finalPrice"
       :orderInfo="`Thanh toan DripLab Custom - ${payName || 'Khach le'}`"
@@ -718,7 +718,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { usePOS } from '../JS/AdminPOS.JS'
-import MomoPopup from '../QRMoMo/Momo.Vue'
+import Momo from '../QRMoMo/Momo.vue'
 
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
 

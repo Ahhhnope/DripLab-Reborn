@@ -13,7 +13,8 @@ import {
   NewspaperIcon,
   UserCircleIcon,
   AdjustmentsHorizontalIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  CalendarDaysIcon
 } from '@heroicons/vue/24/outline'
 
 const { menuGroups, activeIndex, openMenu, openSub, logout, clickMenu, clickSub, clickSubChild } = useAdminMenu();

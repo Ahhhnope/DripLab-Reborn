@@ -7,7 +7,7 @@
       <p>Đang tải thông tin cửa hàng...</p>
     </div>
 
-    <!-- ===== ERROR STATE (SQL không chạy / API lỗi) ===== -->
+    <!-- ===== ERROR STATE ===== -->
     <div v-else-if="error || !store" class="us-error">
       <p>{{ error || 'Không tìm thấy thông tin cửa hàng.' }}</p>
       <button class="us-back-btn" @click="$router.back()">← Quay lại</button>
@@ -16,7 +16,7 @@
     <!-- ===== NỘI DUNG CHÍNH ===== -->
     <template v-else>
 
-      <!-- ===== ẢNH CỬA HÀNG (từ SQL image_url) ===== -->
+      <!-- ===== ẢNH CỬA HÀNG===== -->
       <section class="photo-single">
         <div class="photo-bg">
           <img :src="`${store.image_url}`"/>

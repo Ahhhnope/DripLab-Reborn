@@ -30,16 +30,12 @@ export function useCounterOrder() {
     const appStep = ref('welcome')
     const orderMode = ref('')
 
-    // FIX 2: Theo dõi trạng thái "đã từng tạo hóa đơn và quay lại"
     const hasExistingSession = ref(false)
 
-    // Bấm "Tạo hóa đơn" → thẳng vào info
     function goToChoice() {
-        // FIX 2: Nếu đã có hóa đơn (quay lại từ info), không tạo thêm
         if (orderList.value.length === 0) {
             createNewOrder()
         } else {
-            // Chọn lại hóa đơn đầu tiên / hiện tại
             if (!currentOrder.value) {
                 selectOrder(orderList.value[0])
             }
@@ -47,7 +43,6 @@ export function useCounterOrder() {
         appStep.value = 'info'
     }
 
-    // Giữ lại để tương thích nhưng không dùng nữa
     function chooseTakeaway() {
         orderMode.value = 'takeaway'
         createNewOrder()
@@ -64,11 +59,9 @@ export function useCounterOrder() {
     }
 
     /* ══ HÌNH THỨC PHỤC VỤ ══════════════════════════════════════════ */
-    // null = chưa chọn, false = mang đi, true = tại quán
     const dineMode = ref(null)
 
     /* ══ POPUP HỦY HÓA ĐƠN ══════════════════════════════════════════ */
-    // FIX 1: Popup xác nhận hủy hóa đơn
     const showCancelOrderPopup = ref(false)
     const cancelTargetOrder = ref(null)
 
@@ -100,9 +93,8 @@ export function useCounterOrder() {
             orderedItems.value = []
             _resetOrderState()
         } else {
-            // Chuyển sang hóa đơn trước đó (hoặc cuối list)
-            const newIdx = Math.max(0, idx - 1)
-            selectOrder(orderList.value[newIdx])
+            const newIdx = idx > 0 ? idx - 1 : 0
+            selectOrder(orderList.value[Math.min(newIdx, orderList.value.length - 1)])
         }
         cancelTargetOrder.value = null
     }
@@ -130,8 +122,19 @@ export function useCounterOrder() {
 
     /* ══ POPUP CHỌN HÌNH THỨC + BÀN ════════════════════════════════ */
     const showTablePopup = ref(false)
+    // FIX 2: Lưu trạng thái bàn tạm thời khi mở popup để có thể thay đổi
+    const tempSelectedTables = ref([])
 
     function openTablePopup() {
+        const order = currentOrder.value
+        if (order && order.selectedTables && order.selectedTables.length) {
+            order.selectedTables.forEach(t => {
+                const idx = occupiedTables.value.indexOf(t)
+                if (idx !== -1) occupiedTables.value.splice(idx, 1)
+            })
+        }
+        // Đồng bộ selectedTables từ order hiện tại
+        selectedTables.value = order?.selectedTables ? [...order.selectedTables] : []
         showTablePopup.value = true
     }
 
@@ -212,6 +215,7 @@ export function useCounterOrder() {
         if (occupiedTables.value.includes(num)) return
         const idx = selectedTables.value.indexOf(num)
         if (idx !== -1) {
+            // FIX 2: Cho phép bỏ chọn bàn đã chọn để chọn lại
             selectedTables.value.splice(idx, 1)
         } else {
             if (selectedTables.value.length >= MAX_TABLES_PER_ORDER) {
@@ -299,15 +303,19 @@ export function useCounterOrder() {
     }
 
     /* ══ HÓA ĐƠN ═══════════════════════════════════════════════════ */
-    const MAX_ORDERS = 10
+    // FIX 1: Tăng MAX_ORDERS từ 10 lên 15
+    const MAX_ORDERS = 15
     const orderList = ref([])
     const currentOrder = ref(null)
     const orderedItems = ref([])
+    // Bộ đếm tăng dần, không bao giờ giảm → số hóa đơn giữ nguyên dù xóa
+    let orderCounter = 0
 
     function createNewOrder() {
-        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 10 hóa đơn!'); return }
+        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
+        orderCounter++
         const order = {
-            id: Date.now(), items: [],
+            id: Date.now(), orderNumber: orderCounter, items: [],
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: '', customerPhone: '',
             selectedTables: [], anonCode: '', step: 'info',
@@ -327,6 +335,8 @@ export function useCounterOrder() {
         selectedTables.value = order.selectedTables ? [...order.selectedTables] : []
         orderNote.value = order.note || ''
         dineMode.value = order.dineMode !== undefined ? order.dineMode : null
+        customerNameInput.value = order.customerName || ''
+        customerPhoneInput.value = order.customerPhone || ''
         appStep.value = order.step || 'info'
     }
 
@@ -628,7 +638,6 @@ export function useCounterOrder() {
         return arr.length ? arr[arr.length - 1] : null
     })
 
-    // FIX 4: computed hiển thị hình thức
     const displayDineMode = computed(() => {
         const o = currentOrder.value
         const mode = o?.dineMode !== undefined ? o.dineMode : dineMode.value
@@ -657,7 +666,6 @@ export function useCounterOrder() {
         appStep, orderMode,
         goToChoice, chooseTakeaway, chooseDine,
 
-        // FIX 1: Popup hủy hóa đơn
         showCancelOrderPopup, cancelTargetOrder,
         requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
 

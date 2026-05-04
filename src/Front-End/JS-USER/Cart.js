@@ -13,7 +13,9 @@ const MOMO_ACCOUNTS = {
   '0978901234': 'DANG THI MAI',
   '0989012345': 'BUI VAN KHANH',
   '0990123456': 'DO THI NGOC',
-}
+} // nahh bro wat is this
+
+
 
 export default {
   name: 'CartApp',

@@ -6,7 +6,7 @@ import {
     HomeIcon, ShoppingCartIcon, CubeIcon, UsersIcon,
     DocumentTextIcon, TicketIcon, NewspaperIcon,
     UserCircleIcon, AdjustmentsHorizontalIcon,
-    ChartBarIcon, UserGroupIcon
+    ChartBarIcon, UserGroupIcon, CalendarDaysIcon
 } from '@heroicons/vue/24/outline'
 
 export function useAdminMenu() {
@@ -19,7 +19,7 @@ export function useAdminMenu() {
 
     const auth = useAuthStore()
 
-    // === DANH SÁCH MENU (giữ nguyên) ===
+    // === DANH SÁCH MENU ===
     const menuGroups = [
         {
             title: 'Báo cáo & Phân tích',
@@ -34,10 +34,13 @@ export function useAdminMenu() {
                     id: 2,
                     label: 'Đơn tại quầy',
                     icon: ShoppingCartIcon,
-                    path: '/QuanLyDonTaiQuay', // vẫn có link
-                    children: [
-                        { id: 21, label: 'Đặt bàn', path: '/QuanLyDatBan' }
-                    ]
+                    path: '/QuanLyDonTaiQuay',
+                },
+                {
+                    id: 21,
+                    label: 'Đặt bàn',
+                    icon: CalendarDaysIcon,
+                    path: '/QuanLyDatBan',
                 },
                 {
                     id: 3, label: 'Sản phẩm', icon: CubeIcon,
@@ -79,15 +82,12 @@ export function useAdminMenu() {
     const findMenuByPath = (path) => {
         for (const group of menuGroups) {
             for (const item of group.items) {
-                // Kiểm tra item chính
                 if (item.path === path) return item
 
-                // Kiểm tra children
                 if (item.children) {
                     for (const child of item.children) {
                         if (child.path === path) return child
 
-                        // Kiểm tra subChildren
                         if (child.subChildren) {
                             for (const sub of child.subChildren) {
                                 if (sub.path === path) return sub
@@ -108,9 +108,8 @@ export function useAdminMenu() {
         if (menuItem) {
             activeIndex.value = menuItem.id
 
-            // Mở menu cha nếu có children
-            if (menuItem.id.toString().length === 2) { // ví dụ: 31, 32, 81, 82...
-                // Tìm item cha
+            // Mở menu cha nếu có children (id 2 chữ số: 31, 32, 81, 82...)
+            if (menuItem.id.toString().length === 2) {
                 for (const group of menuGroups) {
                     for (const item of group.items) {
                         if (item.children) {
@@ -124,8 +123,8 @@ export function useAdminMenu() {
                 }
             }
 
-            // Mở sub menu nếu có subChildren
-            if (menuItem.id.toString().length === 3) { // ví dụ: 321, 322...
+            // Mở sub menu nếu có subChildren (id 3 chữ số: 321, 322...)
+            if (menuItem.id.toString().length === 3) {
                 for (const group of menuGroups) {
                     for (const item of group.items) {
                         if (item.children) {
@@ -190,7 +189,6 @@ export function useAdminMenu() {
         setActiveFromRoute()
     }, { immediate: true })
 
-    // Khởi tạo ban đầu
     onMounted(() => {
         setActiveFromRoute()
     })

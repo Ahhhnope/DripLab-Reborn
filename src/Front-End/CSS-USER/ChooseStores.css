@@ -1,7 +1,7 @@
 :root {
-  --cs-green:        #16a34a;
-  --cs-red:          #ef4444;
-  --cs-border:       #e8e8e8;
+  --cs-green: #16a34a;
+  --cs-red: #ef4444;
+  --cs-border: #e8e8e8;
   --cs-border-panel: #e0e0e0;
 }
 
@@ -72,7 +72,9 @@
   text-align: left;
 }
 
-.cs-locateBtn:hover { color: #ea6c00; }
+.cs-locateBtn:hover {
+  color: #ea6c00;
+}
 
 /* Đang xác định vị trí */
 .cs-locatingText {
@@ -95,7 +97,9 @@
 }
 
 @keyframes cs-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cs-iconBtn {
@@ -158,8 +162,13 @@
   box-sizing: border-box;
 }
 
-.cs-searchInput::placeholder { color: #bbb; }
-.cs-searchInput:focus { border-color: #bbb; }
+.cs-searchInput::placeholder {
+  color: #bbb;
+}
+
+.cs-searchInput:focus {
+  border-color: #bbb;
+}
 
 /* ─── Store list ────────────────────────────────────── */
 .cs-list {
@@ -179,7 +188,9 @@
   transition: background 100ms ease;
 }
 
-.cs-card:hover { background: #fafafa; }
+.cs-card:hover {
+  background: #fafafa;
+}
 
 .cs-card.is-selected {
   background: #f6fdf8;
@@ -191,7 +202,9 @@
   cursor: default;
 }
 
-.cs-card.is-closed:hover { background: #ffffff; }
+.cs-card.is-closed:hover {
+  background: #ffffff;
+}
 
 .cs-cardRow {
   display: flex;
@@ -282,8 +295,13 @@
   font-weight: 700;
 }
 
-.cs-status.is-open   { color: var(--cs-green); }
-.cs-status.is-closed { color: #aaa; }
+.cs-status.is-open {
+  color: var(--cs-green);
+}
+
+.cs-status.is-closed {
+  color: #aaa;
+}
 
 .cs-empty {
   background: #fff;
@@ -395,7 +413,9 @@
   transition: background 150ms;
 }
 
-.cs-modal-btn:hover { background: #15803d; }
+.cs-modal-btn:hover {
+  background: #15803d;
+}
 
 .cs-modal-enter-active,
 .cs-modal-leave-active {

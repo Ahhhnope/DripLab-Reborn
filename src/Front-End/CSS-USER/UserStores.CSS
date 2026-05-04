@@ -417,7 +417,6 @@
     gap: 1px;
   }
 
-  /* Ngôi sao bình luận — đậm, filled */
   .ri-star {
     font-size: 17px;
     color: var(--gold);
@@ -552,7 +551,6 @@
 
 .us-back-btn:hover { opacity: 0.85; }
 
-/* No reviews placeholder */
 .us-no-reviews {
   padding: 32px;
   text-align: center;
@@ -562,7 +560,6 @@
   border-radius: 12px;
 }
 
-/* Photo-bg dùng background-image thay vì img tag */
 .photo-bg {
   width: 100%;
   height: 100%;
