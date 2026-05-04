@@ -95,8 +95,7 @@ function toVietnameseStatus(s) {
 }
 
 async function patchOrder(updated) {
-    const finalStatuses = ["Đã giao", "Giao hàng không thành công", "Đã huỷ"];
-
+    const finalStatuses = ["delivered", "delivery_failed", "cancelled"];
     if (selectedOrder.value && finalStatuses.includes(selectedOrder.value.status)) {
       alert("Không thể thay đổi trạng thái của đơn hàng đã hoàn tất hoặc đã hủy!");
       return;
