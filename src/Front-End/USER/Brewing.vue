@@ -391,11 +391,15 @@ onBeforeUnmount(() => {
                   <span class="option-card__price">+{{ formatVnd(t.priceDelta) }}</span>
                 </button>
               </div>
+
+              <!-- Hint tự động chuyển bước -->
+              <p v-if="selection.toppings.size > 0" class="topping-auto-hint">
+                ✓ Tự động chuyển bước sau khi chọn xong...
+              </p>
+
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
-                <button class="btn-nav btn-nav--finish" @click="confirmTopping">
-                  Tiếp theo →
-                </button>
+                <button class="btn-nav btn-nav--finish" @click="confirmTopping">Bỏ qua →</button>
               </div>
             </div>
 

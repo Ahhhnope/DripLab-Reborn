@@ -8,7 +8,7 @@ import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
  *   0 - Chọn hạt cà phê (bean)
  *   1 - Chọn base
  *   2 - Chọn sữa
- *   3 - Chọn topping (tối đa 3) → phải bấm "Tiếp theo" thủ công
+ *   3 - Chọn topping (tối đa 3) → tự động chuyển sau 800ms
  *   4 - Chọn size
  *   5 - Mức đá, mức đường, số lượng → Hoàn thành
  */
@@ -112,17 +112,25 @@ export function useBrewing() {
     showNotice._t = setTimeout(() => { notice.value = '' }, ms)
   }
 
-  // ─── TOPPING (tối đa 3) ───────────────────────────────────────────
+  // ─── TOPPING (tối đa 3) — tự động chuyển bước sau 800ms ──────────
+  let toppingTimer = null
+
   function toggleTopping(id) {
     if (selection.toppings.has(id)) {
       selection.toppings.delete(id)
-      return
+    } else {
+      if (selection.toppings.size >= 3) {
+        showNotice('Topping tối đa 3 loại. Bỏ bớt để chọn thêm.')
+        return
+      }
+      selection.toppings.add(id)
     }
-    if (selection.toppings.size >= 3) {
-      showNotice('Topping tối đa 3 loại. Bỏ bớt để chọn thêm.')
-      return
-    }
-    selection.toppings.add(id)
+
+    // Reset timer mỗi lần người dùng tương tác, tự next sau 800ms
+    clearTimeout(toppingTimer)
+    toppingTimer = setTimeout(() => {
+      nextStep()
+    }, 800)
   }
 
   // ─── ĐIỀU HƯỚNG BƯỚC ──────────────────────────────────────────────
@@ -156,8 +164,9 @@ export function useBrewing() {
     setTimeout(nextStep, 320)
   }
 
-  // Topping: bấm nút "Tiếp theo" thủ công (xem template)
+  // Topping: bấm nút "Bỏ qua" thủ công (không chọn topping nào)
   function confirmTopping() {
+    clearTimeout(toppingTimer)
     nextStep()
   }
 
@@ -176,24 +185,24 @@ export function useBrewing() {
   const toppingFxKey = ref(0)
 
   watch(
-  () => selection.bean,
-  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
-)
+    () => selection.bean,
+    (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+  )
 
-watch(
-  () => selection.base,
-  (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
-)
+  watch(
+    () => selection.base,
+    (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+  )
 
-watch(
-  () => selection.milk,
-  (newVal, oldVal) => {
-    // Chỉ animate lần đầu VÀ chỉ khi chọn có sữa (không phải 'none')
-    if (oldVal === null && newVal !== null && newVal !== 'none') animTick.value++
-    // Khi chọn 'none' → tăng animTick để trigger hiệu ứng đá
-    if (newVal === 'none') animTick.value++
-  }
-)
+  watch(
+    () => selection.milk,
+    (newVal, oldVal) => {
+      // Chỉ animate lần đầu VÀ chỉ khi chọn có sữa (không phải 'none')
+      if (oldVal === null && newVal !== null && newVal !== 'none') animTick.value++
+      // Khi chọn 'none' → tăng animTick để trigger hiệu ứng đá
+      if (newVal === 'none') animTick.value++
+    }
+  )
 
   watch(currentStep, (n) => {
     if (n >= 3 && !toppingAnimPlayed.value) {
@@ -306,6 +315,7 @@ watch(
 
   // ─── RESET ────────────────────────────────────────────────────────
   function reset() {
+    clearTimeout(toppingTimer)
     selection.bean     = null
     selection.base     = null
     selection.milk     = null
