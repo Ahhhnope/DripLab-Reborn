@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { onMounted, onUnmounted } from 'vue'
-import { useAdminDatBan } from '../JS/AdminDatBan.JS'
+import { useAdminDatBan } from '../JS/AdminDatBan'
 
 const logoDrip = new URL('../IMG/DripLab_Logo.png', import.meta.url).href
 const router   = useRouter()
@@ -56,7 +56,7 @@ function getCustomerDisplay(order) {
 }
 </script>
 
-<style src="../CSS/AdminDatBan.CSS"></style>
+<style src="../CSS/AdminDatBan.css"></style>
 
 <template>
   <div class="admin-datban-root">

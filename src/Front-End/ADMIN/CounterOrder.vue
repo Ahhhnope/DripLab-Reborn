@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCounterOrder } from '../JS/CounterOrder.JS'
-import MomoPopup from '../QRMoMo/Momo.Vue'
+import Momo from '../QRMoMo/Momo.vue'
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
@@ -806,7 +806,7 @@ function getDineModeLabel(mode) {
     </div>
 
     <!-- ==================== POPUP QR MOMO ==================== -->
-    <MomoPopup :visible="showMomoQR" :amount="finalPrice"
+    <Momo :visible="showMomoQR" :amount="finalPrice"
       :orderInfo="`Thanh toan DripLab - ${displayCustomerName || (currentOrder && currentOrder.anonCode) || 'Khach le'}`"
       @close="closeMomoQR" @paid="onMomoPaid" />
 
