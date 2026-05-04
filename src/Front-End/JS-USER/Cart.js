@@ -257,7 +257,7 @@ export default {
 
         const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
         const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
-          cartItemIds: selectedCartItemIds, // ✅ gửi đúng items được chọn
+          cartItemIds: selectedCartItemIds,
           note: this.couponApplied
             ? `${orderNote} - Coupon: ${this.couponCode}`
             : orderNote,
