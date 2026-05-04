@@ -13,7 +13,9 @@ const MOMO_ACCOUNTS = {
   '0978901234': 'DANG THI MAI',
   '0989012345': 'BUI VAN KHANH',
   '0990123456': 'DO THI NGOC',
-}
+} // nahh bro wat is this
+
+
 
 export default {
   name: 'CartApp',
@@ -28,6 +30,7 @@ export default {
     return {
       selectedIds: [],
       deleteTarget: null,
+      showDeleteSelected: false,
 
       showOrderModal: false,
       paymentMethod: 'COD',
@@ -46,6 +49,7 @@ export default {
       isPlacingOrder: false,
       showSuccessModal: false,
       lastOrderId: '',
+      orderNote: '',
     }
   },
 
@@ -250,44 +254,91 @@ export default {
       this.momoStep = 2
     },
 
-    async placeOrder() {
-      this.isPlacingOrder = true
-      try {
-        const selectedCartItemIds = this.selectedItems.map(i => i.id)
+async placeOrder() {
+  this.isPlacingOrder = true
+  try {
+    const selectedCartItemIds = this.selectedItems.map(i => i.id)
 
-        const orderNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
-        const response = await api.post(`/orders/checkout/${this.authStore.user.id}`, {
-          cartItemIds: selectedCartItemIds,
-          note: this.couponApplied
-            ? `${orderNote} - Coupon: ${this.couponCode}`
-            : orderNote,
-          paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo',
-        })
+    // ✅ Dùng orderNote của user nếu có, không thì dùng mặc định
+    const baseNote = this.paymentMethod === 'MOMO' ? 'POS MoMo' : 'Online Order'
+    const finalNote = this.orderNote.trim()
+      ? `${baseNote} - ${this.orderNote.trim()}`
+      : baseNote
 
-        this.lastOrderId = response.data.orderNumber
-        this.showOrderModal = false
-        this.showSuccessModal = true
-
-        // ✅ Chỉ xóa các item đã thanh toán khỏi store
-        this.cartStore.items = this.cartStore.items.filter(
-          i => !selectedCartItemIds.includes(i.id)
-        )
-        this.selectedIds = this.selectedIds.filter(
-          id => !selectedCartItemIds.includes(id)
-        )
-      } catch (error) {
-        console.error('Lỗi checkout:', error)
-        const msg = error.response?.data?.message || 'Không thể đặt hàng. Vui lòng thử lại!'
-        alert(msg)
-      } finally {
-        this.isPlacingOrder = false
+    const response = await api.post(
+      `/carts/user/${this.authStore.user.id}/checkout-selected`,
+      {
+        cartItemIds: selectedCartItemIds,
+        note: this.couponApplied
+          ? `${finalNote} - Coupon: ${this.couponCode}`
+          : finalNote,
+        paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo',
       }
-    },
+    )
+
+    this.lastOrderId = response.data.orderNumber || response.data.id || 'N/A'
+    this.showOrderModal = false
+    this.showSuccessModal = true
+
+    this.cartStore.items = this.cartStore.items.filter(
+      i => !selectedCartItemIds.includes(i.id)
+    )
+    this.selectedIds = this.selectedIds.filter(
+      id => !selectedCartItemIds.includes(id)
+    )
+
+    // ✅ Reset cả orderNote
+    this.couponCode = ''
+    this.couponApplied = false
+    this.couponDiscount = 0
+    this.couponMessage = ''
+    this.orderNote = ''
+
+  } catch (error) {
+    console.error('Lỗi checkout:', error)
+    const msg = error.response?.data?.message || 'Không thể đặt hàng. Vui lòng thử lại!'
+    alert(msg)
+  } finally {
+    this.isPlacingOrder = false
+  }
+},
 
     closeSuccessModal() {
       this.showSuccessModal = false
       document.body.style.overflow = ''
       this.$router.push('/menu')
+      this.orderNote = ''
     },
   },
+  // ✅ Xóa các item đang được selected
+confirmDeleteSelected() {
+  if (!this.selectedIds.length) return
+  this.showDeleteSelected = true
+},
+
+cancelDeleteSelected() {
+  this.showDeleteSelected = false
+},
+
+async executeDeleteSelected() {
+  const idsToDelete = [...this.selectedIds]
+  try {
+    // Xóa từng item một
+    for (const id of idsToDelete) {
+      await api.delete(`/carts/remove/${id}`)
+    }
+    // Xóa khỏi store
+    this.cartStore.items = this.cartStore.items.filter(
+      i => !idsToDelete.includes(i.id)
+    )
+    // Xóa khỏi selectedIds
+    this.selectedIds = this.selectedIds.filter(
+      id => !idsToDelete.includes(id)
+    )
+  } catch (e) {
+    console.error('Delete selected failed:', e)
+    alert('Có lỗi khi xóa sản phẩm, vui lòng thử lại!')
+  }
+  this.showDeleteSelected = false
+},
 }

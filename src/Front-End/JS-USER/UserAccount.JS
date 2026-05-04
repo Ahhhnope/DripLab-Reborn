@@ -10,14 +10,13 @@ export function useUserAccount() {
   const activeTab = ref('account')
 
   const navItems = [
-    { id: 'account',  label: 'Tài Khoản',         icon: 'person',      route: '/account' },
-    { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock',        route: '/account/password' },
-    { id: 'address',  label: 'Địa Chỉ',           icon: 'location_on', route: '/account/address' },
-    { id: 'orders',   label: 'Đơn hàng của tôi',  icon: 'package',     route: '/account/orders' },
-    { id: 'points',   label: 'Điểm của tôi',      icon: 'loyalty',     route: '/account/points' },
+    { id: 'account', label: 'Tài Khoản', icon: 'person', route: '/account' },
+    { id: 'password', label: 'Thay đổi mật khẩu', icon: 'lock', route: '/account/password' },
+    { id: 'address', label: 'Địa Chỉ', icon: 'location_on', route: '/account/address' },
+    { id: 'orders', label: 'Đơn hàng của tôi', icon: 'package', route: '/account/orders' },
+    { id: 'points', label: 'Điểm của tôi', icon: 'loyalty', route: '/account/points' },
   ]
 
-  // Form dữ liệu
   const form = ref({
     fullName: '',
     avatar: '',
@@ -44,23 +43,21 @@ export function useUserAccount() {
     if (u) {
       form.value.fullName = u.fullName || u.name || ''
       form.value.avatar = u.avatar || ''
-      form.value.email    = u.email || ''
-      form.value.phone    = u.phone || ''
-      
-      // Cập nhật địa chỉ mặc định
+      form.value.email = u.email || ''
+      form.value.phone = u.phone || ''
+
       addresses.value = [
-        { 
-          label: 'Địa chỉ mặc định', 
-          text: u.defaultAddress || u.address || '' 
+        {
+          label: 'Địa chỉ mặc định',
+          text: u.defaultAddress || u.address || ''
         }
       ]
     }
   }
 
-  // Theo dõi và đồng bộ ngay lập tức
-  watch(() => authStore.user, syncFormFromStore, { 
+  watch(() => authStore.user, syncFormFromStore, {
     immediate: true,
-    deep: true 
+    deep: true
   })
 
   // ====================== CÁC HÀM ======================
@@ -83,7 +80,6 @@ export function useUserAccount() {
     reader.readAsDataURL(file)
   }
 
-  // Lưu thông tin hồ sơ
   const saveProfile = async () => {
     if (isSaving.value) return
     isSaving.value = true
@@ -92,19 +88,18 @@ export function useUserAccount() {
       const payload = {
         fullName: form.value.fullName.trim(),
         avatar: form.value.avatar.trim(),
-        email:    form.value.email.trim(),
-        phone:    form.value.phone.trim(),
+        email: form.value.email.trim(),
+        phone: form.value.phone.trim(),
       }
 
       const res = await api.put('/users/me', payload)
 
-      // Cập nhật lại authStore
       authStore.setUser({
         ...authStore.user,
         fullName: res.data.fullName || payload.fullName,
         avatar: res.data.avatar || payload.avatar,
-        email:    res.data.email || payload.email,
-        phone:    res.data.phone || payload.phone,
+        email: res.data.email || payload.email,
+        phone: res.data.phone || payload.phone,
       }, authStore.token)
 
       alert('✅ Lưu thông tin thành công!')
@@ -117,7 +112,6 @@ export function useUserAccount() {
     }
   }
 
-  // Đổi mật khẩu
   async function savePassword() {
     if (!passwordForm.value.current || !passwordForm.value.newPass) {
       alert('Vui lòng điền đầy đủ thông tin!')
@@ -129,7 +123,7 @@ export function useUserAccount() {
     }
 
     try {
-      await api.put('/users/me/password', {   // ← Nếu backend chưa có endpoint này thì sẽ lỗi
+      await api.put('/users/me/password', {
         currentPassword: passwordForm.value.current,
         newPassword: passwordForm.value.newPass,
       })
@@ -145,7 +139,10 @@ export function useUserAccount() {
     activeTab.value = id
   }
 
+  // ✅ Xóa thông tin cửa hàng đã chọn khi logout
   function logout() {
+    localStorage.removeItem('selectedStoreId')
+    localStorage.removeItem('selectedStore')
     authStore.logout()
     router.push('/login')
   }
@@ -154,9 +151,7 @@ export function useUserAccount() {
     router.push(route)
   }
 
-  // ====================== RETURN ======================
   return {
-    // Dùng trong template
     form,
     passwordForm,
     addresses,
@@ -167,7 +162,6 @@ export function useUserAccount() {
     pendingAvatar,
     isSaving,
 
-    // Functions
     triggerFileInput,
     onAvatarChange,
     saveProfile,
