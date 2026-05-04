@@ -100,7 +100,7 @@ export function useVoucher() {
 
   // ── INIT ─────────────────────────────────────────────
   loadVouchers()
-  // resetLogin()
+  resetLogin()
   //Giải Thích resetLogin(): khi hoạt động thì sẽ về lại ngày ban đầu
   return {
     claimedDays, isDayUnlocked, claimDay, resetLogin,
