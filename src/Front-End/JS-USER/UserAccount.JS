@@ -46,18 +46,10 @@ export function useUserAccount() {
     const u = authStore.user
     if (u) {
       form.value.fullName = u.fullName || u.name || ''
-<<<<<<< HEAD
-      form.value.avatar = getImageUrl(u.avatar)
-      form.value.email    = u.email || ''
-      form.value.phone    = u.phone || ''
-      
-      // Cập nhật địa chỉ mặc định
-=======
       form.value.avatar = u.avatar || ''
       form.value.email = u.email || ''
       form.value.phone = u.phone || ''
 
->>>>>>> 2b9a99efec022d576f82206ed8709281cac3dac6
       addresses.value = [
         {
           label: 'Địa chỉ mặc định',
