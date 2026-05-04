@@ -552,6 +552,24 @@
 .option-card--check .option-card__sub     { font-size: 11px; width: 100%; margin-left: 28px; }
 .option-card--check .option-card__price   { font-size: 11px; margin-top: 0; margin-left: auto; }
 
+/* ─── TOPPING AUTO HINT ──────────────────────────────────────── */
+.topping-auto-hint {
+  margin-top: 14px;
+  margin-bottom: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: hintFadeIn 0.3s ease both;
+}
+
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
 /* ─── NAVIGATION BUTTONS ─────────────────────────────────────── */
 .options-nav {
   display: flex;
