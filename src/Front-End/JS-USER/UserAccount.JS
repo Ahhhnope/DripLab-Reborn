@@ -3,6 +3,10 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../Authorization/Auth'
 import api from '../../api/axios'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
 export function useUserAccount() {
   const router = useRouter()
   const authStore = useAuthStore()
@@ -169,5 +173,6 @@ export function useUserAccount() {
     setTab,
     goTo,
     logout,
+    getImageUrl,
   }
 }
