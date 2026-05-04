@@ -5,7 +5,7 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
+            <img :src="avatarUrl" alt="Avatar" class="avatar-img" />
             
           </div>
           <h2 class="sidebar-name">{{ user.fullName }}</h2>
@@ -41,7 +41,7 @@
           <div class="profile-pic-row">
             <div class="avatar-edit">
               <!-- yippe ;-; -->
-              <img :src="user.avatar" alt="Profile" class="profile-img" />
+              <img :src="avatarUrl" alt="Profile" class="profile-img" />
               <button class="edit-avatar-btn" @click="triggerFileInput">
                 <span class="material-symbols-outlined">edit</span>
               </button>
@@ -162,6 +162,12 @@ const router = useRouter();
 
 import { computed } from 'vue'
 const user = computed(() => auth.user || {})
+
+const avatarUrl = computed(() => {
+  const url = user.value.avatar
+  if (!url) return ''
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`
+})
 
 const logout = () => {
   auth.logout();
