@@ -12,7 +12,6 @@ export function useVoucher() {
 
   // ── DAILY LOGIN ──────────────────────────────────────
   const state = ref(loadState())
-  // state lưu: { date: 'YYYY-MM-DD', streak: 1-7, days: [1,2,...] }
 
   const claimedDays = computed(() => state.value.days || [])
 
@@ -65,7 +64,7 @@ export function useVoucher() {
   const displayedVouchers = computed(() => vouchers.value.filter(v => v.active))
   const activeCount = computed(() => displayedVouchers.value.length)
 
-  // ── MODAL ────────────────────────────────────────────
+  // ── MODAL VOUCHER CODE ───────────────────────────────
   const modal = ref({ show: false, code: '', date: '' })
 
   function applyVoucher(v) {
@@ -88,6 +87,10 @@ export function useVoucher() {
     showToast('Đã sao chép: ' + modal.value.code)
   }
 
+  // ── MODAL XÁC THỰC ĐĂNG NHẬP ────────────────────────
+  // action: mô tả hành động người dùng muốn làm (VD: 'nhận xu hàng ngày')
+  const authModal = ref({ show: false, action: '' })
+
   // ── TOAST ────────────────────────────────────────────
   const toast = ref({ show: false, msg: '' })
   let timer = null
@@ -100,12 +103,14 @@ export function useVoucher() {
 
   // ── INIT ─────────────────────────────────────────────
   loadVouchers()
-  resetLogin()
-  //Giải Thích resetLogin(): khi hoạt động thì sẽ về lại ngày ban đầu
+  // resetLogin()
+  // Giải Thích resetLogin(): khi hoạt động thì sẽ về lại ngày ban đầu
+
   return {
     claimedDays, isDayUnlocked, claimDay, resetLogin,
     displayedVouchers, activeCount, usedIds, applyVoucher,
     modal, copyCode,
+    authModal,
     toast,
   }
 }
