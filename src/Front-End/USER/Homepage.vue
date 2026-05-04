@@ -18,6 +18,7 @@
         <button class="slider-btn slider-btn-left" @click="prevSlide">
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
+        
         <button class="slider-btn slider-btn-right" @click="nextSlide">
           <span class="material-symbols-outlined">chevron_right</span>
         </button>

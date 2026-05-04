@@ -435,3 +435,122 @@
   letter-spacing: 0.1em;
   font-family: 'Inter', sans-serif;
 }
+
+/* ══════════════════════════════════════
+   STEP INDICATOR
+══════════════════════════════════════ */
+.step-indicator {
+  margin-top: 16px;
+}
+
+.step-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(139,94,60,0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.step-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8B5E3C, #C4956A);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+.step-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step-lbl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(139,94,60,0.4);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.04em;
+  transition: color 0.3s;
+}
+.step-lbl.active { color: rgba(139,94,60,0.75); }
+.step-lbl.done   { color: #5A9E7A; }
+
+.step-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(139,94,60,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.step-lbl.active .step-dot {
+  border-color: #8B5E3C;
+  background: rgba(139,94,60,0.1);
+  color: #8B5E3C;
+}
+.step-lbl.done .step-dot {
+  border-color: #5A9E7A;
+  background: rgba(90,158,122,0.12);
+  color: #5A9E7A;
+}
+
+/* ── Two-column row ── */
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+.field-half { flex: 1; min-width: 0; }
+
+/* ── Optional label tag ── */
+.label-optional {
+  font-size: 10px;
+  color: rgba(139,94,60,0.4);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+/* ── Back + Submit row ── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 6px;
+}
+.flex-1 { flex: 1; margin-top: 0; }
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid rgba(139,94,60,0.25);
+  border-radius: 10px;
+  padding: 13px 16px;
+  color: rgba(139,94,60,0.65);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.back-btn:hover {
+  background: rgba(139,94,60,0.06);
+  border-color: rgba(139,94,60,0.4);
+  color: #5a3018;
+}
+
+.ward-check {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+}
+
+.field-input.ward-selected {
+  border-color: rgba(90,158,122,0.45);
+  background: rgba(90,158,122,0.04);
+}

@@ -12,14 +12,14 @@ export default {
     const autoPlayMs = 4500
 
     const slides = [
-      { img: imgBg},
-      { img: imgBanner},
-      { img: imgShop},
+      { img: imgBg },
+      { img: imgBanner },
+      { img: imgShop },
     ]
 
     const sliderIndex = ref(0)
-    const isPlaying   = ref(true)
-    let   timer       = null
+    const isPlaying = ref(true)
+    let timer = null
 
     const startTimer = () => {
       clearInterval(timer)
@@ -28,11 +28,25 @@ export default {
       }, autoPlayMs)
     }
 
-    const nextSlide    = () => { sliderIndex.value = (sliderIndex.value + 1) % slides.length; startTimer() }
-    const prevSlide    = () => { sliderIndex.value = (sliderIndex.value - 1 + slides.length) % slides.length; startTimer() }
-    const goToSlide    = (i) => { sliderIndex.value = i; startTimer() }
-    const pauseSlider  = () => { isPlaying.value = false; clearInterval(timer) }
-    const resumeSlider = () => { isPlaying.value = true;  startTimer() }
+    const nextSlide = () => {
+      sliderIndex.value = (sliderIndex.value + 1) % slides.length; startTimer()
+    }
+
+    const prevSlide = () => {
+      sliderIndex.value = (sliderIndex.value - 1 + slides.length) % slides.length; startTimer()
+    }
+
+    const goToSlide = (i) => {
+      sliderIndex.value = i; startTimer()
+    }
+
+    const pauseSlider = () => {
+      isPlaying.value = false; clearInterval(timer)
+    }
+
+    const resumeSlider = () => {
+      isPlaying.value = true; startTimer()
+    }
 
     onMounted(() => startTimer())
     onUnmounted(() => clearInterval(timer))

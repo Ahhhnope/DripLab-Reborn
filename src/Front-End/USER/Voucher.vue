@@ -1,6 +1,5 @@
 <template>
   <div class="voucher-page">
-
     <!-- PHẦN TRÊN: Điểm danh + Sidebar -->
     <div class="top-section">
 
@@ -11,44 +10,31 @@
 
         <div class="daily-content">
           <div class="days-6-grid">
-            <div
-              v-for="day in [1, 2, 3, 4, 5, 6]" :key="day"
-              class="day-card"
-              :class="{ 'day-locked': !isDayUnlocked(day), 'day-claimed': claimedDays.includes(day) }"
-            >
+            <div v-for="day in [1, 2, 3, 4, 5, 6]" :key="day" class="day-card"
+              :class="{ 'day-locked': !isDayUnlocked(day), 'day-claimed': claimedDays.includes(day) }">
               <div class="day-label">Ngày {{ day }}</div>
               <div class="coin-wrap">
                 <img :src="coinImg" class="coin-img" :class="{ 'coin-dim': !isDayUnlocked(day) }" />
                 <span v-if="!isDayUnlocked(day)" class="lock-icon">🔒</span>
               </div>
-              <button
-                class="day-btn"
-                :class="{ claimed: claimedDays.includes(day), locked: !isDayUnlocked(day) }"
-                @click="claimDay(day)"
-                :disabled="claimedDays.includes(day) || !isDayUnlocked(day)"
-              >
+              <button class="day-btn" :class="{ claimed: claimedDays.includes(day), locked: !isDayUnlocked(day) }"
+                @click="handleClaimDay(day)" :disabled="claimedDays.includes(day) || !isDayUnlocked(day)">
                 {{ claimedDays.includes(day) ? 'Đã Nhận' : isDayUnlocked(day) ? 'Nhận' : 'Chưa Tới' }}
               </button>
             </div>
           </div>
 
           <!-- Ngày 7 -->
-          <div
-            class="day-card day-card-7"
-            :class="{ 'day-locked': !isDayUnlocked(7), 'day-claimed': claimedDays.includes(7) }"
-          >
+          <div class="day-card day-card-7"
+            :class="{ 'day-locked': !isDayUnlocked(7), 'day-claimed': claimedDays.includes(7) }">
             <div class="day-label">Ngày 7</div>
             <div class="coin-wrap">
               <img :src="coinImg" class="coin-img-big" :class="{ 'coin-dim': !isDayUnlocked(7) }" />
               <span v-if="!isDayUnlocked(7)" class="lock-icon lock-icon-big">🔒</span>
             </div>
             <div class="day-7-reward">500 xu</div>
-            <button
-              class="day-btn"
-              :class="{ claimed: claimedDays.includes(7), locked: !isDayUnlocked(7) }"
-              @click="claimDay(7)"
-              :disabled="claimedDays.includes(7) || !isDayUnlocked(7)"
-            >
+            <button class="day-btn" :class="{ claimed: claimedDays.includes(7), locked: !isDayUnlocked(7) }"
+              @click="handleClaimDay(7)" :disabled="claimedDays.includes(7) || !isDayUnlocked(7)">
               {{ claimedDays.includes(7) ? 'Đã Nhận' : isDayUnlocked(7) ? 'Nhận' : 'Chưa Tới' }}
             </button>
           </div>
@@ -99,7 +85,7 @@
             <span>🏷 Còn: {{ v.quantity }} mã</span>
           </div>
 
-          <button v-if="!isSaved(v.id)" class="btn-save" @click="savePromo(v.id)">
+          <button v-if="!isSaved(v.id)" class="btn-save" @click="handleSavePromo(v.id)">
             Lưu mã
           </button>
           <button v-else class="btn-saved" disabled>
@@ -114,7 +100,7 @@
       </p>
     </div>
 
-    <!-- MODAL -->
+    <!-- MODAL VOUCHER CODE -->
     <div v-if="modal.show" class="modal-overlay" @click.self="modal.show = false">
       <div class="modal-box">
         <div class="modal-header">
@@ -128,6 +114,18 @@
           </div>
           <button class="modal-copy-btn" @click="copyCode">Sao Chép Mã</button>
         </div>
+      </div>
+    </div>
+
+    <!-- MODAL YÊU CẦU ĐĂNG NHẬP -->
+    <div v-if="authModal.show" class="modal-overlay" @click.self="authModal.show = false">
+      <div class="auth-modal-box">
+        <div class="auth-modal-logo-wrap">
+          <img :src="dripLabLogo" class="auth-modal-logo" alt="DripLab Logo" />
+        </div>
+        <div class="auth-modal-title">Chưa đăng nhập</div>
+        <div class="auth-modal-desc">Vui lòng đăng nhập để {{ authModal.action }}.</div>
+        <button class="auth-modal-btn" @click="goToLogin">Hoàn tất</button>
       </div>
     </div>
 
@@ -145,11 +143,41 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import coinImg from '../IMG/logoIconVoucher.png'
-import { useVoucher }     from '../JS-USER/Voucher.JS'
+import dripLabLogo from '../IMG/DripLab_Logo.png'
+import { useVoucher } from '../JS-USER/Voucher.JS'
 import { useUserVoucher } from '../JS-USER/UserVoucher'
 
-const { claimedDays, isDayUnlocked, claimDay, modal, copyCode } = useVoucher()
-const { promos, isSaved, savePromo, fmtValue, toast }           = useUserVoucher()
+const router = useRouter()
+
+const { claimedDays, isDayUnlocked, claimDay, modal, copyCode, authModal } = useVoucher()
+const { promos, isSaved, savePromo, fmtValue, toast } = useUserVoucher()
+
+// Kiểm tra đăng nhập trước khi nhận điểm
+function handleClaimDay(day) {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+  if (!token) {
+    authModal.value = { show: true, action: 'nhận xu hàng ngày' }
+    return
+  }
+  claimDay(day)
+}
+
+// Kiểm tra đăng nhập trước khi lưu mã
+function handleSavePromo(id) {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
+  if (!token) {
+    authModal.value = { show: true, action: 'lưu mã voucher' }
+    return
+  }
+  savePromo(id)
+}
+
+// Điều hướng sang trang đăng nhập
+function goToLogin() {
+  authModal.value.show = false
+  router.push('/login')
+}
 </script>
 <style scoped src="../CSS-USER/Voucher.CSS"></style>
