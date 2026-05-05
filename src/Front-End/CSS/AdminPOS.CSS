@@ -215,45 +215,316 @@
 .right-pay-btn--disabled:hover { background: #ccc; transform: none; }
 
 /* ===== POPUPS — copy từ CounterOrder.CSS ===== */
+/* ===== POPUP OVERLAY ===== */
 .popup-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(6px);
+  animation: fadeOverlay 0.2s ease;
+  padding: 20px;
 }
 
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== POPUP BOX ===== */
 .popup-box {
-  background: white; border-radius: 20px; padding: 0;
-  min-width: 300px; max-width: 400px; max-height: 85vh;
-  overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.25);
-  display: flex; flex-direction: column;
+  background: white;
+  border-radius: 24px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 88vh;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+  animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex;
+  flex-direction: column;
 }
-.popup-header-bar { display: flex; align-items: center; gap: 10px; padding: 18px 20px 14px; border-bottom: 1px solid #ede5d8; }
-.popup-icon { font-size: 22px; }
-.popup-header-bar h3 { flex: 1; font-size: 16px; font-weight: 800; color: #3e2010; }
-.popup-close-x { background: none; border: none; font-size: 16px; cursor: pointer; color: #9ca3af; padding: 4px; border-radius: 6px; transition: all 0.2s; }
-.popup-close-x:hover { background: #fee2e2; color: #ef4444; }
-.popup-img { width: 100%; height: 160px; object-fit: cover; }
-.popup-options { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 280px; }
-.popup-option-btn { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1.5px solid #e0d8cc; background: #f5f0e8; border-radius: 10px; cursor: pointer; font-size: 13.5px; transition: all 0.15s; font-family: 'Be Vietnam Pro', sans-serif; }
-.popup-option-btn:hover { background: #ede5d8; border-color: #8b5e3c; }
-.popup-option-btn.option-selected { background: #e8f3ec; border-color: #4a7c59; }
-.popup-option-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.option-name { font-weight: 700; color: #3e2010; }
-.option-price { font-weight: 700; color: #4a7c59; }
 
-.selected-toppings { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 0; }
-.selected-topping-tag { background: #fff7ed; border: 1px solid #f97316; color: #f97316; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.selected-topping-tag span { cursor: pointer; font-weight: bold; }
-.selected-topping-tag span:hover { color: #dc2626; }
+/* Wide variant cho topping */
+.popup-box--wide {
+  width: 640px;
+}
+
+@keyframes popIn {
+  from { opacity:0; transform: scale(0.92) translateY(24px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ===== POPUP HEADER ===== */
+.popup-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1.5px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.popup-icon { font-size: 26px; }
+
+.popup-header-bar h3 {
+  flex: 1;
+  font-size: 18px;
+  font-weight: 800;
+  color: #3e2010;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popup-close-x {
+  background: #f1f5f9;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #64748b;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.popup-close-x:hover { background: #fee2e2; color: #ef4444; }
+
+/* ===== POPUP IMAGE ===== */
+.popup-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ===== POPUP OPTIONS (list) ===== */
+.popup-options {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.popup-options::-webkit-scrollbar { width: 4px; }
+.popup-options::-webkit-scrollbar-thumb { background: #ddd4c4; border-radius: 2px; }
+
+.popup-option-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border: 2px solid #e8e0d4;
+  background: #faf8f5;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  gap: 12px;
+}
+
+.popup-option-btn:hover {
+  background: #f0ece4;
+  border-color: #8b5e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(92,51,23,0.1);
+}
+
+.option-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.option-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #3e2010;
+}
+
+.option-desc {
+  font-size: 12px;
+  color: #8b5e3c;
+  font-weight: 500;
+}
+
+.option-price {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4a7c59;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ===== TOPPING GRID ===== */
+.popup-topping-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.popup-topping-grid::-webkit-scrollbar { width: 4px; }
+.popup-topping-grid::-webkit-scrollbar-thumb { background: #ddd4c4; border-radius: 2px; }
+
+.popup-topping-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border: 2px solid #e8e0d4;
+  background: #faf8f5;
+  border-radius: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  text-align: center;
+  min-height: 80px;
+}
+
+.popup-topping-card:hover:not(:disabled) {
+  border-color: #4a7c59;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74,124,89,0.12);
+}
+
+.topping-card--selected {
+  border-color: #4a7c59 !important;
+  background: #f0fdf4 !important;
+  box-shadow: 0 0 0 3px rgba(74,124,89,0.15);
+}
+
+.topping-card--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.topping-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3e2010;
+  line-height: 1.3;
+}
+
+.topping-card-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a7c59;
+}
+
+.topping-card-check {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #4a7c59;
+}
+
+/* ===== POPUP FOOTER ===== */
+.popup-footer {
+  padding: 16px 20px;
+  border-top: 1.5px solid #f1f5f9;
+  flex-shrink: 0;
+  background: #faf8f5;
+  border-radius: 0 0 24px 24px;
+}
+
+.popup-footer--split {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.popup-btn-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.popup-btn-cancel:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
 
 .confirm-topping-btn {
-  margin: 8px 16px 16px; background: #4a7c59 !important; color: white !important;
-  border: none !important; padding: 11px !important; border-radius: 8px !important;
-  font-size: 14px !important; font-weight: 700 !important; cursor: pointer !important;
-  font-family: 'Be Vietnam Pro', sans-serif !important; transition: background 0.2s !important;
+  flex: 1;
+  background: #4a7c59;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+  text-align: center;
 }
-.confirm-topping-btn:hover { background: #3a6045 !important; }
+.confirm-topping-btn:hover { background: #3a6045; transform: translateY(-1px); }
+
+/* Selected toppings tags */
+.selected-toppings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px 0;
+  flex-shrink: 0;
+}
+
+.selected-topping-tag {
+  background: #f0fdf4;
+  border: 1.5px solid #4a7c59;
+  color: #3a6045;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.selected-topping-tag span {
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 12px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.selected-topping-tag span:hover { opacity: 1; color: #c0392b; }
+
+/* Topping count badge */
+.topping-count-badge {
+  background: #c0392b;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
 
 /* Payment popup — CounterOrder style */
 .payment-popup {
