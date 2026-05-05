@@ -2200,10 +2200,6 @@
   margin-top: 2px;
 }
 
-.receipt-item-price {
-  color: var(--green-dark);
-  font-weight: 700;
-}
 
 .receipt-note-val {
   font-style: italic;

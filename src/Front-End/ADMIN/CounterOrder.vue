@@ -653,7 +653,7 @@ function getDineModeLabel(mode) {
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
           <span class="review-val review-mode-badge" :class="receiptData.dineMode === true ? 'dine' : 'takeaway'">
-            {{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? '🛍 Mang đi' : 'Chưa chọn'}}
+            {{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? ' Mang đi' : 'Chưa chọn'}}
           </span>
         </div>
         <div class="review-row">
@@ -738,7 +738,7 @@ function getDineModeLabel(mode) {
             </div>
             <div class="success-row b">
               <span>Hình thức</span>
-              <span>{{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? '🛍 Mang đi' : 'Chưa chọn' }}</span>
+              <span>{{ receiptData.dineMode === true ? '🪑 Tại quán' : receiptData.dineMode === false ? ' Mang đi' : 'Chưa chọn' }}</span>
             </div>
             <div class="success-row b">
               <span>Ghi chú</span>
@@ -767,7 +767,6 @@ function getDineModeLabel(mode) {
                     | Topping: {{item.toppingDetails.map(t => t.name).join(', ')}}
                   </span>
                 </div>
-                <div class="receipt-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
               </div>
             </div>
             <div class="receipt-divider"></div>
@@ -783,7 +782,7 @@ function getDineModeLabel(mode) {
             </div>
             <template v-if="paymentMethod === 'cash'">
               <div class="success-row b">
-                <span>Khách đưa</span>
+                <span>Số Tiền Khách đưa</span>
                 <span>{{ (parseInt((customerMoney ||'').replace(/\./g, '')) || 0).toLocaleString() }} VNĐ</span>
               </div>
               <div class="success-row b">
