@@ -1493,3 +1493,137 @@ aside {
   border-color: #d93025;
   color: #fff;
 }
+/* ── Popup thông tin khách hàng ── */
+.customer-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.required { color: #d93025; }
+
+.form-input {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-size: .88rem;
+  color: var(--text-main);
+  background: var(--card-bg);
+  outline: none;
+  font-family: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+
+.form-input:focus {
+  border-color: var(--caramel);
+  box-shadow: 0 0 0 3px rgba(196,125,43,.12);
+}
+
+.form-input--error {
+  border-color: #d93025 !important;
+  box-shadow: 0 0 0 3px rgba(217,48,37,.08) !important;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.form-error {
+  font-size: .75rem;
+  color: #d93025;
+  font-weight: 600;
+}
+
+/* Delivery info box */
+.delivery-info-box {
+  background: var(--cream-light);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.delivery-info-row {
+  display: flex;
+  gap: 10px;
+  font-size: .84rem;
+}
+
+.di-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.di-val {
+  color: var(--text-main);
+  font-weight: 600;
+  flex: 1;
+}
+
+.di-note {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* meta-bar-actions */
+.meta-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-delete-selected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: #fff0ef;
+  border: 1.5px solid #f5c0bc;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #d93025;
+  transition: all var(--transition);
+  user-select: none;
+}
+
+.btn-delete-selected:hover {
+  background: #d93025;
+  border-color: #d93025;
+  color: #fff;
+}
+
+/* Moi price breakdown */
+.moi-price-breakdown {
+  font-size: .70rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.moi-price-breakdown span {
+  background: var(--cream-light);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
