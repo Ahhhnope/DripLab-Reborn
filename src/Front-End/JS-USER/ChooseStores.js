@@ -37,6 +37,12 @@ export default {
             selectedId: null,
             toastMessage: null,
             showClosedModal: false,
+
+            // ✅ Modal khi khoảng cách vận chuyển xa
+            showFarModal: false,
+            farDistanceThresholdKm: 5,
+            pendingStore: null,
+
             logoUrl: dripLabLogo,
             _toastTimer: null,
             _clockTimer: null,
@@ -209,12 +215,67 @@ export default {
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
         },
 
+        // ===== Modal khoảng cách xa =====
+        closeFarModal() {
+            this.showFarModal = false;
+            this.pendingStore = null;
+        },
+
+        confirmContinueOrder() {
+            if (!this.pendingStore) {
+                this.closeFarModal();
+                return;
+            }
+            const s = this.pendingStore;
+            this.closeFarModal();
+            this._applySelectionAndGoHome(s);
+        },
+
+        goNearestStore() {
+            // Nếu chưa có GPS thì không xác định được "gần nhất"
+            if (this.userLat == null) {
+                this.showToast("Vui lòng bật vị trí để tìm cửa hàng gần nhất");
+                this.closeFarModal();
+                return;
+            }
+
+            const openStores = this.filteredStores.filter((s) => s.isOpen && s.distanceKm != null);
+            if (openStores.length === 0) {
+                this.showToast("Hiện không có cửa hàng nào đang mở");
+                this.closeFarModal();
+                return;
+            }
+
+            const nearest = [...openStores].sort((a, b) => (a.distanceKm ?? 999) - (b.distanceKm ?? 999))[0];
+
+            this.closeFarModal();
+
+            // ✅ Chỉ highlight + toast (không tự chuyển trang)
+            this.selectedId = nearest.id;
+            this.showToast(`Gợi ý cửa hàng gần nhất: ${nearest.code}`);
+
+            // Option: nếu muốn auto-scroll tới thẻ gần nhất, có thể làm thêm ở đây.
+        },
+
+        // ===== Flow chọn cửa hàng =====
         selectStore(store) {
             if (!store.isOpen) {
                 this.showClosedModal = true;
                 return;
             }
 
+            // Nếu có khoảng cách và > 5km => hiện modal cảnh báo
+            const d = Number(store.distanceKm);
+            if (Number.isFinite(d) && d > this.farDistanceThresholdKm) {
+                this.pendingStore = store;
+                this.showFarModal = true;
+                return;
+            }
+
+            this._applySelectionAndGoHome(store);
+        },
+
+        _applySelectionAndGoHome(store) {
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
 

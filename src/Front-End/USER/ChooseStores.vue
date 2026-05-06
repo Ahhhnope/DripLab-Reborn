@@ -135,6 +135,28 @@
       </div>
     </transition>
 
+    <!-- Far Distance Modal (>5km) -->
+    <transition name="cs-modal">
+      <div v-if="showFarModal" class="cs-modal-overlay" @click.self="closeFarModal">
+        <div class="cs-modal cs-modal--far">
+          <div class="cs-modal-icon">
+            <div class="cs-hourglass" aria-hidden="true">⏳</div>
+            <span class="cs-modal-badge cs-modal-badge--warn">LƯU Ý</span>
+          </div>
+          <h2 class="cs-modal-title">Khoảng cách vận chuyển khá xa</h2>
+          <p class="cs-modal-desc">
+            Vì quãng đường vận chuyển khá xa, Drip Lab lo lắng chất lượng hương vị sẽ không còn ở mức 100% khi đến tay bạn.
+            Bạn vẫn muốn tiếp tục đặt hàng hay ghé qua cửa hàng để chúng mình được phục vụ bạn tốt nhất?
+          </p>
+
+          <div class="cs-modal-actions">
+            <button class="cs-modal-btn" @click="confirmContinueOrder">Tiếp tục đặt đơn</button>
+            <button class="cs-modal-btn cs-modal-btn--secondary" @click="goNearestStore">Ghé cửa hàng gần nhất</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
   </div>
 </template>
 
