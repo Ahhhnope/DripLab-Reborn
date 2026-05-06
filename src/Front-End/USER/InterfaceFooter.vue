@@ -27,7 +27,7 @@ const { connectLinks, socialLinks, year } = useFooter()
         <p>
           Email: contact@driplab.com<br />
           Số điện thoại: 036 363 6767<br />
-          Địa chỉ đặt tại: 200 Tô Hiến Thành, Hai Bà Trưng, Hà Nội
+          Địa chỉ đặt tại: 241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội
         </p>
       </div>
 

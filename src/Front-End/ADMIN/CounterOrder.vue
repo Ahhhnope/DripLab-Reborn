@@ -115,7 +115,6 @@ function getTableLabel(num) {
 
 function onOrderTabClick(order) {
   if (currentOrder.value && currentOrder.value.id === order.id) {
-    // Click vào tab đang active → hỏi hủy
     requestCancelOrder(order)
   } else {
     selectOrder(order)
@@ -297,7 +296,7 @@ function getDineModeLabel(mode) {
               <div class="logo-card-img-wrap">
                 <img :src="logoDrip" alt="DripLab" class="logo-card-img" />
               </div>
-              <p class="logo-card-label">COFFEE</p>
+              <p class="logo-card-label">COFFEE <br> Tự Pha Chế  </p>
               <button class="detail-btn" style="width:80%;margin:0 auto 10px" @click.stop="goAdmin">Chi tiết</button>
             </div>
             <div v-for="product in products" :key="product.id" class="product-card" @click="openPopup(product)">
