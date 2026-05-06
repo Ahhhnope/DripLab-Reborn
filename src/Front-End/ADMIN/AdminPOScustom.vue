@@ -498,4 +498,4 @@ onBeforeUnmount(() => {
   </div>
 </template>
 
-<style src="../CSS/AdminPOS.CSS"></style>
+<style scoped src="../CSS/AdminPOS.CSS"></style>
