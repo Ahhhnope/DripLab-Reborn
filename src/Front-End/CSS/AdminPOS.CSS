@@ -1,641 +1,808 @@
-/* ── Import biến màu CounterOrder ── */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+.brewing-page {
+  min-height: 100vh;
+  background: #f0f2f5;
+  font-family: 'Segoe UI', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: #1a1a1a;
+}
 
-.pos-wrapper {
+/* ─── LAYOUT ─────────────────────────────────────────────────── */
+.brew-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  height: 100vh;
-  overflow: hidden;
-  background: #f5f0e8;
-  font-family: 'Be Vietnam Pro', sans-serif;
+  grid-template-columns: 340px 1fr;
+  gap: 24px;
+  align-items: stretch;
 }
 
-/* ===== CỘT TRÁI ===== */
-.products {
-  padding: 24px;
-  overflow-y: auto;
-  min-width: 0;
-  background: #f5f0e8;
+.cup-panel { display: flex; flex-direction: column; }
+.step-panel { display: flex; flex-direction: column; }
+
+@media (max-width: 860px) {
+  .brew-layout { grid-template-columns: 1fr; }
 }
 
-/* Header */
-.pos-header { text-align: center; margin-bottom: 20px; }
-.pos-title {
+
+/* ═══════════════════════════════════════════════════════════════
+   CỐC PANEL (TRÁI)
+═══════════════════════════════════════════════════════════════ */
+.cup-panel__inner {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  position: sticky;
+  top: 24px;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.cup-panel__header { margin-bottom: 8px; }
+
+.cup-panel__eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4caf50;
+}
+
+.cup-panel__title {
   font-size: 22px;
   font-weight: 800;
-  color: #3e2010;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
+  color: #1a1a1a;
+  margin: 4px 0 0;
 }
-.pos-subtitle { font-size: 13px; color: #8b5e3c; }
 
-/* Search — giống CounterOrder */
-.search-bar { display: flex; gap: 10px; margin-bottom: 24px; }
-.search-bar input {
-  flex: 1;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1.5px solid #ddd4c4;
-  background: #fff;
-  font-size: 14px;
-  outline: none;
-  font-family: 'Be Vietnam Pro', sans-serif;
-  transition: border-color 0.2s;
-}
-.search-bar input:focus { border-color: #8b5e3c; }
-.search-bar button {
-  padding: 10px 20px;
-  background: #4a7c59;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 700;
-  font-family: 'Be Vietnam Pro', sans-serif;
-  transition: background 0.2s;
-}
-.search-bar button:hover { background: #3a6045; }
-
-/* Steps */
-.steps-progress {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* ─── STAGE CỐC ─────────────────────────────────────────────── */
+.cup-stage {
   position: relative;
-  margin-bottom: 24px;
-  padding: 0 8px;
-}
-.step-line {
-  position: absolute;
-  top: 18px; left: 8%; right: 8%;
-  height: 2px;
-  background: #ddd4c4;
-  z-index: 0;
-}
-.step-dot {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 32px 0 12px;
+}
+
+.cup-wrap {
+  width: 180px;
+  height: 270px;
+  filter:
+    drop-shadow(0 20px 32px rgba(0,0,0,0.18))
+    drop-shadow(0 4px 10px rgba(0,0,0,0.10));
+}
+
+.cup-svg { width: 100%; height: 100%; overflow: visible; }
+
+.layers-split,
+.layers-mixed { transition: opacity 420ms ease; }
+
+/* ─── LIQUID LAYER ──────────────────────────────────────────── */
+.liq-layer {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: liquidPour 700ms cubic-bezier(0.22, 0.92, 0.34, 1) var(--delay, 0ms) both;
+}
+
+@keyframes liquidPour {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+/* ─── FOAM ──────────────────────────────────────────────────── */
+.foam-group ellipse { animation: foamRise 500ms 200ms ease-out both; }
+.foam-group circle  { animation: foamRise 400ms ease-out both; }
+
+@keyframes foamRise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+/* ─── BUBBLES ───────────────────────────────────────────────── */
+.bubbles circle {
+  fill: rgba(255,255,255,0.55);
+  animation: bubbleUp var(--dur, 2.8s) ease-in infinite var(--delay-anim, 0s);
+}
+
+@keyframes bubbleUp {
+  0%   { transform: translateY(0);     opacity: 0;   }
+  15%  {                               opacity: 0.7; }
+  85%  {                               opacity: 0.4; }
+  100% { transform: translateY(-80px); opacity: 0;   }
+}
+
+/* ─── ICE ───────────────────────────────────────────────────── */
+.ice rect {
+  fill: rgba(210,238,255,0.55);
+  stroke: rgba(255,255,255,0.8);
+  stroke-width: 1.5;
+  animation: iceFloat var(--dur, 3s) ease-in-out infinite alternate var(--delay-anim, 0s);
+}
+
+@keyframes iceFloat {
+  from { transform: translateY(0);    }
+  to   { transform: translateY(-5px); }
+}
+
+/* ─── CONDENSATION ──────────────────────────────────────────── */
+.condensation ellipse {
+  fill: rgba(200,230,255,0.35);
+  animation: dropFall var(--dur, 4s) ease-in infinite var(--delay-anim, 0s);
+}
+
+@keyframes dropFall {
+  0%   { transform: translateY(0);    opacity: 0.6; }
+  80%  {                              opacity: 0.2; }
+  100% { transform: translateY(60px); opacity: 0;   }
+}
+
+/* ─── DRIZZLE ───────────────────────────────────────────────── */
+.drizzle path {
+  stroke: rgba(120,65,20,0.72);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drizzleDraw 900ms cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.drizzle path:nth-child(2) { animation-delay: 90ms;  }
+.drizzle path:nth-child(3) { animation-delay: 180ms; }
+.drizzle path:nth-child(4) { animation-delay: 270ms; }
+
+@keyframes drizzleDraw { to { stroke-dashoffset: 0; } }
+
+/* ─── STEAM ─────────────────────────────────────────────────── */
+.steam {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 14px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.waft {
+  width: 8px;
+  height: 48px;
+  border-radius: 999px;
+  background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,0.65), rgba(255,255,255,0));
+  filter: blur(5px);
+  animation: steamWaft 2.6s ease-in-out infinite;
+}
+.waft:nth-child(1) { animation-delay: 0s;    opacity: 0.75; }
+.waft:nth-child(2) { animation-delay: 0.30s; opacity: 0.60; }
+.waft:nth-child(3) { animation-delay: 0.55s; opacity: 0.50; }
+
+@keyframes steamWaft {
+  0%   { transform: translateY(8px)   translateX(0)    scaleX(0.85); opacity: 0;    }
+  20%  {                                                               opacity: 0.85; }
+  55%  { transform: translateY(-8px)  translateX(8px)  scaleX(1.10); opacity: 0.60; }
+  100% { transform: translateY(-28px) translateX(-5px) scaleX(0.90); opacity: 0;    }
+}
+
+/* ─── STRAW ─────────────────────────────────────────────────── */
+.straw {
+  animation: strawDrop 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes strawDrop {
+  from { transform: translateY(-30px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+/* ─── CUP STATUS ────────────────────────────────────────────── */
+.cup-status {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  min-height: 20px;
+  text-align: center;
+}
+
+.cup-status__empty   { color: #bbb; }
+.cup-status__filling { color: #c6a562; }
+.cup-status__done    { color: #4caf50; }
+
+/* ─── CUP PRICE ─────────────────────────────────────────────── */
+.cup-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f8f8f8;
+  border-radius: 12px;
+}
+
+.cup-price__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #999;
+}
+
+.cup-price__value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #4caf50;
+}
+
+/* ─── CUP SUMMARY ───────────────────────────────────────────── */
+.cup-summary {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 8px;
+  min-height: 28px;
+}
+
+.cup-summary__row {
+  display: flex;
   align-items: center;
   gap: 6px;
-  z-index: 1;
-  position: relative;
-}
-.step-dot-circle {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800;
-  border: 2px solid #ddd4c4;
-  background: white; color: #9ca3af;
-  transition: all 0.3s;
-}
-.step-dot.done .step-dot-circle { background: #4a7c59; border-color: #4a7c59; color: white; }
-.step-dot.active .step-dot-circle { background: #fff; border-color: #4a7c59; color: #4a7c59; box-shadow: 0 0 0 4px rgba(74,124,89,0.15); }
-.step-dot-label { font-size: 11px; font-weight: 700; color: #9ca3af; }
-.step-dot.done .step-dot-label,
-.step-dot.active .step-dot-label { color: #4a7c59; }
-
-/* Custom Cards */
-.custom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-.custom-card {
-  background: white;
-  border-radius: 16px;
-  padding: 18px 16px;
-  display: flex; align-items: center; gap: 14px;
-  cursor: pointer;
-  border: 2px solid #e0d8cc;
-  box-shadow: 0 2px 8px rgba(92,51,23,0.07);
-  transition: all 0.2s;
-  min-height: 90px;
-  position: relative; overflow: hidden;
-}
-.custom-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0; width: 0;
-  background: linear-gradient(180deg, #4a7c59, #3a6045);
-  border-radius: 16px 0 0 16px;
-  transition: width 0.3s;
-}
-.custom-card:hover:not(.card-locked) { border-color: #8b5e3c; box-shadow: 0 6px 20px rgba(92,51,23,0.15); transform: translateY(-2px); }
-.custom-card.card-done { border-color: #4a7c59; background: linear-gradient(135deg, #f0fdf4, #fff); }
-.custom-card.card-done::before { width: 4px; }
-.custom-card.card-locked { opacity: 0.5; cursor: not-allowed; }
-
-.card-icon {
-  font-size: 28px; flex-shrink: 0;
-  width: 48px; height: 48px;
-  display: flex; align-items: center; justify-content: center;
-  background: #f5f0e8; border-radius: 12px;
-}
-.card-done .card-icon { background: #dcfce7; }
-.card-content { flex: 1; min-width: 0; }
-.card-content h3 { font-size: 14px; font-weight: 700; color: #3e2010; margin-bottom: 4px; }
-.card-selected { font-size: 12px; color: #4a7c59; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-hint { font-size: 12px; color: #9ca3af; }
-.card-arrow { font-size: 18px; color: #9ca3af; font-weight: 700; flex-shrink: 0; }
-.card-done .card-arrow { color: #4a7c59; }
-.topping-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.topping-chip { background: #dcfce7; color: #166534; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
-.topping-count-badge { background: #c0392b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
-
-/* ===== CỘT PHẢI — copy y hệt CounterOrder.CSS ===== */
-.order-section {
-  width: 300px; min-width: 300px;
-  background: #ffffff;
-  border-left: 2px solid #ede5d8;
-  display: flex; flex-direction: column;
-  height: 100vh; overflow: hidden; flex-shrink: 0;
-}
-
-.order-section-title {
-  background: #5c3317; color: #ffffff;
-  font-size: 15px; font-weight: 800;
-  text-align: center; padding: 0 21px;
-  height: 60px;
-  display: flex; align-items: center; justify-content: center;
-  letter-spacing: 0.5px; flex-shrink: 0;
-}
-
-.right-customer-block { border-bottom: 1.5px solid #ede5d8; padding: 10px 14px; flex-shrink: 0; }
-.right-sub-title { font-size: 12px; font-weight: 800; color: #3e2010; text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-.right-info-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
-.right-info-lbl { font-weight: 700; color: #5c3317; }
-.right-info-val { font-weight: 600; color: #2c1a0e; text-align: right; max-width: 150px; word-break: break-word; }
-
-.right-products-block { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 10px; border-bottom: 1.5px solid #ede5d8; min-height: 0; }
-.right-products-block::-webkit-scrollbar { width: 4px; }
-.right-products-block::-webkit-scrollbar-thumb { background: #c5b89a; border-radius: 2px; }
-.right-products-title { font-size: 12px; font-weight: 800; color: #3e2010; text-align: center; margin-bottom: 6px; text-transform: uppercase; }
-
-.right-product-card { background: #f5f0e8; border: 1px solid #e0d8cc; border-radius: 8px; padding: 8px 10px; margin-bottom: 7px; position: relative; }
-.right-pc-header { display: flex; align-items: center; justify-content: space-between; padding-right: 18px; }
-.right-pc-name { font-size: 11px; font-weight: 700; color: #2c1a0e; line-height: 1.4; flex: 1; word-break: break-word; }
-.right-pc-price { background: #4a7c59; color: #ffffff; border-radius: 6px; padding: 2px 7px; font-size: 11px; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-left: 6px; }
-.right-pc-remove { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #c0392b; font-size: 14px; cursor: pointer; line-height: 1; transition: transform 0.15s; }
-.right-pc-remove:hover { transform: scale(1.3); }
-
-.order-footer-block { flex-shrink: 0; padding: 10px 12px; border-top: 1.5px solid #ede5d8; background: #ffffff; }
-.discount-section { margin-bottom: 8px; }
-.discount-label { font-size: 12px; font-weight: 700; color: #5c3317; margin-bottom: 5px; }
-.discount-bar { display: flex; gap: 6px; }
-.discount-select { flex: 1; border: 1.5px solid #ddd4c4; border-radius: 7px; padding: 6px 8px; font-size: 12px; font-family: 'Be Vietnam Pro', sans-serif; background: #f5f0e8; outline: none; color: #2c1a0e; }
-.discount-btn { background: #5c3317; color: #ffffff; border: none; border-radius: 7px; padding: 6px 12px; font-size: 12px; font-weight: 700; font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer; transition: background 0.2s; }
-.discount-btn:hover { background: #3e2010; }
-.discount-message { font-size: 11px; font-weight: 600; margin-top: 4px; }
-.discount-message.success { color: #4a7c59; }
-.discount-message.error   { color: #c0392b; }
-.original-price-row { font-size: 11px; color: #aaa; text-decoration: line-through; text-align: right; margin-bottom: 2px; }
-.discount-badge { background: #c0392b; color: #ffffff; border-radius: 4px; padding: 1px 5px; font-size: 10px; font-weight: 700; margin-left: 4px; }
-.total-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; margin-top: 6px; }
-.total-label { font-size: 13px; font-weight: 700; color: #3e2010; }
-.total-amount { font-size: 15px; font-weight: 900; color: #3e2010; }
-
-/* 2 nút giống CounterOrder */
-.right-action-btns { display: flex; gap: 8px; }
-.right-action-btns--footer { margin-top: 8px; }
-.right-mode-btn {
-  flex: 1; background: #8b5e3c; color: #ffffff; border: none;
-  border-radius: 8px; padding: 9px 6px; font-size: 12px; font-weight: 700;
-  font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer;
-  transition: background 0.2s, transform 0.15s; text-align: center;
-}
-.right-mode-btn:hover { background: #3e2010; transform: translateY(-1px); }
-.right-mode-btn--disabled { background: #ccc; color: #888; cursor: not-allowed; opacity: 0.7; }
-.right-mode-btn--disabled:hover { background: #ccc; transform: none; }
-.right-pay-btn {
-  flex: 1; background: #4a7c59; color: #ffffff; border: none;
-  border-radius: 8px; padding: 9px 6px; font-size: 12px; font-weight: 700;
-  font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer;
-  transition: background 0.2s, transform 0.15s; text-align: center;
-}
-.right-pay-btn:hover { background: #3a6045; transform: translateY(-1px); }
-.right-pay-btn--disabled { background: #ccc; color: #888; cursor: not-allowed; opacity: 0.7; }
-.right-pay-btn--disabled:hover { background: #ccc; transform: none; }
-
-/* ===== POPUPS — copy từ CounterOrder.CSS ===== */
-/* ===== POPUP OVERLAY ===== */
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  backdrop-filter: blur(6px);
-  animation: fadeOverlay 0.2s ease;
-  padding: 20px;
-}
-
-@keyframes fadeOverlay {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* ===== POPUP BOX ===== */
-.popup-box {
-  background: white;
-  border-radius: 24px;
-  width: 520px;
-  max-width: 95vw;
-  max-height: 88vh;
+  font-size: 12px;
+  color: #444;
+  min-width: 0;
+  white-space: nowrap;
   overflow: hidden;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.28);
-  animation: popIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
-  display: flex;
-  flex-direction: column;
+  text-overflow: ellipsis;
 }
 
-/* Wide variant cho topping */
-.popup-box--wide {
-  width: 640px;
-}
-
-@keyframes popIn {
-  from { opacity:0; transform: scale(0.92) translateY(24px); }
-  to   { opacity:1; transform: scale(1) translateY(0); }
-}
-
-/* ===== POPUP HEADER ===== */
-.popup-header-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px 24px 16px;
-  border-bottom: 1.5px solid #f1f5f9;
+.cup-summary__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.popup-icon { font-size: 26px; }
+/* ─── CUP NOTICE ─────────────────────────────────────────────── */
+.cup-notice {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #5d4037;
+}
 
-.popup-header-bar h3 {
-  flex: 1;
-  font-size: 18px;
-  font-weight: 800;
-  color: #3e2010;
+/* ─── CUP ACTIONS ────────────────────────────────────────────── */
+.cup-actions {
+  margin-top: 16px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
 }
 
-.popup-close-x {
-  background: #f1f5f9;
-  border: none;
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  color: #64748b;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.popup-close-x:hover { background: #fee2e2; color: #ef4444; }
-
-/* ===== POPUP IMAGE ===== */
-.popup-img {
+.btn-cart {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-/* ===== POPUP OPTIONS (list) ===== */
-.popup-options {
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-}
-
-.popup-options::-webkit-scrollbar { width: 4px; }
-.popup-options::-webkit-scrollbar-thumb { background: #ddd4c4; border-radius: 2px; }
-
-.popup-option-btn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 18px;
-  border: 2px solid #e8e0d4;
-  background: #faf8f5;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-  gap: 12px;
-}
-
-.popup-option-btn:hover {
-  background: #f0ece4;
-  border-color: #8b5e3c;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(92,51,23,0.1);
-}
-
-.option-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: left;
-}
-
-.option-name {
+  height: 46px;
+  background: #4caf50;
+  color: #fff;
   font-size: 14px;
   font-weight: 700;
-  color: #3e2010;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.18s;
+  box-shadow: 0 4px 16px rgba(76,175,80,0.25);
+}
+.btn-cart:hover { background: #43a047; }
+
+.btn-reset {
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+.btn-reset:hover { border-color: #bbb; color: #555; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   STEP PANEL (PHẢI)
+═══════════════════════════════════════════════════════════════ */
+.step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.option-desc {
-  font-size: 12px;
-  color: #8b5e3c;
-  font-weight: 500;
-}
-
-.option-price {
-  font-size: 14px;
-  font-weight: 800;
-  color: #4a7c59;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* ===== TOPPING GRID ===== */
-.popup-topping-grid {
+/* ─── STEPPER GRID (3×2) ─────────────────────────────────────── */
+.stepper-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  padding: 16px 20px;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
 }
 
-.popup-topping-grid::-webkit-scrollbar { width: 4px; }
-.popup-topping-grid::-webkit-scrollbar-thumb { background: #ddd4c4; border-radius: 2px; }
+@media (max-width: 640px) {
+  .stepper-grid { grid-template-columns: 1fr 1fr; }
+}
 
-.popup-topping-card {
+.stepper-cell {
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 72px;
+}
+
+.stepper-cell:hover:not(.stepper-cell--locked) {
+  border-color: #4caf50;
+  background: #f0faf0;
+}
+
+.stepper-cell--active {
+  border-color: #4caf50 !important;
+  background: #fff !important;
+  box-shadow: 0 4px 18px rgba(76,175,80,0.18);
+}
+
+.stepper-cell--done {
+  background: #f8fdf8;
+  border-color: #c8e6c9;
+}
+
+.stepper-cell--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #f8f8f8;
+}
+
+.stepper-cell__num {
+  font-size: 10px;
+  font-weight: 800;
+  color: #4caf50;
+  letter-spacing: 0.08em;
+}
+
+.stepper-cell--locked .stepper-cell__num { color: #bbb; }
+
+.stepper-cell__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.stepper-cell--done   .stepper-cell__label { color: #388e3c; }
+.stepper-cell--locked .stepper-cell__label { color: #aaa;    }
+
+.stepper-cell__count {
+  font-size: 11px;
+  color: #f57c00;
+  font-weight: 600;
+}
+
+.stepper-cell__value {
+  font-size: 11px;
+  color: #4caf50;
+  font-weight: 600;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── OPTIONS PANEL ──────────────────────────────────────────── */
+.options-panel {
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  animation: panelIn 260ms ease-out both;
+  flex: 1;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.options-section__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.options-step-num {
+  font-size: 13px;
+  font-weight: 800;
+  color: #4caf50;
+  background: #f0faf0;
+  border-radius: 8px;
+  padding: 2px 10px;
+  letter-spacing: 0.05em;
+}
+
+.options-section__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.options-section__limit {
+  font-size: 13px;
+  font-weight: 400;
+  color: #999;
+  margin-left: 6px;
+}
+
+/* ─── OPTION GRID ────────────────────────────────────────────── */
+.options-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.options-grid--2 { grid-template-columns: 1fr 1fr; }
+.options-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+
+@media (max-width: 640px) {
+  .options-grid--2,
+  .options-grid--3 { grid-template-columns: 1fr; }
+}
+
+/* ─── OPTION CARD ────────────────────────────────────────────── */
+.option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 14px 12px;
+  background: #fafafa;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.option-card:hover {
+  background: #f0faf0;
+  border-color: #a5d6a7;
+}
+
+.option-card--selected {
+  border-color: #4caf50 !important;
+  background: #f0faf0 !important;
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+}
+
+.option-card__swatch {
+  width: 28px;
+  height: 10px;
+  border-radius: 5px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.option-card__name  { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.option-card__sub   { font-size: 11px; color: #888; line-height: 1.4; }
+.option-card__price { font-size: 12px; font-weight: 700; color: #4caf50; margin-top: 4px; }
+
+/* ─── SIZE CARD ──────────────────────────────────────────────── */
+.option-card--size {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 10px;
+  gap: 6px;
+}
+
+.option-card__size-badge {
+  font-size: 32px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1;
+  font-family: ui-serif, Georgia, serif;
+}
+
+.option-card--selected .option-card__size-badge { color: #4caf50; }
+
+/* ─── CARD CHECK (topping) ───────────────────────────────────── */
+.option-card--check {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.option-card__checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+  background: transparent;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.option-card--selected .option-card__checkbox {
+  background: #4caf50;
+  border-color: #4caf50;
+}
+
+.option-card__checkbox svg { width: 12px; height: 12px; }
+
+.option-card--check .option-card__swatch  { width: 10px; height: 10px; border-radius: 50%; margin-bottom: 0; }
+.option-card--check .option-card__name    { font-size: 13px; flex: 1; }
+.option-card--check .option-card__sub     { font-size: 11px; width: 100%; margin-left: 28px; }
+.option-card--check .option-card__price   { font-size: 11px; margin-top: 0; margin-left: auto; }
+
+/* ─── TOPPING AUTO HINT ──────────────────────────────────────── */
+.topping-auto-hint {
+  margin-top: 14px;
+  margin-bottom: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: hintFadeIn 0.3s ease both;
+}
+
+@keyframes hintFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* ─── NAVIGATION BUTTONS ─────────────────────────────────────── */
+.options-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: space-between;
+}
+
+.btn-nav {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: background 0.18s;
+}
+
+.btn-nav--back { background: #f0f0f0; color: #555; }
+.btn-nav--back:hover { background: #e4e4e4; }
+
+.btn-nav--finish {
+  background: #4caf50;
+  color: #fff;
+  margin-left: auto;
+  box-shadow: 0 4px 12px rgba(76,175,80,0.25);
+}
+.btn-nav--finish:hover { background: #43a047; }
+
+/* ─── LEVEL GROUP (đá / đường) ───────────────────────────────── */
+.level-group {
+  margin-bottom: 22px;
+}
+
+.level-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.level-group__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.level-group__limit {
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.level-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.level-pill {
+  height: 38px;
+  min-width: 56px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  background: #fafafa;
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+}
+
+.level-pill:hover { border-color: #a5d6a7; background: #f0faf0; }
+
+.level-pill--active {
+  border-color: #4caf50 !important;
+  background: #f0faf0 !important;
+  color: #2e7d32 !important;
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
+}
+
+/* ─── QUANTITY ROW ───────────────────────────────────────────── */
+.qty-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.qty-btn {
+  width: 42px;
+  height: 42px;
+  background: #f5f5f5;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.qty-btn:hover { background: #e8f5e9; color: #2e7d32; }
+
+.qty-value {
+  width: 52px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a1a1a;
+  border-left: 2px solid #e0e0e0;
+  border-right: 2px solid #e0e0e0;
+  height: 42px;
+  display: grid;
+  place-items: center;
+}
+
+/* ─── TOPPING FX ─────────────────────────────────────────────── */
+.topping-fx { pointer-events: none; }
+
+.fx-dust circle {
+  opacity: 0;
+  animation: dustSprinkle 900ms ease-out both;
+  animation-delay: var(--delay-anim, 0s);
+}
+
+@keyframes dustSprinkle {
+  0%   { transform: translateY(-6px); opacity: 0;    }
+  30%  { opacity: 0.85; }
+  100% { transform: translateY(8px);  opacity: 0.35; }
+}
+
+/* ─── CUP LOGO ─────────────────────────────────────────────── */
+.cup-logo image {
+  filter:
+    drop-shadow(0 1px 0 rgba(255,255,255,0.38))
+    drop-shadow(0 8px 18px rgba(0,0,0,0.18))
+    drop-shadow(0 2px 4px rgba(0,0,0,0.10));
+  opacity: 0.95;
+  image-rendering: auto;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   POPUP
+═══════════════════════════════════════════════════════════════ */
+.no-scroll { overflow: hidden; }
+
+.cart-pop__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(60, 40, 28, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.cart-pop__card {
+  width: min(460px, 92vw);
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 40px 32px 36px;
+  box-shadow: 0 28px 70px rgba(0,0,0,.22);
+  text-align: center;
+  color: #2b1b0e;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 14px 10px;
-  border: 2px solid #e8e0d4;
-  background: #faf8f5;
-  border-radius: 14px;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.18s;
-  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-  text-align: center;
-  min-height: 80px;
 }
 
-.popup-topping-card:hover:not(:disabled) {
-  border-color: #4a7c59;
-  background: #f0fdf4;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74,124,89,0.12);
-}
+.cart-pop__logo   { width: 110px; height: auto; margin-bottom: 24px; object-fit: contain; }
+.cart-pop__title  { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; color: #2b1b0e; margin: 0 0 16px; line-height: 1.15; }
+.cart-pop__desc   { font-size: 15px; line-height: 1.65; color: rgba(43,27,14,0.72); max-width: 340px; margin: 0 0 28px; }
 
-.topping-card--selected {
-  border-color: #4a7c59 !important;
-  background: #f0fdf4 !important;
-  box-shadow: 0 0 0 3px rgba(74,124,89,0.15);
-}
-
-.topping-card--disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.topping-card-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #3e2010;
-  line-height: 1.3;
-}
-
-.topping-card-price {
-  font-size: 12px;
-  font-weight: 600;
-  color: #4a7c59;
-}
-
-.topping-card-check {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  font-size: 13px;
-  font-weight: 900;
-  color: #4a7c59;
-}
-
-/* ===== POPUP FOOTER ===== */
-.popup-footer {
-  padding: 16px 20px;
-  border-top: 1.5px solid #f1f5f9;
-  flex-shrink: 0;
-  background: #faf8f5;
-  border-radius: 0 0 24px 24px;
-}
-
-.popup-footer--split {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.popup-btn-cancel {
-  background: #f1f5f9;
-  color: #64748b;
+.cart-pop__btn {
+  min-width: 180px;
+  padding: 15px 32px;
+  border-radius: 999px;
   border: none;
-  border-radius: 12px;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 700;
   cursor: pointer;
-  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-  transition: all 0.2s;
-  flex-shrink: 0;
-}
-.popup-btn-cancel:hover {
-  background: #e2e8f0;
-  color: #334155;
-}
-
-.confirm-topping-btn {
-  flex: 1;
-  background: #4a7c59;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 14px;
+  background: #2b1b0e;
+  color: #fff;
   font-weight: 700;
-  cursor: pointer;
-  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
-  transition: background 0.2s, transform 0.15s;
-  text-align: center;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 28px rgba(43,27,14,.22);
+  transition: filter 0.18s;
 }
-.confirm-topping-btn:hover { background: #3a6045; transform: translateY(-1px); }
+.cart-pop__btn:hover { filter: brightness(1.12); }
 
-/* Selected toppings tags */
-.selected-toppings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 20px 0;
-  flex-shrink: 0;
+.cart-pop-enter-active, .cart-pop-leave-active { transition: opacity .2s ease; }
+.cart-pop-enter-from,  .cart-pop-leave-to      { opacity: 0; }
+.cart-pop-enter-active .cart-pop__card,
+.cart-pop-leave-active .cart-pop__card         { transition: transform .2s ease; }
+.cart-pop-enter-from   .cart-pop__card         { transform: translateY(12px) scale(.97); }
+.cart-pop-leave-to     .cart-pop__card         { transform: translateY(12px) scale(.97); }
+
+/* ── Topbar quay lại ── */
+.brewing-topbar {
+  padding: 16px 24px 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.selected-topping-tag {
-  background: #f0fdf4;
-  border: 1.5px solid #4a7c59;
-  color: #3a6045;
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 13px;
-  font-weight: 700;
-  display: flex;
+.btn-go-back {
+  display: inline-flex;
   align-items: center;
-  gap: 7px;
-}
-
-.selected-topping-tag span {
-  cursor: pointer;
-  font-weight: 900;
-  font-size: 12px;
-  opacity: 0.7;
-  transition: opacity 0.15s;
-}
-.selected-topping-tag span:hover { opacity: 1; color: #c0392b; }
-
-/* Topping count badge */
-.topping-count-badge {
-  background: #c0392b;
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 1.5px solid #e0e0e0;
   border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-/* Payment popup — CounterOrder style */
-.payment-popup {
-  background: #ffffff; border-radius: 18px; padding: 28px 32px;
-  width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
-  font-family: 'Be Vietnam Pro', sans-serif;
+.btn-go-back:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+  color: #222;
+  transform: translateX(-2px);
 }
-.payment-popup::-webkit-scrollbar { width: 4px; }
-.payment-popup::-webkit-scrollbar-thumb { background: #c5b89a; border-radius: 2px; }
-.payment-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.payment-title { font-size: 22px; font-weight: 900; color: #2c1a0e; margin: 0; }
-.payment-methods { display: flex; gap: 12px; margin-bottom: 14px; }
-.payment-method-item { flex: 1; border: 2px solid #e0d8cc; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; font-size: 15px; font-weight: 700; font-family: 'Be Vietnam Pro', sans-serif; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.payment-method-item:hover { border-color: #8b5e3c; }
-.payment-method-item.active { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
-.payment-method-item.momo-tab.active { border-color: #d63484; background: #fff0f7; color: #a91f5c; }
-.momo-tab-logo { width: 22px; height: 22px; object-fit: contain; }
-.payment-summary { background: #f5f0e8; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-.summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px; }
-.summary-row:last-child { margin-bottom: 0; }
-.summary-row.highlight { color: #1d4ed8; font-weight: 800; }
-.inline-input-wrap { display: flex; align-items: center; gap: 4px; border: 1.5px solid #ddd4c4; border-radius: 8px; padding: 5px 10px; background: #fff; }
-.inline-input { border: none; outline: none; font-size: 14px; font-family: 'Be Vietnam Pro', sans-serif; width: 130px; background: transparent; }
-.inline-input-suffix { font-size: 13px; font-weight: 600; color: #aaa; }
-.cash-insufficient { font-size: 12px; color: #c0392b; font-weight: 600; margin-bottom: 10px; }
-.payment-footer { display: flex; gap: 12px; margin-top: 14px; }
-.btn-cancel { flex: 1; background: #c0392b; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 800; font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer; transition: background 0.2s; }
-.btn-cancel:hover { background: #a93226; }
-.btn-confirm { flex: 1; background: #4a7c59; color: #fff; border: none; border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 800; font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer; transition: background 0.2s; }
-.btn-confirm:hover:not(.disabled) { background: #3a6045; }
-.btn-confirm.disabled { background: #ccc; cursor: not-allowed; }
-.btn-confirm.momo-btn { background: #d63484; }
-.btn-confirm.momo-btn:hover { background: #a91f5c; }
-.momo-header { background: #fff0f7; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-.momo-logo { width: 44px; height: 44px; object-fit: contain; }
-.momo-brand { font-size: 13px; font-weight: 700; color: #888; margin: 0; }
-.momo-amount { font-size: 20px; font-weight: 900; color: #d63484; margin: 0; }
-
-/* Note section */
-.note-section { margin-bottom: 14px; }
-.note-label { font-size: 13px; font-weight: 700; color: #3e2010; margin-bottom: 6px; }
-.note-textarea { width: 100%; border: 1.5px solid #ddd4c4; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: 'Be Vietnam Pro', sans-serif; background: #f5f0e8; color: #2c1a0e; outline: none; resize: none; height: 68px; transition: border-color 0.2s; }
-.note-textarea:focus { border-color: #8b5e3c; }
-
-/* Pay customer */
-.pay-customer-section { background: #f5f0e8; border: 1.5px solid #ddd4c4; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
-.pay-customer-title { font-size: 13px; font-weight: 800; color: #3e2010; margin-bottom: 10px; }
-.pay-optional { font-size: 11px; font-weight: 500; color: #aaa; }
-.pay-customer-row { display: flex; gap: 12px; margin-bottom: 6px; }
-.pay-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.pay-field label { font-size: 11px; font-weight: 700; color: #5c3317; }
-.pay-input { border: 1.5px solid #ddd4c4; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: 'Be Vietnam Pro', sans-serif; background: #fff; color: #2c1a0e; outline: none; width: 100%; transition: border-color 0.2s; }
-.pay-input:focus { border-color: #8b5e3c; }
-.pay-input.error { border-color: #c0392b; }
-.pay-field-err { font-size: 11px; color: #c0392b; font-weight: 600; }
-.pay-hint { font-size: 10px; color: #aaa; font-style: italic; line-height: 1.4; }
-
-/* Review popup */
-.review-popup { background: #fff; border-radius: 18px; padding: 28px 32px; width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.25); font-family: 'Be Vietnam Pro', sans-serif; }
-.review-popup::-webkit-scrollbar { width: 4px; }
-.review-popup::-webkit-scrollbar-thumb { background: #c5b89a; border-radius: 2px; }
-.review-title { font-size: 20px; font-weight: 900; color: #3e2010; text-align: center; margin-bottom: 16px; }
-.review-section-title { font-size: 13px; font-weight: 800; color: #5c3317; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1.5px solid #ede5d8; }
-.review-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-.review-lbl { color: #aaa; font-weight: 600; }
-.review-val { font-weight: 700; color: #2c1a0e; }
-.review-note-val { font-weight: 500; color: #2c1a0e; font-style: italic; font-size: 12px; max-width: 260px; text-align: right; word-break: break-word; }
-.review-item { background: #f5f0e8; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; }
-.review-item-name { font-size: 13px; font-weight: 700; color: #2c1a0e; }
-.review-item-price { font-size: 13px; font-weight: 800; color: #4a7c59; }
-.review-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 0; border-top: 2px solid #ede5d8; margin-top: 6px; }
-.review-total-lbl { font-size: 14px; font-weight: 700; color: #3e2010; }
-.review-total-val { font-size: 18px; font-weight: 900; color: #3e2010; }
-.review-divider { height: 1.5px; background: #ede5d8; margin: 12px 0; }
-
-/* Success popup — CounterOrder style */
-.success-popup { background: #fff; border-radius: 22px; width: 440px; max-width: 95vw; height: 90vh; max-height: 90vh; overflow: hidden; box-shadow: 0 8px 48px rgba(0,0,0,0.3); display: flex; flex-direction: column; font-family: 'Be Vietnam Pro', sans-serif; }
-.success-header { background: #d63484; padding: 14px 24px 12px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.success-header--cash { background: #4a7c59; }
-.success-header-logo { height: 44px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.92; }
-.success-header-title { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.9); text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
-.success-fixed-top { flex-shrink: 0; padding: 14px 24px 10px; background: #fff; border-bottom: 1.5px solid #ede5d8; text-align: center; }
-.success-title { font-size: 16px; font-weight: 800; color: #2c1a0e; margin-bottom: 4px; }
-.success-amount { font-size: 28px; font-weight: 900; color: #3e2010; }
-.success-scroll-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 12px 24px; min-height: 0; }
-.success-scroll-body::-webkit-scrollbar { width: 4px; }
-.success-scroll-body::-webkit-scrollbar-thumb { background: #c5b89a; border-radius: 2px; }
-.success-fixed-bottom { flex-shrink: 0; padding: 12px 24px 16px; background: #fff; border-top: 1.5px solid #ede5d8; }
-.success-close-btn { width: 100%; background: #3e2010; color: #fff; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 800; font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer; transition: background 0.2s; }
-.success-close-btn:hover { background: #5c3317; }
-.success-close-btn--cash { background: #3a6045; }
-.success-close-btn--cash:hover { background: #4a7c59; }
-.success-receipt { background: #f5f0e8; border: 1.5px solid #e0d8cc; border-radius: 14px; overflow: hidden; }
-.success-receipt-header { background: #5c3317; color: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 8px; }
-.success-receipt-header--cash { background: #3a6045; }
-.receipt-logo { width: 28px; height: 28px; object-fit: contain; }
-.receipt-label { font-size: 13px; font-weight: 800; }
-.success-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 14px; border-bottom: 1px solid #e8e0d4; font-size: 12px; gap: 8px; }
-.success-row:last-child { border-bottom: none; }
-.success-row span:first-child { color: #aaa; font-weight: 600; }
-.success-row span:last-child { font-weight: 700; color: #2c1a0e; text-align: right; max-width: 220px; word-break: break-word; }
-.receipt-divider { height: 1.5px; background: #d0c8bc; margin: 4px 14px; }
-.cash-need { color: #3e2010; font-weight: 900 !important; }
-.cash-change { color: #4a7c59 !important; font-weight: 900 !important; }
-.tx-id { font-family: monospace; font-size: 11px; }
-.tx-id.pink { color: #d63484; }
-.receipt-items-section { padding: 8px 14px; border-bottom: 1px solid #e8e0d4; }
-.receipt-items-title { font-size: 11px; font-weight: 800; color: #3e2010; margin-bottom: 6px; text-transform: uppercase; }
-.receipt-item { padding: 5px 0; border-bottom: 1px dashed #e0d8cc; font-size: 11px; }
-.receipt-item:last-child { border-bottom: none; }
-.receipt-item-name { font-weight: 700; color: #2c1a0e; }
-.receipt-item-price { color: #4a7c59; font-weight: 700; }
-.receipt-note-val { font-style: italic; color: #aaa !important; }

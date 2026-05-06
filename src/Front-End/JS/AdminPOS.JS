@@ -1,215 +1,346 @@
-import { ref, computed } from 'vue'
-import api from '../../api/axios'
+import { computed, reactive, ref, watch } from 'vue'
+import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
 
-const DISCOUNT_CODES = { KM50: 50, KM20: 20, KM10: 10 }
-const MOMO_ACCOUNTS = {
-  '0901234567': 'NGUYEN VAN AN', '0912345678': 'TRAN THI BINH',
-  '0923456789': 'LE HOANG MINH', '0934567890': 'PHAM THI LAN',
-  '0945678901': 'HOANG VAN TUAN', '0956789012': 'NGO THI HUONG',
-  '0967890123': 'VU QUOC BAO',  '0978901234': 'DANG THI MAI',
-  '0989012345': 'BUI VAN KHANH', '0990123456': 'DO THI NGOC',
-}
+/**
+ * useBrewing — Composable Tùy Chỉnh Đồ Uống (6 bước)
+ *
+ * Bước:
+ *   0 - Chọn hạt cà phê (bean)
+ *   1 - Chọn base
+ *   2 - Chọn sữa
+ *   3 - Chọn topping (tối đa 3) → tự động chuyển sau 800ms
+ *   4 - Chọn size
+ *   5 - Mức đá, mức đường, số lượng → Hoàn thành
+ */
+export function useBrewing() {
 
-function genTxId() {
-  return String(Math.floor(10000000000 + Math.random() * 89999999999))
-}
+  // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
+  const beanOptions = [
+    { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000, color: '#3d2010' },
+    { id: 'robusta',  label: 'Robusta',  sub: 'Đậm, đắng mạnh',          priceDelta: 8000,  color: '#2a1508' },
+    { id: 'liberica', label: 'Liberica', sub: 'Khói, vị gỗ độc đáo',     priceDelta: 12000, color: '#3b1e0e' },
+    { id: 'blend',    label: 'Blend',    sub: 'Cân bằng hoàn hảo',       priceDelta: 9000,  color: '#2e1a0d' },
+  ]
 
-export function usePOS() {
+  // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
+  const baseOptions = [
+    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000, color: '#0f0705' },
+    { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000, color: '#24160f' },
+    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000, color: '#5c3220' },
+  ]
 
-  const search = ref('')
-  const step   = ref(1)
-  const orderedItems = ref([])
+  // ─── DỮ LIỆU: SỮA ─────────────────────────────────────────────────
+  const milkOptions = [
+    { id: 'none',   label: 'Không sữa',     sub: 'Giữ nguyên vị',          priceDelta: 0,    color: null        },
+    { id: 'whole',  label: 'Sữa tươi',      sub: 'Béo ngậy, truyền thống', priceDelta: 8000, color: '#f3e9dc' },
+    { id: 'oat',    label: 'Sữa yến mạch',  sub: 'Nhẹ, hơi ngọt',         priceDelta: 9000, color: '#ead9c5' },
+    { id: 'almond', label: 'Sữa hạnh nhân', sub: 'Hương hạt nhẹ',          priceDelta: 9000, color: '#efe2d1' },
+    { id: 'soy',    label: 'Sữa đậu nành',  sub: 'Thuần chay',             priceDelta: 9000, color: '#efe7dc' },
+  ]
 
-  const stepLabels = ['Hạt', 'Base', 'Sữa', 'Topping']
+  // ─── DỮ LIỆU: TOPPING ─────────────────────────────────────────────
+  const toppingOptions = [
+    { id: 'whip',            label: 'Kem tươi',       sub: 'Đánh bông mịn',   priceDelta: 8000, color: '#fffcf0' },
+    { id: 'cinnamon',        label: 'Bột quế',         sub: 'Thơm ấm áp',      priceDelta: 3000, color: '#c8834a' },
+    { id: 'cocoa',           label: 'Bột cacao',       sub: 'Đắng nhẹ',        priceDelta: 4000, color: '#5c3317' },
+    { id: 'caramel_drizzle', label: 'Sốt caramel',     sub: 'Ngọt, bóng',      priceDelta: 8000, color: '#b9793a' },
+    { id: 'vanilla_powder',  label: 'Bột vanilla',     sub: 'Thơm Madagascar', priceDelta: 7000, color: '#d4a84b' },
+  ]
 
-  const selected = ref({ bean: null, base: null, milk: null, toppings: [] })
+  // ─── DỮ LIỆU: SIZE ────────────────────────────────────────────────
+  const sizeOptions = [
+    { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
+    { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
+    { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
+  ]
 
-  const showBeanPopup    = ref(false)
-  const showBasePopup    = ref(false)
-  const showMilkPopup    = ref(false)
-  const showToppingPopup = ref(false)
+  // ─── DỮ LIỆU: MỨC ĐÁ / MỨC ĐƯỜNG ────────────────────────────────
+  const iceOptions    = ['0%', '30%', '50%', '70%', '100%']
+  const sugarOptions  = ['0%', '30%', '50%', '70%', '100%']
 
-  const beans    = ref([])
-  const bases    = ref([])
-  const milks    = ref([])
-  const toppings = ref([])
+  // ─── BƯỚC HIỆN TẠI ────────────────────────────────────────────────
+  const currentStep = ref(0)
 
-  const sampleBeans    = [{ name:'Robusta',price:12000},{name:'Arabica',price:15000},{name:'Culi',price:18000},{name:'Moka',price:20000}]
-  const sampleBases    = [{ name:'Espresso (pha máy)',price:10000},{name:'Cold Brew (ủ)',price:12000},{name:'Pour Over (nhỏ giọt)',price:15000}]
-  const sampleMilks    = [{ name:'Sữa tươi',price:7000},{name:'Sữa hạt',price:9000},{name:'Sữa kem béo',price:10000},{name:'Sữa đặc',price:5000}]
-  const sampleToppings = [{ name:'Trân châu đen',price:5000},{name:'Thạch cà phê',price:6000},{name:'Kem cheese',price:8000},{name:'Pudding trứng',price:7000},{name:'Kem béo',price:6000},{name:'Machiato',price:7000},{name:'Whipping cream',price:8000}]
+  const STEPS = [
+    { key: 'bean',    label: 'Chọn hạt cà phê' },
+    { key: 'base',    label: 'Chọn base'        },
+    { key: 'milk',    label: 'Chọn sữa'         },
+    { key: 'topping', label: 'Chọn topping'     },
+    { key: 'size',    label: 'Chọn size'        },
+    { key: 'confirm', label: 'Xác nhận'         },
+  ]
 
-  async function loadProducts() {
-    try {
-      const [resBeans, resBases, resMilks, resToppings] = await Promise.all([
-        api.get('/ingredients/coffee-beans'),
-        api.get('/ingredients/heavy-creams'),
-        api.get('/ingredients/milks'),
-        api.get('/ingredients/toppings')
-      ])
-      beans.value = resBeans.data; bases.value = resBases.data
-      milks.value = resMilks.data; toppings.value = resToppings.data
-    } catch {
-      beans.value = sampleBeans; bases.value = sampleBases
-      milks.value = sampleMilks; toppings.value = sampleToppings
-    }
-  }
+  // ─── TRẠNG THÁI LỰA CHỌN ──────────────────────────────────────────
+  const selection = reactive({
+    bean:     null,
+    base:     null,
+    milk:     null,
+    toppings: new Set(),
+    size:     null,
+    ice:      '100%',
+    sugar:    '100%',
+    quantity: 1,
+  })
 
-  function openBean()    { showBeanPopup.value = true }
-  function openBase()    { if (step.value < 2) return; showBasePopup.value = true }
-  function openMilk()    { if (step.value < 3) return; showMilkPopup.value = true }
-  function openTopping() { if (step.value < 4) return; showToppingPopup.value = true }
+  // ─── COMPUTED: bước nào đã hoàn thành ─────────────────────────────
+  const stepDone = computed(() => ({
+    bean:    selection.bean !== null,
+    base:    selection.base !== null,
+    milk:    selection.milk !== null,
+    topping: true,   // Topping luôn coi là "done" (có thể bỏ qua)
+    size:    selection.size !== null,
+    confirm: false,
+  }))
 
-  function selectBean(b) { selected.value.bean = b; step.value = 2; showBeanPopup.value = false }
-  function selectBase(b) { selected.value.base = b; step.value = 3; showBasePopup.value = false }
-  function selectMilk(m) { selected.value.milk = m; step.value = 4; showMilkPopup.value = false }
-
-  function selectTopping(t) {
-    if (selected.value.toppings.length >= 3) { alert('Tối đa 3 topping!'); return }
-    selected.value.toppings.push(t)
-  }
-  function removeTopping(i) { selected.value.toppings.splice(i, 1) }
-
-  function confirmTopping() {
-    if (!selected.value.toppings.length) { alert('Chọn ít nhất 1 topping!'); return }
-    showToppingPopup.value = false
-    addToCart()
-  }
-
-  function addToCart() {
-    const toppingNames = selected.value.toppings.map(t => t.name).join(', ')
-    const toppingPrice = selected.value.toppings.reduce((s, t) => s + t.price, 0)
-    orderedItems.value.push({
-      id: Date.now(),
-      name: `${selected.value.bean.name} + ${selected.value.base.name} + ${selected.value.milk.name} + ${toppingNames}`,
-      qty: 1,
-      price: selected.value.bean.price + selected.value.base.price + selected.value.milk.price + toppingPrice
-    })
-    selected.value = { bean: null, base: null, milk: null, toppings: [] }
-    step.value = 1
-  }
-
-  /* ── DISCOUNT ── */
-  const discountInput   = ref('')
-  const appliedCode     = ref('')
-  const discountPercent = ref(0)
-  const discountMessage = ref('')
-  const discountCodeList = ref([
-    { code:'KM50', label:'Giảm 50%' },
-    { code:'KM20', label:'Giảm 20%' },
-    { code:'KM10', label:'Giảm 10%' },
-  ])
-
-  function applyDiscount() {
-    const code = discountInput.value.trim().toUpperCase()
-    if (DISCOUNT_CODES[code]) {
-      appliedCode.value = code; discountPercent.value = DISCOUNT_CODES[code]
-      discountMessage.value = `Áp dụng thành công! Giảm ${DISCOUNT_CODES[code]}%`
-    } else {
-      appliedCode.value = ''; discountPercent.value = 0
-      discountMessage.value = 'Mã không hợp lệ!'
-    }
-  }
-
-  const totalPrice = computed(() => orderedItems.value.reduce((s, i) => s + i.price * i.qty, 0))
-  const finalPrice = computed(() => discountPercent.value ? Math.round(totalPrice.value * (1 - discountPercent.value/100)) : totalPrice.value)
-  function removeItem(i) { orderedItems.value.splice(i, 1) }
-
-  /* ── PAYMENT (giống CounterOrder) ── */
-  const showPaymentPopup = ref(false)
-  const showReviewPopup  = ref(false)
-  const showSuccessPopup = ref(false)
-  const paymentMethod    = ref('cash')
-  const customerMoney    = ref('')
-  const txId   = ref('')
-  const txTime = ref('')
-
-  // Thông tin khách
-  const payName  = ref('')
-  const payPhone = ref('')
-
-  const changeAmount = computed(() =>
-    Math.max(0, (parseInt(customerMoney.value) || 0) - finalPrice.value)
+  // isComplete: tất cả bước bắt buộc xong và đang ở bước confirm
+  const isComplete = computed(() =>
+    currentStep.value === 5 &&
+    !!selection.bean &&
+    !!selection.base &&
+    selection.milk !== null &&
+    !!selection.size
   )
 
-  function checkout() {
-    if (!orderedItems.value.length) { alert('Chưa có sản phẩm!'); return }
-    customerMoney.value = ''
-    paymentMethod.value = 'cash'
-    showPaymentPopup.value = true
+  // ─── LOGO TRÊN CỐC ────────────────────────────────────────────────
+  const logoUrl = ref(dripLabLogo)
+
+  // ─── THÔNG BÁO TẠM THỜI ───────────────────────────────────────────
+  const notice = ref('')
+  function showNotice(msg, ms = 1800) {
+    notice.value = msg
+    clearTimeout(showNotice._t)
+    showNotice._t = setTimeout(() => { notice.value = '' }, ms)
   }
 
-  function goToReview() {
-    showPaymentPopup.value = false
-    showReviewPopup.value  = true
+  // ─── TOPPING (tối đa 3) — tự động chuyển bước sau 800ms ──────────
+  let toppingTimer = null
+
+  function toggleTopping(id) {
+    if (selection.toppings.has(id)) {
+      selection.toppings.delete(id)
+    } else {
+      if (selection.toppings.size >= 3) {
+        showNotice('Topping tối đa 3 loại. Bỏ bớt để chọn thêm.')
+        return
+      }
+      selection.toppings.add(id)
+    }
+
+    // Reset timer mỗi lần người dùng tương tác, tự next sau 800ms
+    clearTimeout(toppingTimer)
+    toppingTimer = setTimeout(() => {
+      nextStep()
+    }, 800)
   }
 
-  function backFromReview() {
-    showReviewPopup.value  = false
-    showPaymentPopup.value = true
+  // ─── ĐIỀU HƯỚNG BƯỚC ──────────────────────────────────────────────
+  // Chỉ cho phép nhảy tới bước đã unlock (≤ currentStep)
+  function goToStep(n) {
+    if (n < 0 || n > 5) return
+    if (n > currentStep.value) return   // không nhảy trước nếu chưa xong
+    currentStep.value = n
   }
 
-  function confirmPayment() {
-    txId.value   = genTxId()
-    txTime.value = new Date().toLocaleString('vi-VN')
-    showReviewPopup.value  = false
-    showSuccessPopup.value = true
+  function nextStep() {
+    if (currentStep.value < 5) currentStep.value++
   }
 
-  function closePaymentPopup() { showPaymentPopup.value = false }
-
-  function closeSuccessPopup() {
-    showSuccessPopup.value = false
-    orderedItems.value  = []
-    discountInput.value = ''
-    appliedCode.value   = ''
-    discountPercent.value = 0
-    discountMessage.value = ''
-    payName.value  = ''
-    payPhone.value = ''
-    customerMoney.value = ''
+  function prevStep() {
+    if (currentStep.value > 0) currentStep.value--
   }
 
-  /* ── MOMO QR (giống CounterOrder) ── */
-  const showMomoQR = ref(false)
-
-  function openMomoPayment() {
-    showPaymentPopup.value = false
-    showMomoQR.value = true
+  function selectBean(id) {
+    selection.bean = id
+    setTimeout(nextStep, 320)
   }
 
-  function closeMomoQR() {
-    showMomoQR.value = true
-    showPaymentPopup.value = true
+  function selectBase(id) {
+    selection.base = id
+    setTimeout(nextStep, 320)
   }
 
-  function onMomoPaid() {
-    showMomoQR.value = false
-    paymentMethod.value = 'momo'
-    txId.value   = genTxId()
-    txTime.value = new Date().toLocaleString('vi-VN')
-    showSuccessPopup.value = true
+  function selectMilk(id) {
+    selection.milk = id
+    setTimeout(nextStep, 320)
   }
 
-  function searchProduct() {}
+  // Topping: bấm nút "Bỏ qua" thủ công (không chọn topping nào)
+  function confirmTopping() {
+    clearTimeout(toppingTimer)
+    nextStep()
+  }
+
+  function selectSize(id) {
+    selection.size = id
+    setTimeout(nextStep, 320)
+  }
+
+  // Điều chỉnh số lượng
+  function incQty()  { if (selection.quantity < 99) selection.quantity++ }
+  function decQty()  { if (selection.quantity > 1)  selection.quantity-- }
+
+  // ─── ANIMATION TICK ───────────────────────────────────────────────
+  const animTick = ref(0)
+  const toppingAnimPlayed = ref(false)
+  const toppingFxKey = ref(0)
+
+  watch(
+    () => selection.bean,
+    (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+  )
+
+  watch(
+    () => selection.base,
+    (newVal, oldVal) => { if (oldVal === null && newVal !== null) animTick.value++ }
+  )
+
+  watch(
+    () => selection.milk,
+    (newVal, oldVal) => {
+      // Chỉ animate lần đầu VÀ chỉ khi chọn có sữa (không phải 'none')
+      if (oldVal === null && newVal !== null && newVal !== 'none') animTick.value++
+      // Khi chọn 'none' → tăng animTick để trigger hiệu ứng đá
+      if (newVal === 'none') animTick.value++
+    }
+  )
+
+  watch(currentStep, (n) => {
+    if (n >= 3 && !toppingAnimPlayed.value) {
+      animTick.value++
+      toppingFxKey.value++
+      toppingAnimPlayed.value = true
+    }
+  })
+
+  // ─── COMPUTED: đối tượng nguyên liệu đang chọn ───────────────────
+  const selectedBean  = computed(() => beanOptions.find(x => x.id === selection.bean))
+  const selectedBase  = computed(() => baseOptions.find(x => x.id === selection.base))
+  const selectedMilk  = computed(() => milkOptions.find(x => x.id === selection.milk))
+  const selectedSize  = computed(() => sizeOptions.find(x => x.id === selection.size))
+
+  // ─── HELPER: trộn màu ─────────────────────────────────────────────
+  function mixHex(a, b, t = 0.5) {
+    if (!a) return b
+    if (!b) return a
+    const pa = a.replace('#', '')
+    const pb = b.replace('#', '')
+    const ar = parseInt(pa.slice(0, 2), 16), ag = parseInt(pa.slice(2, 4), 16), ab = parseInt(pa.slice(4, 6), 16)
+    const br = parseInt(pb.slice(0, 2), 16), bg = parseInt(pb.slice(2, 4), 16), bb = parseInt(pb.slice(4, 6), 16)
+    const rr = Math.round(ar + (br - ar) * t)
+    const rg = Math.round(ag + (bg - ag) * t)
+    const rb = Math.round(ab + (bb - ab) * t)
+    return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('')
+  }
+
+  function darkenHex(hex, amt = 0.18) {
+    if (!hex) return hex
+    const p = hex.replace('#', '')
+    const r = parseInt(p.slice(0, 2), 16)
+    const g = parseInt(p.slice(2, 4), 16)
+    const b = parseInt(p.slice(4, 6), 16)
+    const rr = Math.max(0, Math.round(r * (1 - amt)))
+    const rg = Math.max(0, Math.round(g * (1 - amt)))
+    const rb = Math.max(0, Math.round(b * (1 - amt)))
+    return '#' + [rr, rg, rb].map(v => v.toString(16).padStart(2, '0')).join('')
+  }
+
+  // ─── COMPUTED: CUP LAYERS ─────────────────────────────────────────
+  const cupLayers = computed(() => {
+    const hasBean  = !!selection.bean
+    const hasBase  = !!selection.base
+    const hasMilk  = !!selection.milk && selection.milk !== 'none'
+    const hasTopping = currentStep.value >= 3
+
+    const hasCoffee = hasBase
+    const coffeeH   = hasCoffee ? 50 : 0
+    const milkH     = hasMilk   ? 40 : 0
+    const foamH     = hasTopping ? 10 : 0
+
+    const isColdBrew = selection.base === 'cold_brew'
+    const isHot      = hasBase && !isColdBrew
+
+    const coffeeColor = mixHex(
+      selectedBean.value?.color ?? '#3d2010',
+      selectedBase.value?.color ?? '#2b1b14',
+      0.45,
+    )
+
+    return {
+      bean: { show: hasCoffee, height: coffeeH, color: coffeeColor },
+      base: { show: false, height: 0, color: selectedBase.value?.color ?? '#2b1b14' },
+      milk: { show: hasMilk, height: milkH, color: selectedMilk.value?.color ?? '#f3e9dc' },
+      foam: {
+        show:   hasTopping && (hasMilk || selection.toppings.has('whip')),
+        height: foamH,
+        color:  '#fffcf0',
+      },
+      mixed: {
+        enabled: isComplete.value,
+        height: 100,
+        color: darkenHex(mixHex(coffeeColor, selectedMilk.value?.color ?? null, hasMilk ? 0.16 : 0), 0.06),
+      },
+      toppingsFx: {
+        whip: false,
+        dustEnabled: (selection.toppings.has('cocoa') || selection.toppings.has('cinnamon') || selection.toppings.has('vanilla_powder')) && currentStep.value >= 3,
+        dustColor: selection.toppings.has('cocoa') ? '#5c3317' : (selection.toppings.has('cinnamon') ? '#c8834a' : '#d4a84b'),
+        fxKey: toppingFxKey.value,
+      },
+      drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
+      bubbles:  { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
+      steam:    { enabled: isHot },
+      straw:    { enabled: isComplete.value },
+      logo:     { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
+    }
+  })
+
+  // ─── TÍNH GIÁ ─────────────────────────────────────────────────────
+  const price = computed(() => {
+    let total = 0
+    if (selectedBean.value)  total += selectedBean.value.priceDelta
+    if (selectedBase.value)  total += selectedBase.value.priceDelta
+    if (selectedMilk.value && selection.milk !== 'none') total += selectedMilk.value.priceDelta
+    for (const id of selection.toppings) {
+      const t = toppingOptions.find(x => x.id === id)
+      if (t) total += t.priceDelta
+    }
+    if (selectedSize.value) total += selectedSize.value.priceDelta
+    return total * selection.quantity
+  })
+
+  function formatVnd(v) {
+    return (v || 0).toLocaleString('vi-VN') + 'đ'
+  }
+
+  const toppingCountLabel = computed(() => `${selection.toppings.size}/3`)
+
+  // ─── RESET ────────────────────────────────────────────────────────
+  function reset() {
+    clearTimeout(toppingTimer)
+    selection.bean     = null
+    selection.base     = null
+    selection.milk     = null
+    selection.toppings = new Set()
+    selection.size     = null
+    selection.ice      = '100%'
+    selection.sugar    = '100%'
+    selection.quantity = 1
+    currentStep.value  = 0
+    toppingAnimPlayed.value = false
+    toppingFxKey.value = 0
+    animTick.value++
+  }
 
   return {
-    search, step, selected, stepLabels,
-    beans, bases, milks, toppings, loadProducts,
-    orderedItems,
-    showBeanPopup, showBasePopup, showMilkPopup, showToppingPopup,
-    openBean, openBase, openMilk, openTopping,
-    selectBean, selectBase, selectMilk, selectTopping,
-    removeTopping, confirmTopping, removeItem,
-    discountInput, discountCodeList, appliedCode, discountPercent, discountMessage,
-    totalPrice, finalPrice, applyDiscount,
-    payName, payPhone,
-    checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
-    closePaymentPopup,
-    showReviewPopup, goToReview, backFromReview,
-    confirmPayment,
-    showSuccessPopup, closeSuccessPopup, txId, txTime,
-    showMomoQR, openMomoPayment, closeMomoQR, onMomoPaid,
-    searchProduct,
+    beanOptions, baseOptions, milkOptions, toppingOptions,
+    sizeOptions, iceOptions, sugarOptions,
+    STEPS, selection, currentStep, logoUrl,
+    isComplete, stepDone, toppingCountLabel,
+    selectBean, selectBase, selectMilk, toggleTopping, confirmTopping,
+    selectSize, incQty, decQty,
+    goToStep, nextStep, prevStep, reset,
+    cupLayers, animTick,
+    selectedBean, selectedBase, selectedMilk, selectedSize,
+    price, formatVnd,
+    notice, showNotice,
   }
 }
