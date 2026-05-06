@@ -38,14 +38,21 @@ export default {
             toastMessage: null,
             showClosedModal: false,
 
-            // ✅ Modal khi khoảng cách vận chuyển xa
+            // ✅ Modal khi khoảng cách vận chuyển xa / từ chối giao
             showFarModal: false,
+            showRejectModal: false,
+            showThanksModal: false,
             farDistanceThresholdKm: 5,
+            rejectDistanceThresholdKm: 10,
             pendingStore: null,
 
             logoUrl: dripLabLogo,
             _toastTimer: null,
             _clockTimer: null,
+
+            // ✅ Khóa scroll nền khi mở modal
+            _scrollLocked: false,
+            _scrollY: 0,
             userLat: null,
             userLng: null,
             stores: [
@@ -98,6 +105,9 @@ export default {
         };
     },
     computed: {
+        isAnyModalOpen() {
+            return !!(this.showClosedModal || this.showFarModal || this.showRejectModal || this.showThanksModal);
+        },
         filteredStores() {
             this.nowTick;
 
@@ -119,6 +129,14 @@ export default {
             }));
         },
     },
+    watch: {
+        isAnyModalOpen: {
+            immediate: true,
+            handler(val) {
+                this._syncBodyScrollLock(!!val);
+            },
+        },
+    },
     mounted() {
         // Khôi phục highlight cửa hàng đã chọn trước đó (nếu có)
         const savedId = localStorage.getItem("selectedStoreId");
@@ -136,6 +154,7 @@ export default {
     beforeUnmount() {
         if (this._toastTimer) window.clearTimeout(this._toastTimer);
         if (this._clockTimer) window.clearInterval(this._clockTimer);
+        this._syncBodyScrollLock(false);
     },
     methods: {
         isOpenNow(openTime, closeTime) {
@@ -215,10 +234,61 @@ export default {
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
         },
 
-        // ===== Modal khoảng cách xa =====
+        // ✅ Không cho scroll nền khi mở modal
+        _syncBodyScrollLock(locked) {
+            if (locked === this._scrollLocked) return;
+
+            const body = document.body;
+            const html = document.documentElement;
+
+            if (locked) {
+                this._scrollY = window.scrollY || 0;
+                html.style.overflow = "hidden";
+                body.style.overflow = "hidden";
+                body.style.position = "fixed";
+                body.style.top = `-${this._scrollY}px`;
+                body.style.left = "0";
+                body.style.right = "0";
+                body.style.width = "100%";
+            } else {
+                html.style.overflow = "";
+                body.style.overflow = "";
+                body.style.position = "";
+                body.style.top = "";
+                body.style.left = "";
+                body.style.right = "";
+                body.style.width = "";
+                window.scrollTo(0, this._scrollY || 0);
+            }
+
+            this._scrollLocked = locked;
+        },
+
+        // ===== Modal khoảng cách xa (>5km) =====
         closeFarModal() {
             this.showFarModal = false;
             this.pendingStore = null;
+        },
+
+        // ===== Modal từ chối giao (>10km) =====
+        closeRejectModal() {
+            this.showRejectModal = false;
+            this.pendingStore = null;
+        },
+
+        ackReject() {
+            // Người dùng đã đọc thông báo từ chối
+            this.closeRejectModal();
+            this.showThanksModal = true;
+
+            // ✅ Tự đóng modal "Cảm ơn" sau 3 giây
+            window.setTimeout(() => {
+                this.showThanksModal = false;
+            }, 3000);
+        },
+
+        closeThanksModal() {
+            this.showThanksModal = false;
         },
 
         confirmContinueOrder() {
@@ -254,6 +324,14 @@ export default {
             this.selectedId = nearest.id;
             this.showToast(`Gợi ý cửa hàng gần nhất: ${nearest.code}`);
 
+            // ✅ Auto-scroll tới thẻ cửa hàng gần nhất
+            this.$nextTick(() => {
+                const el = document.getElementById(`store-card-${nearest.id}`);
+                if (el && typeof el.scrollIntoView === "function") {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
+
             // Option: nếu muốn auto-scroll tới thẻ gần nhất, có thể làm thêm ở đây.
         },
 
@@ -264,8 +342,16 @@ export default {
                 return;
             }
 
-            // Nếu có khoảng cách và > 5km => hiện modal cảnh báo
+            // Nếu có khoảng cách:
+            // - >10km: từ chối giao
+            // - >5km: cảnh báo chất lượng
             const d = Number(store.distanceKm);
+            if (Number.isFinite(d) && d > this.rejectDistanceThresholdKm) {
+                this.pendingStore = store;
+                this.showRejectModal = true;
+                return;
+            }
+
             if (Number.isFinite(d) && d > this.farDistanceThresholdKm) {
                 this.pendingStore = store;
                 this.showFarModal = true;
@@ -283,7 +369,6 @@ export default {
             localStorage.setItem("selectedStore", JSON.stringify(store));
             localStorage.setItem("selectedStoreId", String(store.db_id));
 
-            // ✅ Về trang chủ sau khi chọn, không ở lại trang stores
             this.$router.push("/");
         },
     },

@@ -75,6 +75,7 @@
             :key="store.id"
             class="cs-card"
             type="button"
+            :id="`store-card-${store.id}`"
             :class="{
               'is-selected': selectedId === store.id,
               'is-closed': !store.isOpen
@@ -153,6 +154,39 @@
             <button class="cs-modal-btn" @click="confirmContinueOrder">Tiếp tục đặt đơn</button>
             <button class="cs-modal-btn cs-modal-btn--secondary" @click="goNearestStore">Ghé cửa hàng gần nhất</button>
           </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Reject Distance Modal (>10km) -->
+    <transition name="cs-modal">
+      <div v-if="showRejectModal" class="cs-modal-overlay" @click.self="closeRejectModal">
+        <div class="cs-modal cs-modal--reject">
+          <div class="cs-modal-icon">
+            <div class="cs-hourglass cs-hourglass--reject" aria-hidden="true">⏳</div>
+            <span class="cs-modal-badge cs-modal-badge--reject">RẤT TIẾC</span>
+          </div>
+          <h2 class="cs-modal-title">Hiện chưa thể giao hàng</h2>
+          <p class="cs-modal-desc">
+            Để đảm bảo chất lượng đồ uống không bị ảnh hưởng bởi quãng đường dài, Drip Lab chưa thể giao hàng đến vị trí của bạn lúc này.
+          </p>
+          <button class="cs-modal-btn" @click="ackReject">Đã hiểu</button>
+        </div>
+      </div>
+    </transition>
+
+    <!-- Thanks Modal (sau khi bấm Đã hiểu) -->
+    <transition name="cs-modal">
+      <div v-if="showThanksModal" class="cs-modal-overlay" @click.self="closeThanksModal">
+        <div class="cs-modal cs-modal--thanks">
+          <div class="cs-thanks-logoWrap" aria-hidden="true">
+            <img class="cs-thanks-logo" :src="logoUrl" alt="Drip Lab" />
+          </div>
+          <h2 class="cs-modal-title">Cảm ơn bạn</h2>
+          <p class="cs-modal-desc">
+            Drip Lab chân thành cảm ơn sự quan tâm của bạn. Hãy ghé thăm cửa hàng gần nhất để trải nghiệm không gian và hương vị nguyên bản nhất nhé!
+          </p>
+          <button class="cs-modal-btn" @click="closeThanksModal" style="display:none">Đã hiểu</button>
         </div>
       </div>
     </transition>
