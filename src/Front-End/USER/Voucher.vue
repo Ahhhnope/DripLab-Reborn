@@ -125,7 +125,7 @@
         </div>
         <div class="auth-modal-title">Chưa đăng nhập</div>
         <div class="auth-modal-desc">Vui lòng đăng nhập để {{ authModal.action }}.</div>
-        <button class="auth-modal-btn" @click="goToLogin">Hoàn tất</button>
+        <button class="auth-modal-btn" @click="goToLogin">Đăng Nhập</button>
       </div>
     </div>
 
@@ -164,7 +164,6 @@ function handleClaimDay(day) {
   claimDay(day)
 }
 
-// Kiểm tra đăng nhập trước khi lưu mã
 function handleSavePromo(id) {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token')
   if (!token) {

@@ -124,9 +124,7 @@ function onOrderTabClick(order) {
 
 function onDineModeChange(val) {
   dineMode.value = val
-  // Nếu chuyển sang mang đi, reset bàn đã chọn trong session hiện tại
   if (!val) {
-    // Giải phóng bàn đang chiếm bởi order hiện tại khỏi occupiedTables
     if (currentOrder.value && currentOrder.value.selectedTables) {
       currentOrder.value.selectedTables.forEach(t => {
         const idx = occupiedTables.value.indexOf(t)
@@ -594,8 +592,7 @@ function getDineModeLabel(mode) {
             </div>
           </div>
           <p v-if="cashMaxWarning" class="cash-maxed">{{ cashMaxWarning }}</p>
-          <p v-if="customerMoney && (parseInt(customerMoney.replace(/\./g, '')) || 0) < finalPrice"
-            class="cash-insufficient">
+          <p v-if="customerMoney && (parseInt(customerMoney.replace(/\./g, '')) || 0) < finalPrice" class="cash-insufficient">
             ⚠ Số tiền khách đưa chưa đủ, còn thiếu
             {{ (finalPrice - (parseInt(customerMoney.replace(/\./g, '')) || 0)).toLocaleString() }} VND
           </p>
