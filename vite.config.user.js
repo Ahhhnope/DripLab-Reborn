@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [tailwindcss(), vue()],
   server: {
     port: 5173,
+    open: true,
     strictPort: true,
     fs: {
       strict: false,
