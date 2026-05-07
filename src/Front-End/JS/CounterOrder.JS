@@ -1,5 +1,8 @@
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import api from '../../api/axios.js'
+// Thêm import ở đầu file
+import { useBrewingCart } from '../../Front-End/JS/BrewingCart.JS'
+
 
 function getImageUrl(url) {
     if (!url) return ''
@@ -712,4 +715,43 @@ export function useCounterOrder() {
         showTablePopup, openTablePopup, closeTablePopup,
         dineMode,
     }
+    
+ const brewingCart = useBrewingCart()
+
+    onMounted(() => {
+    fetchDrinks()
+    fetchToppings()
+    fetchSizes()
+
+    // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
+    if (brewingCart.hasPendingDrinks()) {
+      const pendingDrinks = brewingCart.consumePendingDrinks()
+
+      // Đảm bảo có order đang active
+      if (orderList.value.length === 0) {
+        createNewOrder()
+      }
+
+      // Nếu chưa ở bước order thì chuyển sang
+      if (appStep.value !== 'order') {
+        appStep.value = 'order'
+      }
+
+      // Thêm drink vào order hiện tại
+      pendingDrinks.forEach(drink => {
+        orderedItems.value.push(drink)
+      })
+
+      if (currentOrder.value) {
+        currentOrder.value.items = [...orderedItems.value]
+        currentOrder.value.step = 'order'
+      }
+    }
+
+    timer = setInterval(() => {
+      fetchDrinks()
+      fetchToppings()
+      fetchSizes()
+    }, 5000)
+  })
 }

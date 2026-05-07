@@ -33,7 +33,7 @@ const routes = [
         component: FrameInterface,
         meta: { requiresAuth: true },
         children: [
-            { path: 'QuanLyDonTaiQuay', component: CounterOrder },
+            { path: 'QuanLyDonTaiQuay', component: CounterOrder, meta: { keepAlive: true } },
             { path: 'AdminPOS', component: AdminPOScustom },
             { path: 'QuanLyHoaDon', component: AdminInvoice },
             { path: 'QuanLyKhuyenMai', component: KhuyenMai },
