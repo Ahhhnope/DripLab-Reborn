@@ -41,6 +41,7 @@ export function useAdminDatBan() {
     function openDetail(tableNum) {
         selectedTable.value = tableNum
         const tableObj = tables.value.find(t => t.id === tableNum)
+        console.log(tableObj.currentOrder)
         
         selectedOrder.value = tableObj?.currentOrder ?? {
             id: null,
@@ -109,7 +110,7 @@ export function useAdminDatBan() {
     const totalPrice = computed(() => {
         const items = selectedOrder.value?.items || []
         return items.reduce((sum, item) => {
-            const basePrice = item.product?.price || item.price || 0
+            const basePrice = item.basePriceAtPurchase || 0
             const sizePrice = item.size?.price || 0
             const qty = item.quantity || 0
             

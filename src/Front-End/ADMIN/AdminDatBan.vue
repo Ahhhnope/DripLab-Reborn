@@ -226,7 +226,7 @@ function getCustomerDisplay(order) {
               </div>
               <div class="adb-info-row">
                 <span class="adb-info-lbl">Thời gian đặt</span>
-                <span class="adb-info-val">{{ selectedOrder?.orderTime || '—' }}</span>
+                <span class="adb-info-val">{{ selectedOrder?.createdAt || '—' }}</span>
               </div>
             </div>
 
@@ -250,25 +250,23 @@ function getCustomerDisplay(order) {
                   <span v-else>☕</span>
                 </div>
                 <div class="adb-product-info">
-                  <p class="adb-product-name">{{ item.name }} × {{ item.qty }}</p>
+                  <p class="adb-product-name">{{ item.drink.name }} × {{ item.quantity }}</p>
                   <div class="adb-product-tags">
-                    <span class="adb-tag size">Size: {{ item.size }}</span>
+                    <span class="adb-tag size">Size: {{ item.size.name }}</span>
                     <span class="adb-tag">Đá: {{ item.ice }}</span>
                     <span class="adb-tag">Đường: {{ item.sugar }}</span>
-                    <template v-if="item.toppingDetails?.length">
+                    <template v-if="item.orderItemToppings?.length">
                       <span
-                        v-for="tp in item.toppingDetails"
-                        :key="tp.name"
+                        v-for="otp in item.orderItemToppings"
+                        :key="otp.id"
                         class="adb-tag topping"
-                      >{{ tp.name }}</span>
+                      >
+                        {{ otp.topping?.name }}
+                      </span>
                     </template>
-                    <span
-                      v-else-if="item.toppings && item.toppings !== 'Không có'"
-                      class="adb-tag topping"
-                    >{{ item.toppings }}</span>
                   </div>
                   <p class="adb-product-price">
-                    {{ ((item.unitPrice ?? item.price ?? 0) * item.qty).toLocaleString() }}đ
+                    {{ (((item.basePriceAtPurchase || 0) + (item.size?.price || 0)) * (item.quantity || 0)).toLocaleString() }}đ
                   </p>
                 </div>
               </div>
