@@ -1,70 +1,60 @@
 import { ref, computed } from 'vue'
-
-if (!window.__dripShared) {
-    window.__dripShared = {
-        occupiedTables: [],
-        orderList: [],
-        pendingSelectOrderId: null,
-    }
-}
+import api from '@/api/axios'
 
 export function useAdminDatBan() {
     const TOTAL_TABLES = 15
 
-    const occupiedTables = ref([...window.__dripShared.occupiedTables])
-
-    function syncFromShared() {
-        occupiedTables.value = [...window.__dripShared.occupiedTables]
-    }
-
-    // Router được gán từ component qua setRouter()
-    let _router = null
-    function setRouter(r) { _router = r }
-
+    const tables = ref([]) 
     const showDetail = ref(false)
     const selectedTable = ref(null)
     const selectedOrder = ref(null)
     const showConfirmDone = ref(false)
     const activeFilter = ref('all')
+    let _router = null
+
+    const occupiedTables = computed(() => tables.value.filter(t => t.status === "Đang sử dụng").map(t => t.id))
+
+    function setRouter(r) { _router = r }
+
+    async function fetchTables() {
+        try {
+            const res = await api.get("/tables");
+            tables.value = res.data;
+        } catch (error) {
+            console.error("fetch tables error: " + error);
+        }
+    }
+
+    async function syncFromShared() {
+        await fetchTables()
+    }
 
     function isOccupied(num) {
-        return occupiedTables.value.includes(num)
+        const table = tables.value.find(t => t.id === num)
+        return table?.status === "Đang sử dụng"
     }
 
     function getTableLabel(num) {
         return `Bàn ${String(num).padStart(2, '0')}`
     }
 
-    function _findOrderByTable(tableNum) {
-        return (window.__dripShared.orderList || []).find(o =>
-            o.selectedTables &&
-            o.selectedTables.includes(tableNum) &&
-            o.dineMode === true
-        ) ?? null
-    }
-
     function openDetail(tableNum) {
-        syncFromShared()
         selectedTable.value = tableNum
-        const order = _findOrderByTable(tableNum)
-        selectedOrder.value = order ?? {
+        const tableObj = tables.value.find(t => t.id === tableNum)
+        
+        selectedOrder.value = tableObj?.currentOrder ?? {
             id: null,
             tableNum: tableNum,
-            customerName: null,
-            customerPhone: null,
-            anonCode: null,
-            paymentMethod: null,
-            orderTime: null,
             items: [],
-            selectedTables: [],
-            dineMode: null,
-            note: '',
+            selectedTables: [tableNum],
+            customerName: '',
+            customerPhone: '',
+            paymentMethod: ''
         }
         showDetail.value = true
     }
 
     function openDetailForInvoice(invoice) {
-        syncFromShared()
         selectedTable.value = invoice.selectedTables?.[0] ?? null
         selectedOrder.value = { ...invoice }
         showDetail.value = true
@@ -77,43 +67,29 @@ export function useAdminDatBan() {
         showConfirmDone.value = false
     }
 
-    function confirmDone() {
-        const tables = selectedOrder.value?.selectedTables?.length
-            ? selectedOrder.value.selectedTables
-            : (selectedTable.value ? [selectedTable.value] : [])
-
-        tables.forEach(t => {
-            const idx = window.__dripShared.occupiedTables.indexOf(t)
-            if (idx !== -1) window.__dripShared.occupiedTables.splice(idx, 1)
-        })
-
-        // Xóa order khỏi shared orderList
-        if (selectedOrder.value?.id) {
-            const idx = window.__dripShared.orderList.findIndex(o => o.id === selectedOrder.value.id)
-            if (idx !== -1) window.__dripShared.orderList.splice(idx, 1)
+    async function confirmDone() {
+        if (!selectedTable.value) return
+        try {
+            await api.put(`/tables/release/${selectedTable.value}`)
+            await fetchTables()
+            closeDetail()
+        } catch (err) {
+            console.error("Error releasing table:", err)
         }
-
-        syncFromShared()
-        showConfirmDone.value = false
-        closeDetail()
     }
 
-    // ── "Thêm sản phẩm" ──
-
     function addProduct() {
-        const order = selectedOrder.value
-        if (!order?.id) { closeDetail(); return }
-
-        window.__dripShared.pendingSelectOrderId = order.id
-        closeDetail()
-
-        if (_router) {
-            _router.push({ path: '/QuanLyDonTaiQuay', query: { selectOrder: order.id } })
+        if (!selectedOrder.value?.id) { 
+            closeDetail(); 
+            return 
         }
+        if (_router) {
+            _router.push({ path: '/QuanLyDonTaiQuay', query: { selectOrder: selectedOrder.value.id } })
+        }
+        closeDetail()
     }
 
     function setFilter(f) {
-        syncFromShared()
         activeFilter.value = f
     }
 
@@ -125,32 +101,41 @@ export function useAdminDatBan() {
     })
 
     const activeInvoices = computed(() => {
-        return (window.__dripShared.orderList || []).filter(o => o.selectedTables && o.selectedTables.length > 0 && o.dineMode === true)
+        return tables.value
+            .filter(t => t.status === "Đang sử dụng" && t.currentOrder)
+            .map(t => t.currentOrder)
     })
 
     const totalPrice = computed(() => {
-        if (!selectedOrder.value?.items?.length) return 0
-        return selectedOrder.value.items.reduce((sum, item) => {
-            const p = item.unitPrice ?? item.price ?? 0
-            return sum + p * item.qty
+        const items = selectedOrder.value?.items || []
+        return items.reduce((sum, item) => {
+            const basePrice = item.product?.price || item.price || 0
+            const sizePrice = item.size?.price || 0
+            const qty = item.quantity || 0
+            
+            return sum + (basePrice + sizePrice) * qty
         }, 0)
     })
 
     function getModalTableLabel() {
-        const tables = selectedOrder.value?.selectedTables
-        if (tables && tables.length > 1) {
-            return tables.map(t => `Bàn ${String(t).padStart(2, '0')}`).join(' • ')
+        const tbs = selectedOrder.value?.selectedTables
+        if (tbs && tbs.length > 1) {
+            return tbs.map(t => `Bàn ${String(t).padStart(2, '0')}`).join(' • ')
         }
         return selectedTable.value ? getTableLabel(selectedTable.value) : ''
     }
 
     function isTableOccupiedInModal() {
-        const tables = selectedOrder.value?.selectedTables
-        return !!(tables?.length) || isOccupied(selectedTable.value)
+        return isOccupied(selectedTable.value)
     }
 
-    function countOccupied() { return occupiedTables.value.length }
-    function countAvailable() { return TOTAL_TABLES - countOccupied() }
+    function countOccupied() { 
+        return tables.value.filter(t => t.status === "Đang sử dụng").length 
+    }
+    
+    function countAvailable() { 
+        return TOTAL_TABLES - countOccupied() 
+    }
 
     return {
         TOTAL_TABLES,
@@ -162,6 +147,7 @@ export function useAdminDatBan() {
         activeFilter,
         filteredTables,
         activeInvoices,
+        fetchTables,
         isOccupied,
         getTableLabel,
         openDetail,
@@ -172,10 +158,10 @@ export function useAdminDatBan() {
         totalPrice,
         setFilter,
         setRouter,
-        syncFromShared,
         getModalTableLabel,
         isTableOccupiedInModal,
         countOccupied,
         countAvailable,
+        syncFromShared 
     }
 }

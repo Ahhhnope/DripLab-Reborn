@@ -205,6 +205,49 @@ export function useCounterOrder() {
     const selectedTables = ref([])
     const occupiedTables = ref([])
 
+    async function selectTable(num) {
+        if (occupiedTables.value.includes(num)) return
+
+        const idx = selectedTables.value.indexOf(num)
+        try {
+
+            if (idx !== -1) {
+                await api.put(`/tables/release/${num}`)
+                selectedTables.value.splice(idx, 1)
+            } else {
+
+                if (selectedTables.value.length >= MAX_TABLES_PER_ORDER) {
+                    alert(`Tối đa ${MAX_TABLES_PER_ORDER} bàn`)
+                    return
+                }
+
+                await api.put(`/tables/reserve/${num}`)
+                selectedTables.value.push(num)
+            }
+
+            if (currentOrder.value) {
+                currentOrder.value.selectedTables = [...selectedTables.value]
+            }
+
+            await refreshTableStatus()
+        } catch (error) {
+            console.log("Lỗi cập nhật trạng thái bàn:" + error);
+        }
+    }
+
+    async function refreshTableStatus() {
+        try {
+            const res = await api.get("/tables")
+
+            occupiedTables.value = res.data
+                .filter(t => t.status !== 'Còn trống')
+                .map(t => t.tableNumber)
+
+        } catch (error) {
+            console.error("Không thể lấy trạng thái bàn ;-; "+error)
+        }
+    }
+
     const selectedTable = computed(() =>
         selectedTables.value.length ? selectedTables.value[selectedTables.value.length - 1] : null
     )
@@ -214,21 +257,7 @@ export function useCounterOrder() {
     )
     const tablesFull = computed(() => occupiedTables.value.length >= TOTAL_TABLES)
 
-    function selectTable(num) {
-        if (occupiedTables.value.includes(num)) return
-        const idx = selectedTables.value.indexOf(num)
-        if (idx !== -1) {
-            // FIX 2: Cho phép bỏ chọn bàn đã chọn để chọn lại
-            selectedTables.value.splice(idx, 1)
-        } else {
-            if (selectedTables.value.length >= MAX_TABLES_PER_ORDER) {
-                alert(`Mỗi hóa đơn chỉ được chọn tối đa ${MAX_TABLES_PER_ORDER} bàn!`)
-                return
-            }
-            selectedTables.value.push(num)
-        }
-        if (currentOrder.value) currentOrder.value.selectedTables = [...selectedTables.value]
-    }
+    
 
     /* ══ XÁC NHẬN THÔNG TIN ════════════════════════════════════════ */
     const showConfirmInfo = ref(false)
@@ -279,6 +308,39 @@ export function useCounterOrder() {
     /* ══ SẢN PHẨM ══════════════════════════════════════════════════ */
     const searchText = ref('')
     const products = ref([])
+
+    async function fetchCartItems() {
+        try {
+            const staffId = 2;
+            const res = await api.get(`/carts/items/${staffId}`);
+
+            orderedItems.value = res.data.map(item => {
+
+                const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0;
+                const sizePrice = item.size?.price || 0;
+                const unitPrice = item.drink.basePrice + sizePrice + toppingTotal;
+
+                return {
+                    id: item.drink.id,
+                    cartItemId: item.id,
+                    name: item.drink.name,
+                    image: getImageUrl(item.drink.imageUrl),
+                    unitPrice: unitPrice,
+                    qty: item.quantity,
+                    size: item.size?.name || 'S',
+                    ice: item.ice + '%',
+                    sugar: item.sugar + '%',
+                    toppings: item.toppings?.map(t => t.topping.name).join(', ') || 'Không có'
+                };
+            });
+
+            if (currentOrder.value) {
+                currentOrder.value.items = [...orderedItems.value];
+            }
+        } catch (error) {
+            console.error("fetch cart items: "+error)
+        }
+    }
 
     async function fetchDrinks() {
         try {
@@ -497,12 +559,40 @@ export function useCounterOrder() {
         showPaymentPopup.value = true
     }
 
-    function confirmPayment() {
-        showReviewPopup.value = false
-        txId.value = genTxId()
-        txTime.value = new Date().toLocaleString('vi-VN')
-        if (paymentMethod.value === 'cash') receiptData.value.change = changeAmount.value
-        showSuccessPopup.value = true
+    async function confirmPayment() {
+        try {
+            const staffId = 2
+
+            const params = new URLSearchParams();
+            params.append('userId', staffId);
+            params.append('note', orderNote.value || '');
+            params.append('paymentMethod', paymentMethod.value)
+            
+            displayTableNums.value.forEach(tableId => {
+                params.append('tables', tableId)
+            });
+
+            const res = await api.post(`/orders/add?${params.toString()}`)
+
+            showReviewPopup.value = false
+            txId.value = res.data.orderNumber
+            txTime.value = new Date().toLocaleString('vi-VN')
+
+            if (paymentMethod.value === 'cash') receiptData.value.change = changeAmount.value
+            showSuccessPopup.value = true
+
+            // const orderPayload = {
+            //     customerName: receiptData.value.customerName,
+            //     customerPhone: receiptData.value.customerPhone,
+            //     paymentMethod: paymentMethod.value,
+            //     note: receiptData.value.note,
+            //     items: receiptData.value.items,
+            //     totalPrice: finalPrice.value,
+            //     tableNumbers: selectedTables.value // Send the table numbers
+            // }
+        } catch (error) {
+            console.error("Confirm payment error: "+error)
+        }
     }
 
     function closePaymentPopup() { showPaymentPopup.value = false }
@@ -602,22 +692,60 @@ export function useCounterOrder() {
     function incQty() { selectedQty.value++ }
     function decQty() { if (selectedQty.value > 1) selectedQty.value-- }
 
-    function confirmOrder() {
+    async function confirmOrder() {
+
         const toppingPrice = selectedToppings.value.reduce((s, t) => s + t.price, 0)
         const sizePrice = SIZE_PRICES[selectedSize.value] || 0
         const unitPrice = selectedProduct.value.price + toppingPrice + sizePrice
-        orderedItems.value.push({
-            id: selectedProduct.value.id, name: selectedProduct.value.name,
-            image: selectedProduct.value.image,
-            basePrice: selectedProduct.value.price, toppingPrice, sizePrice, unitPrice,
-            qty: selectedQty.value, size: selectedSize.value,
-            ice: selectedIce.value, sugar: selectedSugar.value,
-            toppings: selectedToppings.value.map(t => t.name).join(', ') || 'Không có',
-            toppingDetails: selectedToppings.value.map(t => ({ name: t.name, price: t.price })),
-        })
-        if (currentOrder.value) currentOrder.value.items = orderedItems.value
-        if (selectedProduct.value) delete popupStateCache.value[selectedProduct.value.id]
-        showPopup.value = false
+
+        const cartItemReq = {
+            userId: 2,
+            drinkId: selectedProduct.value.id,
+            quantity: selectedQty.value,
+            sizeId: selectedSize.value === 'S' ? 1 : (selectedSize.value === 'M' ? 2 : 3),
+            ice: parseInt(selectedIce.value),
+            sugar: parseInt(selectedSugar.value),
+            toppings: selectedToppings.value.map(t => t.id)
+        }
+
+        try {
+            const res = await api.post('/carts/add', cartItemReq)
+
+            const displayItem = {
+                id: selectedProduct.value.id,
+                cartItemId: res.data.items[res.data.items.length - 1].id, // ID from DB
+                name: selectedProduct.value.name,
+                image: selectedProduct.value.image,
+                unitPrice: unitPrice,
+                qty: selectedQty.value,
+                size: selectedSize.value,
+                ice: selectedIce.value,
+                sugar: selectedSugar.value,
+                toppings: selectedToppings.value.map(t => t.name).join(', ') || 'Không có'
+            }
+
+            orderedItems.value.push(displayItem)
+
+            if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
+
+            delete popupStateCache.value[selectedProduct.value.id]
+            showPopup.value = false
+        } catch (error) {
+            console.error("Confirm order error: "+error);
+        }
+
+        // orderedItems.value.push({
+        //     id: selectedProduct.value.id, name: selectedProduct.value.name,
+        //     image: selectedProduct.value.image,
+        //     basePrice: selectedProduct.value.price, toppingPrice, sizePrice, unitPrice,
+        //     qty: selectedQty.value, size: selectedSize.value,
+        //     ice: selectedIce.value, sugar: selectedSugar.value,
+        //     toppings: selectedToppings.value.map(t => t.name).join(', ') || 'Không có',
+        //     toppingDetails: selectedToppings.value.map(t => ({ name: t.name, price: t.price })),
+        // })
+        // if (currentOrder.value) currentOrder.value.items = orderedItems.value
+        // if (selectedProduct.value) delete popupStateCache.value[selectedProduct.value.id]
+        // showPopup.value = false
     }
 
     /* ══ COMPUTED HIỂN THỊ ══════════════════════════════════════════ */
@@ -651,10 +779,14 @@ export function useCounterOrder() {
     /* ══ LIFECYCLE ══════════════════════════════════════════════════ */
     let timer = null
     onMounted(() => {
+        refreshTableStatus()
+        fetchCartItems()
         fetchDrinks()
         fetchToppings()
         fetchSizes()
         timer = setInterval(() => {
+            fetchCartItems()
+            refreshTableStatus()
             fetchDrinks()
             fetchToppings()
             fetchSizes()

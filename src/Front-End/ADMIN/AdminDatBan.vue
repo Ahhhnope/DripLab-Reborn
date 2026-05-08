@@ -294,13 +294,13 @@ function getCustomerDisplay(order) {
                 <span class="adb-total-lbl">Tổng cộng</span>
                 <span class="adb-total-val">{{ totalPrice.toLocaleString() }} đ</span>
               </div>
-
               <button class="adb-btn-done" @click="showConfirmDone = true">
                 Trả hàng
               </button>
               <button class="adb-btn-add-product" @click="addProduct">
                 + Thêm sản phẩm
               </button>
+              bro wtf nuuuu cái gì đây
             </template>
 
             <template v-else>
