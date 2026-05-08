@@ -293,7 +293,7 @@ function getCustomerDisplay(order) {
                 <span class="adb-total-val">{{ totalPrice.toLocaleString() }} đ</span>
               </div>
               <button class="adb-btn-done" @click="showConfirmDone = true">
-                Trả hàng
+                Trả Bàn
               </button>
               <button class="adb-btn-add-product" @click="addProduct">
                 + Thêm sản phẩm
@@ -316,8 +316,8 @@ function getCustomerDisplay(order) {
     <!-- ═══ CONFIRM POPUP ═══ -->
     <div v-if="showConfirmDone" class="adb-confirm-overlay">
       <div class="adb-confirm-popup">
-        <p class="adb-confirm-title">Xác nhận trả hàng?</p>
-        <p class="adb-confirm-sub">Bàn sẽ được giải phóng và đơn hàng kết thúc.</p>
+        <p class="adb-confirm-title">Xác nhận trả bàn?</p>
+        <p class="adb-confirm-sub">Sau khi xác nhận, bàn sẽ trở về trạng thái trống!</p>
         <div class="adb-confirm-btns">
           <button class="adb-confirm-back" @click="showConfirmDone = false">Quay lại</button>
           <button class="adb-confirm-ok" @click="confirmDone">✓ Xác nhận</button>
