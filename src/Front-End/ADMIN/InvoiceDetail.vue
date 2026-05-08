@@ -1,11 +1,10 @@
 <template>
   <teleport to="body">
     <transition name="fade">
-      <div
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6"
-        @click.self="$emit('close')"
-      >
-        <div class="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-xl border border-stone-200 bg-white shadow-2xl overflow-hidden">
+      <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6"
+        @click.self="$emit('close')">
+        <div
+          class="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-xl border border-stone-200 bg-white shadow-2xl overflow-hidden">
 
           <!-- Header -->
           <div class="flex items-center justify-between border-b border-stone-100 bg-stone-50 px-4 py-3">
@@ -21,24 +20,22 @@
               <!-- ✅ Nút In hóa đơn -->
               <button
                 class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-white bg-[#634832] hover:bg-[#3C2A21] transition-colors disabled:opacity-60"
-                :disabled="isPrinting"
-                @click="printInvoice"
-              >
-                <svg v-if="!isPrinting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                :disabled="isPrinting" @click="printInvoice">
+                <svg v-if="!isPrinting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
-                <svg v-else class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                <svg v-else class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
                 {{ isPrinting ? 'Đang xuất...' : 'In hóa đơn' }}
               </button>
 
-              <button
-                class="rounded-lg p-2 text-stone-400 hover:bg-stone-200 hover:text-stone-600 transition-colors"
-                @click="$emit('close')"
-              >✕</button>
+              <button class="rounded-lg p-2 text-stone-400 hover:bg-stone-200 hover:text-stone-600 transition-colors"
+                @click="$emit('close')">✕</button>
             </div>
           </div>
 
@@ -98,34 +95,68 @@
                 <!-- Chi tiết món -->
                 <div class="space-y-3">
                   <h4 class="font-bold text-stone-800 border-b pb-2">Chi tiết món</h4>
-                  <div
-                    v-for="(item, i) in invoice.items" :key="i"
-                    class="grid grid-cols-12 gap-4 items-start border-b border-dashed border-stone-100 pb-3 last:border-0"
-                  >
-                    <div class="col-span-8">
-                      <div class="font-bold text-stone-800">{{ item.name }}</div>
-                      <div v-if="item.sugar != null || item.ice != null" class="mt-1.5 flex flex-wrap gap-1">
-                        <span v-if="item.sugar != null"
-                          class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                          style="background:rgba(251,191,36,0.12);color:#d97706;border:1px solid rgba(251,191,36,0.25)">
-                          🍬 Đường: {{ item.sugar }}%
-                        </span>
-                        <span v-if="item.ice != null"
-                          class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                          style="background:rgba(59,130,246,0.08);color:#2563eb;border:1px solid rgba(59,130,246,0.15)">
-                          🧊 Đá: {{ item.ice }}%
-                        </span>
+                  <div v-for="(item, i) in invoice.items" :key="i"
+                    class="border-b border-dashed border-stone-100 pb-3 last:border-0 space-y-1.5">
+                    <!-- Tên + size + giá -->
+                    <div class="grid grid-cols-12 gap-4 items-start">
+                      <div class="col-span-8">
+                        <div class="font-bold text-stone-800 flex items-center gap-2 flex-wrap">
+                          {{ item.name }}
+                          <span v-if="item.size"
+                            class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 border border-stone-200">
+                            {{ item.size }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="col-span-1 text-center font-bold text-stone-400">x{{ item.qty }}</div>
+                      <div class="col-span-3 text-right">
+                        <div class="font-bold text-[#3C2A21]">
+                          {{ (item.price * item.qty).toLocaleString('vi-VN') }} đ
+                        </div>
+                        <div v-if="item.unitPrice != null" class="text-xs text-stone-400 mt-0.5">
+                          {{ item.unitPrice.toLocaleString('vi-VN') }} đ × {{ item.qty }}
+                        </div>
                       </div>
                     </div>
-                    <div class="col-span-1 text-center font-bold text-stone-400">x{{ item.qty }}</div>
-                    <div class="col-span-3 text-right font-bold text-[#3C2A21]">
-                      {{ (item.price * item.qty).toLocaleString('vi-VN') }} đ
+
+                    <!-- Tags đường + đá -->
+                    <div v-if="item.sugar != null || item.ice != null" class="flex flex-wrap gap-1">
+                      <span v-if="item.sugar != null"
+                        class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(251,191,36,0.12);color:#d97706;border:1px solid rgba(251,191,36,0.25)">
+                        Đường: {{ item.sugar }}%
+                      </span>
+                      <span v-if="item.ice != null"
+                        class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(59,130,246,0.08);color:#2563eb;border:1px solid rgba(59,130,246,0.15)">
+                        Đá: {{ item.ice }}%
+                      </span>
+                    </div>
+
+                    <!-- Toppings -->
+                    <div v-if="item.toppings?.length" class="flex flex-wrap gap-1">
+                      <span v-for="(top, ti) in item.toppings" :key="ti"
+                        class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(16,185,129,0.08);color:#059669;border:1px solid rgba(16,185,129,0.2)">
+                        + {{ top.name }} <span v-if="top.price">+{{ top.price.toLocaleString('vi-VN') }}đ</span>
+                      </span>
+                    </div>
+
+                    <!-- Ghi chú item -->
+                    <div v-if="item.note" class="text-xs text-stone-400 italic">
+                      Ghi chú: {{ item.note }}
                     </div>
                   </div>
 
                   <div v-if="!invoice.items?.length" class="text-center text-stone-400 text-sm py-4">
                     Không có món nào
                   </div>
+                </div>
+
+                <!-- ✅ Ghi chú đơn hàng (sau chi tiết món) -->
+                <div v-if="invoice.note" class="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
+                  <h4 class="font-bold text-stone-700 text-sm mb-1">Ghi chú đơn hàng</h4>
+                  <p class="text-sm text-stone-600 italic">{{ invoice.note }}</p>
                 </div>
 
               </div>
@@ -174,9 +205,9 @@ const isPrinting = ref(false)
 
 const statusClass = computed(() => {
   const s = props.invoice.status || 'Đã hủy'
-  if (s === 'Đã giao')   return 'bg-green-100 text-green-700'
+  if (s === 'Đã giao') return 'bg-green-100 text-green-700'
   if (s === 'Đang giao') return 'bg-blue-100 text-blue-700'
-  if (s === 'Đã hủy')    return 'bg-red-100 text-red-600'
+  if (s === 'Đã hủy') return 'bg-red-100 text-red-600'
   return 'bg-orange-100 text-orange-700'
 })
 
@@ -201,24 +232,38 @@ async function printInvoice() {
 
     const inv = props.invoice
 
-    const statusBg    = inv.status === 'Đã giao' ? '#dcfce7' : inv.status === 'Đang giao' ? '#dbeafe' : inv.status === 'Đã hủy' ? '#fee2e2' : '#ffedd5'
-    const statusColor = inv.status === 'Đã giao' ? '#15803d' : inv.status === 'Đang giao' ? '#1d4ed8'  : inv.status === 'Đã hủy' ? '#dc2626'  : '#c2410c'
-    const receiveTypeBg    = inv.receive_type === 'Online' ? '#dbeafe' : '#dcfce7'
+    const statusBg = inv.status === 'Đã giao' ? '#dcfce7' : inv.status === 'Đang giao' ? '#dbeafe' : inv.status === 'Đã hủy' ? '#fee2e2' : '#ffedd5'
+    const statusColor = inv.status === 'Đã giao' ? '#15803d' : inv.status === 'Đang giao' ? '#1d4ed8' : inv.status === 'Đã hủy' ? '#dc2626' : '#c2410c'
+    const receiveTypeBg = inv.receive_type === 'Online' ? '#dbeafe' : '#dcfce7'
     const receiveTypeColor = inv.receive_type === 'Online' ? '#1d4ed8' : '#15803d'
 
-    const itemsHTML = (inv.items || []).map(item => `
+    const itemsHTML = (inv.items || []).map(item => {
+      const toppingTags = (item.toppings || []).map(t =>
+        `<span class="tag-topping">+ ${t.name}${t.price ? ` +${t.price.toLocaleString('vi-VN')}đ` : ''}</span>`
+      ).join('')
+
+      return `
       <tr>
         <td class="item-name">
-          <div>${item.name}</div>
-          ${(item.sugar != null || item.ice != null) ? `
+          <div class="item-title">
+            ${item.name}
+            ${item.size ? `<span class="tag-size">${item.size}</span>` : ''}
+          </div>
+          ${(item.sugar != null || item.ice != null || item.toppings?.length || item.note) ? `
           <div class="tags">
             ${item.sugar != null ? `<span class="tag-sugar">Đường ${item.sugar}%</span>` : ''}
-            ${item.ice   != null ? `<span class="tag-ice">Đá ${item.ice}%</span>` : ''}
+            ${item.ice != null ? `<span class="tag-ice">Đá ${item.ice}%</span>` : ''}
+            ${toppingTags}
+            ${item.note ? `<span class="tag-note">Ghi chú: ${item.note}</span>` : ''}
           </div>` : ''}
         </td>
         <td class="item-qty">x${item.qty}</td>
-        <td class="item-price">${(item.price * item.qty).toLocaleString('vi-VN')} đ</td>
-      </tr>`).join('')
+        <td class="item-price">
+          <div>${(item.price * item.qty).toLocaleString('vi-VN')} đ</div>
+          ${item.unitPrice != null ? `<div class="unit-price">${item.unitPrice.toLocaleString('vi-VN')} đ × ${item.qty}</div>` : ''}
+        </td>
+      </tr>`
+    }).join('')
 
     const showCustomer = inv.customer?.name && inv.customer.name !== 'Khách lẻ'
 
@@ -270,9 +315,14 @@ async function printInvoice() {
   .item-name { padding:9px 0; font-size:13px; font-weight:500; border-bottom:1px dashed #e8e8e8; vertical-align:top; }
   .item-qty  { padding:9px 0; font-size:12px; color:#888; text-align:center; border-bottom:1px dashed #e8e8e8; vertical-align:top; }
   .item-price{ padding:9px 0; font-size:13px; font-weight:600; text-align:right; border-bottom:1px dashed #e8e8e8; vertical-align:top; white-space:nowrap; }
-  .tags { display:flex; gap:5px; margin-top:3px; flex-wrap:wrap; }
-  .tag-sugar { font-size:9px; color:#92400e; background:#fef3c7; padding:1px 6px; border-radius:3px; }
-  .tag-ice   { font-size:9px; color:#1d4ed8; background:#eff6ff; padding:1px 6px; border-radius:3px; }
+  .item-title { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+  .unit-price { font-size:10px; color:#999; font-weight:400; margin-top:2px; }
+  .tags { display:flex; gap:5px; margin-top:4px; flex-wrap:wrap; }
+  .tag-sugar   { font-size:9px; color:#92400e; background:#fef3c7; padding:1px 6px; border-radius:3px; }
+  .tag-ice     { font-size:9px; color:#1d4ed8; background:#eff6ff; padding:1px 6px; border-radius:3px; }
+  .tag-size    { font-size:9px; color:#57534e; background:#f5f5f4; padding:1px 6px; border-radius:3px; border:1px solid #e7e5e4; }
+  .tag-topping { font-size:9px; color:#059669; background:#ecfdf5; padding:1px 6px; border-radius:3px; }
+  .tag-note    { font-size:9px; color:#78716c; background:#fafaf9; padding:1px 6px; border-radius:3px; font-style:italic; border:1px solid #e7e5e4; }
 
   /* TOTALS */
   .totals-wrap { padding:12px 30px 0; display:flex; justify-content:flex-end; }
@@ -284,6 +334,11 @@ async function printInvoice() {
   .totals-table .t-final td { border-top:2px solid #1a1a1a; padding-top:9px; }
   .totals-table .t-final .t-label { font-size:13px; font-weight:700; color:#1a1a1a; }
   .totals-table .t-final .t-value { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; }
+
+  /* ORDER NOTE */
+  .order-note { margin:14px 30px 0; padding:10px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:6px; }
+  .order-note .note-label { font-size:8px; letter-spacing:2px; text-transform:uppercase; color:#92400e; margin-bottom:4px; }
+  .order-note .note-text  { font-size:12px; color:#78350f; font-style:italic; }
 
   /* FOOTER */
   .footer { display:flex; justify-content:space-between; align-items:center; margin:16px 30px 0; padding:12px 0; border-top:1px solid #e8e8e8; }
@@ -356,12 +411,18 @@ async function printInvoice() {
 
   <div class="totals-wrap">
     <table class="totals-table">
-      <tr><td class="t-label">Tổng gốc</td><td class="t-value">${(inv.originalPrice||0).toLocaleString('vi-VN')} đ</td></tr>
+      <tr><td class="t-label">Tổng gốc</td><td class="t-value">${(inv.originalPrice || 0).toLocaleString('vi-VN')} đ</td></tr>
       ${inv.discountAmount ? `<tr><td class="t-label">Giảm giá</td><td class="t-value t-discount">- ${inv.discountAmount.toLocaleString('vi-VN')} đ</td></tr>` : ''}
-      ${inv.shippingFee    ? `<tr><td class="t-label">Phí ship</td><td class="t-value">${inv.shippingFee.toLocaleString('vi-VN')} đ</td></tr>` : ''}
-      <tr class="t-final"><td class="t-label">THÀNH TIỀN</td><td class="t-value">${(inv.finalPrice||0).toLocaleString('vi-VN')} đ</td></tr>
+      ${inv.shippingFee ? `<tr><td class="t-label">Phí ship</td><td class="t-value">${inv.shippingFee.toLocaleString('vi-VN')} đ</td></tr>` : ''}
+      <tr class="t-final"><td class="t-label">THÀNH TIỀN</td><td class="t-value">${(inv.finalPrice || 0).toLocaleString('vi-VN')} đ</td></tr>
     </table>
   </div>
+
+  ${inv.note ? `
+  <div class="order-note">
+    <div class="note-label">Ghi chú đơn hàng</div>
+    <div class="note-text">${inv.note}</div>
+  </div>` : ''}
 
   <div class="footer">
     <div class="footer-left">DripLab &copy; ${new Date().getFullYear()}</div>
@@ -410,7 +471,7 @@ async function printInvoice() {
     // Xuất PDF từ canvas
     const { jsPDF } = window.jspdf
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
-    const pdfWidth  = pdf.internal.pageSize.getWidth()   // 595pt
+    const pdfWidth = pdf.internal.pageSize.getWidth()   // 595pt
     const pdfHeight = pdf.internal.pageSize.getHeight()  // 842pt
 
     const imgW = pdfWidth
@@ -425,7 +486,7 @@ async function printInvoice() {
       // Tạo slice canvas cho từng trang
       const sliceCanvasPx = Math.min(pdfHeight, imgH - y) * canvas.width / imgW
       const sliceCanvas = document.createElement('canvas')
-      sliceCanvas.width  = canvas.width
+      sliceCanvas.width = canvas.width
       sliceCanvas.height = Math.ceil(sliceCanvasPx)
       sliceCanvas.getContext('2d').drawImage(
         canvas,
@@ -452,8 +513,22 @@ async function printInvoice() {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 10px;
+}
 </style>
