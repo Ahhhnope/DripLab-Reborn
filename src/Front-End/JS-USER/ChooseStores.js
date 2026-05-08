@@ -35,10 +35,11 @@ export default {
             locating: false,
             query: "",
             selectedId: null,
+            nearestSuggestedId: null,
             toastMessage: null,
             showClosedModal: false,
 
-            // ✅ Modal khi khoảng cách vận chuyển xa / từ chối giao
+    
             showFarModal: false,
             showRejectModal: false,
             showThanksModal: false,
@@ -50,7 +51,7 @@ export default {
             _toastTimer: null,
             _clockTimer: null,
 
-            // ✅ Khóa scroll nền khi mở modal
+
             _scrollLocked: false,
             _scrollY: 0,
             userLat: null,
@@ -138,14 +139,11 @@ export default {
         },
     },
     mounted() {
-        // Khôi phục highlight cửa hàng đã chọn trước đó (nếu có)
-        const savedId = localStorage.getItem("selectedStoreId");
-        if (savedId) {
-            const matched = this.stores.find((s) => String(s.db_id) === savedId);
-            if (matched) {
-                this.selectedId = matched.id;
-            }
-        }
+
+        localStorage.removeItem("selectedStore");
+        localStorage.removeItem("selectedStoreId");
+        sessionStorage.removeItem("selectedStore");
+        sessionStorage.removeItem("selectedStoreId");
 
         this._clockTimer = setInterval(() => {
             this.nowTick = Date.now();
@@ -234,7 +232,6 @@ export default {
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
         },
 
-        // ✅ Không cho scroll nền khi mở modal
         _syncBodyScrollLock(locked) {
             if (locked === this._scrollLocked) return;
 
@@ -281,7 +278,6 @@ export default {
             this.closeRejectModal();
             this.showThanksModal = true;
 
-            // ✅ Tự đóng modal "Cảm ơn" sau 3 giây
             window.setTimeout(() => {
                 this.showThanksModal = false;
             }, 3000);
@@ -320,11 +316,10 @@ export default {
 
             this.closeFarModal();
 
-            // ✅ Chỉ highlight + toast (không tự chuyển trang)
-            this.selectedId = nearest.id;
+            this.nearestSuggestedId = nearest.id;
+            this.selectedId = null;
             this.showToast(`Gợi ý cửa hàng gần nhất: ${nearest.code}`);
 
-            // ✅ Auto-scroll tới thẻ cửa hàng gần nhất
             this.$nextTick(() => {
                 const el = document.getElementById(`store-card-${nearest.id}`);
                 if (el && typeof el.scrollIntoView === "function") {
@@ -332,7 +327,6 @@ export default {
                 }
             });
 
-            // Option: nếu muốn auto-scroll tới thẻ gần nhất, có thể làm thêm ở đây.
         },
 
         // ===== Flow chọn cửa hàng =====
@@ -365,9 +359,11 @@ export default {
             this.selectedId = store.id;
             this.showToast(`Đã chọn: ${store.code}`);
 
-            // Chỉ bị xóa khi người dùng logout
-            localStorage.setItem("selectedStore", JSON.stringify(store));
-            localStorage.setItem("selectedStoreId", String(store.db_id));
+            sessionStorage.setItem("selectedStore", JSON.stringify(store));
+            sessionStorage.setItem("selectedStoreId", String(store.db_id));
+
+
+            this.nearestSuggestedId = null;
 
             this.$router.push("/");
         },

@@ -78,6 +78,7 @@
             :id="`store-card-${store.id}`"
             :class="{
               'is-selected': selectedId === store.id,
+              'is-nearest': nearestSuggestedId === store.id,
               'is-closed': !store.isOpen
             }"
             @click="selectStore(store)"
@@ -89,15 +90,21 @@
               <div class="cs-cardBody">
                 <div class="cs-cardTitleRow">
                   <h2 class="cs-cardTitle">{{ store.code }}</h2>
-                  <span v-if="selectedId === store.id" class="cs-chip">Đã chọn</span>
+                  <span v-if="nearestSuggestedId === store.id" class="cs-chip cs-chip--nearest">Cửa hàng gần nhất</span>
+                  <span v-else-if="selectedId === store.id" class="cs-chip">Đã chọn</span>
                 </div>
                 <p class="cs-cardAddr">{{ store.address }}</p>
               </div>
               <div class="cs-cardMeta">
                 <p class="cs-distance">{{ toKm(store.distanceKm) }}</p>
-                <p class="cs-status" :class="store.isOpen ? 'is-open' : 'is-closed'">
+                <p class="cs-status" :class="store.isClosingSoon ? 'is-closing' : (store.isOpen ? 'is-open' : 'is-closed')">
                   <span v-if="store.isOpen">
-                    {{ store.isClosingSoon ? 'Sắp đóng cửa' : 'Đang mở cửa' }}
+                    <template v-if="store.isClosingSoon">
+                      Cửa hàng sắp đóng cửa, Hiện chỉ phục vụ tại quán đến {{ store.closeTime }}
+                    </template>
+                    <template v-else>
+                      Đang mở cửa
+                    </template>
                   </span>
                   <span v-else>Đang đóng cửa</span>
                 </p>

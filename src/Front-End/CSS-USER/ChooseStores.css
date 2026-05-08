@@ -197,6 +197,27 @@
   border-color: #b6e4c8;
 }
 
+/* Nổi bật "cửa hàng gần nhất" */
+.cs-card.is-nearest {
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+  background: linear-gradient(0deg, rgba(59, 130, 246, 0.06), rgba(59, 130, 246, 0.02));
+  position: relative;
+  animation: cs-nearest-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes cs-nearest-pulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.14);
+  }
+  100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+  }
+}
+
 .cs-card.is-closed {
   opacity: 0.45;
   cursor: default;
@@ -261,6 +282,11 @@
   color: #fff;
 }
 
+.cs-chip--nearest {
+  background: #3b82f6;
+  color: #fff;
+}
+
 .cs-cardAddr {
   margin: 0;
   font-size: 13px;
@@ -292,6 +318,10 @@
 
 .cs-status.is-open {
   color: var(--cs-green);
+}
+
+.cs-status.is-closing {
+  color: #f59e0b;
 }
 
 .cs-status.is-closed {
