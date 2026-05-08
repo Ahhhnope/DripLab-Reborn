@@ -11,7 +11,6 @@
           </svg>
         </div>
 
-        <!-- Chưa có vị trí: nút GPS -->
         <button
           v-if="!locationText && !locating"
           class="cs-locateBtn"
@@ -25,13 +24,11 @@
           Dùng vị trí hiện tại
         </button>
 
-        <!-- Đang lấy GPS -->
         <span v-else-if="locating" class="cs-locatingText">
           <span class="cs-spinner" aria-hidden="true"></span>
           Đang xác định vị trí...
         </span>
 
-        <!-- Đã có vị trí -->
         <p v-else class="cs-locationText" :title="locationText">
           {{ locationText }}
         </p>
@@ -100,7 +97,7 @@
                 <p class="cs-status" :class="store.isClosingSoon ? 'is-closing' : (store.isOpen ? 'is-open' : 'is-closed')">
                   <span v-if="store.isOpen">
                     <template v-if="store.isClosingSoon">
-                      Cửa hàng sắp đóng cửa, Hiện chỉ phục vụ tại quán đến {{ store.closeTime }}
+                      Cửa hàng sắp đóng cửa
                     </template>
                     <template v-else>
                       Đang mở cửa
@@ -143,6 +140,23 @@
       </div>
     </transition>
 
+    <!-- Closing Soon Modal -->
+    <transition name="cs-modal">
+      <div v-if="showClosingSoonModal" class="cs-modal-overlay" @click.self="showClosingSoonModal = false">
+        <div class="cs-modal cs-modal--closing-soon">
+          <div class="cs-modal-icon">
+            <div class="cs-hourglass cs-hourglass--warn" aria-hidden="true">⏰</div>
+            <span class="cs-modal-badge cs-modal-badge--warn">LƯU Ý</span>
+          </div>
+          <h2 class="cs-modal-title">Hệ thống đặt hàng đã đóng</h2>
+          <p class="cs-modal-desc">
+            Lưu ý: Hệ thống đặt hàng trực tuyến đã đóng. Quý khách vui lòng ghé trực tiếp quán để được phục vụ đến {{ closingSoonCloseTime }}.
+          </p>
+          <button class="cs-modal-btn cs-modal-btn--warn" @click="showClosingSoonModal = false">Đã hiểu</button>
+        </div>
+      </div>
+    </transition>
+
     <!-- Far Distance Modal (>5km) -->
     <transition name="cs-modal">
       <div v-if="showFarModal" class="cs-modal-overlay" @click.self="closeFarModal">
@@ -156,7 +170,6 @@
             Vì quãng đường vận chuyển khá xa, Drip Lab lo lắng chất lượng hương vị sẽ không còn ở mức 100% khi đến tay bạn.
             Bạn vẫn muốn tiếp tục đặt hàng hay ghé qua cửa hàng để chúng mình được phục vụ bạn tốt nhất?
           </p>
-
           <div class="cs-modal-actions">
             <button class="cs-modal-btn" @click="confirmContinueOrder">Tiếp tục đặt đơn</button>
             <button class="cs-modal-btn cs-modal-btn--secondary" @click="goNearestStore">Ghé cửa hàng gần nhất</button>
@@ -182,7 +195,7 @@
       </div>
     </transition>
 
-    <!-- Thanks Modal (sau khi bấm Đã hiểu) -->
+    <!-- Thanks Modal -->
     <transition name="cs-modal">
       <div v-if="showThanksModal" class="cs-modal-overlay" @click.self="closeThanksModal">
         <div class="cs-modal cs-modal--thanks">
