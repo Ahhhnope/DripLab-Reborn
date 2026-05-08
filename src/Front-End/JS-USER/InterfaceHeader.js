@@ -1,10 +1,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useCartStore } from '../../stores/cart.js'
+import api from '../../api/axios'
 
 export function useHeader() {
   const router = useRouter()
+  const cartStore = useCartStore()
 
-  // MENU DROPDOWN
+  // ── MENU DROPDOWN ──────────────────────────────────────────────
   const showMenuDropdown = ref(false)
   const activeMenuOption = ref(null)
   let menuEnterTimer = null
@@ -38,7 +41,7 @@ export function useHeader() {
     activeMenuOption.value = name
   }
 
-  // USER DROPDOWN
+  // ── USER DROPDOWN ──────────────────────────────────────────────
   const showUserDropdown = ref(false)
   const activeUserAction = ref(null)
 
@@ -50,8 +53,54 @@ export function useHeader() {
     showUserDropdown.value = false
   }
 
+  // ── CART DROPDOWN ──────────────────────────────────────────────
+  const showCartDropdown = ref(false)
+  let cartEnterTimer = null
+  let cartLeaveTimer = null
 
-  // NAVIGATION
+  function onCartEnter() {
+    clearTimeout(cartLeaveTimer)
+    cartEnterTimer = setTimeout(() => {
+      showCartDropdown.value = true
+    }, 100)
+  }
+
+  function onCartLeave() {
+    clearTimeout(cartEnterTimer)
+    cartLeaveTimer = setTimeout(() => {
+      showCartDropdown.value = false
+    }, 220)
+  }
+
+  function onCartDropdownEnter() {
+    clearTimeout(cartLeaveTimer)
+  }
+
+  function onCartDropdownLeave() {
+    cartLeaveTimer = setTimeout(() => {
+      showCartDropdown.value = false
+    }, 180)
+  }
+
+  async function removeCartItem(itemId) {
+    try {
+      await api.delete(`/carts/remove/${itemId}`)
+      cartStore.items = cartStore.items.filter(i => i.id !== itemId)
+    } catch (e) {
+      console.error('Remove cart item error:', e)
+    }
+  }
+
+  // ── FORMAT ─────────────────────────────────────────────────────
+  function formatVND(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  // ── NAVIGATION ─────────────────────────────────────────────────
   function goToLogin() {
     activeUserAction.value = 'login'
     closeUserDropdown()
@@ -65,6 +114,7 @@ export function useHeader() {
   }
 
   function goToCart() {
+    showCartDropdown.value = false
     router.push('/cart')
   }
 
@@ -74,17 +124,18 @@ export function useHeader() {
     router.push('/account')
   }
 
-
   router.afterEach(() => {
     activeMenuOption.value = null
     activeUserAction.value = null
     showMenuDropdown.value = false
     showUserDropdown.value = false
+    showCartDropdown.value = false
   })
 
   return {
     showMenuDropdown,
     showUserDropdown,
+    showCartDropdown,
     activeMenuOption,
     activeUserAction,
     onMenuEnter,
@@ -94,6 +145,12 @@ export function useHeader() {
     setActiveOption,
     toggleUserDropdown,
     closeUserDropdown,
+    onCartEnter,
+    onCartLeave,
+    onCartDropdownEnter,
+    onCartDropdownLeave,
+    removeCartItem,
+    formatVND,
     goToLogin,
     goToRegister,
     goToCart,
