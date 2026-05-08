@@ -4,6 +4,10 @@ import api from '../../api/axios'
 import { useAuthStore } from '../Authorization/Auth'
 import { sharedUser } from './Useruser.JS'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
 export function useUserOrders() {
   const auth   = useAuthStore()
   const router = useRouter()
@@ -82,7 +86,7 @@ export function useUserOrders() {
             toppingList,
             // Compat cũ
             toppings:    toppingList.map(t => t.name).join(', '),
-            img:         item.drink?.imageUrl ?? null,
+            img: getImageUrl(item.drink?.imageUrl ?? null),
             sugar:       item.sugarLevel ?? 100,
             ice:         item.iceLevel   ?? 100,
           }
@@ -334,6 +338,6 @@ export function useUserOrders() {
     showReceiveConfirm, receiveTarget, dismissReceive, doConfirmReceive,
     triggerReceiveConfirm, isPointed,
     showPointsToast, earnedPoints,
-    goTo, logout,
+    goTo, logout, getImageUrl, 
   }
 }

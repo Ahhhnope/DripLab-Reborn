@@ -8,6 +8,11 @@ import driplabLogo2 from '../IMG/DripLab_Logo.png'
 import { useCartStore } from '../../stores/cart.js'
 import { useAuthStore } from '../Authorization/Auth.js'
 
+function getImageUrl(url) {
+  if (!url) return ''
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+const productImageUrl = computed(() => getImageUrl(product.value?.imageUrl))
 const route = useRoute()
 const router = useRouter()
 const cartStore = useCartStore()
@@ -177,7 +182,7 @@ function closeNotice() {
       <div class="grid grid-cols-1 gap-12 md:grid-cols-12">
         <div class="md:col-span-5">
           <div class="sticky top-10 group overflow-hidden rounded-3xl shadow-2xl cursor-zoom-in" @click="showPreview = true">
-            <img :src="product.imageUrl" class="aspect-4/5 w-full object-cover transition duration-500 group-hover:scale-105" />
+            <img :src="productImageUrl" class="aspect-4/5 w-full object-cover transition duration-500 group-hover:scale-105" />
             <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
             <div class="absolute bottom-0 p-8 text-white">
               <span class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter mb-2 inline-block">Món mới</span>

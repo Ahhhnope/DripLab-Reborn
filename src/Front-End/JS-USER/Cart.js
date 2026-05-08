@@ -3,6 +3,11 @@ import { useAuthStore } from '../Authorization/Auth.js'
 import api from '../../api/axios'
 import MomoPopup from '../QRMoMo/Momo.vue'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
 export default {
   name: 'CartApp',
   components: { MomoPopup },
@@ -51,7 +56,7 @@ export default {
         id: item.id,
         productId: item.drinkId,
         name: item.drink?.name || 'Drink',
-        image: item.drink?.imageUrl || '/placeholder.png',
+        image: getImageUrl(item.drink?.imageUrl) || '/placeholder.png',
         drinkBasePrice: item.drink?.basePrice || 0,
         sizePrice: item.size?.price || 0,
         sizeName: item.size?.name || '',
