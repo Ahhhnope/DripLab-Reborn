@@ -353,7 +353,7 @@ function getDineModeLabel(mode) {
           <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản
             phẩm</p>
           <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
-            <button class="right-pc-remove" @click="removeItem(index)">✕</button>
+            <button class="right-pc-remove" @click="removeItem(index, item.cartItemId)">✕</button>
             <div class="right-pc-header">
               <span class="right-pc-name">{{ item.name }} x{{ item.qty }}</span>
               <span class="right-pc-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</span>

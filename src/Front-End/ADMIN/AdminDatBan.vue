@@ -278,7 +278,7 @@ function getCustomerDisplay(order) {
           <div class="adb-modal-right">
             <p class="adb-right-title">Thanh Toán</p>
 
-            <template v-if="isTableOccupiedInModal() && selectedOrder?.items?.length">
+            <template v-if="isTableOccupiedInModal()">
               <div class="adb-price-row">
                 <span>Tạm tính</span>
                 <span>{{ totalPrice.toLocaleString() }} đ</span>

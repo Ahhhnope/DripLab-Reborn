@@ -302,6 +302,7 @@ export function useCounterOrder() {
                 currentOrder.value.anonCode = genAnonCode()
             currentOrder.value.step = 'order'
         }
+        fetchCartItems()
         appStep.value = 'order'
     }
 
@@ -409,7 +410,14 @@ export function useCounterOrder() {
     const totalPrice = computed(() =>
         orderedItems.value.reduce((sum, item) => sum + item.unitPrice * item.qty, 0)
     )
-    function removeItem(index) {
+    
+    function removeItem(index, cartItemId) {
+        try {
+            api.delete(`/carts/remove/${cartItemId}`)
+        } catch (error) {
+            console.error("error removing cart item: "+error)
+        }
+
         orderedItems.value.splice(index, 1)
         if (currentOrder.value) currentOrder.value.items = orderedItems.value
     }
