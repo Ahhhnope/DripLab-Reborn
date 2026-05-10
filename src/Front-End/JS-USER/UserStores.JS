@@ -1,5 +1,7 @@
 import { useAuthStore } from "../Authorization/Auth";
 
+const DEFAULT_STORE_ID = 3; // Drip Lab-Indochina Plaza — 241 Xuân Thủy
+
 export default {
   name: "UserStores",
 
@@ -26,9 +28,18 @@ export default {
       const authStore = useAuthStore();
       const isLoggedIn = !!authStore.user || !!authStore.token;
 
-      if (!isLoggedIn) return null;
+      if (isLoggedIn) {
+        // Logged-in: use the store the customer selected
+        return (
+          this.$route.query.id ||
+          localStorage.getItem("selectedStoreId") ||
+          sessionStorage.getItem("selectedStoreId") ||
+          DEFAULT_STORE_ID
+        );
+      }
 
-      return this.$route.query.id || localStorage.getItem("selectedStoreId") || null;
+      // Not logged-in: always show the default store, no error
+      return DEFAULT_STORE_ID;
     },
 
     amenities() {
@@ -47,11 +58,6 @@ export default {
   },
 
   async mounted() {
-    if (!this.storeId) {
-      this.error = "Không tìm thấy thông tin cửa hàng.";
-      this.loading = false;
-      return;
-    }
     await this.fetchStore();
     await this.fetchReviews();
   },
@@ -121,7 +127,7 @@ export default {
       };
 
       try {
-        const res = await fetch(`/api/stores/${this.storeId}/reviews`, {
+        await fetch(`/api/stores/${this.storeId}/reviews`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -129,11 +135,11 @@ export default {
             review_text: this.newReview.text.trim(),
           }),
         });
-        this.reviews.unshift(optimisticReview);
       } catch {
-        this.reviews.unshift(optimisticReview);
+        // optimistic update still applies
       }
 
+      this.reviews.unshift(optimisticReview);
       this.showForm = false;
       this.newReview = { stars: 0, text: "" };
     },
