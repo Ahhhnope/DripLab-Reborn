@@ -124,7 +124,7 @@ const cartSubtotal = computed(() =>
               </div>
 
               <div class="ud-profile">
-                <div class="ud-avatar">
+                <div class="ud-avatar" v-if="auth.user != null">
                   <img :src="auth.user?.avatar" alt="Avatar" style="background-color: white;" />
                 </div>
                 <p class="ud-name">{{ auth.user ? auth.user.fullName : 'Chưa đăng nhập' }}</p>

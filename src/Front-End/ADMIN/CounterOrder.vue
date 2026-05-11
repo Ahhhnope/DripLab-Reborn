@@ -348,12 +348,12 @@ function getDineModeLabel(mode) {
           </div>
         </div>
 
+        <!-- product card of order detail side bar -->
         <div class="right-products-block">
           <p class="right-products-title">Sản Phẩm Mua</p>
-          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản
-            phẩm</p>
+          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản phẩm</p>
           <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
-            <button class="right-pc-remove" @click="removeItem(index)">✕</button>
+            <button class="right-pc-remove" @click="removeItem(index, item.cartItemId)">✕</button>
             <div class="right-pc-header">
               <span class="right-pc-name">{{ item.name }} x{{ item.qty }}</span>
               <span class="right-pc-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</span>
@@ -363,8 +363,8 @@ function getDineModeLabel(mode) {
               <span class="right-pc-tag">Đá: {{ item.ice }}</span>
               <span class="right-pc-tag">Đường: {{ item.sugar }}</span>
             </div>
-            <div v-if="item.toppingDetails && item.toppingDetails.length" class="right-pc-tags">
-              <span v-for="t in item.toppingDetails" :key="t.name" class="right-pc-tag topping">{{ t.name }}</span>
+            <div v-if="item.toppings && item.toppings.length" class="right-pc-tags">
+              <span v-for="t in item.toppings" :key="t.name" class="right-pc-tag topping">{{ t.topping?.name }}</span>
             </div>
           </div>
         </div>
@@ -561,8 +561,8 @@ function getDineModeLabel(mode) {
 
         <!-- Phương thức thanh toán -->
         <div class="payment-methods">
-          <div class="payment-method-item" :class="{ active: paymentMethod === 'cash' }"
-            @click="paymentMethod = 'cash'">
+          <div class="payment-method-item" :class="{ active: paymentMethod === 'Tiền mặt' }"
+            @click="paymentMethod = 'Tiền mặt'">
             💵 Tiền mặt
           </div>
           <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
@@ -572,7 +572,7 @@ function getDineModeLabel(mode) {
         </div>
 
         <!-- Tiền mặt -->
-        <template v-if="paymentMethod === 'cash'">
+        <template v-if="paymentMethod === 'Tiền mặt'">
           <div class="payment-summary">
             <div class="summary-row">
               <span>Tổng tiền</span>
@@ -645,7 +645,7 @@ function getDineModeLabel(mode) {
         </div>
         <div class="review-row">
           <span class="review-lbl">Thanh Toán</span>
-          <span class="review-val">{{ paymentMethod === 'cash' ? '💵 Tiền mặt' : '🟣 Ví MoMo' }}</span>
+          <span class="review-val">{{ paymentMethod === 'Tiền mặt' ? '💵 Tiền mặt' : '🟣 Ví MoMo' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
@@ -678,12 +678,12 @@ function getDineModeLabel(mode) {
           <span class="review-lbl">Giảm giá</span>
           <span class="review-val" style="color:#c0392b">-{{ receiptData.discountPercent }}%</span>
         </div>
-        <div v-if="paymentMethod === 'cash'" class="review-row">
+        <div v-if="paymentMethod === 'Tiền mặt'" class="review-row">
           <span class="review-lbl">Khách đưa</span>
           <span class="review-val">{{ (parseInt((customerMoney || '').replace(/\./g, '')) || 0).toLocaleString() }}
             VND</span>
         </div>
-        <div v-if="paymentMethod === 'cash'" class="review-row">
+        <div v-if="paymentMethod === 'Tiền mặt'" class="review-row">
           <span class="review-lbl">Tiền thừa</span>
           <span class="review-val" style="color:#4a7c59;font-weight:900">{{ receiptData.change.toLocaleString() }}
             VND</span>
@@ -705,7 +705,7 @@ function getDineModeLabel(mode) {
     <div v-if="showSuccessPopup" class="popup-overlay">
       <div class="success-popup">
 
-        <div class="success-header" :class="{ 'success-header--cash': paymentMethod === 'cash' }">
+        <div class="success-header" :class="{ 'success-header--cash': paymentMethod === 'Tiền mặt' }">
           <img :src="logoDrip" alt="DripLab" class="success-header-logo" />
           <p class="success-header-title">Kết Quả Giao Dịch</p>
         </div>
@@ -717,9 +717,9 @@ function getDineModeLabel(mode) {
 
         <div class="success-scroll-body">
           <div class="success-receipt">
-            <div class="success-receipt-header" :class="{ 'success-receipt-header--cash': paymentMethod === 'cash' }">
+            <div class="success-receipt-header" :class="{ 'success-receipt-header--cash': paymentMethod === 'Tiền mặt' }">
               <img v-if="paymentMethod === 'momo'" :src="logoMomo" class="receipt-logo" alt="MoMo" />
-              <span class="receipt-label">Biên lai {{ paymentMethod === 'cash' ? 'thanh toán' : 'chuyển tiền' }}</span>
+              <span class="receipt-label">Biên lai {{ paymentMethod === 'Tiền mặt' ? 'thanh toán' : 'chuyển tiền' }}</span>
             </div>
             <div class="success-row b">
               <span>Họ và tên</span>
@@ -744,7 +744,7 @@ function getDineModeLabel(mode) {
             <div class="receipt-divider"></div>
             <div class="success-row b">
               <span>Thanh toán</span>
-              <span>{{ paymentMethod === 'cash' ? 'Tiền mặt' : 'Ví MoMo'}}</span>
+              <span>{{ paymentMethod === 'Tiền mặt' ? 'Tiền mặt' : 'Ví MoMo'}}</span>
             </div>
             <div class="success-row b">
               <span>Mã giao dịch</span>
@@ -777,7 +777,7 @@ function getDineModeLabel(mode) {
               <span>Số tiền thanh toán</span>
               <span class="cash-need">{{receiptData.finalPrice.toLocaleString() }} VNĐ</span>
             </div>
-            <template v-if="paymentMethod === 'cash'">
+            <template v-if="paymentMethod === 'Tiền mặt'">
               <div class="success-row b">
                 <span>Số Tiền Khách đưa</span>
                 <span>{{ (parseInt((customerMoney ||'').replace(/\./g, '')) || 0).toLocaleString() }} VNĐ</span>
@@ -792,7 +792,7 @@ function getDineModeLabel(mode) {
 
         <div class="success-fixed-bottom">
           <button class="success-close-btn" 
-            :class="{ 'success-close-btn--cash': paymentMethod === 'cash' }"
+            :class="{ 'success-close-btn--cash': paymentMethod === 'Tiền mặt' }"
             @click="closeSuccessPopup">
             Hoàn thành
           </button>

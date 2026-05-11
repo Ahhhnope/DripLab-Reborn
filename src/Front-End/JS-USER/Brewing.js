@@ -1,5 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue'
 import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
+import api from '@/api/axios'
 
 /**
  * useBrewing — Composable Tùy Chỉnh Đồ Uống (6 bước)
@@ -15,46 +16,127 @@ import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
 export function useBrewing() {
 
   // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
+
+
+
   const beanOptions = [
+
+
     { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000, color: '#3d2010' },
+
+
     { id: 'robusta',  label: 'Robusta',  sub: 'Đậm, đắng mạnh',          priceDelta: 8000,  color: '#2a1508' },
+
+
     { id: 'liberica', label: 'Liberica', sub: 'Khói, vị gỗ độc đáo',     priceDelta: 12000, color: '#3b1e0e' },
+
+
     { id: 'blend',    label: 'Blend',    sub: 'Cân bằng hoàn hảo',       priceDelta: 9000,  color: '#2e1a0d' },
+
+
   ]
+
+
+
+
 
   // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
+
+
   const baseOptions = [
+
+
     { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000, color: '#0f0705' },
+
+
     { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000, color: '#24160f' },
+
+
     { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000, color: '#5c3220' },
+
+
   ]
+
+
+
+
 
   // ─── DỮ LIỆU: SỮA ─────────────────────────────────────────────────
+
+
   const milkOptions = [
+
+
     { id: 'none',   label: 'Không sữa',     sub: 'Giữ nguyên vị',          priceDelta: 0,    color: null        },
+
+
     { id: 'whole',  label: 'Sữa tươi',      sub: 'Béo ngậy, truyền thống', priceDelta: 8000, color: '#f3e9dc' },
+
+
     { id: 'oat',    label: 'Sữa yến mạch',  sub: 'Nhẹ, hơi ngọt',         priceDelta: 9000, color: '#ead9c5' },
+
+
     { id: 'almond', label: 'Sữa hạnh nhân', sub: 'Hương hạt nhẹ',          priceDelta: 9000, color: '#efe2d1' },
+
+
     { id: 'soy',    label: 'Sữa đậu nành',  sub: 'Thuần chay',             priceDelta: 9000, color: '#efe7dc' },
+
+
   ]
+
+
+
+
 
   // ─── DỮ LIỆU: TOPPING ─────────────────────────────────────────────
+
+
   const toppingOptions = [
+
+
     { id: 'whip',            label: 'Kem tươi',       sub: 'Đánh bông mịn',   priceDelta: 8000, color: '#fffcf0' },
+
+
     { id: 'cinnamon',        label: 'Bột quế',         sub: 'Thơm ấm áp',      priceDelta: 3000, color: '#c8834a' },
+
+
     { id: 'cocoa',           label: 'Bột cacao',       sub: 'Đắng nhẹ',        priceDelta: 4000, color: '#5c3317' },
+
+
     { id: 'caramel_drizzle', label: 'Sốt caramel',     sub: 'Ngọt, bóng',      priceDelta: 8000, color: '#b9793a' },
+
+
     { id: 'vanilla_powder',  label: 'Bột vanilla',     sub: 'Thơm Madagascar', priceDelta: 7000, color: '#d4a84b' },
+
+
   ]
+
+
+
+
 
   // ─── DỮ LIỆU: SIZE ────────────────────────────────────────────────
-  const sizeOptions = [
-    { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
-    { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
-    { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
-  ]
 
-  // ─── DỮ LIỆU: MỨC ĐÁ / MỨC ĐƯỜNG ────────────────────────────────
+
+  const sizeOptions = [
+
+
+    { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
+
+
+    { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
+
+
+    { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
+
+
+  ]
+  // const beanOptions = ref([])
+  // const baseOptions = ref([])
+  // const milkOptions = ref([])
+  // const toppingOptions = ref([])
+  // const sizeOptions = ref([])
+
   const iceOptions    = ['0%', '30%', '50%', '70%', '100%']
   const sugarOptions  = ['0%', '30%', '50%', '70%', '100%']
 

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sharedUser } from './Useruser.JS'
 import api from '../../api/axios'
@@ -27,6 +27,9 @@ export function useUserPoints() {
   // ══════════════════════════════════════════════════════════
   const myPoints   = ref(0)
   const usedPoints = ref(0)
+
+  const nextTier = computed(() => currentTierObj.value.next || 'MAX');
+  const nextTierPoints = computed(() => currentTierObj.value.nextMin || currentTierObj.value.minPoint);
 
   async function loadPoints() {
     if (!userId.value) return
@@ -229,9 +232,16 @@ export function useUserPoints() {
     ])
   }
 
+  const timer = null
+  onMounted(() => {
+    initPage()
+    loadTiers()
+    console.log(TIERS)
+  })
+
   return {
     user, navItems, currentRoute,
-    myPoints, usedPoints,
+    myPoints, usedPoints, nextTierPoints,
     currentTier, progress,
     vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
     pointHistory,
