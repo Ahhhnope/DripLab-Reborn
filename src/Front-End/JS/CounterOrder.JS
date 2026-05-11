@@ -206,7 +206,7 @@ export function useCounterOrder() {
     const occupiedTables = ref([])
 
     async function selectTable(num) {
-        if (occupiedTables.value.includes(num)) return
+        // if (occupiedTables.value.includes(num)) return
 
         const idx = selectedTables.value.indexOf(num)
         try {
@@ -302,6 +302,7 @@ export function useCounterOrder() {
                 currentOrder.value.anonCode = genAnonCode()
             currentOrder.value.step = 'order'
         }
+        fetchCartItems()
         appStep.value = 'order'
     }
 
@@ -330,13 +331,15 @@ export function useCounterOrder() {
                     size: item.size?.name || 'S',
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
-                    toppings: item.toppings?.map(t => t.topping.name).join(', ') || 'Không có'
+                    toppings: item.toppings
                 };
             });
 
             if (currentOrder.value) {
                 currentOrder.value.items = [...orderedItems.value];
             }
+
+            // console.log(orderedItems.value)
         } catch (error) {
             console.error("fetch cart items: "+error)
         }
@@ -409,7 +412,14 @@ export function useCounterOrder() {
     const totalPrice = computed(() =>
         orderedItems.value.reduce((sum, item) => sum + item.unitPrice * item.qty, 0)
     )
-    function removeItem(index) {
+    
+    function removeItem(index, cartItemId) {
+        try {
+            api.delete(`/carts/remove/${cartItemId}`)
+        } catch (error) {
+            console.error("error removing cart item: "+error)
+        }
+
         orderedItems.value.splice(index, 1)
         if (currentOrder.value) currentOrder.value.items = orderedItems.value
     }
@@ -464,7 +474,7 @@ export function useCounterOrder() {
     const showPaymentPopup = ref(false)
     const showSuccessPopup = ref(false)
     const showReviewPopup = ref(false)
-    const paymentMethod = ref('cash')
+    const paymentMethod = ref('Tiền mặt')
     const customerMoney = ref('')
     const cashMaxWarning = ref('')
     const txId = ref('')
@@ -505,7 +515,7 @@ export function useCounterOrder() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
         customerMoney.value = ''
         cashMaxWarning.value = ''
-        paymentMethod.value = 'cash'
+        paymentMethod.value = 'Tiền mặt'
         const o = currentOrder.value
         payNameInput.value = o?.customerName || customerName.value || ''
         payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
@@ -567,6 +577,10 @@ export function useCounterOrder() {
             params.append('userId', staffId);
             params.append('note', orderNote.value || '');
             params.append('paymentMethod', paymentMethod.value)
+            params.append('receiverName', payNameInput.value ? payNameInput.value : currentOrder.value.anonCode);
+            params.append('receiverPhone', payPhoneInput.value);
+            console.log(payNameInput.value ? payNameInput.value : currentOrder.value.anonCode)
+            console.log(payPhoneInput?.value)
             
             displayTableNums.value.forEach(tableId => {
                 params.append('tables', tableId)
@@ -578,7 +592,7 @@ export function useCounterOrder() {
             txId.value = res.data.orderNumber
             txTime.value = new Date().toLocaleString('vi-VN')
 
-            if (paymentMethod.value === 'cash') receiptData.value.change = changeAmount.value
+            if (paymentMethod.value === 'Tiền mặt') receiptData.value.change = changeAmount.value
             showSuccessPopup.value = true
 
             // const orderPayload = {
@@ -721,7 +735,7 @@ export function useCounterOrder() {
                 size: selectedSize.value,
                 ice: selectedIce.value,
                 sugar: selectedSugar.value,
-                toppings: selectedToppings.value.map(t => t.name).join(', ') || 'Không có'
+                toppings: selectedToppings.value
             }
 
             orderedItems.value.push(displayItem)
@@ -729,6 +743,8 @@ export function useCounterOrder() {
             if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
 
             delete popupStateCache.value[selectedProduct.value.id]
+
+            fetchCartItems() // re-fetch cart items
             showPopup.value = false
         } catch (error) {
             console.error("Confirm order error: "+error);
@@ -780,16 +796,16 @@ export function useCounterOrder() {
     let timer = null
     onMounted(() => {
         refreshTableStatus()
-        fetchCartItems()
         fetchDrinks()
         fetchToppings()
         fetchSizes()
+        fetchCartItems()
         timer = setInterval(() => {
-            fetchCartItems()
             refreshTableStatus()
             fetchDrinks()
             fetchToppings()
             fetchSizes()
+            fetchCartItems()
         }, 5000)
     })
     onUnmounted(() => { if (timer) clearInterval(timer) })
@@ -850,40 +866,40 @@ export function useCounterOrder() {
     
  const brewingCart = useBrewingCart()
 
-    onMounted(() => {
-    fetchDrinks()
-    fetchToppings()
-    fetchSizes()
+//     onMounted(() => {
+//     fetchDrinks()
+//     fetchToppings()
+//     fetchSizes()
 
-    // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
-    if (brewingCart.hasPendingDrinks()) {
-      const pendingDrinks = brewingCart.consumePendingDrinks()
+//     // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
+//     if (brewingCart.hasPendingDrinks()) {
+//       const pendingDrinks = brewingCart.consumePendingDrinks()
 
-      // Đảm bảo có order đang active
-      if (orderList.value.length === 0) {
-        createNewOrder()
-      }
+//       // Đảm bảo có order đang active
+//       if (orderList.value.length === 0) {
+//         createNewOrder()
+//       }
 
-      // Nếu chưa ở bước order thì chuyển sang
-      if (appStep.value !== 'order') {
-        appStep.value = 'order'
-      }
+//       // Nếu chưa ở bước order thì chuyển sang
+//       if (appStep.value !== 'order') {
+//         appStep.value = 'order'
+//       }
 
-      // Thêm drink vào order hiện tại
-      pendingDrinks.forEach(drink => {
-        orderedItems.value.push(drink)
-      })
+//       // Thêm drink vào order hiện tại
+//       pendingDrinks.forEach(drink => {
+//         orderedItems.value.push(drink)
+//       })
 
-      if (currentOrder.value) {
-        currentOrder.value.items = [...orderedItems.value]
-        currentOrder.value.step = 'order'
-      }
-    }
+//       if (currentOrder.value) {
+//         currentOrder.value.items = [...orderedItems.value]
+//         currentOrder.value.step = 'order'
+//       }
+//     }
 
-    timer = setInterval(() => {
-      fetchDrinks()
-      fetchToppings()
-      fetchSizes()
-    }, 5000)
-  })
+//     timer = setInterval(() => {
+//       fetchDrinks()
+//       fetchToppings()
+//       fetchSizes()
+//     }, 5000)
+//   })
 }

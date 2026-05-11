@@ -25,6 +25,15 @@ export function useAdminDatBan() {
         }
     }
 
+    async function fetchTablesFromOrderId(currentOrderId) {
+        try {
+            const res = await api.get(`/tables/${currentOrderId}`);
+            tables.value = res.data;
+        } catch (error) {
+            console.error("fetch tables error: " + error);
+        }
+    }
+
     async function syncFromShared() {
         await fetchTables()
     }
@@ -41,7 +50,7 @@ export function useAdminDatBan() {
     function openDetail(tableNum) {
         selectedTable.value = tableNum
         const tableObj = tables.value.find(t => t.id === tableNum)
-        console.log(tableObj.currentOrder)
+        console.log("Detail: "+tableObj.currentOrder)
         
         selectedOrder.value = tableObj?.currentOrder ?? {
             id: null,
@@ -119,11 +128,18 @@ export function useAdminDatBan() {
     })
 
     function getModalTableLabel() {
-        const tbs = selectedOrder.value?.selectedTables
-        if (tbs && tbs.length > 1) {
-            return tbs.map(t => `Bàn ${String(t).padStart(2, '0')}`).join(' • ')
+        const currentOrderId = selectedOrder.value?.id;
+
+        if (!currentOrderId) {
+            return selectedTable.value ? getTableLabel(selectedTable.value) : '';
         }
-        return selectedTable.value ? getTableLabel(selectedTable.value) : ''
+        const relatedTables = tables.value.filter(t => t.currentOrder?.id === currentOrderId).map(t => t.id).sort((a, b) => a - b)
+
+        if (relatedTables.length > 1) {
+            return relatedTables.map(id => getTableLabel(id)).join(' + ');
+        }
+
+        return getTableLabel(selectedTable.value);
     }
 
     function isTableOccupiedInModal() {
