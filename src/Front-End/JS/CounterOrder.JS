@@ -206,7 +206,7 @@ export function useCounterOrder() {
     const occupiedTables = ref([])
 
     async function selectTable(num) {
-        if (occupiedTables.value.includes(num)) return
+        // if (occupiedTables.value.includes(num)) return
 
         const idx = selectedTables.value.indexOf(num)
         try {
@@ -331,13 +331,15 @@ export function useCounterOrder() {
                     size: item.size?.name || 'S',
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
-                    toppings: item.toppings?.map(t => t.topping.name).join(', ') || 'Không có'
+                    toppings: item.toppings
                 };
             });
 
             if (currentOrder.value) {
                 currentOrder.value.items = [...orderedItems.value];
             }
+
+            // console.log(orderedItems.value)
         } catch (error) {
             console.error("fetch cart items: "+error)
         }
@@ -729,7 +731,7 @@ export function useCounterOrder() {
                 size: selectedSize.value,
                 ice: selectedIce.value,
                 sugar: selectedSugar.value,
-                toppings: selectedToppings.value.map(t => t.name).join(', ') || 'Không có'
+                toppings: selectedToppings.value
             }
 
             orderedItems.value.push(displayItem)
@@ -737,6 +739,8 @@ export function useCounterOrder() {
             if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
 
             delete popupStateCache.value[selectedProduct.value.id]
+
+            fetchCartItems() // re-fetch cart items
             showPopup.value = false
         } catch (error) {
             console.error("Confirm order error: "+error);
@@ -788,16 +792,16 @@ export function useCounterOrder() {
     let timer = null
     onMounted(() => {
         refreshTableStatus()
-        fetchCartItems()
         fetchDrinks()
         fetchToppings()
         fetchSizes()
+        fetchCartItems()
         timer = setInterval(() => {
-            fetchCartItems()
             refreshTableStatus()
             fetchDrinks()
             fetchToppings()
             fetchSizes()
+            fetchCartItems()
         }, 5000)
     })
     onUnmounted(() => { if (timer) clearInterval(timer) })
@@ -858,40 +862,40 @@ export function useCounterOrder() {
     
  const brewingCart = useBrewingCart()
 
-    onMounted(() => {
-    fetchDrinks()
-    fetchToppings()
-    fetchSizes()
+//     onMounted(() => {
+//     fetchDrinks()
+//     fetchToppings()
+//     fetchSizes()
 
-    // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
-    if (brewingCart.hasPendingDrinks()) {
-      const pendingDrinks = brewingCart.consumePendingDrinks()
+//     // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
+//     if (brewingCart.hasPendingDrinks()) {
+//       const pendingDrinks = brewingCart.consumePendingDrinks()
 
-      // Đảm bảo có order đang active
-      if (orderList.value.length === 0) {
-        createNewOrder()
-      }
+//       // Đảm bảo có order đang active
+//       if (orderList.value.length === 0) {
+//         createNewOrder()
+//       }
 
-      // Nếu chưa ở bước order thì chuyển sang
-      if (appStep.value !== 'order') {
-        appStep.value = 'order'
-      }
+//       // Nếu chưa ở bước order thì chuyển sang
+//       if (appStep.value !== 'order') {
+//         appStep.value = 'order'
+//       }
 
-      // Thêm drink vào order hiện tại
-      pendingDrinks.forEach(drink => {
-        orderedItems.value.push(drink)
-      })
+//       // Thêm drink vào order hiện tại
+//       pendingDrinks.forEach(drink => {
+//         orderedItems.value.push(drink)
+//       })
 
-      if (currentOrder.value) {
-        currentOrder.value.items = [...orderedItems.value]
-        currentOrder.value.step = 'order'
-      }
-    }
+//       if (currentOrder.value) {
+//         currentOrder.value.items = [...orderedItems.value]
+//         currentOrder.value.step = 'order'
+//       }
+//     }
 
-    timer = setInterval(() => {
-      fetchDrinks()
-      fetchToppings()
-      fetchSizes()
-    }, 5000)
-  })
+//     timer = setInterval(() => {
+//       fetchDrinks()
+//       fetchToppings()
+//       fetchSizes()
+//     }, 5000)
+//   })
 }

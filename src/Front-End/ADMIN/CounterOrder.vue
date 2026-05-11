@@ -348,10 +348,10 @@ function getDineModeLabel(mode) {
           </div>
         </div>
 
+        <!-- product card of order detail side bar -->
         <div class="right-products-block">
           <p class="right-products-title">Sản Phẩm Mua</p>
-          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản
-            phẩm</p>
+          <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản phẩm</p>
           <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
             <button class="right-pc-remove" @click="removeItem(index, item.cartItemId)">✕</button>
             <div class="right-pc-header">
@@ -363,8 +363,8 @@ function getDineModeLabel(mode) {
               <span class="right-pc-tag">Đá: {{ item.ice }}</span>
               <span class="right-pc-tag">Đường: {{ item.sugar }}</span>
             </div>
-            <div v-if="item.toppingDetails && item.toppingDetails.length" class="right-pc-tags">
-              <span v-for="t in item.toppingDetails" :key="t.name" class="right-pc-tag topping">{{ t.name }}</span>
+            <div v-if="item.toppings && item.toppings.length" class="right-pc-tags">
+              <span v-for="t in item.toppings" :key="t.name" class="right-pc-tag topping">{{ t.topping?.name }}</span>
             </div>
           </div>
         </div>
@@ -447,7 +447,7 @@ function getDineModeLabel(mode) {
           <div v-if="selectedTables.length" class="selected-tables-row">
             <span v-for="t in selectedTables" :key="t" class="selected-table-badge">
               Bàn {{ String(t).padStart(2, '0') }}
-              <button class="badge-remove" @click="selectTable(t)">✕</button>
+              <button class="badge-remove" @click="selectTable(t)">✕ wtf</button>
             </span>
           </div>
           <div class="table-grid" style="margin-top:10px">
