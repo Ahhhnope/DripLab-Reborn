@@ -214,11 +214,11 @@ function getCustomerDisplay(order) {
               <p class="adb-section-title">Thông Tin Khách Hàng</p>
               <div class="adb-info-row">
                 <span class="adb-info-lbl">Họ và tên</span>
-                <span class="adb-info-val">{{ getCustomerDisplay(selectedOrder) }}</span>
+                <span class="adb-info-val">{{ selectedOrder?.receiverName || '-' }}</span>
               </div>
               <div class="adb-info-row">
                 <span class="adb-info-lbl">Số điện thoại</span>
-                <span class="adb-info-val">{{ selectedOrder?.customerPhone || '—' }}</span>
+                <span class="adb-info-val">{{ selectedOrder?.receiverPhone || '—' }}</span>
               </div>
               <div class="adb-info-row">
                 <span class="adb-info-lbl">Hình thức thanh toán</span>

@@ -577,6 +577,10 @@ export function useCounterOrder() {
             params.append('userId', staffId);
             params.append('note', orderNote.value || '');
             params.append('paymentMethod', paymentMethod.value)
+            params.append('receiverName', payNameInput.value ? payNameInput.value : currentOrder.value.anonCode);
+            params.append('receiverPhone', payPhoneInput.value);
+            console.log(payNameInput.value ? payNameInput.value : currentOrder.value.anonCode)
+            console.log(payPhoneInput?.value)
             
             displayTableNums.value.forEach(tableId => {
                 params.append('tables', tableId)
