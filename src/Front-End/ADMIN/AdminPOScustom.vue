@@ -104,6 +104,8 @@ function addToCart() {
   }
 
   brewingCart.addBrewedDrink(drinkItem)
+  console.log('Đã thêm vào brewingCart:', drinkItem)
+  console.log('Pending drinks hiện tại:', brewingCart.pendingDrinks)
   openCartPopup()
 }
 
