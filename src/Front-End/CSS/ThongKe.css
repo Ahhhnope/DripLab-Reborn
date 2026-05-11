@@ -1,159 +1,4 @@
-<template>
-  <div class="thong-ke-wrapper">
-
-    <!-- ── HEADER ─────────────────────────────────────────── -->
-    <div class="tk-header">
-      <div class="tk-header-left">
-        <span class="tk-icon">☕</span>
-        <div>
-          <h1 class="tk-title">Thống Kê</h1>
-          <p class="tk-subtitle">Báo cáo kinh doanh thời gian thực</p>
-        </div>
-      </div>
-      <div class="tk-header-right">
-        <span class="tk-live-dot"></span>
-        <span>Đang cập nhật</span>
-      </div>
-    </div>
-
-    <!-- ── SUMMARY CARDS ──────────────────────────────────── -->
-    <div class="tk-cards">
-      <div
-        v-for="card in summaryCards" :key="card.type"
-        class="tk-card" :class="'tk-card--' + card.type"
-      >
-        <div class="tk-card-header">
-          <span class="tk-card-period">{{ card.period }}</span>
-          <span class="tk-card-trend" :class="card.trendUp ? 'up' : 'down'">
-            {{ card.trendUp ? '↑' : '↓' }} {{ card.trend }}
-          </span>
-        </div>
-        <div class="tk-card-value">{{ card.value }}</div>
-        <div class="tk-card-meta">
-          <span>🛍 {{ card.products }} sản phẩm</span>
-          <span>📦 {{ card.orders }} đơn</span>
-        </div>
-        <div class="tk-card-status">
-          <span class="status-done">✓ {{ card.done }}</span>
-          <span class="status-cancel">✗ {{ card.cancel }}</span>
-          <span class="status-process">⟳ {{ card.process }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── FILTER BAR ─────────────────────────────────────── -->
-    <div class="tk-filter-bar">
-      <div class="tk-filter-left">
-        <span class="tk-filter-label">Bộ Lọc</span>
-        <div class="tk-filter-tabs">
-          <button
-            v-for="tab in filterTabs" :key="tab.key"
-            class="tk-tab" :class="{ active: activeTab === tab.key }"
-            @click="activeTab = tab.key"
-          >{{ tab.label }}</button>
-          <button class="tk-tab tk-tab--custom">Tuỳ chỉnh</button>
-        </div>
-      </div>
-      <div class="tk-filter-actions">
-        <button class="tk-btn-outline">✉ Gửi Báo Cáo</button>
-        <button class="tk-btn-solid">⬇ Xuất Excel</button>
-      </div>
-    </div>
-
-    <!-- ── STATS STRIP ────────────────────────────────────── -->
-    <div class="tk-stats-row">
-      <div v-for="stat in statsRow" :key="stat.label" class="tk-stat-item">
-        <div class="tk-stat-label">{{ stat.label }}</div>
-        <div class="tk-stat-value" :class="stat.color">{{ stat.value }}</div>
-      </div>
-    </div>
-
-    <!-- ── ROW 1: Doanh thu + Trạng thái đơn ─────────────── -->
-    <div class="tk-charts-row">
-      <div class="tk-chart-box">
-        <div class="tk-chart-title">
-          <span>📈 Biểu Đồ Doanh Thu</span>
-          <span class="tk-chart-hint">Tháng này</span>
-        </div>
-        <RevenueChart :data="revenueData" />
-      </div>
-
-      <div class="tk-chart-box">
-        <div class="tk-chart-title"><span>🍩 Phân Bổ Trạng Thái</span></div>
-        <DonutChart
-          :segments="orderStatusSegments"
-          :total="115"
-          center-label="Tổng đơn"
-        />
-      </div>
-    </div>
-
-    <!-- ── ROW 2: Hết hàng + Size ly ─────────────────────── -->
-    <div class="tk-charts-row">
-      <div class="tk-chart-box">
-        <div class="tk-chart-title tk-chart-title--warning">
-          <span>⚠ Cảnh Báo Sắp Hết Hàng</span>
-          <span class="tk-badge-warning">Kho ≤ 10 SP</span>
-        </div>
-        <LowStockTable :items="lowStockItems" />
-      </div>
-
-      <div class="tk-chart-box">
-        <div class="tk-chart-title"><span>☕ Tỉ Lệ Theo Size Ly</span></div>
-        <DonutChart
-          :segments="sizeSegments"
-          :total="755"
-          center-label="Tổng bán"
-        />
-      </div>
-    </div>
-
-    <!-- ── ROW 3: Top sản phẩm + Tăng trưởng ────────────── -->
-    <div class="tk-charts-row">
-      <div class="tk-chart-box">
-        <div class="tk-chart-title"><span>🏆 Top Sản Phẩm Bán Chạy</span></div>
-        <TopProductsTable :items="topProducts" />
-      </div>
-
-      <div class="tk-chart-box">
-        <div class="tk-chart-title"><span>📊 Tốc Độ Tăng Trưởng (%)</span></div>
-        <GrowthChart :data="growthData" />
-      </div>
-    </div>
-
-  </div>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-
-// ── Import data ───────────────────────────────────────────
-// ⚠ Đặt thongke.js cùng thư mục với AdminDashboard.vue (trong ADMIN/)
-import {
-  filterTabs,
-  summaryCards,
-  statsRow,
-  revenueData,
-  orderStatusSegments,
-  lowStockItems,
-  sizeSegments,
-  topProducts,
-  growthData
-} from '../JS/thongke.js'
-
-// ── Import child components ───────────────────────────────
-// ⚠ Tên file phải khớp chính xác chữ hoa/thường với tên thực trên ổ đĩa
-import RevenueChart     from './RevenueChart.vue'
-import DonutChart       from './Donutchart.vue'      // file: DonutChart.vue
-import LowStockTable    from './Lowstocktable.vue'   // file: LowStockTable.vue
-import TopProductsTable from './Topproductstable.vue'
-import GrowthChart      from './Growthchart.vue'     // file: GrowthChart.vue
-
-// ── Local state ───────────────────────────────────────────
-const activeTab = ref('today')
-</script>
-
-<style>
+/* thongke.css */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap');
 
 /* ── Variables ────────────────────────────────────────────── */
@@ -248,6 +93,7 @@ const activeTab = ref('today')
 .tk-card--month::before  { background: var(--orange); }
 .tk-card--year::before   { background: var(--green); }
 .tk-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
 .tk-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .tk-card-period { font-size: .72rem; font-weight: 600; color: #9c7b65; text-transform: uppercase; letter-spacing: .06em; }
 .tk-card-trend  { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
@@ -410,7 +256,7 @@ const activeTab = ref('today')
 .donut-legend-name  { color: #4a3728; font-weight: 500; }
 .donut-legend-pct   { color: #9c7b65; font-size: .7rem; }
 
-/* ── Tables ──────────────────────────────────────────────── */
+/* ── Low stock table ─────────────────────────────────────── */
 .low-stock-table,
 .top-products-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
 .low-stock-table th,
@@ -435,6 +281,7 @@ const activeTab = ref('today')
 .top-products-table tr:last-child td { border-bottom: none; }
 .low-stock-table tr:hover td,
 .top-products-table tr:hover td { background: var(--coffee-milk); }
+
 .size-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 20px;
@@ -446,6 +293,8 @@ const activeTab = ref('today')
 .stock-zero  { color: var(--red);    font-weight: 700; }
 .stock-low   { color: var(--orange); font-weight: 700; }
 .stock-ok    { color: var(--green);  font-weight: 600; }
+
+/* ── Top products ────────────────────────────────────────── */
 .rank-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 26px;
@@ -480,4 +329,3 @@ const activeTab = ref('today')
 @media (max-width: 480px) {
   .tk-cards { grid-template-columns: 1fr; }
 }
-</style>
