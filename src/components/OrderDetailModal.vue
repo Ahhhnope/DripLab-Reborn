@@ -317,7 +317,7 @@ const REASON_OPTIONS = {
     "Hết nguyên liệu, không thể thực hiện",
     "Khách hàng không phản hồi khi xác nhận",
     "Đơn hàng nằm ngoài khu vực giao",
-    "Nhà hàng tạm ngừng hoạt động",
+    "Cửa hàng tạm ngừng hoạt động",
   ],
   delivery_failed: [
     "Khách hàng không có mặt tại địa chỉ",
