@@ -474,7 +474,7 @@ export function useCounterOrder() {
     const showPaymentPopup = ref(false)
     const showSuccessPopup = ref(false)
     const showReviewPopup = ref(false)
-    const paymentMethod = ref('cash')
+    const paymentMethod = ref('Tiền mặt')
     const customerMoney = ref('')
     const cashMaxWarning = ref('')
     const txId = ref('')
@@ -515,7 +515,7 @@ export function useCounterOrder() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
         customerMoney.value = ''
         cashMaxWarning.value = ''
-        paymentMethod.value = 'cash'
+        paymentMethod.value = 'Tiền mặt'
         const o = currentOrder.value
         payNameInput.value = o?.customerName || customerName.value || ''
         payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
@@ -588,7 +588,7 @@ export function useCounterOrder() {
             txId.value = res.data.orderNumber
             txTime.value = new Date().toLocaleString('vi-VN')
 
-            if (paymentMethod.value === 'cash') receiptData.value.change = changeAmount.value
+            if (paymentMethod.value === 'Tiền mặt') receiptData.value.change = changeAmount.value
             showSuccessPopup.value = true
 
             // const orderPayload = {
