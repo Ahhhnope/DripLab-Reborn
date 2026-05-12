@@ -1,10 +1,10 @@
 // ============================================================
-//  MenuView.js – DripLab Menu Logic
+//  MenuView.js – DripLab Menu Logic (+ Search & Pagination)
 // ============================================================
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../api/axios'
-import { useCartStore } from '../../stores/cart' // Assuming standard path
+import { useCartStore } from '../../stores/cart'
 import { useAuthStore } from '../Authorization/Auth'
 
 function getImageUrl(url) {
@@ -39,20 +39,29 @@ export function useMenuView() {
     { id: 'newest', label: 'Hàng mới' },
   ]
 
-  // 3. Fetch Data from CafeDB
+  // 3. Search State
+  const searchQuery = ref('')
+  const searchResults = ref([])
+  const isSearchOpen = ref(false)
+  const SEARCH_PREVIEW_LIMIT = 5
+
+  // 4. Pagination State
+  const currentPage = ref(1)
+  const PAGE_SIZE = 9 // 3×3 grid
+
+  // 5. Fetch Data from CafeDB
   onMounted(async () => {
     try {
       const res = await api.get('/drinks/active')
       products.value = res.data.map(p => ({
         id: p.id,
-        // Logic to categorize based on string matching from your DB
         categoryId: p.category?.toLowerCase().includes('trà') ? 'tea' : 'coffee',
         brand: 'DRIP LAB',
         name: p.name,
         price: p.basePrice,
         isHot: p.isHot || false,
         isNew: p.isNew || false,
-        imageUrl: getImageUrl(p.imageUrl) 
+        imageUrl: getImageUrl(p.imageUrl)
       }))
     } catch (error) {
       console.error("Failed to fetch menu:", error)
@@ -61,7 +70,7 @@ export function useMenuView() {
     }
   })
 
-  // 4. Filtering & Sorting Logic
+  // 6. Filtering & Sorting Logic
   const filteredProducts = computed(() => {
     if (activeCategoryId.value === 'all') return products.value
     return products.value.filter((p) => p.categoryId === activeCategoryId.value)
@@ -79,40 +88,120 @@ export function useMenuView() {
     }
   })
 
-  // 5. Action Handlers
-  function setCategory(id) { activeCategoryId.value = id }
-  function setSort(id) { activeSort.value = id }
-  
+  // 7. Search Logic
+  watch(searchQuery, (q) => {
+    const trimmed = q.trim().toLowerCase()
+    if (!trimmed) {
+      searchResults.value = []
+      isSearchOpen.value = false
+      return
+    }
+    searchResults.value = products.value.filter(p =>
+      p.name.toLowerCase().includes(trimmed)
+    )
+    isSearchOpen.value = true
+  })
+
+  const previewResults = computed(() =>
+    searchResults.value.slice(0, SEARCH_PREVIEW_LIMIT)
+  )
+
+  const hasMoreResults = computed(() =>
+    searchResults.value.length > SEARCH_PREVIEW_LIMIT
+  )
+
+  const extraResultCount = computed(() =>
+    searchResults.value.length - SEARCH_PREVIEW_LIMIT
+  )
+
+  function closeSearch() {
+    isSearchOpen.value = false
+  }
+
+  function clearSearch() {
+    searchQuery.value = ''
+    searchResults.value = []
+    isSearchOpen.value = false
+  }
+
+  // 8. Pagination Logic
+  const totalPages = computed(() =>
+    Math.max(1, Math.ceil(sortedProducts.value.length / PAGE_SIZE))
+  )
+
+  const paginatedProducts = computed(() => {
+    const start = (currentPage.value - 1) * PAGE_SIZE
+    return sortedProducts.value.slice(start, start + PAGE_SIZE)
+  })
+
+  // Reset page when category/sort/search changes
+  watch([activeCategoryId, activeSort], () => {
+    currentPage.value = 1
+  })
+
+  function goToPage(n) {
+    if (n < 1 || n > totalPages.value) return
+    currentPage.value = n
+  }
+
+  // Visible page numbers (max 5 around current)
+  const visiblePages = computed(() => {
+    const total = totalPages.value
+    const cur = currentPage.value
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+
+    const pages = new Set([1, total])
+    for (let i = Math.max(2, cur - 2); i <= Math.min(total - 1, cur + 2); i++) {
+      pages.add(i)
+    }
+    const sorted = [...pages].sort((a, b) => a - b)
+    // Insert ellipsis markers as null
+    const result = []
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push(null)
+      result.push(sorted[i])
+    }
+    return result
+  })
+
+  // 9. Action Handlers
+  function setCategory(id) {
+    activeCategoryId.value = id
+    currentPage.value = 1
+  }
+
+  function setSort(id) {
+    activeSort.value = id
+    currentPage.value = 1
+  }
+
   function formatVnd(v) {
     return v ? v.toLocaleString('vi-VN') + 'đ' : '0đ'
   }
 
-  // Navigates to detail page (for customization)
   function goToProduct(p) {
     router.push({ name: 'user-product', params: { id: p.id } })
   }
 
-  // POS-Style Quick Add
   async function quickAddToCart(p) {
     if (!authStore.user) {
-      alert("Vui lòng đăng nhập để đặt món!");
-      return;
+      alert("Vui lòng đăng nhập để đặt món!")
+      return
     }
-
     try {
       cartStore.addToCart({
         userId: authStore.user.id,
         drinkId: p.id,
-        sizeId: 1, // Defaulting to Size S per your DB script
-        toppings: [], // Empty for quick add
+        sizeId: 1,
+        toppings: [],
         quantity: 1,
         sugar: '100%',
         ice: '100%'
       })
-      alert(`Đã thêm ${p.name} vào giỏ hàng!`);
+      alert(`Đã thêm ${p.name} vào giỏ hàng!`)
     } catch (error) {
       console.error("Quick add failed:", error)
-      alert("Không thể thêm vào giỏ hàng.");
+      alert("Không thể thêm vào giỏ hàng.")
     }
   }
 
@@ -121,7 +210,7 @@ export function useMenuView() {
     return c?.label || 'Menu'
   })
 
-  // 6. Return Exports
+  // 10. Return Exports
   return {
     categories,
     activeCategoryId,
@@ -130,11 +219,24 @@ export function useMenuView() {
     sortOptions,
     activeSort,
     setSort,
-    sortedProducts,
+    // Paginated products (replaces sortedProducts for the grid)
+    sortedProducts: paginatedProducts,
+    // Pagination
+    currentPage,
+    totalPages,
+    visiblePages,
+    goToPage,
+    // Search
+    searchQuery,
+    previewResults,
+    hasMoreResults,
+    extraResultCount,
+    isSearchOpen,
+    closeSearch,
+    clearSearch,
     formatVnd,
-    // Change this line:
-    addProduct: goToProduct, 
-    openFromImage: goToProduct, 
+    addProduct: goToProduct,
+    openFromImage: goToProduct,
     loading
   }
 }

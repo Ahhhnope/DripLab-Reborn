@@ -10,30 +10,37 @@ const {
   activeCategoryId,
   pageTitle,
   setCategory,
-
   sortOptions,
   activeSort,
   setSort,
-
   sortedProducts,
+  // Pagination
+  currentPage,
+  totalPages,
+  visiblePages,
+  goToPage,
+  // Search
+  searchQuery,
+  previewResults,
+  hasMoreResults,
+  extraResultCount,
+  isSearchOpen,
+  closeSearch,
+  clearSearch,
   formatVnd,
   addProduct,
   openFromImage,
+  loading,
 } = useMenuView()
 
 function activeCategoryLabel() {
   return categories.find((c) => c.id === activeCategoryId.value)?.label || 'Danh mục'
 }
 
-// ✅ scroll chuẩn lên đầu khu vực menu
 async function scrollToTopOfGrid() {
   await nextTick()
   const top = gridTopEl.value?.offsetTop || 0
-
-  window.scrollTo({
-    top: top - 20,
-    behavior: 'smooth',
-  })
+  window.scrollTo({ top: top - 20, behavior: 'smooth' })
 }
 
 async function onPickCategory(id) {
@@ -47,10 +54,18 @@ async function onChangeSort(id) {
   await scrollToTopOfGrid()
 }
 
-// click outside để đóng dropdown
+async function onChangePage(n) {
+  goToPage(n)
+  await scrollToTopOfGrid()
+}
+
+// Close dropdowns on outside click
 function onDocClick(e) {
-  const el = e.target.closest?.('[data-cat-dropdown]')
-  if (!el) isCatOpen.value = false
+  const catEl = e.target.closest?.('[data-cat-dropdown]')
+  if (!catEl) isCatOpen.value = false
+
+  const searchEl = e.target.closest?.('[data-search-box]')
+  if (!searchEl) closeSearch()
 }
 
 document.addEventListener('click', onDocClick)
@@ -60,37 +75,147 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 <template>
   <div class="pb-10 overflow-x-hidden">
     <div class="mt-6 mx-auto max-w-6xl px-4 md:px-8">
+
       <!-- Breadcrumb -->
       <div class="text-sm text-slate-400">
         Trang chủ / <span class="text-slate-700">{{ pageTitle }}</span>
       </div>
 
-      <!-- Title -->
-      <h2 class="mt-4 text-4xl md:text-5xl font-light tracking-tight text-slate-900">
-        {{ pageTitle }}
-      </h2>
+      <!-- Title Row: h2 + Search bar side by side -->
+      <div class="mt-4 flex flex-wrap items-center gap-4">
+        <h2 class="text-3xl md:text-4xl font-light tracking-tight text-slate-900 shrink-0">
+          {{ pageTitle }}
+        </h2>
+
+        <!-- ── Search Box ── -->
+        <div class="relative flex-1 min-w-55 max-w-sm" data-search-box>
+          <div class="relative flex items-center">
+            <!-- Search icon -->
+            <span class="absolute left-3 text-slate-400 pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+              </svg>
+            </span>
+
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Xin chào , bạn cần gì hôm nay?"
+              class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800
+                     placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300
+                     transition search-input"
+              @focus="searchQuery.length && (isSearchOpen = true)"
+            />
+
+            <!-- Clear button -->
+            <button
+              v-if="searchQuery"
+              class="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
+              @click.stop="clearSearch"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- ── Search Dropdown Panel ── -->
+          <div
+            v-if="isSearchOpen && previewResults.length"
+            class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 overflow-hidden"
+          >
+            <!-- Header -->
+            <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Kết quả cho
+                <span class="text-red-600 font-bold">"{{ searchQuery }}"</span>
+              </span>
+              <div class="flex gap-1">
+                <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                  </svg>
+                </button>
+                <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h4v4H4zM10 5h4v4h-4zM16 5h4v4h-4zM4 11h4v4H4zM10 11h4v4h-4zM16 11h4v4h-4z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Label -->
+            <div class="px-4 pt-2 pb-1">
+              <span class="text-xs text-slate-400 font-medium">Hiển thị kết quả theo:</span>
+              <span class="ml-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">Sản phẩm</span>
+            </div>
+
+            <!-- Results -->
+            <ul>
+              <li
+                v-for="p in previewResults"
+                :key="p.id"
+                class="search-result-item flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                @click="openFromImage(p); clearSearch()"
+              >
+                <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
+                  <img
+                    :src="p.imageUrl || '/placeholder.png'"
+                    :alt="p.name"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-slate-800 truncate">{{ p.name }}</p>
+                </div>
+                <div class="text-sm font-black text-red-600 shrink-0">
+                  {{ formatVnd(p.price) }}
+                </div>
+              </li>
+            </ul>
+
+            <!-- Footer: more results -->
+            <div
+              v-if="hasMoreResults"
+              class="px-4 py-2.5 border-t border-slate-100 text-center text-xs text-slate-500 bg-slate-50/60"
+            >
+              Xem thêm
+              <span class="font-bold text-red-600">{{ extraResultCount }}</span>
+              sản phẩm có chứa
+              <span class="font-bold text-red-600">{{ searchQuery }}</span>
+            </div>
+          </div>
+
+          <!-- No results -->
+          <div
+            v-else-if="isSearchOpen && searchQuery && !previewResults.length"
+            class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 px-4 py-6 text-center"
+          >
+            <p class="text-sm text-slate-400">Không tìm thấy sản phẩm nào 😢</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Row: Danh mục + Sắp xếp -->
       <div class="mt-6 flex flex-wrap items-center gap-6 text-slate-600">
         <!-- Danh mục -->
         <div class="flex items-center gap-3" data-cat-dropdown>
           <div class="text-base md:text-lg font-medium">Danh mục:</div>
-
           <div class="relative">
             <button
-              class="inline-flex items-center justify-between gap-3 min-w-47.5
+              class="inline-flex items-center justify-between gap-3 min-w-44
                      rounded-xl border border-slate-200 bg-white px-3 py-2
                      text-sm font-semibold text-slate-900 shadow-sm
                      hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300"
               @click.stop="isCatOpen = !isCatOpen"
             >
               <span>{{ activeCategoryLabel() }}</span>
-              <span class="text-slate-400" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
+              <span class="text-slate-400 transition-transform duration-200" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
             </button>
 
             <div
               v-if="isCatOpen"
-              class="absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
+              class="dropdown-panel absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
             >
               <button
                 v-for="c in categories"
@@ -122,12 +247,13 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         </div>
       </div>
 
-      <!-- ✅ mốc scroll mới -->
+      <!-- Scroll anchor -->
       <div ref="gridTopEl" class="mt-6 border-t border-slate-200"></div>
 
+      <!-- Product Grid -->
       <div class="grid grid-cols-1 gap-8 pt-8 md:grid-cols-2 lg:grid-cols-3">
         <div v-if="loading" class="col-span-full text-center py-20 text-slate-400 font-medium">
-           Đang pha cà phê... ☕
+          Đang pha cà phê... ☕
         </div>
 
         <article
@@ -143,7 +269,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           >
             <div class="aspect-4/3 bg-white">
               <img
-                :src="p.imageUrl ? `${p.imageUrl}` : '/placeholder.png'"
+                :src="p.imageUrl || '/placeholder.png'"
                 alt=""
                 class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                 loading="lazy"
@@ -162,18 +288,15 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             <div class="text-xs font-bold tracking-[0.2em] text-slate-400 uppercase">
               {{ p.brand }}
             </div>
-
             <div
               class="mt-2 text-xl font-bold text-slate-800 line-clamp-2 hover:text-emerald-700 transition-colors cursor-pointer"
               @click="addProduct(p)"
             >
               {{ p.name }}
             </div>
-
             <div class="mt-3 text-2xl font-black text-[#E53935]">
               {{ formatVnd(p.price) }}
             </div>
-
             <button
               class="absolute bottom-4 right-4 grid h-10 w-10 place-items-center rounded-full bg-red-700 text-white shadow-lg shadow-black/20 transition hover:bg-red-800 hover:scale-105 active:scale-95"
               @click="addProduct(p)"
@@ -183,6 +306,92 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           </div>
         </article>
       </div>
+
+      <!-- ── Pagination ── -->
+      <div v-if="totalPages > 1" class="mt-12 flex items-center justify-center gap-1.5">
+        <!-- Prev -->
+        <button
+          class="pagination-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-slate-200 bg-white
+                 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          :disabled="currentPage === 1"
+          @click="onChangePage(currentPage - 1)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Trước
+        </button>
+
+        <!-- Page numbers -->
+        <template v-for="(pg, i) in visiblePages" :key="i">
+          <!-- Ellipsis -->
+          <span v-if="pg === null" class="px-1.5 text-slate-400 select-none">…</span>
+
+          <!-- Page button -->
+          <button
+            v-else
+            class="pagination-btn h-9 w-9 rounded-xl text-sm font-semibold border transition"
+            :class="pg === currentPage
+              ? 'bg-red-700 border-red-700 text-white shadow-md shadow-red-700/20'
+              : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
+            @click="onChangePage(pg)"
+          >
+            {{ pg }}
+          </button>
+        </template>
+
+        <!-- Next -->
+        <button
+          class="pagination-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-slate-200 bg-white
+                 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          :disabled="currentPage === totalPages"
+          @click="onChangePage(currentPage + 1)"
+        >
+          Sau
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+
     </div>
   </div>
 </template>
+
+<style scoped>
+/* ── Search dropdown animation ── */
+.search-dropdown {
+  transform-origin: top left;
+  animation: dropdownIn 160ms ease-out;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* ── Category dropdown animation ── */
+.dropdown-panel {
+  transform-origin: top left;
+  animation: dropdownIn 160ms ease-out;
+}
+
+/* ── Search result hover ── */
+.search-result-item {
+  transition: background 120ms ease;
+}
+
+/* ── Pagination button press ── */
+.pagination-btn {
+  transition: transform 80ms ease, background 120ms ease;
+}
+.pagination-btn:not(:disabled):active {
+  transform: scale(0.93);
+}
+
+/* ── Search input focus ring ── */
+.search-input:focus {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+</style>
