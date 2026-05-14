@@ -8,6 +8,7 @@ function getImageUrl(url) {
     if (!url) return ''
     return url.startsWith('http') ? url : `http://localhost:8080${url}`
 }
+
 export function useUserOrders() {
   const auth   = useAuthStore()
   const router = useRouter()
@@ -54,6 +55,8 @@ export function useUserOrders() {
                          ? new Date(order.orderDate).toLocaleDateString('vi-VN')
                          : '-',
       shippingAddress: order.shippingAddress ?? '',
+      // ✅ Lấy lý do giao thất bại từ note (admin lưu vào note)
+      failReason:      order.note ?? null,
       receiptData: {
         id:    `#DL-${order.orderNumber ?? order.id}`,
         date:  order.orderDate
@@ -61,32 +64,26 @@ export function useUserOrders() {
                  : '-',
         total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
         items: (order.items ?? []).map(item => {
-          // Size
           const sizeName  = item.size?.name  ?? null
           const sizePrice = item.size?.price ?? 0
 
-          // Toppings với từng giá riêng
           const toppingList = (item.orderItemToppings ?? []).map(t => ({
             name:  t.topping?.name ?? '',
             price: t.basePriceAtPurchase ?? t.topping?.price ?? 0,
           }))
 
           const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-
           const itemUnitPrice = (item.basePriceAtPurchase ?? 0) + sizePrice + toppingTotal
 
           return {
             name:        item.drink?.name ?? 'Sản phẩm',
             qty:         item.quantity ?? 1,
             price:       `${(itemUnitPrice * (item.quantity ?? 1)).toLocaleString('vi-VN')} VNĐ`,
-            // Size
             sizeName,
             sizePrice,
-            // Toppings
             toppingList,
-            // Compat cũ
             toppings:    toppingList.map(t => t.name).join(', '),
-            img: getImageUrl(item.drink?.imageUrl ?? null),
+            img:         getImageUrl(item.drink?.imageUrl ?? null),
             sugar:       item.sugarLevel ?? 100,
             ice:         item.iceLevel   ?? 100,
           }
@@ -98,13 +95,15 @@ export function useUserOrders() {
   // ── Fetch ────────────────────────────────────────────────
   const allOrders = ref([])
 
-  // IDs đơn delivered đã nhắc xác nhận (không nhắc lại)
   const dismissedReceiveIds = ref(
     new Set(JSON.parse(localStorage.getItem('dismissedReceive') ?? '[]'))
   )
-  // IDs đơn đã tích điểm rồi
   const pointedOrderIds = ref(
     new Set(JSON.parse(localStorage.getItem('pointedOrders') ?? '[]'))
+  )
+  // ✅ IDs đơn failed đã đọc thông báo (không nhắc lại)
+  const seenFailedIds = ref(
+    new Set(JSON.parse(localStorage.getItem('seenFailedOrders') ?? '[]'))
   )
 
   async function fetchAllOrders() {
@@ -131,17 +130,47 @@ export function useUserOrders() {
         .map(mapOrder)
         .sort((a, b) => b.id - a.id)
 
-      // Kiểm tra đơn nào vừa chuyển sang "delivered" → nhắc xác nhận
+      // Kiểm tra đơn delivered → nhắc xác nhận
       checkDeliveredOrders()
+      // ✅ Kiểm tra đơn failed → hiện popup thông báo
+      checkFailedOrders()
 
     } catch (err) {
       console.error('fetchAllOrders:', err)
     }
   }
 
+  // ── Popup GIAO HÀNG KHÔNG THÀNH CÔNG ────────────────────
+  const showFailedPopup  = ref(false)
+  const failedTarget     = ref(null)
+
+  function checkFailedOrders() {
+    if (showFailedPopup.value) return
+
+    const failedOrder = allOrders.value.find(
+      o => o.status === 'failed' && !seenFailedIds.value.has(o.id)
+    )
+
+    if (failedOrder) {
+      failedTarget.value   = failedOrder
+      showFailedPopup.value = true
+    }
+  }
+
+  function dismissFailedPopup() {
+    if (!failedTarget.value) return
+    seenFailedIds.value.add(failedTarget.value.id)
+    localStorage.setItem(
+      'seenFailedOrders',
+      JSON.stringify([...seenFailedIds.value])
+    )
+    showFailedPopup.value = false
+    failedTarget.value    = null
+  }
+
   // ── Kiểm tra đơn delivered cần xác nhận ─────────────────
   function checkDeliveredOrders() {
-    if (showReceiveConfirm.value) return // đang hiện popup rồi
+    if (showReceiveConfirm.value) return
 
     const pending = allOrders.value.find(
       o => o.status === 'delivered'
@@ -152,7 +181,6 @@ export function useUserOrders() {
     if (pending) {
       receiveTarget.value = {
         ...pending,
-        // Tính điểm = 1 điểm / 1000 VNĐ, làm tròn
         earnPoints: Math.round(pending.finalPriceNum / 1000),
       }
       showReceiveConfirm.value = true
@@ -165,7 +193,6 @@ export function useUserOrders() {
   const showPointsToast    = ref(false)
   const earnedPoints       = ref(0)
 
-  // Kích hoạt popup xác nhận từ bên ngoài (nút trong modal)
   function triggerReceiveConfirm(order) {
     receiveTarget.value = {
       ...order,
@@ -174,7 +201,6 @@ export function useUserOrders() {
     showReceiveConfirm.value = true
   }
 
-  // Kiểm tra đơn đã tích điểm chưa (dùng trong template)
   function isPointed(orderId) {
     return pointedOrderIds.value.has(orderId)
   }
@@ -190,10 +216,35 @@ export function useUserOrders() {
     receiveTarget.value      = null
   }
 
+  // ✅ "Không nhận được đơn hàng" → đổi trạng thái về "Đang xử lý"
+  async function reportNotReceived() {
+    if (!receiveTarget.value) return
+    try {
+      await api.patch(`/orders/update/${receiveTarget.value.id}`, {
+        status: 'Đang xử lý',
+        note:   'Khách hàng báo chưa nhận được hàng',
+      })
+      // Cập nhật local
+      const order = allOrders.value.find(o => o.id === receiveTarget.value.id)
+      if (order) order.status = 'processing'
+      // Cập nhật selectedOrder nếu đang mở modal
+      if (selectedOrder.value?.id === receiveTarget.value.id) {
+        selectedOrder.value = { ...selectedOrder.value, status: 'processing' }
+      }
+    } catch (err) {
+      console.warn('reportNotReceived API lỗi:', err)
+      // Vẫn cập nhật local để UX không bị kẹt
+      const order = allOrders.value.find(o => o.id === receiveTarget.value.id)
+      if (order) order.status = 'processing'
+    } finally {
+      showReceiveConfirm.value = false
+      receiveTarget.value      = null
+    }
+  }
+
   async function doConfirmReceive() {
     if (!receiveTarget.value) return
     try {
-      // Gọi API cộng điểm
       await api.post(`/customers/${userId}/points`, {
         orderId: receiveTarget.value.id,
         points:  receiveTarget.value.earnPoints,
@@ -202,7 +253,6 @@ export function useUserOrders() {
       console.warn('points API chưa có, cộng local:', err)
     }
 
-    // Đánh dấu đã tích điểm
     pointedOrderIds.value.add(receiveTarget.value.id)
     localStorage.setItem(
       'pointedOrders',
@@ -213,7 +263,6 @@ export function useUserOrders() {
     showReceiveConfirm.value = false
     receiveTarget.value      = null
 
-    // Hiện toast
     showPointsToast.value = true
     setTimeout(() => { showPointsToast.value = false }, 4000)
   }
@@ -300,9 +349,9 @@ export function useUserOrders() {
   async function doCancel() {
     if (!cancelTarget.value) return
     try {
-      await api.put(`/orders/user/cancel/${cancelTarget.value.id}`, { 
+      await api.put(`/orders/user/cancel/${cancelTarget.value.id}`, {
         status: 'Đã huỷ',
-        note: cancelTarget.value.note || ''
+        note:   cancelTarget.value.note || ''
       })
       const t = allOrders.value.find(o => o.id === cancelTarget.value.id)
       if (t) t.status = 'cancelled'
@@ -338,6 +387,10 @@ export function useUserOrders() {
     showReceiveConfirm, receiveTarget, dismissReceive, doConfirmReceive,
     triggerReceiveConfirm, isPointed,
     showPointsToast, earnedPoints,
-    goTo, logout, getImageUrl, 
+    // ✅ Popup giao hàng không thành công
+    showFailedPopup, failedTarget, dismissFailedPopup,
+    // ✅ Không nhận được đơn
+    reportNotReceived,
+    goTo, logout, getImageUrl,
   }
 }

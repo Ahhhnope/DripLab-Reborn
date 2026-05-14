@@ -58,7 +58,7 @@
 
               <!-- ✅ Bỏ icon, chỉ để chữ -->
               <div v-if="item.sizeName" class="card-tags">
-                <span class="tag tag-size">{{ item.sizeName }}</span>
+                <span class="tag tag-size">Size {{ item.sizeName }}</span>
               </div>
 
               <div
@@ -119,6 +119,7 @@
           <div class="summary-heading">Tóm tắt đơn hàng</div>
           <div class="selected-preview">
             <template v-if="selectedItems.length > 0">
+              <!-- Tìm block preview-item và thay toàn bộ bằng: -->
               <div
                 v-for="item in selectedItems"
                 :key="item.id"
@@ -127,6 +128,14 @@
                 <div class="preview-name">
                   {{ item.name }}
                   <div class="preview-qty">x{{ item.quantity }}</div>
+                  <!-- Breakdown size -->
+                  <div v-if="item.sizePrice > 0" class="preview-breakdown">
+                    Size {{ item.sizeName }}: +{{ formatVND(item.sizePrice) }}
+                  </div>
+                  <!-- Breakdown topping -->
+                  <div v-if="item.toppingPrice > 0" class="preview-breakdown">
+                    Topping: +{{ formatVND(item.toppingPrice) }}
+                  </div>
                 </div>
                 <div class="preview-price">
                   {{ formatVND(item.basePrice * item.quantity) }}
@@ -394,7 +403,7 @@
                     <div class="moi-detail">
                       x{{ item.quantity }}
                       <template v-if="item.sizeName">
-                        • {{ item.sizeName }}</template
+                        • Size {{ item.sizeName }}</template
                       >
                       • Đường {{ item.sugar }}% • Đá {{ item.ice }}%
                       <template v-if="item.toppings && item.toppings.length">

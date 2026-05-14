@@ -113,6 +113,8 @@ async function addToCart() {
   }
 
   brewingCart.addBrewedDrink(drinkItem)
+  console.log('Đã thêm vào brewingCart:', drinkItem)
+  console.log('Pending drinks hiện tại:', brewingCart.pendingDrinks)
     try {
       // This calls your CartController.java
       await api.post('/carts/add', drinkItem);
@@ -698,7 +700,7 @@ onBeforeUnmount(() => {
 
             <div v-if="isComplete" class="cup-actions">
               <button class="btn-cart" @click="addToCart">
-                Thêm vào giỏ hàng
+                Thêm vào đơn hàng
               </button>
               <button class="btn-reset" @click="reset">Làm lại</button>
             </div>
@@ -1008,9 +1010,6 @@ onBeforeUnmount(() => {
                 <button class="btn-nav btn-nav--back" @click="prevStep">
                   ← Quay lại
                 </button>
-                <button class="btn-nav btn-nav--finish" @click="addToCart">
-                  Thêm vào giỏ →
-                </button>
               </div>
             </div>
           </div>
@@ -1036,11 +1035,11 @@ onBeforeUnmount(() => {
           <h3 class="cart-pop__title">Đã thêm vào đơn hàng!</h3>
           <p class="cart-pop__desc">
             Thức uống tùy chỉnh đã được thêm vào đơn hàng tại quầy. Nhấn "Về
-            trang đặt món" để tiếp tục.
+            đơn tại quầy" để tiếp tục.
           </p>
           <!-- ✅ Sửa: về CounterOrder thay vì đóng popup -->
           <button class="cart-pop__btn" @click="onConfirmAndBack">
-            Về trang đặt món →
+            Về đơn tại quầy →
           </button>
         </div>
       </div>

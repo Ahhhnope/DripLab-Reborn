@@ -1627,3 +1627,9 @@ aside {
   border-radius: 4px;
   padding: 1px 5px;
 }
+.preview-breakdown {
+  font-size: .72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}

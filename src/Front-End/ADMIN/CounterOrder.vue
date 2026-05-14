@@ -1,9 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+defineOptions({ name: 'CounterOrder' })
 import { useCounterOrder } from '../JS/CounterOrder.JS'
 import Momo from '../QRMoMo/Momo.vue'
-defineOptions({ name: 'CounterOrder' })
+
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
@@ -300,7 +301,7 @@ function getDineModeLabel(mode) {
             </div>
             <div v-for="product in products" :key="product.id" class="product-card" @click="openPopup(product)">
               <div class="product-img-wrap">
-                <img :src="product.image" :alt="product.name" class="product-img" />
+                <img :src="product.image" :alt="product.name" class="product-img"  />
               </div>
               <div class="product-info-row">
                 <p class="brand-label">DRIP LAB</p>

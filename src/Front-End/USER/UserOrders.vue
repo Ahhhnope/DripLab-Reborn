@@ -146,7 +146,7 @@
     </div>
 
     <!-- ══════════════════════════════════════
-         MODAL CHI TIẾT  (style admin)
+         MODAL CHI TIẾT
     ══════════════════════════════════════ -->
     <Teleport to="body">
       <Transition name="modal-fade">
@@ -186,27 +186,22 @@
                     :class="['ud-step', getStepClass(step, selectedOrder.status)]"
                   >
                     <div class="ud-step__circle">
-                      <!-- doc -->
                       <svg v-if="step.icon === 'doc'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6M9 13h6M9 17h6"/>
                       </svg>
-                      <!-- gear -->
                       <svg v-else-if="step.icon === 'gear'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
                       </svg>
-                      <!-- truck -->
                       <svg v-else-if="step.icon === 'truck'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v10H3z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4l3 3v4h-7z"/>
                         <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
                       </svg>
-                      <!-- home -->
                       <svg v-else-if="step.icon === 'home'" class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8M5 10v10h14V10"/>
                       </svg>
-                      <!-- x / ban -->
                       <svg v-else class="ud-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/>
                       </svg>
@@ -222,6 +217,19 @@
                   <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M15 9l-6 6M9 9l6 6"/>
                 </svg>
                 Đơn hàng này đã bị huỷ
+              </div>
+
+              <!-- ✅ Banner lý do giao thất bại trong chi tiết đơn hàng -->
+              <div
+                v-if="selectedOrder.status === 'failed' && selectedOrder.failReason"
+                class="ud-failed-notice"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+                <span>
+                  <strong>Giao hàng không thành công</strong> — Lý do: {{ selectedOrder.failReason }}
+                </span>
               </div>
 
               <!-- GRID: trái + phải -->
@@ -263,7 +271,6 @@
                       :key="idx"
                       class="ud-item-row"
                     >
-                      <!-- Ảnh -->
                       <div class="ud-item-img">
                         <img v-if="item.img" :src="item.img" :alt="item.name" />
                         <div v-else class="ud-item-img__placeholder">
@@ -274,11 +281,8 @@
                         </div>
                       </div>
 
-                      <!-- Thông tin -->
                       <div class="ud-item-info">
                         <p class="ud-item-name">{{ item.name }}</p>
-
-                        <!-- Size -->
                         <div v-if="item.sizeName" class="ud-item-attr-row">
                           <span class="ud-item-attr">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -288,8 +292,6 @@
                           </span>
                           <span class="ud-item-attr-price">+{{ formatPrice(item.sizePrice) }}</span>
                         </div>
-
-                        <!-- Toppings -->
                         <div v-if="item.toppingList?.length">
                           <div v-for="t in item.toppingList" :key="t.name" class="ud-item-attr-row">
                             <span class="ud-item-attr">
@@ -301,19 +303,12 @@
                             <span class="ud-item-attr-price">+{{ formatPrice(t.price) }}</span>
                           </div>
                         </div>
-
-                        <!-- Options tags -->
                         <div class="ud-item-tags">
-                          <span class="ud-tag ud-tag--sugar">
-                            Đường {{ item.sugar }}%
-                          </span>
-                          <span class="ud-tag ud-tag--ice">
-                            Đá {{ item.ice }}%
-                          </span>
+                          <span class="ud-tag ud-tag--sugar">Đường {{ item.sugar }}%</span>
+                          <span class="ud-tag ud-tag--ice">Đá {{ item.ice }}%</span>
                         </div>
                       </div>
 
-                      <!-- Số lượng + giá -->
                       <div class="ud-item-right">
                         <span class="ud-item-qty">x{{ item.qty }}</span>
                         <span class="ud-item-price">{{ item.price }}</span>
@@ -346,7 +341,6 @@
 
                   <!-- Hành động -->
                   <div class="ud-action-group">
-                    <!-- Xác nhận nhận hàng (delivered, chưa tích điểm) -->
                     <button
                       v-if="selectedOrder.status === 'delivered' && !isPointed(selectedOrder.id)"
                       class="ud-btn ud-btn--receive"
@@ -358,7 +352,6 @@
                       Xác nhận đã nhận hàng
                     </button>
 
-                    <!-- Huỷ đơn (chỉ pending) -->
                     <button
                       v-if="selectedOrder.status === 'pending'"
                       class="ud-btn ud-btn--danger"
@@ -403,8 +396,9 @@
             Nhận <strong>{{ receiveTarget?.earnPoints }}</strong> điểm tích lũy
           </div>
           <div class="ud-confirm-actions">
-            <button class="ud-confirm-btn ud-confirm-btn--ghost" @click="dismissReceive">
-              Chưa nhận được
+            <!-- ✅ Đổi "Chưa nhận được" thành gọi reportNotReceived -->
+            <button class="ud-confirm-btn ud-confirm-btn--ghost" @click="reportNotReceived">
+              Không nhận được đơn hàng
             </button>
             <button class="ud-confirm-btn ud-confirm-btn--primary ud-confirm-btn--green" @click="doConfirmReceive">
               Đã nhận hàng
@@ -461,6 +455,56 @@
       </Transition>
     </Teleport>
 
+    <!-- ══════════════════════════════════════
+         ✅ POPUP GIAO HÀNG KHÔNG THÀNH CÔNG
+    ══════════════════════════════════════ -->
+    <Teleport to="body">
+      <Transition name="confirm-pop">
+        <div v-if="showFailedPopup" class="ud-confirm-backdrop" @click.self="dismissFailedPopup">
+          <div class="ud-confirm-card">
+
+            <!-- Icon cảnh báo màu cam -->
+            <div class="ud-confirm-icon ud-confirm-icon--warning">
+              <span class="ud-confirm-icon__inner ud-confirm-icon__inner--warning">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+              </span>
+            </div>
+
+            <h3 class="ud-confirm-title">Giao hàng không thành công</h3>
+
+            <p class="ud-confirm-desc">
+              Đơn hàng <strong>{{ failedTarget?.name }}</strong> của bạn đã giao không thành công.
+            </p>
+
+            <!-- Lý do -->
+            <div v-if="failedTarget?.failReason" class="ud-failed-reason-box">
+              <span class="ud-failed-reason-label">Lý do:</span>
+              <span class="ud-failed-reason-text">{{ failedTarget.failReason }}</span>
+            </div>
+
+            <!-- Thông báo hoàn tiền nếu thanh toán online -->
+            <div
+              v-if="isOnlinePayment(failedTarget?.paymentMethod)"
+              class="ud-refund-notice"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Tiền đã được hoàn trả lại tài khoản của bạn.
+            </div>
+
+            <div class="ud-confirm-actions ud-confirm-actions--center">
+              <button class="ud-confirm-btn ud-confirm-btn--primary" @click="dismissFailedPopup">
+                Đã hiểu
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
@@ -481,6 +525,8 @@ const {
   showCancelConfirm, cancelTarget, confirmCancel, doCancel,
   showReceiveConfirm, receiveTarget,
   dismissReceive, doConfirmReceive, triggerReceiveConfirm,
+  reportNotReceived,          // ✅
+  showFailedPopup, failedTarget, dismissFailedPopup,  // ✅
   showPointsToast, earnedPoints,
   isPointed,
   goTo, logout,
@@ -514,7 +560,14 @@ function formatPrice(val) {
   return Number(val).toLocaleString('vi-VN') + ' đ'
 }
 
-// ── Timeline steps (dùng logic giống admin) ──────────────
+// ✅ Kiểm tra thanh toán online để hiện dòng hoàn tiền
+function isOnlinePayment(method) {
+  if (!method) return false
+  const online = ['online', 'chuyển khoản', 'vnpay', 'momo', 'zalopay', 'banking', 'internet banking']
+  return online.some(k => method.toLowerCase().includes(k))
+}
+
+// ── Timeline steps ────────────────────────────────────────
 const ALL_STEPS = [
   { key: 'pending',    label: 'Chờ xác nhận',              icon: 'doc'   },
   { key: 'processing', label: 'Đang xử lý',                icon: 'gear'  },
@@ -534,7 +587,6 @@ function getVisibleSteps(status) {
   if (status === 'cancelled') {
     return ALL_STEPS.filter(s => ['pending','processing','cancelled'].includes(s.key))
   }
-  // pending / processing / shipping → hiện full (trừ cancelled và failed)
   return ALL_STEPS.filter(s => !['cancelled','failed'].includes(s.key))
 }
 
