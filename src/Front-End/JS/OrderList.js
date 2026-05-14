@@ -46,6 +46,9 @@ export function useOrderList() {
           deadline: o.orderDate ? new Date(o.orderDate).toLocaleString("vi-VN") : "-",
           createdAt: o.createdAt ? new Date(o.createdAt).toLocaleString("vi-VN") : "-",
 
+          // ✅ Timestamp gốc từ API — dùng để lọc ngày, tránh parse chuỗi locale
+          createdAtTs: createdAtMs || orderDateMs || 0,
+
           // dùng để sắp xếp đơn mới lên đầu
           sortTs,
 
@@ -83,11 +86,35 @@ export function useOrderList() {
   const items = computed(() => {
     const k = filter.value.keyword.trim().toLowerCase();
 
+
+    function parseDateInput(str) {
+      if (!str) return null;
+      const [year, month, day] = str.split("-");
+      return new Date(Number(year), Number(month) - 1, Number(day)); // local 00:00:00
+    }
+
     const filtered = allItems.value.filter((x) => {
       const okTab = activeTab.value === "all" || x.status === activeTab.value;
       const okStatus = filter.value.status === "all" || x.status === filter.value.status;
       const okKeyword = !k || String(x.code).toLowerCase().includes(k);
-      return okTab && okStatus && okKeyword;
+
+      let okDate = true;
+      if (filter.value.fromDate || filter.value.toDate) {
+        const ts = x.createdAtTs;
+        if (ts) {
+          if (filter.value.fromDate) {
+            const from = parseDateInput(filter.value.fromDate);
+            if (ts < from.getTime()) okDate = false;
+          }
+          if (filter.value.toDate && okDate) {
+            const to = parseDateInput(filter.value.toDate);
+            to.setHours(23, 59, 59, 999); // bao gồm cả ngày kết thúc
+            if (ts > to.getTime()) okDate = false;
+          }
+        }
+      }
+
+      return okTab && okStatus && okKeyword && okDate;
     });
 
     // sort đơn mới nhất lên đầu
@@ -109,8 +136,7 @@ export function useOrderList() {
   const startItem = computed(() => (totalItems.value ? (page.value - 1) * pageSize.value + 1 : 0));
   const endItem = computed(() => Math.min(page.value * pageSize.value, totalItems.value));
 
-  // Reset về trang 1 khi người dùng đổi filter/tab hoặc đổi pageSize.
-  // KHÔNG reset khi list tự reload 5s/lần (tránh bị nhảy về trang 1).
+
   watch([activeTab, filter, pageSize], () => {
     page.value = 1;
   }, { deep: true });

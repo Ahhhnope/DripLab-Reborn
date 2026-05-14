@@ -2,8 +2,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 // ── Import ảnh trực tiếp ────────
 import imgBg from '../IMG/Banner1.png'
-import imgBanner from '../IMG/Banner2.png'
-import imgShop from '../IMG/Banner3.png'
+import imgBanner from '../IMG/Banner2.jpg'
+import imgShop from '../IMG/Banner3.jpg'
 
 export default {
   name: 'HomePageView',

@@ -317,7 +317,7 @@ const REASON_OPTIONS = {
     "Hết nguyên liệu, không thể thực hiện",
     "Khách hàng không phản hồi khi xác nhận",
     "Đơn hàng nằm ngoài khu vực giao",
-    "Nhà hàng tạm ngừng hoạt động",
+    "Cửa hàng tạm ngừng hoạt động",
   ],
   delivery_failed: [
     "Khách hàng không có mặt tại địa chỉ",
@@ -372,7 +372,8 @@ const progressWidth = computed(() => {
   const cur   = currentStatusIndex.value;
   const total = visibleSteps.value.length;
   if (cur < 0) return "0%";
-  return `${Math.min(((cur + 0.6) / (total - 1)) * 100, 100)}%`;
+  if (total <= 1) return "0%";
+  return `${(cur / (total - 1)) * 100}%`;
 });
 
 function stepClass(st, idx) {

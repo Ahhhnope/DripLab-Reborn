@@ -7,6 +7,11 @@ import { computed } from 'vue'
 const auth = useAuthStore()
 const cartStore = useCartStore()
 
+function getImageUrl(url) {
+  if (!url) return ''
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
 const {
   goToLogin,
   goToRegister,
@@ -40,7 +45,7 @@ const cartPreviewItems = computed(() =>
   cartStore.items.slice(0, 4).map(item => ({
     id: item.id,
     name: item.drink?.name || 'Sản phẩm',
-    image: item.drink?.imageUrl || '/placeholder.png',
+    image: getImageUrl(item.drink?.imageUrl) || '/placeholder.png',
     price:
       (item.drink?.basePrice || 0) +
       (item.size?.price || 0) +

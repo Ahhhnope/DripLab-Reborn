@@ -3,6 +3,12 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '../../stores/cart.js'
 import api from '../../api/axios'
 
+function getImageUrl(url) {
+    if (!url) return ''
+    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
+
 export function useHeader() {
   const router = useRouter()
   const cartStore = useCartStore()
