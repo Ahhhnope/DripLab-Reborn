@@ -33,22 +33,23 @@ const routes = [
         component: FrameInterface,
         meta: { requiresAuth: true },
         children: [
-            { path: 'QuanLyDonTaiQuay', component: CounterOrder, meta: { keepAlive: true } },
-            { path: 'AdminPOS', component: AdminPOScustom },
-            { path: 'QuanLyHoaDon', component: AdminInvoice },
-            { path: 'QuanLyKhuyenMai', component: KhuyenMai },
-            { path: 'QuanLyDonHang', component: OrderList },
-            { path: 'QuanLySanPham', component: Products },
-            { path: 'QuanLyNhanVien', component: AdminEmployee },
-            { path: 'QuanLyKhachHang', component: AdminQLKH },
-            { path: 'SanPhamKem', component: QuanLySPkem },
-            { path: 'SanPhamkemBeo', component: QuanLySPKemBeo },
-            { path: 'SanPhamSua', component: QuanLySPSua },
-            { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe },
-            { path: 'QuanLyCachThuc', component: QuanLySPCachThuc },
-            { path: 'QuanLyTopping', component: Toppings },
-            { path: 'QuanLyDatBan', component: AdminDatBan },
-            { path: 'Dashboard', component: AdminDashboard },
+            { path: 'QuanLyDonTaiQuay', component: CounterOrder, meta: { keepAlive: true, roles: ['ADMIN', 'EMPLOYEE'] } },
+            { path: 'AdminPOS', component: AdminPOScustom, meta: { roles: ['ADMIN', 'EMPLOYEE'] } },
+            { path: 'QuanLyHoaDon', component: AdminInvoice, meta: { roles: ['ADMIN', 'EMPLOYEE'] } },
+            { path: 'QuanLyDonHang', component: OrderList, meta: { roles: ['ADMIN', 'EMPLOYEE'] } },
+            { path: 'QuanLyDatBan', component: AdminDatBan, meta: { roles: ['ADMIN', 'EMPLOYEE'] } },
+
+            { path: 'QuanLyKhuyenMai', component: KhuyenMai, meta: { roles: ['ADMIN'] } },
+            { path: 'QuanLySanPham', component: Products, meta: { roles: ['ADMIN'] } },
+            { path: 'QuanLyNhanVien', component: AdminEmployee, meta: { roles: ['ADMIN'] } },
+            { path: 'QuanLyKhachHang', component: AdminQLKH, meta: { roles: ['ADMIN'] } },
+            { path: 'SanPhamKem', component: QuanLySPkem, meta: { roles: ['ADMIN'] } },
+            { path: 'SanPhamkemBeo', component: QuanLySPKemBeo, meta: { roles: ['ADMIN'] } },
+            { path: 'SanPhamSua', component: QuanLySPSua, meta: { roles: ['ADMIN'] } },
+            { path: 'SanPhamHatCaPhe', component: QuanLySPHatCaPhe, meta: { roles: ['ADMIN'] } },
+            { path: 'QuanLyCachThuc', component: QuanLySPCachThuc, meta: { roles: ['ADMIN'] } },
+            { path: 'QuanLyTopping', component: Toppings, meta: { roles: ['ADMIN'] } },
+            { path: 'Dashboard', component: AdminDashboard, meta: { roles: ['ADMIN'] } },
         ]
     },
     { path: '/login', component: Login },
@@ -74,20 +75,32 @@ router.beforeEach(async (to, from, next) => {
         await auth.init()
     }
     console.log('Admin guard - user:', auth.user, 'role:', auth.user?.role);
-    // Non-ADMIN → redirect to user site
-    if (auth.user && auth.user.role !== 'ADMIN' && to.meta.requiresAuth) {
+
+    // need login
+    if (!auth.user && to.meta.requiresAuth) {
+        return next('/login')
+    }
+
+    // not admin / employee role -> redirect to user site
+    if (auth.user && auth.user.role !== 'ADMIN' && auth.user.role !== 'EMPLOYEE' && to.meta.requiresAuth) {
+        alert("lmao u aint admin / employee")
         window.location.replace('http://localhost:5173/homepage')
         return next(false)
     }
 
-    // Need login
-    if (to.meta.requiresAuth && !auth.user) {
-        return next('/login')
+    // already logged in - redirect away from login
+    if (auth.user && (to.path === '/login' || to.path === '/')) {
+        if (auth.user.role === 'ADMIN') return next('/Dashboard')
+        if (auth.user.role === 'EMPLOYEE') return next('/QuanLyDonTaiQuay')
     }
 
-    // Already logged in - redirect away from login
-    if (auth.user && (to.path === '/login' || to.path === '/')) {
-        return next('/Dashboard')
+    if (auth.user?.role === 'EMPLOYEE') {
+        const allowedRoles = to.meta.roles || []
+
+        if (!allowedRoles.includes(auth.user.role)) {
+            alert('Bạn không có quyền dùng chức năng này')
+            return next('/QuanLyDonTaiQuay')
+        }
     }
 
     next()
