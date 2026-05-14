@@ -49,15 +49,17 @@ export function useVoucher() {
     try {
       const { data } = await api.get('/promo-codes')
       const now = new Date()
-      vouchers.value = data.map(v => ({
-        id: v.id,
-        code: v.code,
-        discount: v.category === 'PHẦN TRĂM' ? `Giảm ${v.value}%` : `Giảm ${(+v.value).toLocaleString('vi-VN')}đ`,
-        maxDiscount: v.maxDiscount ? `${(+v.maxDiscount).toLocaleString('vi-VN')}đ` : '20k',
-        minOrder: v.minOrder ? `${(+v.minOrder).toLocaleString('vi-VN')}đ` : '50k',
-        expiry: v.endDate ? new Date(v.endDate).toLocaleDateString('vi-VN') : 'Không giới hạn',
-        active: v.status && new Date(v.endDate) >= now,
-      }))
+      vouchers.value = data
+        .filter(v => (v.displayLocation ?? 'trên web') === 'trên web')
+        .map(v => ({
+          id: v.id,
+          code: v.code,
+          discount: v.category === 'PHẦN TRĂM' ? `Giảm ${v.value}%` : `Giảm ${(+v.value).toLocaleString('vi-VN')}đ`,
+          maxDiscount: v.maxDiscount ? `${(+v.maxDiscount).toLocaleString('vi-VN')}đ` : '20k',
+          minOrder: v.minOrder ? `${(+v.minOrder).toLocaleString('vi-VN')}đ` : '50k',
+          expiry: v.endDate ? new Date(v.endDate).toLocaleDateString('vi-VN') : 'Không giới hạn',
+          active: v.status && new Date(v.endDate) >= now,
+        }))
     } catch (e) { console.error(e) }
   }
 
