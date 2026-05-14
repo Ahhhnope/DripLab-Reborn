@@ -300,7 +300,7 @@ function getDineModeLabel(mode) {
             </div>
             <div v-for="product in products" :key="product.id" class="product-card" @click="openPopup(product)">
               <div class="product-img-wrap">
-                <img :src="product.image" :alt="product.name" class="product-img" />
+                <img :src="product.image" :alt="product.name" class="product-img"  />
               </div>
               <div class="product-info-row">
                 <p class="brand-label">DRIP LAB</p>
