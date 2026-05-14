@@ -3101,3 +3101,88 @@
   opacity: 0;
   transform: translateY(-8px);
 }
+
+/* ══ POPUP GIAO HÀNG KHÔNG THÀNH CÔNG ══════════════════ */
+
+/* Icon cam cảnh báo */
+.ud-confirm-icon--warning {
+  background: #fff7ed;
+}
+
+.ud-confirm-icon__inner--warning {
+  background: #ffffff;
+  color: #ea580c;
+  box-shadow: 0 12px 26px rgba(234, 88, 12, 0.18);
+}
+
+/* Box lý do */
+.ud-failed-reason-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 0 0 14px;
+  text-align: left;
+}
+
+.ud-failed-reason-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9a3412;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ud-failed-reason-text {
+  font-size: 14px;
+  color: #431407;
+  line-height: 1.5;
+}
+
+/* Dòng thông báo hoàn tiền */
+.ud-refund-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  color: #166534;
+  font-weight: 500;
+}
+
+/* Nút căn giữa khi chỉ có 1 nút */
+.ud-confirm-actions--center {
+  justify-content: center;
+}
+
+.ud-confirm-actions--center .ud-confirm-btn--primary {
+  min-width: 160px;
+}
+
+/* ══ BANNER LÝ DO TRONG CHI TIẾT ĐƠN HÀNG ══════════════ */
+.ud-failed-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  color: #9a3412;
+  line-height: 1.5;
+}
+
+.ud-failed-notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #ea580c;
+}

@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, onActivated } from 'vue'
 import api from '../../api/axios.js'
 // Thêm import ở đầu file
 import { useBrewingCart } from '../../Front-End/JS/BrewingCart.JS'
@@ -792,6 +792,28 @@ export function useCounterOrder() {
         return mode
     })
 
+    const brewingCart = useBrewingCart()
+
+    function checkAndConsumePendingDrinks() {
+        if (!brewingCart.hasPendingDrinks()) return
+
+        console.log('Có pending drinks:', brewingCart.pendingDrinks)
+        const pendingDrinks = brewingCart.consumePendingDrinks()
+
+        if (orderList.value.length === 0) createNewOrder()
+
+        appStep.value = 'order'
+        if (currentOrder.value) currentOrder.value.step = 'order'
+
+        pendingDrinks.forEach(drink => {
+            orderedItems.value.push(drink)
+            console.log('Đã thêm drink:', drink)
+        })
+
+        if (currentOrder.value) {
+            currentOrder.value.items = [...orderedItems.value]
+        }
+    }
     /* ══ LIFECYCLE ══════════════════════════════════════════════════ */
     let timer = null
     onMounted(() => {
@@ -799,6 +821,7 @@ export function useCounterOrder() {
         fetchDrinks()
         fetchToppings()
         fetchSizes()
+        checkAndConsumePendingDrinks()
         fetchCartItems()
         timer = setInterval(() => {
             refreshTableStatus()
@@ -808,40 +831,35 @@ export function useCounterOrder() {
             fetchCartItems()
         }, 5000)
     })
+
+    onActivated(() => {
+        console.log('CounterOrder activated')
+        checkAndConsumePendingDrinks()
+    })
+
     onUnmounted(() => { if (timer) clearInterval(timer) })
 
     /* ══ EXPORT ════════════════════════════════════════════════════ */
     return {
         fetchDrinks, fetchToppings,
-
         appStep, orderMode,
         goToChoice, chooseTakeaway, chooseDine,
-
         showCancelOrderPopup, cancelTargetOrder,
         requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
-
         customerName, customerPhone,
         customerNameInput, customerPhoneInput,
         nameError, phoneError,
         customerSaved, isEditingInfo,
         onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
-
         TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
         availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
-
         showConfirmInfo, confirmWarning, confirmWarningTable,
         goToConfirm, proceedToOrder, backFromConfirmToInfo,
-
         searchText, products, searchProducts,
-
         orderList, currentOrder, createNewOrder, selectOrder, MAX_ORDERS,
-
         orderedItems, totalPrice, removeItem,
-
         discountInput, discountCodeList, appliedCode, discountPercent, discountMessage, applyDiscount, finalPrice,
-
         orderNote, onNoteInput,
-
         checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
         cashMaxWarning, onCashInput,
         payNameInput, payPhoneInput, payPhoneError,
@@ -850,56 +868,13 @@ export function useCounterOrder() {
         showReviewPopup,
         confirmPayment, closePaymentPopup,
         showSuccessPopup, closeSuccessPopup, txId, txTime, receiptData,
-
         showPopup, selectedProduct, toppingList, selectedToppings, selectedSize, selectedQty,
         selectedIce, selectedSugar, iceOptions, sugarOptions, SIZE_PRICES,
         openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
-
         displayCustomerName, displayCustomerPhone, displayTableNum, displayTableNums,
         displayDineMode,
-
         MAX_CASH,
-
         showTablePopup, openTablePopup, closeTablePopup,
         dineMode,
     }
-    
- const brewingCart = useBrewingCart()
-
-//     onMounted(() => {
-//     fetchDrinks()
-//     fetchToppings()
-//     fetchSizes()
-
-//     // ✅ Chỉ xử lý pending drinks, KHÔNG reset state
-//     if (brewingCart.hasPendingDrinks()) {
-//       const pendingDrinks = brewingCart.consumePendingDrinks()
-
-//       // Đảm bảo có order đang active
-//       if (orderList.value.length === 0) {
-//         createNewOrder()
-//       }
-
-//       // Nếu chưa ở bước order thì chuyển sang
-//       if (appStep.value !== 'order') {
-//         appStep.value = 'order'
-//       }
-
-//       // Thêm drink vào order hiện tại
-//       pendingDrinks.forEach(drink => {
-//         orderedItems.value.push(drink)
-//       })
-
-//       if (currentOrder.value) {
-//         currentOrder.value.items = [...orderedItems.value]
-//         currentOrder.value.step = 'order'
-//       }
-//     }
-
-//     timer = setInterval(() => {
-//       fetchDrinks()
-//       fetchToppings()
-//       fetchSizes()
-//     }, 5000)
-//   })
 }
