@@ -6,8 +6,10 @@ import { useBrewingCart } from "../JS/BrewingCart.JS";
 import api from "@/api/axios";
 import dripLabLogo from "../IMG/dripLab_Logo_Footer.png";
 import driplabLogo2 from "../IMG/DripLab_Logo.png";
+import { useAuthStore } from "../Authorization/Auth";
 
 const router = useRouter(); 
+const auth = useAuthStore()
 
 const {
   beanOptions,
@@ -78,7 +80,7 @@ function closeCartPopup() {
 }
 
 async function addToCart() {
-  const staffId = 2
+  const staffId = auth.user?.id
   const nameParts = [
     selectedBean.value?.label,
     selectedBase.value?.label,

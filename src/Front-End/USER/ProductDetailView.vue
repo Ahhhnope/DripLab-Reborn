@@ -134,7 +134,8 @@ async function handleAddToCart() {
     sizeId: selectedSize ? selectedSize.id : 1,
     ice: selections.ice,
     sugar: selections.sugar,
-    toppings: Array.from(selections.toppings)
+    toppings: Array.from(selections.toppings),
+    isCustom: false
   }
 
   try {
