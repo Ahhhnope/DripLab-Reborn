@@ -372,7 +372,8 @@ const progressWidth = computed(() => {
   const cur   = currentStatusIndex.value;
   const total = visibleSteps.value.length;
   if (cur < 0) return "0%";
-  return `${Math.min(((cur + 0.6) / (total - 1)) * 100, 100)}%`;
+  if (total <= 1) return "0%";
+  return `${(cur / (total - 1)) * 100}%`;
 });
 
 function stepClass(st, idx) {
