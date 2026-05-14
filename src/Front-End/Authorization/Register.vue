@@ -218,7 +218,6 @@ const {
           {{ errorMsg }}
         </div>
 
-        <!-- Nút TIẾP THEO thay vì Đăng ký -->
         <button type="submit" class="submit-btn">
           <span class="btn-inner">
             Tiếp theo

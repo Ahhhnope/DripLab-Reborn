@@ -11,6 +11,7 @@ const {
   handleLogin,
   goRegister,
   goHome,
+  goForgotPassword,
 } = useLogin()
 </script>
 
@@ -153,6 +154,9 @@ const {
         <p class="footer-text">
           Chưa có tài khoản?
           <button class="link-btn" @click="goRegister">Đăng ký ngay</button>
+        </p>
+        <p class="footer-text">
+          <button class="link-btn" @click="goForgotPassword">Quên mật khẩu?</button>
         </p>
         <button class="home-btn" @click="goHome">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
