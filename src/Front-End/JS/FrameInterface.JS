@@ -1,4 +1,4 @@
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../Authorization/Auth'
 
@@ -20,7 +20,7 @@ export function useAdminMenu() {
     const auth = useAuthStore()
 
     // === DANH SÁCH MENU ===
-    const menuGroups = [
+    const rawMenuGroups = [
         {
             title: 'Báo cáo & Phân tích',
             items: [
@@ -30,18 +30,8 @@ export function useAdminMenu() {
         {
             title: 'Quản lý bán hàng',
             items: [
-                {
-                    id: 2,
-                    label: 'Đơn tại quầy',
-                    icon: ShoppingCartIcon,
-                    path: '/QuanLyDonTaiQuay',
-                },
-                {
-                    id: 21,
-                    label: 'Đặt bàn',
-                    icon: CalendarDaysIcon,
-                    path: '/QuanLyDatBan',
-                },
+                { id: 2, label: 'Đơn tại quầy', icon: ShoppingCartIcon, path: '/QuanLyDonTaiQuay' },
+                { id: 21, label: 'Đặt bàn', icon: CalendarDaysIcon, path: '/QuanLyDatBan' },
                 {
                     id: 3, label: 'Sản phẩm', icon: CubeIcon,
                     children: [
@@ -77,10 +67,42 @@ export function useAdminMenu() {
             ]
         }
     ]
+    const menuGroups = computed(() => {
+        const role = auth.user?.role
+        if (!role) return []
+
+        // Helper function to check if a single item (or any of its descendants) is allowed
+        const isVisible = (item) => {
+            // 1. If it's a leaf node with a path, check router roles
+            if (item.path) {
+                const r = router.resolve(item.path)
+                return !r.meta.roles || r.meta.roles.includes(role)
+            }
+
+            // 2. If it has subChildren (Thành phần level), check them
+            if (item.subChildren) {
+                item.subChildren = item.subChildren.filter(sub => isVisible(sub))
+                return item.subChildren.length > 0
+            }
+
+            // 3. If it has children (Sản phẩm level), check them
+            if (item.children) {
+                item.children = item.children.filter(child => isVisible(child))
+                return item.children.length > 0
+            }
+
+            return false
+        }
+
+        return rawMenuGroups.map(group => {
+            const filteredItems = group.items.filter(item => isVisible(item))
+            return { ...group, items: filteredItems }
+        }).filter(group => group.items.length > 0)
+    })
 
     // Hàm tìm item theo path (hỗ trợ cả children và subChildren)
     const findMenuByPath = (path) => {
-        for (const group of menuGroups) {
+        for (const group of menuGroups.value) {
             for (const item of group.items) {
                 if (item.path === path) return item
 
@@ -110,7 +132,7 @@ export function useAdminMenu() {
 
             // Mở menu cha nếu có children (id 2 chữ số: 31, 32, 81, 82...)
             if (menuItem.id.toString().length === 2) {
-                for (const group of menuGroups) {
+                for (const group of menuGroups.value) {
                     for (const item of group.items) {
                         if (item.children) {
                             const child = item.children.find(c => c.id === menuItem.id)
@@ -125,7 +147,7 @@ export function useAdminMenu() {
 
             // Mở sub menu nếu có subChildren (id 3 chữ số: 321, 322...)
             if (menuItem.id.toString().length === 3) {
-                for (const group of menuGroups) {
+                for (const group of menuGroups.value) {
                     for (const item of group.items) {
                         if (item.children) {
                             for (const child of item.children) {

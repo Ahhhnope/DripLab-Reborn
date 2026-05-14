@@ -1,4 +1,5 @@
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch, onMounted } from 'vue'
+import api from '@/api/axios'
 import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
 
 /**
@@ -14,45 +15,95 @@ import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
  */
 export function useBrewing() {
 
-  // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
-  const beanOptions = [
-    { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000, color: '#3d2010' },
-    { id: 'robusta',  label: 'Robusta',  sub: 'Đậm, đắng mạnh',          priceDelta: 8000,  color: '#2a1508' },
-    { id: 'liberica', label: 'Liberica', sub: 'Khói, vị gỗ độc đáo',     priceDelta: 12000, color: '#3b1e0e' },
-    { id: 'blend',    label: 'Blend',    sub: 'Cân bằng hoàn hảo',       priceDelta: 9000,  color: '#2e1a0d' },
-  ]
+  const beanOptions = ref([])
+  const milkOptions = ref([])
+  const toppingOptions = ref([])
+  const sizeOptions = ref([])
+
+  async function fetchIngridients() {
+    try {
+      const [beansRes, milksRes, toppingsRes, sizesRes] = await Promise.all([
+        api.get('/ingredients/coffee-beans'),
+        api.get('/ingredients/milks'),
+        api.get('/ingredients/toppings'),
+        api.get('/sizes')
+      ])
+
+      beanOptions.value = beansRes.data.map(item => ({
+        id: item.id,
+        label: item.name, 
+        sub: 'Premium Selection', 
+        priceDelta: item.price || 0,
+        color: '#3d2010' 
+      }))
+
+      const apiMilks = milksRes.data.map(item => ({
+        id: item.id.toString(),
+        label: item.name,
+        sub: 'Dairy & Alternatives',
+        priceDelta: item.price || 0,
+        color: '#f3e9dc'
+      }))
+      milkOptions.value = [{ id: 'none', label: 'No Milk', sub: 'Black coffee', priceDelta: 0, color: null }, ...apiMilks]
+
+      toppingOptions.value = toppingsRes.data.map(item => ({
+        id: item.id,
+        label: item.name,
+        sub: 'Extra flavor',
+        priceDelta: item.price || 0,
+        color: '#fffcf0'
+      }))
+
+      sizeOptions.value = sizesRes.data.map(item => ({
+        id: item.id,
+        label: item.name, // e.g., "Small", "Medium"
+        sub: item.name === 'S' ? 'Standard' : 'Upsize',
+        priceDelta: item.price || 0
+      }))
+    } catch (error) {
+      console.log("error fetch ingridients for custom coffee: "+error)
+    }
+  }
 
   // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
   const baseOptions = [
-    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000, color: '#0f0705' },
-    { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000, color: '#24160f' },
-    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000, color: '#5c3220' },
+    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000},
+    { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000},
+    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000},
   ]
+
+  // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
+  // const beanOptions = [
+  //   { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000},
+  //   { id: 'robusta',  label: 'Robusta',  sub: 'Đậm, đắng mạnh',          priceDelta: 8000},
+  //   { id: 'liberica', label: 'Liberica', sub: 'Khói, vị gỗ độc đáo',     priceDelta: 12000},
+  //   { id: 'blend',    label: 'Blend',    sub: 'Cân bằng hoàn hảo',       priceDelta: 9000},
+  // ]
 
   // ─── DỮ LIỆU: SỮA ─────────────────────────────────────────────────
-  const milkOptions = [
-    { id: 'none',   label: 'Không sữa',     sub: 'Giữ nguyên vị',          priceDelta: 0,    color: null        },
-    { id: 'whole',  label: 'Sữa tươi',      sub: 'Béo ngậy, truyền thống', priceDelta: 8000, color: '#f3e9dc' },
-    { id: 'oat',    label: 'Sữa yến mạch',  sub: 'Nhẹ, hơi ngọt',         priceDelta: 9000, color: '#ead9c5' },
-    { id: 'almond', label: 'Sữa hạnh nhân', sub: 'Hương hạt nhẹ',          priceDelta: 9000, color: '#efe2d1' },
-    { id: 'soy',    label: 'Sữa đậu nành',  sub: 'Thuần chay',             priceDelta: 9000, color: '#efe7dc' },
-  ]
+  // const milkOptions = [
+  //   { id: 'none',   label: 'Không sữa',     sub: 'Giữ nguyên vị',          priceDelta: 0,},
+  //   { id: 'whole',  label: 'Sữa tươi',      sub: 'Béo ngậy, truyền thống', priceDelta: 8000},
+  //   { id: 'oat',    label: 'Sữa yến mạch',  sub: 'Nhẹ, hơi ngọt',         priceDelta: 9000},
+  //   { id: 'almond', label: 'Sữa hạnh nhân', sub: 'Hương hạt nhẹ',          priceDelta: 9000},
+  //   { id: 'soy',    label: 'Sữa đậu nành',  sub: 'Thuần chay',             priceDelta: 9000},
+  // ]
 
   // ─── DỮ LIỆU: TOPPING ─────────────────────────────────────────────
-  const toppingOptions = [
-    { id: 'whip',            label: 'Kem tươi',       sub: 'Đánh bông mịn',   priceDelta: 8000, color: '#fffcf0' },
-    { id: 'cinnamon',        label: 'Bột quế',         sub: 'Thơm ấm áp',      priceDelta: 3000, color: '#c8834a' },
-    { id: 'cocoa',           label: 'Bột cacao',       sub: 'Đắng nhẹ',        priceDelta: 4000, color: '#5c3317' },
-    { id: 'caramel_drizzle', label: 'Sốt caramel',     sub: 'Ngọt, bóng',      priceDelta: 8000, color: '#b9793a' },
-    { id: 'vanilla_powder',  label: 'Bột vanilla',     sub: 'Thơm Madagascar', priceDelta: 7000, color: '#d4a84b' },
-  ]
+  // const toppingOptions = [
+  //   { id: 'whip',            label: 'Kem tươi',       sub: 'Đánh bông mịn',   priceDelta: 8000},
+  //   { id: 'cinnamon',        label: 'Bột quế',         sub: 'Thơm ấm áp',      priceDelta: 3000},
+  //   { id: 'cocoa',           label: 'Bột cacao',       sub: 'Đắng nhẹ',        priceDelta: 4000},
+  //   { id: 'caramel_drizzle', label: 'Sốt caramel',     sub: 'Ngọt, bóng',      priceDelta: 8000},
+  //   { id: 'vanilla_powder',  label: 'Bột vanilla',     sub: 'Thơm Madagascar', priceDelta: 7000},
+  // ]
 
   // ─── DỮ LIỆU: SIZE ────────────────────────────────────────────────
-  const sizeOptions = [
-    { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
-    { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
-    { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
-  ]
+  // const sizeOptions = [
+  //   { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
+  //   { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
+  //   { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
+  // ]
 
   // ─── DỮ LIỆU: MỨC ĐÁ / MỨC ĐƯỜNG ────────────────────────────────
   const iceOptions    = ['0%', '30%', '50%', '70%', '100%']
@@ -213,10 +264,10 @@ export function useBrewing() {
   })
 
   // ─── COMPUTED: đối tượng nguyên liệu đang chọn ───────────────────
-  const selectedBean  = computed(() => beanOptions.find(x => x.id === selection.bean))
+  const selectedBean  = computed(() => beanOptions.value.find(x => x.id === selection.bean))
   const selectedBase  = computed(() => baseOptions.find(x => x.id === selection.base))
-  const selectedMilk  = computed(() => milkOptions.find(x => x.id === selection.milk))
-  const selectedSize  = computed(() => sizeOptions.find(x => x.id === selection.size))
+  const selectedMilk  = computed(() => milkOptions.value.find(x => x.id === selection.milk))
+  const selectedSize  = computed(() => sizeOptions.value.find(x => x.id === selection.size))
 
   // ─── HELPER: trộn màu ─────────────────────────────────────────────
   function mixHex(a, b, t = 0.5) {
@@ -300,7 +351,7 @@ export function useBrewing() {
     if (selectedBase.value)  total += selectedBase.value.priceDelta
     if (selectedMilk.value && selection.milk !== 'none') total += selectedMilk.value.priceDelta
     for (const id of selection.toppings) {
-      const t = toppingOptions.find(x => x.id === id)
+      const t = toppingOptions.value.find(x => x.id === id)
       if (t) total += t.priceDelta
     }
     if (selectedSize.value) total += selectedSize.value.priceDelta
@@ -329,6 +380,10 @@ export function useBrewing() {
     toppingFxKey.value = 0
     animTick.value++
   }
+
+  onMounted(() => {
+    fetchIngridients()
+  })
 
   return {
     beanOptions, baseOptions, milkOptions, toppingOptions,

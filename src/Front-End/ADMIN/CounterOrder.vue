@@ -301,7 +301,7 @@ function getDineModeLabel(mode) {
             </div>
             <div v-for="product in products" :key="product.id" class="product-card" @click="openPopup(product)">
               <div class="product-img-wrap">
-                <img :src="product.image" :alt="product.name" class="product-img" />
+                <img :src="product.image" :alt="product.name" class="product-img"  />
               </div>
               <div class="product-info-row">
                 <p class="brand-label">DRIP LAB</p>
@@ -353,17 +353,27 @@ function getDineModeLabel(mode) {
         <div class="right-products-block">
           <p class="right-products-title">Sản Phẩm Mua</p>
           <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản phẩm</p>
+
           <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
             <button class="right-pc-remove" @click="removeItem(index, item.cartItemId)">✕</button>
+
             <div class="right-pc-header">
               <span class="right-pc-name">{{ item.name }} x{{ item.qty }}</span>
               <span class="right-pc-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</span>
             </div>
+
             <div class="right-pc-tags">
               <span class="right-pc-tag size">Size: {{ item.size }}</span>
               <span class="right-pc-tag">Đá: {{ item.ice }}</span>
               <span class="right-pc-tag">Đường: {{ item.sugar }}</span>
             </div>
+
+            <div v-if="item.isCustom" class="right-pc-tags custom-details">
+              <span class="right-pc-tag bean">Hạt: {{ item.beanName }}</span>
+              <span class="right-pc-tag base">Base: {{ item.base }}</span>
+              <span v-if="item.milkName" class="right-pc-tag milk">Sữa: {{ item.milkName }}</span>
+            </div>
+
             <div v-if="item.toppings && item.toppings.length" class="right-pc-tags">
               <span v-for="t in item.toppings" :key="t.name" class="right-pc-tag topping">{{ t.topping?.name }}</span>
             </div>

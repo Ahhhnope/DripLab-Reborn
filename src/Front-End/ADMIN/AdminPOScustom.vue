@@ -3,6 +3,7 @@ import { ref, onBeforeUnmount, watch, nextTick } from "vue";
 import { useRouter } from "vue-router"; 
 import { useBrewing } from "../JS/AdminPOS.JS";
 import { useBrewingCart } from "../JS/BrewingCart.JS"; 
+import api from "@/api/axios";
 import dripLabLogo from "../IMG/dripLab_Logo_Footer.png";
 import driplabLogo2 from "../IMG/DripLab_Logo.png";
 
@@ -76,36 +77,51 @@ function closeCartPopup() {
   document.documentElement.classList.remove("no-scroll");
 }
 
-function addToCart() {
+async function addToCart() {
+  const staffId = 2
   const nameParts = [
     selectedBean.value?.label,
     selectedBase.value?.label,
     selectedMilk.value && selection.milk !== 'none' ? selectedMilk.value.label : null,
   ].filter(Boolean)
 
-  const toppingNames = toppingOptions
+  const toppingNames = toppingOptions.value
     .filter(t => selection.toppings.has(t.id))
     .map(t => t.label)
 
   const drinkItem = {
-    id: Date.now(),
-    name: nameParts.join(' + ') + (toppingNames.length ? ' + ' + toppingNames.join(', ') : ''),
+    userId: staffId,
+    name: selectedBean.value?.label + " Custom", 
     qty: selection.quantity,
-    price: price.value / selection.quantity,
     unitPrice: price.value / selection.quantity,
-    size: selectedSize.value?.label || 'S',
-    ice: selection.ice,
-    sugar: selection.sugar,
-    toppings: toppingNames.join(', ') || 'Không có',
-    toppingDetails: toppingOptions
-      .filter(t => selection.toppings.has(t.id))
-      .map(t => ({ name: t.label, price: t.priceDelta })),
+    totalPrice: price.value,
+    sizeLabel: selectedSize.value?.label ?? 'S',
+    iceLabel: selection.ice,
+    sugarLabel: selection.sugar,
+
+    // CartItemRequest
+    drinkId: 15, //custom id coffee in drinks table ;-;
+    quantity: selection.quantity,
+    sizeId: selection.size,
+    ice: parseInt(selection.ice),
+    sugar: parseInt(selection.sugar),
+    toppings: [...selection.toppings],
+    base: selection.base,
+    beanId: selection.bean,
+    milkId: selection.milk === 'none' ? null : Number(selection.milk),
     isCustom: true,
   }
 
   brewingCart.addBrewedDrink(drinkItem)
   console.log('Đã thêm vào brewingCart:', drinkItem)
   console.log('Pending drinks hiện tại:', brewingCart.pendingDrinks)
+    try {
+      // This calls your CartController.java
+      await api.post('/carts/add', drinkItem);
+      cartPopupOpen.value = true;
+    } catch (error) {
+      console.error("Failed to upload custom drink to cart:", error);
+    }
   openCartPopup()
 }
 

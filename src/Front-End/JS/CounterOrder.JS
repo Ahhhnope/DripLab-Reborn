@@ -1,7 +1,6 @@
 import { ref, computed, onMounted, onUnmounted, reactive, onActivated } from 'vue'
 import api from '../../api/axios.js'
-// Thêm import ở đầu file
-import { useBrewingCart } from '../../Front-End/JS/BrewingCart.JS'
+import { useBrewingCart } from './BrewingCart.JS'
 
 
 function getImageUrl(url) {
@@ -331,15 +330,20 @@ export function useCounterOrder() {
                     size: item.size?.name || 'S',
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
-                    toppings: item.toppings
+                    toppings: item.toppings,
+                    isCustom: item.isCustom,
+                    beanName: item.coffeeBean.name,
+                    base: item.base,
+                    milkName: item.milk.name,
                 };
             });
+
 
             if (currentOrder.value) {
                 currentOrder.value.items = [...orderedItems.value];
             }
 
-            // console.log(orderedItems.value)
+            console.log(orderedItems.value)
         } catch (error) {
             console.error("fetch cart items: "+error)
         }
@@ -719,7 +723,8 @@ export function useCounterOrder() {
             sizeId: selectedSize.value === 'S' ? 1 : (selectedSize.value === 'M' ? 2 : 3),
             ice: parseInt(selectedIce.value),
             sugar: parseInt(selectedSugar.value),
-            toppings: selectedToppings.value.map(t => t.id)
+            toppings: selectedToppings.value.map(t => t.id),
+            isCustom: false
         }
 
         try {
@@ -735,7 +740,7 @@ export function useCounterOrder() {
                 size: selectedSize.value,
                 ice: selectedIce.value,
                 sugar: selectedSugar.value,
-                toppings: selectedToppings.value
+                toppings: selectedToppings.value,
             }
 
             orderedItems.value.push(displayItem)
@@ -816,6 +821,7 @@ export function useCounterOrder() {
     }
     /* ══ LIFECYCLE ══════════════════════════════════════════════════ */
     let timer = null
+
     onMounted(() => {
         refreshTableStatus()
         fetchDrinks()
