@@ -51,7 +51,7 @@
             class="tk-tab" :class="{ active: activeTab === tab.key }"
             @click="activeTab = tab.key"
           >{{ tab.label }}</button>
-          <button class="tk-tab tk-tab--custom">Tuỳ chỉnh</button>
+          <!-- <button class="tk-tab tk-tab--custom">Tuỳ chỉnh</button> -->
         </div>
       </div>
       <!-- <div class="tk-filter-actions">
