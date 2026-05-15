@@ -4,7 +4,7 @@
     <!-- ── HEADER ─────────────────────────────────────────── -->
     <div class="tk-header">
       <div class="tk-header-left">
-        <span class="tk-icon">☕</span>
+        <span class="tk-icon"></span>
         <div>
           <h1 class="tk-title">Thống Kê</h1>
           <p class="tk-subtitle">Báo cáo kinh doanh thời gian thực</p>
@@ -42,7 +42,7 @@
     </div>
 
     <!-- ── FILTER BAR ─────────────────────────────────────── -->
-    <div class="tk-filter-bar">
+    <!-- <div class="tk-filter-bar">
       <div class="tk-filter-left">
         <span class="tk-filter-label">Bộ Lọc</span>
         <div class="tk-filter-tabs">
@@ -58,7 +58,7 @@
         <button class="tk-btn-outline">✉ Gửi Báo Cáo</button>
         <button class="tk-btn-solid">⬇ Xuất Excel</button>
       </div>
-    </div>
+    </div> -->
 
     <!-- ── STATS STRIP ────────────────────────────────────── -->
     <div class="tk-stats-row">
@@ -88,27 +88,7 @@
       </div>
     </div>
 
-    <!-- ── ROW 2: Hết hàng + Size ly ─────────────────────── -->
-    <div class="tk-charts-row">
-      <div class="tk-chart-box">
-        <div class="tk-chart-title tk-chart-title--warning">
-          <span>⚠ Cảnh Báo Sắp Hết Hàng</span>
-          <span class="tk-badge-warning">Kho ≤ 10 SP</span>
-        </div>
-        <LowStockTable :items="lowStockItems" />
-      </div>
-
-      <div class="tk-chart-box">
-        <div class="tk-chart-title"><span>☕ Tỉ Lệ Theo Size Ly</span></div>
-        <DonutChart
-          :segments="sizeSegments"
-          :total="755"
-          center-label="Tổng bán"
-        />
-      </div>
-    </div>
-
-    <!-- ── ROW 3: Top sản phẩm + Tăng trưởng ────────────── -->
+    <!-- ── ROW 2: Top sản phẩm + Tăng trưởng ────────────── -->
     <div class="tk-charts-row">
       <div class="tk-chart-box">
         <div class="tk-chart-title"><span>🏆 Top Sản Phẩm Bán Chạy</span></div>
