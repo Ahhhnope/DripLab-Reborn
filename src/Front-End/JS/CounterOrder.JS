@@ -332,9 +332,9 @@ export function useCounterOrder() {
                     sugar: item.sugar + '%',
                     toppings: item.toppings,
                     isCustom: item.isCustom,
-                    beanName: item.coffeeBean.name,
+                    beanName: item.coffeeBean?.name,
                     base: item.base,
-                    milkName: item.milk.name,
+                    milkName: item.milk?.name,
                 };
             });
 
