@@ -47,6 +47,8 @@ export function useLogin() {
 
       if (user.role.toUpperCase() === 'ADMIN') {
         window.location.href = 'http://localhost:5005/Dashboard'
+      } else if (user.role.toUpperCase() === 'EMPLOYEE') {
+        window.location.href = 'http://localhost:5005/QuanLyDonTaiQuay';
       } else {
           window.location.href = 'http://localhost:5173/choosestores';
       }

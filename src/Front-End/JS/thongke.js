@@ -50,9 +50,12 @@ export const revenueData = {
 }
 
 export const orderStatusSegments = [
-  { label: 'Hoàn thành', value: 64,  pct: 55.7, color: '#27ae60' },
+  { label: 'Đã giao', value: 64,  pct: 55.7, color: '#27ae60' },
   { label: 'Đang xử lý', value: 31,  pct: 27.0, color: '#f39c12' },
-  { label: 'Đã huỷ',     value: 20,  pct: 17.4, color: '#e74c3c' }
+  { label: 'Chờ xác nhận',     value: 2,  pct: 17.4, color: '#6C4675' },
+  { label: 'Đang vận chuyển',     value: 11,  pct: 17.4, color: '#6C7156' },
+  { label: 'Đã hủy',     value: 20,  pct: 17.4, color: '#e74c3c' },
+  { label: 'Giao hàng không thành công',     value: 10,  pct: 17.4, color: '#75151E' },
 ]
 
 export const lowStockItems = [

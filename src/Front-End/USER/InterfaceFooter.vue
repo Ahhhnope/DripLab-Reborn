@@ -25,7 +25,7 @@ const { connectLinks, socialLinks, year } = useFooter()
       <div class="footer-col">
         <h4>Liên hệ chúng tôi</h4>
         <p>
-          Email: contact@driplab.com<br />
+          Email: driplabcoffee2026@gmail.com<br />
           Số điện thoại: 036 363 6767<br />
           Địa chỉ: 241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội
         </p>

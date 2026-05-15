@@ -194,7 +194,7 @@ const cartSubtotal = computed(() =>
                   </div>
                   <div class="cd-item-info">
                     <p class="cd-item-name">{{ item.name }}</p>
-                    <p class="cd-item-meta" v-if="item.sizeName">{{ item.sizeName }}</p>
+                    <p class="cd-item-meta" v-if="item.sizeName">Size: {{ item.sizeName }}</p>
                     <p class="cd-item-price">
                       {{ formatVND(item.price) }}
                       <span class="cd-item-qty">x{{ item.quantity }}</span>
