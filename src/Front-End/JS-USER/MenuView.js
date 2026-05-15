@@ -12,6 +12,15 @@ function getImageUrl(url) {
     return url.startsWith('http') ? url : `http://localhost:8080${url}`
 }
 
+// Danh sách 5 sản phẩm best seller
+const BEST_SELLERS = [
+  'cà phê phin nâu',
+  'bạc xỉu',
+  'trà đào',
+  'matcha latte',
+  'mocha',
+]
+
 export function useMenuView() {
   const router = useRouter()
   const cartStore = useCartStore()
@@ -61,6 +70,7 @@ export function useMenuView() {
         price: p.basePrice,
         isHot: p.isHot || false,
         isNew: p.isNew || false,
+        isBestSeller: BEST_SELLERS.some(s => p.name.toLowerCase().includes(s)),
         imageUrl: getImageUrl(p.imageUrl)
       }))
     } catch (error) {

@@ -5,6 +5,7 @@ import { useMenuView } from '../JS-USER/MenuView.js'
 const gridTopEl = ref(null)
 const isCatOpen = ref(false)
 
+
 const {
   categories,
   activeCategoryId,
@@ -49,9 +50,8 @@ async function onPickCategory(id) {
   await scrollToTopOfGrid()
 }
 
-async function onChangeSort(id) {
+function onChangeSort(id) {
   setSort(id)
-  await scrollToTopOfGrid()
 }
 
 async function onChangePage(n) {
@@ -130,18 +130,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
                 Kết quả cho
                 <span class="text-red-600 font-bold">"{{ searchQuery }}"</span>
               </span>
-              <div class="flex gap-1">
-                <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                  </svg>
-                </button>
-                <button class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h4v4H4zM10 5h4v4h-4zM16 5h4v4h-4zM4 11h4v4H4zM10 11h4v4h-4zM16 11h4v4h-4z"/>
-                  </svg>
-                </button>
-              </div>
+
             </div>
 
             <!-- Label -->
@@ -276,11 +265,15 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
               />
             </div>
 
-            <div v-if="p.isHot" class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md">
-              BÁN CHẠY!
-            </div>
-            <div v-else-if="p.isNew" class="pointer-events-none absolute top-5 -right-10 z-10 w-40 rotate-45 bg-red-600 py-1.5 text-center text-xs font-extrabold tracking-wider text-white shadow-md">
-              GIÁ MỚI
+            <!-- ── Best Seller Badge ── -->
+            <div
+              v-if="p.isBestSeller"
+              class="pointer-events-none absolute top-3 left-3 z-10
+                     flex items-center gap-1 rounded-full
+                     bg-amber-400 px-2.5 py-1
+                     text-[11px] font-extrabold tracking-wide text-amber-900 shadow-md"
+            >
+              ★ BEST SELLER
             </div>
           </button>
 

@@ -1,5 +1,5 @@
-/* dropdown xuất hiện mượt */
-.dropdown-panel {
+/* ── Search dropdown animation ── */
+.search-dropdown {
   transform-origin: top left;
   animation: dropdownIn 160ms ease-out;
 }
@@ -13,4 +13,28 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* ── Category dropdown animation ── */
+.dropdown-panel {
+  transform-origin: top left;
+  animation: dropdownIn 160ms ease-out;
+}
+
+/* ── Search result hover ── */
+.search-result-item {
+  transition: background 120ms ease;
+}
+
+/* ── Pagination button press ── */
+.pagination-btn {
+  transition: transform 80ms ease, background 120ms ease;
+}
+.pagination-btn:not(:disabled):active {
+  transform: scale(0.93);
+}
+
+/* ── Search input focus ring ── */
+.search-input:focus {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
 }
