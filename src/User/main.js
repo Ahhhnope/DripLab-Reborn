@@ -23,6 +23,7 @@ import LoginAcc from '../Front-End/Authorization/Login.vue'
 import RegisterAcc from '../Front-End/Authorization/Register.vue'
 import UserPoints from '../Front-End/USER/UserPoints.vue'
 import ChooseStores from '../Front-End/USER/ChooseStores.vue'
+import ForgotPassword from '@/Front-End/Authorization/Forgotpassword.vue'
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
@@ -51,6 +52,7 @@ const routes = [
     },
     { path: '/login', component: LoginAcc },
     { path: '/register', component: RegisterAcc },
+    { path: '/forgot-password', component: ForgotPassword },
 ]
 
 const router = createRouter({

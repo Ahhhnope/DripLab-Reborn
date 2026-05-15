@@ -59,6 +59,7 @@ export function useLogin() {
 
   function goRegister() { router.push('/register') }
   function goHome() { router.push('/homepage') }
+  function goForgotPassword() { router.push('/forgot-password') }
 
   return {
     identifier,
@@ -69,6 +70,7 @@ export function useLogin() {
     identifierType,
     handleLogin,
     goRegister,
-    goHome
+    goHome,
+    goForgotPassword,
   }
 }

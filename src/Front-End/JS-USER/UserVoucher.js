@@ -14,7 +14,8 @@ export function useUserVoucher() {
         promos.value = res.data.filter(v =>
             v.status &&
             v.quantity > 0 &&
-            new Date(v.endDate) >= now
+            new Date(v.endDate) >= now &&
+            (v.displayLocation ?? 'trên web') === 'trên web'
         )
     }
 
