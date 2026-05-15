@@ -93,3 +93,4 @@ const {
 
 onMounted(() => loadEmployees());
 </script>
+<style scoped src="../CSS/ThongKe.css"></style>
