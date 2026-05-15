@@ -42,7 +42,7 @@
     </div>
 
     <!-- ── FILTER BAR ─────────────────────────────────────── -->
-    <!-- <div class="tk-filter-bar">
+    <div class="tk-filter-bar">
       <div class="tk-filter-left">
         <span class="tk-filter-label">Bộ Lọc</span>
         <div class="tk-filter-tabs">
@@ -54,11 +54,11 @@
           <button class="tk-tab tk-tab--custom">Tuỳ chỉnh</button>
         </div>
       </div>
-      <div class="tk-filter-actions">
+      <!-- <div class="tk-filter-actions">
         <button class="tk-btn-outline">✉ Gửi Báo Cáo</button>
         <button class="tk-btn-solid">⬇ Xuất Excel</button>
-      </div>
-    </div> -->
+      </div> -->
+    </div>
 
     <!-- ── STATS STRIP ────────────────────────────────────── -->
     <div class="tk-stats-row">
