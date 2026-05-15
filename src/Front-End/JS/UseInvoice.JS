@@ -1,4 +1,4 @@
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import api from "../../api/axios"
 
 const invoices = ref([])
@@ -10,124 +10,79 @@ const receiveFilter = ref("")
 const fromDate = ref("")
 const toDate = ref("")
 
+// Phân trang
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const totalPages = computed(() =>
+  Math.ceil(filteredInvoices.value.length / pageSize.value)
+)
+
+const pagedInvoices = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filteredInvoices.value.slice(start, start + pageSize.value)
+})
+
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages.value) currentPage.value = page
+}
+
+function mapInvoice(inv) {
+  const isOnline = inv.receiveType === 'Online'
+  const items = (inv.items ?? []).map(item => {
+    const toppingList = (item.toppings ?? []).map(t => ({
+      name: t.name || "",
+      price: t.price || 0,
+    }))
+    const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
+    const unitPrice = (item.unitPrice || 0) + toppingTotal
+    return {
+      name: item.name || "Món không tên",
+      qty: item.qty || 1,
+      unitPrice,
+      price: unitPrice,
+      size: item.size || null,
+      sugar: item.sugar ?? null,
+      ice: item.ice ?? null,
+      toppings: toppingList,
+    }
+  })
+
+  return {
+    invoice_id: `HD_${inv.invoiceId}`,
+    order_id: inv.orderId || "N/A",
+    status: inv.status || "Đã hủy",
+    date: inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('vi-VN') : "-",
+    payment_method: inv.paymentMethod || "Chưa chọn",
+    receive_type: inv.receiveType || "Tại Quầy",
+    finalPrice: inv.finalPrice || 0,
+    originalPrice: inv.originalPrice || 0,
+    discountAmount: inv.discountAmount || 0,
+    shippingFee: inv.shippingFee || 0,
+    created_at: inv.createdAt,
+    note: inv.note || "",
+    customer: {
+      id: inv.customer?.id || "N/A",
+      name: isOnline ? (inv.customer?.name || "Khách lẻ") : (inv.receiverName || "Khách lẻ"),
+      phone: isOnline ? (inv.customer?.phone || "-") : (inv.receiverPhone || "-"),
+      email: isOnline ? (inv.customer?.email || "-") : "-",
+      address: inv.customer?.address || "-",
+    },
+    items,
+  }
+}
+
 async function loadInvoices() {
   try {
-    const res = await api.get("/invoices");
-    console.log(res.data);
+    const res = await api.get("/invoices")
+    const mapped = res.data.map(mapInvoice)
 
-    invoices.value = res.data.map(inv => {
-      if (inv.receiveType === 'Online') {
-        return ({
-          // ✅ Fix: DTO trả về invoiceId, không phải id
-          invoice_id: `HD_${inv.invoiceId}`,
-          // ✅ Fix: DTO trả về orderId trực tiếp
-          order_id: inv.orderId || "N/A",
-          // ✅ Fix: DTO trả về status trực tiếp
-          status: inv.status || "Đã hủy",
-          // ✅ Fix: DTO trả về createdAt
-          date: inv.createdAt
-            ? new Date(inv.createdAt).toLocaleDateString('vi-VN')
-            : "-",
-          payment_method: inv.paymentMethod || "Chưa chọn",
-          // ✅ Fix: DTO trả về receiveType
-          receive_type: inv.receiveType || "Tại Quầy",
-          finalPrice: inv.finalPrice || 0,
-          originalPrice: inv.originalPrice || 0,
-          discountAmount: inv.discountAmount || 0,
-          shippingFee: inv.shippingFee || 0,
-          created_at: inv.createdAt,
-          note: inv.note || "",
+    // ✅ Sắp xếp mới nhất lên đầu
+    mapped.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-          // ✅ Fix: DTO trả về customer.name (không phải fullName)
-          customer: {
-            id: inv.customer?.id || "N/A",
-            name: inv.customer?.name || "Khách lẻ",
-            phone: inv.customer?.phone || "-",
-            email: inv.customer?.email || "-",
-            address: inv.customer?.address || "-",
-          },
-
-          // ✅ Fix: DTO trả về items trực tiếp (không lồng trong order)
-          items: (inv.items ?? []).map(item => {
-            const toppingList = (item.toppings ?? []).map(t => ({
-              name: t.name || "",
-              price: t.price || 0,
-            }))
-
-            const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-            // unitPrice từ DTO đã bao gồm basePriceAtPurchase
-            const unitPrice = (item.unitPrice || 0) + toppingTotal
-
-            return {
-              name: item.name || "Món không tên",
-              qty: item.qty || 1,
-              unitPrice: unitPrice,
-              price: unitPrice,
-              size: item.size || null,
-              sugar: item.sugar ?? null,
-              ice: item.ice ?? null,
-              toppings: toppingList,
-            }
-          }),
-        })
-      } else {
-        return ({
-          // ✅ Fix: DTO trả về invoiceId, không phải id
-          invoice_id: `HD_${inv.invoiceId}`,
-          // ✅ Fix: DTO trả về orderId trực tiếp
-          order_id: inv.orderId || "N/A",
-          // ✅ Fix: DTO trả về status trực tiếp
-          status: inv.status || "Đã hủy",
-          // ✅ Fix: DTO trả về createdAt
-          date: inv.createdAt
-            ? new Date(inv.createdAt).toLocaleDateString('vi-VN')
-            : "-",
-          payment_method: inv.paymentMethod || "Chưa chọn",
-          // ✅ Fix: DTO trả về receiveType
-          receive_type: inv.receiveType || "Tại Quầy",
-          finalPrice: inv.finalPrice || 0,
-          originalPrice: inv.originalPrice || 0,
-          discountAmount: inv.discountAmount || 0,
-          shippingFee: inv.shippingFee || 0,
-          created_at: inv.createdAt,
-          note: inv.note || "",
-
-          // Receiver hybrid bs
-          customer: {
-            id: inv.customer?.id || "N/A",
-            name: inv.receiverName || "Khách lẻ",
-            phone: inv.receiverPhone || "-",
-            email: "-",
-            address: inv.customer?.address || "-",
-          },
-
-          // ✅ Fix: DTO trả về items trực tiếp (không lồng trong order)
-          items: (inv.items ?? []).map(item => {
-            const toppingList = (item.toppings ?? []).map(t => ({
-              name: t.name || "",
-              price: t.price || 0,
-            }))
-
-            const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-            // unitPrice từ DTO đã bao gồm basePriceAtPurchase
-            const unitPrice = (item.unitPrice || 0) + toppingTotal
-
-            return {
-              name: item.name || "Món không tên",
-              qty: item.qty || 1,
-              unitPrice: unitPrice,
-              price: unitPrice,
-              size: item.size || null,
-              sugar: item.sugar ?? null,
-              ice: item.ice ?? null,
-              toppings: toppingList,
-            }
-          }),
-        })
-      }
-    })
-
-    filteredInvoices.value = invoices.value
+    invoices.value = mapped
+    filteredInvoices.value = mapped
+    currentPage.value = 1
   } catch (err) {
     console.error("Lỗi fetch hóa đơn:", err)
   }
@@ -140,10 +95,11 @@ function filterInvoice() {
       String(inv.order_id).toLowerCase().includes(q)
     const matchPayment = !paymentFilter.value || inv.payment_method === paymentFilter.value
     const matchReceive = !receiveFilter.value || inv.receive_type === receiveFilter.value
-    const matchFrom = !fromDate.value || new Date(inv.date) >= new Date(fromDate.value)
-    const matchTo = !toDate.value || new Date(inv.date) <= new Date(toDate.value)
+    const matchFrom = !fromDate.value || new Date(inv.created_at) >= new Date(fromDate.value)
+    const matchTo = !toDate.value || new Date(inv.created_at) <= new Date(toDate.value)
     return matchSearch && matchPayment && matchReceive && matchFrom && matchTo
   })
+  currentPage.value = 1
 }
 
 function resetFilter() {
@@ -153,17 +109,12 @@ function resetFilter() {
   fromDate.value = ""
   toDate.value = ""
   filteredInvoices.value = [...invoices.value]
+  currentPage.value = 1
 }
 
 export {
-  invoices,
-  filteredInvoices,
-  search,
-  paymentFilter,
-  receiveFilter,
-  fromDate,
-  toDate,
-  loadInvoices,
-  filterInvoice,
-  resetFilter,
+  invoices, filteredInvoices, pagedInvoices,
+  search, paymentFilter, receiveFilter, fromDate, toDate,
+  currentPage, pageSize, totalPages,
+  loadInvoices, filterInvoice, resetFilter, goToPage,
 }

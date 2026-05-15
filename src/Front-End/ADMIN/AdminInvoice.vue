@@ -27,7 +27,7 @@
       <button class="btn-reset" @click="resetFilter">Xóa lọc</button>
     </div>
 
-    <!-- TABLE + CUSTOMER BOX side by side -->
+    <!-- TABLE + CUSTOMER BOX -->
     <div class="invoice-body">
 
       <!-- TABLE -->
@@ -38,21 +38,22 @@
               <th>STT</th>
               <th>Mã hóa đơn</th>
               <th>Mã đơn hàng</th>
-              <th>Ngày hiện</th>
+              <th>Ngày</th>
               <th>Phương thức</th>
-              <th>Nhận Hàng</th>
+              <th>Nhận hàng</th>
               <th>Giá</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="(invoice, index) in filteredInvoices"
+              v-for="(invoice, index) in pagedInvoices"
               :key="invoice.invoice_id"
               :class="{ 'row-selected': selectedInvoice?.invoice_id === invoice.invoice_id }"
               @click="selectInvoice(invoice)"
             >
-              <td>{{ index + 1 }}</td>
+              <!-- STT liên tục qua các trang -->
+              <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
               <td>{{ invoice.invoice_id }}</td>
               <td>{{ invoice.order_id }}</td>
               <td>{{ invoice.date }}</td>
@@ -67,17 +68,42 @@
                 <button class="view-btn" @click.stop="openInvoice(invoice)">Xem thêm</button>
               </td>
             </tr>
-            <tr v-if="filteredInvoices.length === 0">
+            <tr v-if="pagedInvoices.length === 0">
               <td colspan="8" class="empty-row">Không có dữ liệu</td>
             </tr>
           </tbody>
         </table>
+
+        <!-- PHÂN TRANG -->
+        <div class="pagination" v-if="totalPages > 1">
+          <button :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">‹</button>
+
+          <template v-for="page in totalPages" :key="page">
+            <!-- Hiển thị trang đầu, cuối, và các trang gần currentPage -->
+            <button
+              v-if="page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1"
+              :class="{ active: page === currentPage }"
+              @click="goToPage(page)"
+            >{{ page }}</button>
+            <!-- Dấu ... -->
+            <span
+              v-else-if="Math.abs(page - currentPage) === 2"
+              class="pagination-ellipsis"
+            >…</span>
+          </template>
+
+          <button :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">›</button>
+
+          <span class="pagination-info">
+            {{ (currentPage - 1) * pageSize + 1 }}–{{ Math.min(currentPage * pageSize, filteredInvoices.length) }}
+            / {{ filteredInvoices.length }}
+          </span>
+        </div>
       </div>
 
-      <!-- CUSTOMER BOX: cố định ngang bảng -->
+      <!-- CUSTOMER BOX -->
       <div class="customer-box">
         <h3>Thông tin khách hàng</h3>
-
         <div v-if="selectedInvoice" class="customer-info">
           <div class="customer-avatar">
             {{ selectedInvoice.customer.name?.charAt(0) || 'K' }}
@@ -108,7 +134,6 @@
             Xem chi tiết đơn hàng
           </button>
         </div>
-
         <div v-else class="customer-empty">
           <span class="material-symbols-outlined empty-icon">person_search</span>
           <p>Chọn hóa đơn để xem thông tin khách hàng</p>
@@ -131,8 +156,10 @@ import { ref, onMounted, watch } from "vue"
 import { bus } from "../../utils/bus"
 import InvoiceDetail from "./InvoiceDetail.vue"
 import {
-  filteredInvoices, search, paymentFilter, receiveFilter,
-  fromDate, toDate, loadInvoices, filterInvoice, resetFilter
+  filteredInvoices, pagedInvoices,
+  search, paymentFilter, receiveFilter, fromDate, toDate,
+  currentPage, pageSize, totalPages,
+  loadInvoices, filterInvoice, resetFilter, goToPage,
 } from "../JS/UseInvoice.JS"
 
 const showDetail      = ref(false)

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '../../api/axios'
 
+
 export const useAuthStore = defineStore('auth', () => {
   // Start with null - we'll load from server via init()
   const user = ref(null);
