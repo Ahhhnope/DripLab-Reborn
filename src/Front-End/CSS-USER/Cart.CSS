@@ -782,15 +782,15 @@ aside {
 }
 
 .moi-detail {
-  font-size: .80rem;        
-  color: var(--text-secondary); 
+  font-size: .80rem;
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 .moi-price {
   font-weight: 800;
   color: var(--caramel);
-  font-size: 1.05rem;        
+  font-size: 1.05rem;
   white-space: nowrap;
   margin-top: 2px;
 }
@@ -1323,11 +1323,11 @@ aside {
 }
 
 .success-logo-big {
-   width: 90px;
+  width: 90px;
   height: 90px;
   object-fit: contain;
-  margin: 0 auto 16px;  
-  display: block; 
+  margin: 0 auto 16px;
+  display: block;
 }
 
 .success-title {
@@ -1425,6 +1425,7 @@ aside {
   opacity: 0;
   transform: translateX(-20px);
 }
+
 /* Size tag */
 .tag-size {
   background: #e8f4fd;
@@ -1434,7 +1435,7 @@ aside {
 
 /* Giá chi tiết trong modal */
 .moi-price-breakdown {
-  font-size: .75rem;         
+  font-size: .75rem;
   color: var(--text-muted);
   margin-top: 6px;
   display: flex;
@@ -1450,6 +1451,7 @@ aside {
   font-weight: 600;
   color: var(--dark-brown);
 }
+
 .order-note-input {
   width: 100%;
   padding: 10px 13px;
@@ -1475,6 +1477,7 @@ aside {
   color: var(--text-muted);
   font-style: italic;
 }
+
 .meta-bar-actions {
   display: flex;
   align-items: center;
@@ -1502,6 +1505,7 @@ aside {
   border-color: #d93025;
   color: #fff;
 }
+
 /* ── Popup thông tin khách hàng ── */
 .customer-info-form {
   display: flex;
@@ -1521,7 +1525,9 @@ aside {
   color: var(--text-secondary);
 }
 
-.required { color: #d93025; }
+.required {
+  color: #d93025;
+}
 
 .form-input {
   padding: 10px 14px;
@@ -1538,12 +1544,12 @@ aside {
 
 .form-input:focus {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px rgba(196,125,43,.12);
+  box-shadow: 0 0 0 3px rgba(196, 125, 43, .12);
 }
 
 .form-input--error {
   border-color: #d93025 !important;
-  box-shadow: 0 0 0 3px rgba(217,48,37,.08) !important;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, .08) !important;
 }
 
 .form-textarea {
@@ -1631,11 +1637,13 @@ aside {
   flex-wrap: wrap;
   gap: 2px;
 }
+
 .moi-price-breakdown span {
   background: var(--cream-light);
   border-radius: 4px;
   padding: 1px 5px;
 }
+
 .preview-breakdown {
   font-size: .72rem;
   color: var(--text-muted);

@@ -69,6 +69,7 @@
     opacity: 0;
     transform: translateY(24px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -612,7 +613,7 @@
   transform: translateY(-1px);
 }
 
-/* ── Grid sản phẩm — FIX RESPONSIVE ── */
+/* ── Grid sản phẩm ── */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -644,7 +645,7 @@
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
   display: flex;
   flex-direction: column;
-  height: 220px;               /* chiều cao cố định cho toàn card */
+  height: 240px;
 }
 
 .product-card:hover {
@@ -653,10 +654,9 @@
   transform: translateY(-3px);
 }
 
-/* ── Ảnh sản phẩm — FIX LAYOUT ── */
 .product-img-wrap {
   width: 100%;
-  height: 110px;               /* ảnh chiếm đúng 110px */
+  height: 155px;
   background: var(--cream-dark);
   display: flex;
   align-items: center;
@@ -686,7 +686,7 @@
 
 .logo-card-img-wrap {
   width: 100%;
-  height: 80px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -694,7 +694,7 @@
 }
 
 .logo-card-img {
-  height: 60px;
+  height: 76px;
   object-fit: contain;
 }
 
@@ -703,7 +703,7 @@
   font-weight: 800;
   color: var(--brown-dark);
   text-align: center;
-  margin-top: 6px;
+  margin-top: 4px;
   margin-bottom: 4px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -712,21 +712,18 @@
   padding-bottom: 4px;
 }
 
-/* ── Info text bên dưới ảnh ── */
 .product-info-row {
-  padding: 8px 10px 4px;
-  flex: 1;
-  min-height: 0;
+  padding: 4px 10px 0px;
 }
 
 .product-name {
   font-size: 12px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 2px;
+  margin-bottom: 0px;
   white-space: normal;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .brand-label {
@@ -735,21 +732,24 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 1px;
 }
+
 
 .product-price {
   font-size: 13px;
-  font-weight: 800;
-  color: var(--brown-dark);
+  font-weight: 900;
+  color: var(--red);
 }
 
 .product-buy-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px 10px;
+  padding: 4px 10px 8px;
   gap: 6px;
   flex-shrink: 0;
+  margin-top: auto;
 }
 
 .buy-btn {
@@ -893,6 +893,14 @@
   background: #fff3e0;
   color: #b06000;
   border: 1px solid #d4820a;
+}
+
+/* SỬA 3: style mới cho trạng thái "Chưa chọn" */
+.right-table-val.mode-none {
+  background: var(--cream-dark);
+  color: var(--gray);
+  border: 1px solid #ddd4c4;
+  font-style: italic;
 }
 
 .right-action-btns {

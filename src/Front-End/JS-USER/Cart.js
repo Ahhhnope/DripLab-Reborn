@@ -4,8 +4,8 @@ import api from '../../api/axios'
 import MomoPopup from '../QRMoMo/Momo.vue'
 
 function getImageUrl(url) {
-    if (!url) return ''
-    return url.startsWith('http') ? url : `http://localhost:8080${url}`
+  if (!url) return ''
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`
 }
 
 export default {
