@@ -25,6 +25,7 @@ const {
 
   TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
   availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
+  otherOccupiedTables,
 
   showConfirmInfo, confirmWarning, confirmWarningTable,
   goToConfirm, proceedToOrder, backFromConfirmToInfo,
@@ -102,8 +103,15 @@ function availableTableCount() {
   return TOTAL_TABLES - occupiedTables.value.length
 }
 
+// FIX: Bàn được chọn bởi order hiện tại → selected (xanh)
+// Bàn bị chiếm bởi order khác → occupied (xám)
+// Bàn còn trống → có thể chọn
 function isTableSelected(num) {
   return selectedTables.value.includes(num)
+}
+
+function isTableOccupiedByOther(num) {
+  return otherOccupiedTables.value.includes(num)
 }
 
 function formatTableNums(nums) {
@@ -112,7 +120,9 @@ function formatTableNums(nums) {
 }
 
 function getTableLabel(num) {
-  return occupiedTables.value.includes(num) ? 'Hết bàn' : `Bàn ${String(num).padStart(2, '0')}`
+  if (isTableSelected(num)) return `Bàn ${String(num).padStart(2, '0')}`
+  if (isTableOccupiedByOther(num)) return 'Hết bàn'
+  return `Bàn ${String(num).padStart(2, '0')}`
 }
 
 function onOrderTabClick(order) {
@@ -125,19 +135,10 @@ function onOrderTabClick(order) {
 
 function onDineModeChange(val) {
   dineMode.value = val
-  if (!val) {
-    if (currentOrder.value && currentOrder.value.selectedTables) {
-      currentOrder.value.selectedTables.forEach(t => {
-        const idx = occupiedTables.value.indexOf(t)
-        if (idx !== -1) occupiedTables.value.splice(idx, 1)
-      })
-    }
-    selectedTables.value = []
-    if (currentOrder.value) {
-      currentOrder.value.selectedTables = []
-      currentOrder.value.dineMode = false
-    }
+  if (currentOrder.value) {
+    currentOrder.value.dineMode = val
   }
+  // Nếu chuyển sang "mang đi" → sẽ release bàn khi đóng popup (xử lý ở closeTablePopup)
 }
 
 function getDineModeLabel(mode) {
@@ -346,7 +347,6 @@ function getDineModeClass(mode) {
             <span class="right-table-val">{{ displayTableNums.length ? formatTableNums(displayTableNums) : 'Chưa có'
             }}</span>
           </div>
-          <!-- SỬA 3: hiển thị "Chưa chọn" khi null -->
           <div class="right-table-row" style="margin-top:6px">
             <span class="right-info-lbl">Hình thức:</span>
             <span class="right-table-val" :class="getDineModeClass(displayDineMode)">
@@ -455,7 +455,8 @@ function getDineModeClass(mode) {
               <span class="table-count-full">⚠ FULL BÀN — Không còn bàn trống!</span>
             </template>
             <template v-else>
-              Bàn trống: <strong>{{ String(TOTAL_TABLES - occupiedTables.length).padStart(2, '0') }}</strong>
+              Bàn trống:
+              <strong>{{ String(TOTAL_TABLES - otherOccupiedTables.length).padStart(2, '0') }}</strong>
               &nbsp;|&nbsp;
               <span class="table-selected-hint">
                 Đã chọn: <strong>{{ selectedTables.length }}</strong>/{{ MAX_TABLES_PER_ORDER }}
@@ -469,9 +470,23 @@ function getDineModeClass(mode) {
             </span>
           </div>
           <div class="table-grid" style="margin-top:10px">
-            <button v-for="num in availableTables" :key="num" class="table-btn"
-              :class="{ selected: isTableSelected(num), occupied: occupiedTables.includes(num) }"
-              @click="selectTable(num)" :disabled="occupiedTables.includes(num)">
+            <!--
+              FIX logic hiển thị bàn:
+              - isTableSelected(num)        → bàn đang được chọn bởi order này (xanh, có thể bỏ chọn)
+              - isTableOccupiedByOther(num) → bàn bị order khác giữ (xám, disabled)
+              - còn lại                     → trống, có thể chọn
+            -->
+            <button
+              v-for="num in availableTables"
+              :key="num"
+              class="table-btn"
+              :class="{
+                selected: isTableSelected(num),
+                occupied: isTableOccupiedByOther(num) && !isTableSelected(num)
+              }"
+              @click="selectTable(num)"
+              :disabled="isTableOccupiedByOther(num) && !isTableSelected(num)"
+            >
               {{ getTableLabel(num) }}
             </button>
           </div>
@@ -543,7 +558,6 @@ function getDineModeClass(mode) {
       <div class="payment-popup">
         <div class="payment-title-row">
           <h2 class="payment-title">Thanh toán</h2>
-          <!-- SỬA 3: badge thanh toán — null=chưa chọn→hiển thị mang đi trong popup thanh toán -->
           <span class="payment-mode-badge" :class="dineMode === true ? 'badge--dine' : 'badge--takeaway'">
             {{ dineMode === true ? 'Tại quán' : 'Mang đi' }}
           </span>
@@ -668,7 +682,6 @@ function getDineModeClass(mode) {
         </div>
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>
-          <!-- SỬA 3: trong review popup luôn hiển thị mang đi nếu không chọn -->
           <span class="review-val review-mode-badge" :class="receiptData.dineMode === true ? 'dine' : 'takeaway'">
             {{ receiptData.dineMode === true ? ' Tại quán' : 'Mang đi' }}
           </span>
