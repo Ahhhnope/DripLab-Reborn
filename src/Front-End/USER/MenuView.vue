@@ -5,7 +5,6 @@ import { useMenuView } from '../JS-USER/MenuView.js'
 const gridTopEl = ref(null)
 const isCatOpen = ref(false)
 
-
 const {
   categories,
   activeCategoryId,
@@ -47,7 +46,7 @@ async function scrollToTopOfGrid() {
 async function onPickCategory(id) {
   setCategory(id)
   isCatOpen.value = false
-  await scrollToTopOfGrid()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function onChangeSort(id) {
@@ -59,7 +58,6 @@ async function onChangePage(n) {
   await scrollToTopOfGrid()
 }
 
-// Close dropdowns on outside click
 function onDocClick(e) {
   const catEl = e.target.closest?.('[data-cat-dropdown]')
   if (!catEl) isCatOpen.value = false
@@ -81,16 +79,46 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         Trang chủ / <span class="text-slate-700">{{ pageTitle }}</span>
       </div>
 
-      <!-- Title Row: h2 + Search bar side by side -->
-      <div class="mt-4 flex flex-wrap items-center gap-4">
-        <h2 class="text-3xl md:text-4xl font-light tracking-tight text-slate-900 shrink-0">
-          {{ pageTitle }}
-        </h2>
+      <!-- ── Wrapper căn chỉnh 2 hàng ── -->
+      <div class="mt-4 flex flex-col gap-5" style="width: fit-content; min-width: min(100%, 600px)">
+
+        <!-- Hàng 1: Danh mục + Search -->
+        <div class="flex items-center gap-4 w-full">
+
+        <!-- Danh mục dropdown -->
+        <div class="relative shrink-0" data-cat-dropdown>
+          <button
+            class="inline-flex items-center justify-between gap-3 min-w-44
+                   rounded-xl border border-slate-200 bg-white px-3 py-2
+                   text-sm font-semibold text-slate-900 shadow-sm
+                   hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300"
+            @click.stop="isCatOpen = !isCatOpen"
+          >
+            <span>{{ activeCategoryLabel() }}</span>
+            <span class="text-slate-400 transition-transform duration-200" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
+          </button>
+
+          <div
+            v-if="isCatOpen"
+            class="dropdown-panel absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
+          >
+            <button
+              v-for="c in categories"
+              :key="c.id"
+              class="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
+              @click="onPickCategory(c.id)"
+            >
+              <span :class="c.id === activeCategoryId ? 'font-semibold text-slate-900' : 'text-slate-700'">
+                {{ c.label }}
+              </span>
+              <span v-if="c.id === activeCategoryId" class="text-emerald-600 font-bold">✓</span>
+            </button>
+          </div>
+        </div>
 
         <!-- ── Search Box ── -->
-        <div class="relative flex-1 min-w-55 max-w-sm" data-search-box>
+        <div class="relative flex-1 min-w-0" data-search-box>
           <div class="relative flex items-center">
-            <!-- Search icon -->
             <span class="absolute left-3 text-slate-400 pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
@@ -100,14 +128,13 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Xin chào , bạn cần gì hôm nay?"
+              placeholder="Xin chào, bạn cần gì hôm nay?"
               class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800
                      placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300
                      transition search-input"
               @focus="searchQuery.length && (isSearchOpen = true)"
             />
 
-            <!-- Clear button -->
             <button
               v-if="searchQuery"
               class="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
@@ -119,27 +146,23 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             </button>
           </div>
 
-          <!-- ── Search Dropdown Panel ── -->
+          <!-- Search Dropdown Panel -->
           <div
             v-if="isSearchOpen && previewResults.length"
             class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 overflow-hidden"
           >
-            <!-- Header -->
             <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
               <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Kết quả cho
                 <span class="text-red-600 font-bold">"{{ searchQuery }}"</span>
               </span>
-
             </div>
 
-            <!-- Label -->
             <div class="px-4 pt-2 pb-1">
               <span class="text-xs text-slate-400 font-medium">Hiển thị kết quả theo:</span>
               <span class="ml-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">Sản phẩm</span>
             </div>
 
-            <!-- Results -->
             <ul>
               <li
                 v-for="p in previewResults"
@@ -148,11 +171,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
                 @click="openFromImage(p); clearSearch()"
               >
                 <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
-                  <img
-                    :src="p.imageUrl || '/placeholder.png'"
-                    :alt="p.name"
-                    class="h-full w-full object-cover"
-                  />
+                  <img :src="p.imageUrl || '/placeholder.png'" :alt="p.name" class="h-full w-full object-cover" />
                 </div>
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-semibold text-slate-800 truncate">{{ p.name }}</p>
@@ -163,7 +182,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
               </li>
             </ul>
 
-            <!-- Footer: more results -->
             <div
               v-if="hasMoreResults"
               class="px-4 py-2.5 border-t border-slate-100 text-center text-xs text-slate-500 bg-slate-50/60"
@@ -183,46 +201,10 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             <p class="text-sm text-slate-400">Không tìm thấy sản phẩm nào 😢</p>
           </div>
         </div>
-      </div>
-
-      <!-- Row: Danh mục + Sắp xếp -->
-      <div class="mt-6 flex flex-wrap items-center gap-6 text-slate-600">
-        <!-- Danh mục -->
-        <div class="flex items-center gap-3" data-cat-dropdown>
-          <div class="text-base md:text-lg font-medium">Danh mục:</div>
-          <div class="relative">
-            <button
-              class="inline-flex items-center justify-between gap-3 min-w-44
-                     rounded-xl border border-slate-200 bg-white px-3 py-2
-                     text-sm font-semibold text-slate-900 shadow-sm
-                     hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300"
-              @click.stop="isCatOpen = !isCatOpen"
-            >
-              <span>{{ activeCategoryLabel() }}</span>
-              <span class="text-slate-400 transition-transform duration-200" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
-            </button>
-
-            <div
-              v-if="isCatOpen"
-              class="dropdown-panel absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
-            >
-              <button
-                v-for="c in categories"
-                :key="c.id"
-                class="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
-                @click="onPickCategory(c.id)"
-              >
-                <span :class="c.id === activeCategoryId ? 'font-semibold text-slate-900' : 'text-slate-700'">
-                  {{ c.label }}
-                </span>
-                <span v-if="c.id === activeCategoryId" class="text-emerald-600 font-bold">✓</span>
-              </button>
-            </div>
-          </div>
         </div>
 
-        <!-- Sắp xếp -->
-        <div class="flex flex-wrap items-center gap-4">
+        <!-- Hàng 2: Sắp xếp -->
+        <div class="flex flex-wrap items-center gap-4 text-slate-600">
           <div class="text-base md:text-lg font-medium">Sắp xếp:</div>
           <button
             v-for="s in sortOptions"
@@ -234,6 +216,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             {{ s.label }}
           </button>
         </div>
+
       </div>
 
       <!-- Scroll anchor -->
@@ -265,7 +248,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
               />
             </div>
 
-            <!-- ── Best Seller Badge ── -->
+            <!-- Best Seller Badge -->
             <div
               v-if="p.isBestSeller"
               class="pointer-events-none absolute top-3 left-3 z-10
@@ -302,7 +285,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 
       <!-- ── Pagination ── -->
       <div v-if="totalPages > 1" class="mt-12 flex items-center justify-center gap-1.5">
-        <!-- Prev -->
         <button
           class="pagination-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-slate-200 bg-white
                  text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
@@ -315,12 +297,8 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           Trước
         </button>
 
-        <!-- Page numbers -->
         <template v-for="(pg, i) in visiblePages" :key="i">
-          <!-- Ellipsis -->
           <span v-if="pg === null" class="px-1.5 text-slate-400 select-none">…</span>
-
-          <!-- Page button -->
           <button
             v-else
             class="pagination-btn h-9 w-9 rounded-xl text-sm font-semibold border transition"
@@ -333,7 +311,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
           </button>
         </template>
 
-        <!-- Next -->
         <button
           class="pagination-btn flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border border-slate-200 bg-white
                  text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
@@ -347,13 +324,11 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         </button>
       </div>
 
-
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ── Search dropdown animation ── */
 .search-dropdown {
   transform-origin: top left;
   animation: dropdownIn 160ms ease-out;
@@ -364,18 +339,15 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
   to   { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
-/* ── Category dropdown animation ── */
 .dropdown-panel {
   transform-origin: top left;
   animation: dropdownIn 160ms ease-out;
 }
 
-/* ── Search result hover ── */
 .search-result-item {
   transition: background 120ms ease;
 }
 
-/* ── Pagination button press ── */
 .pagination-btn {
   transition: transform 80ms ease, background 120ms ease;
 }
@@ -383,7 +355,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
   transform: scale(0.93);
 }
 
-/* ── Search input focus ring ── */
 .search-input:focus {
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
 }
