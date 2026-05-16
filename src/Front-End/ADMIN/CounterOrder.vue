@@ -111,7 +111,7 @@ function isTableSelected(num) {
 }
 
 function isTableOccupiedByOther(num) {
-  return otherOccupiedTables.value.includes(num)
+  return otherOccupiedTables?.value.includes(num)
 }
 
 function formatTableNums(nums) {
@@ -455,8 +455,7 @@ function getDineModeClass(mode) {
               <span class="table-count-full">⚠ FULL BÀN — Không còn bàn trống!</span>
             </template>
             <template v-else>
-              Bàn trống:
-              <strong>{{ String(TOTAL_TABLES - otherOccupiedTables.length).padStart(2, '0') }}</strong>
+              Bàn trống: <strong>{{ String(TOTAL_TABLES - occupiedTables.length).padStart(2, '0') }}</strong>
               &nbsp;|&nbsp;
               <span class="table-selected-hint">
                 Đã chọn: <strong>{{ selectedTables.length }}</strong>/{{ MAX_TABLES_PER_ORDER }}
