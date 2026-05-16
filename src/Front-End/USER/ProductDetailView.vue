@@ -44,8 +44,6 @@ const selections = reactive({
 })
 
 // --- OPTIONS (Sync with CafeDB) ---
-// const sugarItems = ['0%', '30%', '50%', '70%', '100%']
-// const iceItems = ['0%', '30%', '50%', '70%', '100%']
 const sugarItems = [0, 30, 50, 70, 100]
 const iceItems = [0, 30, 50, 70, 100]
 
@@ -56,6 +54,9 @@ const sizeItems = [
 ]
 const toppingItems = ref([])
 
+// --- BEST SELLER LIST (sync với MenuView.js) ---
+const BEST_SELLERS = ['cà phê phin nâu', 'bạc xỉu', 'trà đào', 'matcha latte', 'mocha']
+
 // --- FETCH DATA ---
 onMounted(async () => {
   try {
@@ -65,7 +66,13 @@ onMounted(async () => {
       api.get('/ingredients/toppings')
     ])
 
-    product.value = drinkRes.data 
+    product.value = drinkRes.data
+
+    // Tính isBestSeller từ tên sản phẩm (đồng bộ với MenuView.js)
+    product.value.isBestSeller = BEST_SELLERS.some(s =>
+      product.value.name.toLowerCase().includes(s)
+    )
+
     toppingItems.value = toppingRes.data.map(t => ({
       id: t.id,
       label: t.name,
@@ -185,8 +192,23 @@ function closeNotice() {
           <div class="sticky top-10 group overflow-hidden rounded-3xl shadow-2xl cursor-zoom-in" @click="showPreview = true">
             <img :src="productImageUrl" class="aspect-4/5 w-full object-cover transition duration-500 group-hover:scale-105" />
             <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
+
             <div class="absolute bottom-0 p-8 text-white">
-              <span class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter mb-2 inline-block">Món mới</span>
+              <div class="mb-2">
+                <!-- Best Seller → badge vàng, ẩn Món mới -->
+                <span
+                  v-if="product.isBestSeller"
+                  class="flex items-center gap-1 w-fit rounded-full bg-amber-400 px-3 py-1
+                         text-[10px] font-extrabold tracking-wide text-amber-900 shadow-md"
+                >
+                  ★ BEST SELLER
+                </span>
+                <!-- Không phải Best Seller → hiện Món mới -->
+                <span
+                  v-else
+                  class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter inline-block"
+                >Món mới</span>
+              </div>
               <h1 class="text-4xl font-black leading-none uppercase">{{ product.name }}</h1>
               <p class="mt-2 text-2xl font-light opacity-90">{{ formatVnd(product.basePrice) }}</p>
             </div>
