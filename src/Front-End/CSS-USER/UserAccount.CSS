@@ -3186,3 +3186,128 @@
   margin-top: 1px;
   color: #ea580c;
 }
+/* ── Layout 2 cột ── */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.half-card {
+  /* card đã có style, chỉ cần đảm bảo height tự co giãn */
+  height: fit-content;
+}
+
+/* ── Mã KM của tôi ── */
+.my-promo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-promo-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1.5px dashed #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  gap: 12px;
+}
+
+.promo-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.promo-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 4px 0 2px;
+}
+
+.promo-code-line {
+  font-size: 13px;
+  color: #555;
+}
+
+.promo-exp {
+  font-size: 12px;
+  color: #999;
+}
+
+.promo-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e67e22;
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+/* ── Promo list footer ── */
+.my-promo-list {
+  position: relative;
+}
+
+.history-footer {
+  position: relative;
+  margin-top: 8px;
+}
+
+.history-fade {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, #fff);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.history-footer-btns {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.history-expand-btn,
+.history-collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 20px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 99px;
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-expand-btn:hover,
+.history-collapse-btn:hover {
+  border-color: #4caf50;
+  color: #4caf50;
+  background: #f6fff6;
+}
+
+.history-expand-btn .material-symbols-outlined,
+.history-collapse-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.history-expand-count {
+  color: #999;
+  font-size: 12px;
+}

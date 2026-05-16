@@ -232,6 +232,10 @@ export function useUserPoints() {
     ])
   }
 
+  const myPromos = computed(() =>
+  vouchers.value.filter(v => savedPromoIds.value.includes(v.id))
+)
+
   const timer = null
   onMounted(() => {
     initPage()
@@ -244,6 +248,7 @@ export function useUserPoints() {
     myPoints, usedPoints, nextTierPoints,
     currentTier, progress,
     vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
+    myPromos,
     pointHistory,
     toastVisible, toastMessage, toastType,
     goTo, logout,
