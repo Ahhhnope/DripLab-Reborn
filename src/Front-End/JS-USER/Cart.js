@@ -61,6 +61,11 @@ export default {
         sizePrice: item.size?.price || 0,
         sizeName: item.size?.name || '',
         toppingPrice: item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0,
+        // ✅ Chi tiết từng topping với giá riêng
+        toppingDetails: item.toppings?.map((t) => ({
+          name: t.topping?.name || '',
+          price: t.topping?.price || 0,
+        })).filter(t => t.name) || [],
         basePrice:
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
