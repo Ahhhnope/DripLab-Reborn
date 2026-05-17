@@ -66,7 +66,7 @@
           <div class="form-group"><label>Mã ID <em>(tự động)</em></label><input :value="form.id" readonly /></div>
           <div class="form-group"><label>Ngày tạo <em>(tự động)</em></label><input :value="form.ngayTaoDisp" readonly /></div>
           <div class="form-group full"><label>Tên loại kem lạnh</label><input ref="inputName" v-model="form.tenLoai" placeholder="VD: Kem vanilla, Kem matcha..." @keyup.enter="handleSubmit" /></div>
-          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.gia" type="number" placeholder="VD: 22000" min="0" @keyup.enter="handleSubmit" /></div>
+          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.gia" type="number" placeholder="VD: 22000" min="0" step="1" @keypress="blockDecimal" @keyup.enter="handleSubmit" /></div>
         </div>
         <div class="popup-actions">
           <button class="cancel-btn" @click="showForm = false">Hủy</button>
@@ -110,7 +110,26 @@ const {
   toastShow, toastMsg, toastType, showToast
 } = useIngredients('ice-creams', 'K');
 
+const blockDecimal = (e) => {
+  if (['-', '.', ',', 'e', 'E'].includes(e.key)) {
+    e.preventDefault();
+  }
+}
+
 const handleSubmit = async () => {
+  let rawPrice = Number(form.value?.gia || 0);
+  
+  if (rawPrice < 0) {
+    showToast('Giá không được để âm!', 'error');
+    return;
+  }
+  
+  if (!Number.isInteger(rawPrice)) {
+    showToast('Giá phải là số nguyên!', 'error');
+    form.value.gia = Math.floor(rawPrice);
+    return;
+  }
+
   const result = await submitForm();
   showToast(result.error || result.success, result.error ? 'error' : 'ok');
 };

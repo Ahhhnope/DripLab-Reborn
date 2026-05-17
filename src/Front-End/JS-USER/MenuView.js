@@ -62,17 +62,29 @@ export function useMenuView() {
   onMounted(async () => {
     try {
       const res = await api.get('/drinks/active')
-      products.value = res.data.map(p => ({
-        id: p.id,
-        categoryId: p.category?.toLowerCase().includes('trà') ? 'tea' : 'coffee',
-        brand: 'DRIP LAB',
-        name: p.name,
-        price: p.basePrice,
-        isHot: p.isHot || false,
-        isNew: p.isNew || false,
-        isBestSeller: BEST_SELLERS.some(s => p.name.toLowerCase().includes(s)),
-        imageUrl: getImageUrl(p.imageUrl)
-      }))
+      products.value = res.data.map(p => {
+
+        let isNewItem = false
+        if (p.createdAt) {
+          const createdTime = new Date(p.createdAt).getTime()
+          const currentTime = new Date().getTime()
+          const diffInDays = (currentTime - createdTime) / (1000 * 60 * 60 * 24)
+          
+          isNewItem = diffInDays >= 0 && diffInDays <= 3
+        }
+
+        return {
+          id: p.id,
+          categoryId: p.category?.toLowerCase().includes('trà') ? 'tea' : 'coffee',
+          brand: 'DRIP LAB',
+          name: p.name,
+          price: p.basePrice,
+          isHot: p.isHot || false,
+          isNew: isNewItem,
+          isBestSeller: BEST_SELLERS.some(s => p.name.toLowerCase().includes(s)),
+          imageUrl: getImageUrl(p.imageUrl)
+        }
+      })
     } catch (error) {
       console.error("Failed to fetch menu:", error)
     } finally {

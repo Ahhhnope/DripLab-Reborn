@@ -141,6 +141,8 @@
               type="number"
               placeholder="VD: 50000"
               min="0"
+              step="1"
+              @keypress="blockDecimal"
               @keyup.enter="handleSubmit"
             />
           </div>
@@ -185,31 +187,6 @@
   </div>
 </template>
 
-<!-- <script setup>
-import useHatCaPhe from '../JS/HatCaPhe.JS'
-
-const {
-  search, currentPage, PAGE_SIZE,
-  filtered, totalPages, pageStart, pagedRows, ghostCount,
-  fmtPrice, fmtDate,
-  showForm, isEditing, inputName, form,
-  openAdd, openEdit, submitForm,
-  showConfirm, deleteTarget, openConfirm, doDelete,
-  toastShow, toastMsg, toastType, showToast,
-} = useHatCaPhe()
-
-const handleSubmit = () => {
-  const result = submitForm()
-  if (result.error)   showToast(result.error, 'err')
-  if (result.success) showToast('✅ ' + result.success, 'ok')
-}
-
-const handleDelete = () => {
-  const result = doDelete()
-  if (result.success) showToast('🗑 ' + result.success, 'ok')
-}
-
-</script> -->
 <script setup>
 import { useIngredients } from '../JS/UseIngridients';
 
@@ -223,7 +200,26 @@ const {
   toastShow, toastMsg, toastType, showToast
 } = useIngredients('coffee-beans', 'HCF');
 
+const blockDecimal = (e) => {
+  if (['-', '.', ',', 'e', 'E'].includes(e.key)) {
+    e.preventDefault();
+  }
+}
+
 const handleSubmit = async () => {
+  let rawPrice = Number(form.value?.gia || 0);
+  
+  if (rawPrice < 0) {
+    showToast('Giá không được để âm!', 'error');
+    return;
+  }
+  
+  if (!Number.isInteger(rawPrice)) {
+    showToast('Giá phải là số nguyên!', 'error');
+    form.value.gia = Math.floor(rawPrice);
+    return;
+  }
+
   const result = await submitForm();
   showToast(result.error || result.success, result.error ? 'error' : 'ok');
 };

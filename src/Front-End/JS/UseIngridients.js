@@ -64,7 +64,7 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
   const openAdd = () => {
     isEditing.value = false;
     form.value = {
-      id: `${idPrefix}-${Date.now().toString().slice(-4)}`,
+      id: generateNextId(),
       tenLoai: "",
       gia: 0,
       ngayTao: new Date().toISOString(),
@@ -72,6 +72,24 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
     };
     showForm.value = true;
     nextTick(() => inputName.value?.focus());
+  };
+
+  const generateNextId = () => {
+    if (!rows.value || rows.value.length === 0) {
+      return "1"; // Start at 1 if the table is empty
+    }
+
+    let maxNum = 0;
+
+    rows.value.forEach(row => {
+      // Safely parse the existing ID to a number regardless of whether it's stored as a string or number
+      const parsed = parseInt(row.id, 10);
+      if (!isNaN(parsed) && parsed > maxNum) {
+        maxNum = parsed;
+      }
+    });
+
+    return String(maxNum + 1);
   };
 
   const openEdit = (row) => {

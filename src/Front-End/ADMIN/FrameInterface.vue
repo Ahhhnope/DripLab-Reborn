@@ -151,13 +151,13 @@ const auth = useAuthStore();
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-[13px] font-bold text-[#3C2A21] truncate">
-            Quản Trị Viên
+            {{ auth.user.fullName }}
           </p>
           <p
             class="text-[10px] text-stone-500 truncate font-medium"
             alt="Nguyễn Huy Bình"
           >
-            {{ auth.user.fullName }}
+            {{ auth.user.role }}
           </p>
         </div>
         <button

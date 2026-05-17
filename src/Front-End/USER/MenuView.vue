@@ -258,6 +258,16 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
             >
               ★ BEST SELLER
             </div>
+
+            <div
+              v-if="p.isNew"
+              class="pointer-events-none absolute top-3 right-3 z-10
+                     flex items-center gap-1 rounded-full
+                     px-2.5 py-1
+                     text-[11px] font-extrabold tracking-wide bg-emerald-500 shadow-md"
+            >
+              ★ MÓN MỚI
+            </div>
           </button>
 
           <div class="relative p-5">

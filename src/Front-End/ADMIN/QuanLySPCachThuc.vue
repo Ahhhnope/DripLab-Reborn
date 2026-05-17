@@ -113,10 +113,28 @@ const PAGE_SIZE = 5
 // form
 const showForm = ref(false)
 const isEditing = ref(false)
+
+const generateNextId = () => {
+  if (!rows.value || rows.value.length === 0) {
+    return "1"; // Start at 1 if the table is empty
+  }
+
+  let maxNum = 0;
+  rows.value.forEach(row => {
+    const parsed = parseInt(row.id, 10);
+    if (!isNaN(parsed) && parsed > maxNum) {
+      maxNum = parsed;
+    }
+  });
+
+  return String(maxNum + 1);  
+};
+
 const form = ref({
-  id: null,
+  id: "",
   name: '',
-  instructions: ''
+  instructions: '',
+  ngayTaoDisp: "",
 })
 
 // delete
@@ -162,13 +180,20 @@ const ghostCount = computed(() =>
 // ================= ACTIONS =================
 const openAdd = () => {
   isEditing.value = false
-  form.value = { id: null, name: '', instructions: '' }
+  form.value = {
+    id: generateNextId(),
+    name: '',
+    instructions: '',
+    ngayTaoDisp: new Date().toLocaleDateString('vi-VN')
+  }
   showForm.value = true
 }
 
 const openEdit = (row) => {
   isEditing.value = true
-  form.value = { ...row }
+  form.value = { ...row,
+    ngayTaoDisp: new Date().toLocaleDateString('vi-VN')
+   }
   showForm.value = true
 }
 
@@ -177,7 +202,8 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       await api.put(`instructions/update/${form.value.id}`, form.value);
     } else {
-      await api.post('instructions/add', form.value);
+      const {id, ngayTaoDisp, ...payLoad} = form.value
+      await api.post('instructions/add', payLoad);
     }
 
     showForm.value = false
