@@ -86,22 +86,36 @@
           <div class="summary-heading">Tóm tắt đơn hàng</div>
           <div class="selected-preview">
             <template v-if="selectedItems.length > 0">
-              <!-- Tìm block preview-item và thay toàn bộ bằng: -->
+              <!-- ✅ Chi tiết sản phẩm giống hình 3 -->
               <div v-for="item in selectedItems" :key="item.id" class="preview-item">
-                <div class="preview-name">
-                  {{ item.name }}
-                  <div class="preview-qty">x{{ item.quantity }}</div>
-                  <!-- Breakdown size -->
-                  <div v-if="item.sizePrice > 0" class="preview-breakdown">
-                    Size {{ item.sizeName }}: +{{ formatVND(item.sizePrice) }}
+                <div class="preview-item-inner">
+                  <!-- Tên + số lượng sát tên, giá đẩy phải -->
+                  <div class="preview-item-header">
+                    <div class="preview-name-group">
+                      <span class="preview-name">{{ item.name }}</span>
+                      <span class="preview-qty-badge">x{{ item.quantity }}</span>
+                    </div>
+                    <span class="preview-price">{{ formatVND(item.basePrice * item.quantity) }}</span>
                   </div>
-                  <!-- Breakdown topping -->
-                  <div v-if="item.toppingPrice > 0" class="preview-breakdown">
-                    Topping: +{{ formatVND(item.toppingPrice) }}
+                  <!-- Size -->
+                  <div v-if="item.sizeName" class="preview-detail-row">
+                    <span class="preview-detail-icon">≡</span>
+                    <span class="preview-detail-label">Size {{ item.sizeName }}</span>
+                    <span class="preview-detail-price" v-if="item.sizePrice > 0">+{{ formatVND(item.sizePrice) }}</span>
+                    <span class="preview-detail-price free" v-else>+0 đ</span>
                   </div>
-                </div>
-                <div class="preview-price">
-                  {{ formatVND(item.basePrice * item.quantity) }}
+                  <!-- Từng topping riêng -->
+                  <div v-for="(tp, i) in item.toppingDetails" :key="i" class="preview-detail-row">
+                    <span class="preview-detail-icon">+</span>
+                    <span class="preview-detail-label">{{ tp.name }}</span>
+                    <span class="preview-detail-price" v-if="tp.price > 0">+{{ formatVND(tp.price) }}</span>
+                    <span class="preview-detail-price free" v-else>+0 đ</span>
+                  </div>
+                  <!-- Đường / Đá -->
+                  <div class="preview-badges">
+                    <span class="preview-badge sugar">Đường {{ item.sugar }}%</span>
+                    <span class="preview-badge ice">Đá {{ item.ice }}%</span>
+                  </div>
                 </div>
               </div>
             </template>
@@ -301,53 +315,59 @@
                 </div>
               </div>
 
-              <!-- Sản phẩm -->
+              <!-- ✅ Sản phẩm – chi tiết giống hình 3 -->
               <div class="modal-section">
                 <div class="modal-section-label">Sản phẩm của bạn</div>
                 <div v-for="item in selectedItems" :key="item.id" class="modal-order-item">
-                  <div class="moi-info">
-                    <div class="moi-name">{{ item.name }}</div>
-                    <div class="moi-detail">
-                      x{{ item.quantity }}
-                      <template v-if="item.sizeName">
-                        • Size {{ item.sizeName }}</template>
-                      • Đường {{ item.sugar }}% • Đá {{ item.ice }}%
-                      <template v-if="item.toppings && item.toppings.length">
-                        • {{ item.toppings.join(", ") }}
-                      </template>
+                  <!-- Header: tên + qty badge sát tên + giá đẩy phải -->
+                  <div class="moi-header">
+                    <div class="moi-name-group">
+                      <div class="moi-name">{{ item.name }}</div>
+                      <div class="moi-qty-badge">x{{ item.quantity }}</div>
                     </div>
-                    <div class="moi-price-breakdown">
-                      <span>Đồ uống: {{ formatVND(item.drinkBasePrice) }}</span>
-                      <span v-if="item.sizePrice > 0">
-                        + Size: {{ formatVND(item.sizePrice) }}</span>
-                      <span v-if="item.toppingPrice > 0">
-                        + Topping: {{ formatVND(item.toppingPrice) }}</span>
-                    </div>
+                    <div class="moi-price">{{ formatVND(item.basePrice * item.quantity) }}</div>
                   </div>
-                  <div class="moi-price">
-                    {{ formatVND(item.basePrice * item.quantity) }}
+                  <!-- Size -->
+                  <div v-if="item.sizeName" class="moi-detail-row">
+                    <span class="moi-detail-icon">≡</span>
+                    <span class="moi-detail-label">Size {{ item.sizeName }}</span>
+                    <span class="moi-detail-price" v-if="item.sizePrice > 0">+{{ formatVND(item.sizePrice) }}</span>
+                    <span class="moi-detail-price free" v-else>+0 đ</span>
+                  </div>
+                  <!-- Từng topping riêng với giá -->
+                  <div v-for="(tp, i) in item.toppingDetails" :key="i" class="moi-detail-row">
+                    <span class="moi-detail-icon">+</span>
+                    <span class="moi-detail-label">{{ tp.name }}</span>
+                    <span class="moi-detail-price" v-if="tp.price > 0">+{{ formatVND(tp.price) }}</span>
+                    <span class="moi-detail-price free" v-else>+0 đ</span>
+                  </div>
+                  <!-- Đường / Đá badges -->
+                  <div class="moi-badges">
+                    <span class="moi-badge sugar">Đường {{ item.sugar }}%</span>
+                    <span class="moi-badge ice">Đá {{ item.ice }}%</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Mã giảm giá -->
-              <!-- Thay phần mã giảm giá trong modal popup 2 -->
+              <!-- ✅ Mã giảm giá – căn giữa -->
               <div class="modal-section">
                 <div class="modal-section-label">Khuyến mãi</div>
-                <div class="coupon-wrap">
-                  <select v-model="couponCode" class="coupon-select" :disabled="couponApplied">
-                    <option value="">-- Chọn mã khuyến mãi --</option>
-                    <option value="CAFE10">CAFE10 — Giảm 10% đơn hàng</option>
-                    <option value="FREESHIP">
-                      FREESHIP — Miễn phí vận chuyển
-                    </option>
-                  </select>
-                  <button class="btn-apply-coupon" @click="couponApplied ? removeCoupon() : applyCoupon()">
-                    {{ couponApplied ? "Hủy" : "Áp dụng" }}
-                  </button>
-                </div>
-                <div v-if="couponMessage" class="coupon-feedback" :class="couponApplied ? 'success' : 'error'">
-                  {{ couponMessage }}
+                <div class="coupon-center-wrapper">
+                  <div class="coupon-wrap-centered">
+                    <select v-model="couponCode" class="coupon-select" :disabled="couponApplied">
+                      <option value="">-- Chọn mã khuyến mãi --</option>
+                      <option value="CAFE10">CAFE10 — Giảm 10% đơn hàng</option>
+                      <option value="FREESHIP">
+                        FREESHIP — Miễn phí vận chuyển
+                      </option>
+                    </select>
+                    <button class="btn-apply-coupon" @click="couponApplied ? removeCoupon() : applyCoupon()">
+                      {{ couponApplied ? "Hủy" : "Áp dụng" }}
+                    </button>
+                  </div>
+                  <div v-if="couponMessage" class="coupon-feedback-centered" :class="couponApplied ? 'success' : 'error'">
+                    {{ couponMessage }}
+                  </div>
                 </div>
               </div>
 
