@@ -33,7 +33,8 @@
             <div v-else-if="error" class="modal-state">
               <div class="error-icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                 </svg>
               </div>
               <p class="modal-state__msg">{{ error }}</p>
@@ -51,39 +52,43 @@
                   <div class="status-timeline__connector" :style="{ '--progress': progressWidth }"></div>
 
                   <template v-for="(st, idx) in visibleSteps" :key="st.key">
-                    <button
-                      type="button"
-                      class="status-step"
-                      :class="stepClass(st, idx)"
-                      @click="openConfirmStatus(st)"
-                      :title="st.label"
-                    >
+                    <button type="button" class="status-step" :class="stepClass(st, idx)" @click="openConfirmStatus(st)"
+                      :title="st.label">
                       <span class="status-step__circle" aria-hidden="true">
-                        <svg v-if="st.icon === 'doc'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <svg v-if="st.icon === 'doc'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M9 17h6" />
                         </svg>
-                        <svg v-else-if="st.icon === 'gear'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <svg v-else-if="st.icon === 'gear'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <svg v-else-if="st.icon === 'truck'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg v-else-if="st.icon === 'truck'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v10H3z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4l3 3v4h-7z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M7 19a2 2 0 110-4 2 2 0 010 4z" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M17 19a2 2 0 110-4 2 2 0 010 4z" />
                         </svg>
-                        <svg v-else-if="st.icon === 'home'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg v-else-if="st.icon === 'home'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-8 9 8" />
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 10v10h14V10" />
                         </svg>
-                        <svg v-else-if="st.icon === 'x'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg v-else-if="st.icon === 'x'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
                         </svg>
-                        <svg v-else-if="st.icon === 'ban'" class="status-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        <svg v-else-if="st.icon === 'ban'" class="status-step__icon" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                         </svg>
                       </span>
                       <span class="status-step__label">{{ st.label }}</span>
@@ -95,12 +100,11 @@
               </div>
 
               <!-- BANNER LÝ DO HUỶ ĐƠN -->
-              <div
-                v-if="props.order.status === 'cancelled' && props.order.cancelReason"
-                class="cancel-reason-banner"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cancel-reason-banner__icon">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <div v-if="props.order.status === 'cancelled' && props.order.cancelReason" class="cancel-reason-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  class="cancel-reason-banner__icon">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                 </svg>
                 <span>
                   <strong>Đơn hàng đã bị huỷ</strong> — {{ props.order.cancelReason }}
@@ -114,22 +118,23 @@
                   <!-- Thông tin khách hàng -->
                   <section class="info-section">
                     <div class="section-header">
-                      <div class="avatar">{{ initials(props.order.customer?.name) }}</div>
+                      <div class="avatar">{{ initials(props.order.user?.fullName) }}</div>
                       <span class="section-title">Thông tin khách hàng</span>
                     </div>
                     <div class="info-card">
                       <div class="info-row">
                         <span class="info-label">Họ và tên</span>
-                        <span class="info-value info-value--bold">{{ props.order.customer?.name || "-" }}</span>
+                        <span class="info-value info-value--bold">{{ props.order.user?.fullName || "-" }}</span>
                       </div>
                       <div class="info-row">
                         <span class="info-label">Số điện thoại</span>
-                        <a v-if="props.order.customer?.phone" :href="`tel:${props.order.customer.phone}`" class="info-value info-value--link">{{ props.order.customer.phone }}</a>
+                        <a v-if="props.order.user?.phone" :href="`tel:${props.order.user.phone}`"
+                          class="info-value info-value--link">{{ props.order.user.phone }}</a>
                         <span v-else class="info-value info-value--empty">-</span>
                       </div>
                       <div class="info-row info-row--align-start">
                         <span class="info-label">Địa chỉ</span>
-                        <span class="info-value">{{ props.order.customer?.address || "-" }}</span>
+                        <span class="info-value">{{ props.order.user?.address || "-" }}</span>
                       </div>
                     </div>
                   </section>
@@ -137,8 +142,10 @@
                   <!-- Thông tin đơn hàng -->
                   <section class="info-section">
                     <div class="section-header">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="section-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       <span class="section-title">Thông tin đơn hàng</span>
                     </div>
@@ -161,8 +168,10 @@
                   <!-- Ghi chú khách hàng -->
                   <section class="info-section">
                     <div class="section-header">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="section-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       <span class="section-title">Ghi chú</span>
                     </div>
@@ -176,8 +185,10 @@
                   <section class="info-section">
                     <div class="section-header section-header--between">
                       <div style="display: flex; align-items: center; gap: 8px;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" class="section-icon">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                         <span class="section-title">Chi tiết món</span>
                       </div>
@@ -189,7 +200,8 @@
                         <p class="item-name">{{ it.name }}</p>
                         <div v-if="it.options?.length || it.orderItemToppings?.length" class="item-options">
                           <span v-for="(op, idx) in it.options" :key="'opt-' + idx" class="option-tag">{{ op }}</span>
-                          <span v-for="t in it.orderItemToppings" :key="t.id" class="option-tag">{{ t.topping?.name }}</span>
+                          <span v-for="t in it.orderItemToppings" :key="t.id" class="option-tag">{{ t.topping?.name
+                            }}</span>
                         </div>
                       </div>
                       <div class="item-qty">x{{ it.qty }}</div>
@@ -224,7 +236,8 @@
                     <button class="btn btn--primary" :disabled="props.order.status !== 'pending'" @click="emitConfirm">
                       Xác nhận đơn hàng
                     </button>
-                    <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(props.order.status)" @click="emitCancel">
+                    <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(props.order.status)"
+                      @click="emitCancel">
                       Huỷ đơn
                     </button>
                   </div>
@@ -240,7 +253,8 @@
             <div class="confirm-card">
               <div class="confirm-icon">
                 <span class="confirm-icon__inner" :class="{ 'confirm-icon__inner--danger': requiresReason }">
-                  <svg v-if="requiresReason" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <svg v-if="requiresReason" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
                   </svg>
                   <template v-else>✦</template>
@@ -257,11 +271,7 @@
 
                 <select v-model="cancelReason" class="confirm-reason__select">
                   <option value="" disabled>-- Chọn lý do --</option>
-                  <option
-                    v-for="opt in reasonOptions"
-                    :key="opt"
-                    :value="opt"
-                  >{{ opt }}</option>
+                  <option v-for="opt in reasonOptions" :key="opt" :value="opt">{{ opt }}</option>
                 </select>
 
                 <p class="confirm-reason__hint">Lý do sẽ được lưu vào ghi chú của khách hàng.</p>
@@ -269,11 +279,8 @@
 
               <div class="confirm-actions">
                 <button class="confirm-btn confirm-btn--ghost" @click="closeConfirm">Huỷ</button>
-                <button
-                  class="confirm-btn confirm-btn--primary"
-                  :disabled="requiresReason && !cancelReason.trim()"
-                  @click="confirmProceed"
-                >{{ confirmPrimaryText }}</button>
+                <button class="confirm-btn confirm-btn--primary" :disabled="requiresReason && !cancelReason.trim()"
+                  @click="confirmProceed">{{ confirmPrimaryText }}</button>
               </div>
             </div>
           </div>
@@ -295,16 +302,16 @@ const props = defineProps({
 
 const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 
-const { money, statusText } = useOrderTable(() => {});
+const { money, statusText } = useOrderTable(() => { });
 const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } = useOrderDetailModal(props, emit, { money, statusText });
 
 // ── Confirm modal state ────────────────────────────
-const confirmOpen        = ref(false);
-const confirmTitle       = ref("Vui lòng xác nhận");
-const confirmDesc        = ref("");
+const confirmOpen = ref(false);
+const confirmTitle = ref("Vui lòng xác nhận");
+const confirmDesc = ref("");
 const confirmPrimaryText = ref("Tiếp tục");
-const pendingStatus      = ref(null);
-const cancelReason       = ref("");
+const pendingStatus = ref(null);
+const cancelReason = ref("");
 
 // Các trạng thái bắt buộc chọn lý do
 const REASON_REQUIRED_STATUSES = ["cancelled", "delivery_failed"];
@@ -339,18 +346,18 @@ const reasonOptions = computed(
 
 function openConfirmStatus(st) {
   if (!st) return;
-  pendingStatus.value      = st.key;
-  cancelReason.value       = "";          // reset khi đổi trạng thái
-  confirmTitle.value       = "Vui lòng xác nhận";
-  confirmDesc.value        = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
+  pendingStatus.value = st.key;
+  cancelReason.value = "";          // reset khi đổi trạng thái
+  confirmTitle.value = "Vui lòng xác nhận";
+  confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
   confirmPrimaryText.value = "Tiếp tục";
-  confirmOpen.value        = true;
+  confirmOpen.value = true;
 }
 
 function closeConfirm() {
-  confirmOpen.value   = false;
+  confirmOpen.value = false;
   pendingStatus.value = null;
-  cancelReason.value  = "";
+  cancelReason.value = "";
 }
 
 function confirmProceed() {
@@ -369,7 +376,7 @@ const currentStatusIndex = computed(() => {
 });
 
 const progressWidth = computed(() => {
-  const cur   = currentStatusIndex.value;
+  const cur = currentStatusIndex.value;
   const total = visibleSteps.value.length;
   if (cur < 0) return "0%";
   if (total <= 1) return "0%";
@@ -380,8 +387,8 @@ function stepClass(st, idx) {
   const cur = currentStatusIndex.value;
   return {
     "is-current": idx === cur,
-    "is-done":    cur >= 0 && idx < cur,
-    "is-todo":    cur < 0 || idx > cur,
+    "is-done": cur >= 0 && idx < cur,
+    "is-todo": cur < 0 || idx > cur,
   };
 }
 

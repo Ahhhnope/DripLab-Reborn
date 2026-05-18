@@ -298,6 +298,7 @@ function getCustomerDisplay(order) {
               <button class="adb-btn-add-product" @click="addProduct">
                 + Thêm sản phẩm
               </button>
+              bro wtf nuuuu cái gì đây
             </template>
 
             <template v-else>

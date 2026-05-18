@@ -79,16 +79,16 @@
                     <div class="col-span-8 text-sm font-bold text-[#3C2A21]">{{ invoice.customer?.id || '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Tên</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.name || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverName || invoice.customer?.name || '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">SĐT</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.phone || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverPhone || invoice.customer?.phone || '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Email</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.email || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverEmail || invoice.customer?.email || '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Địa chỉ</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.customer?.address || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.shippingAddress || invoice.customer?.address || '—' }}</div>
                   </div>
                 </div>
 

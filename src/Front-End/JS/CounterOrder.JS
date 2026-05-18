@@ -20,10 +20,16 @@ function genTxId() {
     return String(Math.floor(10000000000 + Math.random() * 89999999999))
 }
 
-let anonCounter = 0
+
 function genAnonCode() {
-    anonCounter++
-    return `#DRIPLAB${String(anonCounter).padStart(2, '0')}`
+    const now = new Date()
+    const resetKey = `anonCounter_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${now.getHours() < 12 ? 'am' : 'pm'}`
+    
+    const stored = sessionStorage.getItem(resetKey)
+    const count = stored ? parseInt(stored) + 1 : 1
+    sessionStorage.setItem(resetKey, count)
+    
+    return `#DRIPLAB${String(count).padStart(2, '0')}`
 }
 
 export function useCounterOrder() {
@@ -605,7 +611,8 @@ export function useCounterOrder() {
     async function confirmPayment() {
         try {
             const staffId = 2
-
+            
+            console.log('note:', orderNote.value)
             const params = new URLSearchParams();
             params.append('userId', staffId);
             params.append('note', orderNote.value || '');

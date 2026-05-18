@@ -24,7 +24,7 @@ export default {
       deleteTarget: null,
       showDeleteSelected: false,
 
-      // ✅ Popup 1: Thông tin khách hàng
+
       showCustomerInfoModal: false,
       customerInfoName: '',
       customerInfoPhone: '',
@@ -173,6 +173,14 @@ export default {
     openCustomerInfoModal() {
       if (!this.selectedItems.length) return
       this.customerInfoErrors = { name: '', phone: '', address: '' }
+
+      const user = this.authStore.user
+      if (user) {
+        this.customerInfoName = user.fullName || user.full_name || ''
+        this.customerInfoPhone = user.phone || ''
+        this.customerInfoAddress = user.defaultAddress || user.default_address || ''
+      }
+
       this.showCustomerInfoModal = true
       document.body.style.overflow = 'hidden'
     },
@@ -202,6 +210,11 @@ export default {
       return valid
     },
     submitCustomerInfo() {
+      console.log('submitCustomerInfo called')
+      console.log('name:', this.customerInfoName)
+      console.log('phone:', this.customerInfoPhone)
+      console.log('address:', this.customerInfoAddress)
+
       if (!this.validateCustomerInfo()) return
       this.showCustomerInfoModal = false
       this.paymentMethod = 'COD'

@@ -29,6 +29,9 @@ export function useOrderList() {
   async function loadOrders() {
     try {
       const res = await api.get("/orders");
+      const latest = res.data.find(o => o.orderNumber === 168609)
+      console.log("Order 168609:", latest?.receiverName, latest?.receiverPhone, latest?.shippingAddress)
+
       allItems.value = res.data.map((o) => {
         const orderDateMs = o.orderDate ? Date.parse(o.orderDate) : 0;
         const createdAtMs = o.createdAt ? Date.parse(o.createdAt) : 0;
@@ -55,10 +58,9 @@ export function useOrderList() {
           note: o.note ?? "",
           user: {
             id: o.user?.id ?? null,
-            fullName: o.user?.fullName ? o.user.fullName : "-",
-            email: o.user?.email ? o.user.email : "-",
-            phone: o.user?.phone ?? "-",
-            address: o.shippingAddress ?? "-",
+            fullName: o.receiverName || o.user?.fullName || "-",
+            phone: o.receiverPhone || o.user?.phone || "-",
+            address: o.shippingAddress || "-",
           },
 
           itemsDetail: (o.items ?? []).map((i) => ({

@@ -63,10 +63,10 @@ function mapInvoice(inv) {
     note: inv.note || "",
     customer: {
       id: inv.customer?.id || "N/A",
-      name: isOnline ? (inv.customer?.name || "Khách lẻ") : (inv.receiverName || "Khách lẻ"),
-      phone: isOnline ? (inv.customer?.phone || "-") : (inv.receiverPhone || "-"),
-      email: isOnline ? (inv.customer?.email || "-") : "-",
-      address: inv.customer?.address || "-",
+      name: inv.receiverName || inv.customer?.name || "Khách lẻ",
+      phone: inv.receiverPhone || inv.customer?.phone || "-",
+      email: inv.customer?.email || "-",
+      address: inv.shippingAddress || inv.customer?.address || "-",
     },
     items,
   }
@@ -76,6 +76,8 @@ async function loadInvoices() {
   try {
     const res = await api.get("/invoices")
     const mapped = res.data.map(mapInvoice)
+
+    console.log("Sample invoice:", res.data[0])
 
     // ✅ Sắp xếp mới nhất lên đầu
     mapped.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
