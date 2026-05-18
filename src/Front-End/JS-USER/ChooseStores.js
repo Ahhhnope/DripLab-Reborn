@@ -44,7 +44,7 @@ export default {
             showRejectModal: false,
             showThanksModal: false,
             farDistanceThresholdKm: 5,
-            rejectDistanceThresholdKm: 10,
+            rejectDistanceThresholdKm: 8,
             pendingStore: null,
 
             logoUrl: dripLabLogo,
