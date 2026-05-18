@@ -78,16 +78,20 @@
                     <div class="col-span-8 text-sm font-bold text-[#3C2A21]">{{ invoice.customer?.id || '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Tên</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverName || invoice.customer?.name || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverName || invoice.customer?.name || '—'
+                    }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">SĐT</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverPhone || invoice.customer?.phone || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverPhone || invoice.customer?.phone ||
+                      '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Email</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverEmail || invoice.customer?.email || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.receiverEmail || invoice.customer?.email ||
+                      '—' }}</div>
 
                     <div class="col-span-4 text-sm text-stone-400">Địa chỉ</div>
-                    <div class="col-span-8 text-sm font-medium">{{ invoice.shippingAddress || invoice.customer?.address || '—' }}</div>
+                    <div class="col-span-8 text-sm font-medium">{{ invoice.shippingAddress || invoice.customer?.address
+                      || '—' }}</div>
                   </div>
                 </div>
 
@@ -127,6 +131,24 @@
                         class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
                         style="background:rgba(59,130,246,0.08);color:#2563eb;border:1px solid rgba(59,130,246,0.15)">
                         Đá: {{ item.ice }}%
+                      </span>
+                    </div>
+
+                    <div v-if="item.isCustom" class="flex flex-wrap gap-1 mt-1">
+                      <span v-if="item.beanName"
+                        class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(120,72,40,0.1);color:#7c4a1e;border:1px solid rgba(120,72,40,0.2)">
+                        {{ item.beanName }}
+                      </span>
+                      <span v-if="item.baseName"
+                        class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(99,72,50,0.1);color:#634832;border:1px solid rgba(99,72,50,0.2)">
+                        {{ item.baseName }}
+                      </span>
+                      <span v-if="item.milkName"
+                        class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background:rgba(59,130,246,0.08);color:#1d4ed8;border:1px solid rgba(59,130,246,0.15)">
+                        {{ item.milkName }}
                       </span>
                     </div>
 
@@ -231,8 +253,8 @@ async function printInvoice() {
 
     // ── helpers ──────────────────────────────
     const dash = (n = 42) => '-'.repeat(n)
-    const fmt  = (v)      => (v || 0).toLocaleString('vi-VN')
-    const pad  = (l, r, w = 42) => {
+    const fmt = (v) => (v || 0).toLocaleString('vi-VN')
+    const pad = (l, r, w = 42) => {
       // left-align l, right-align r trong tổng w ký tự (monospace)
       const gap = Math.max(1, w - l.length - r.length)
       return l + ' '.repeat(gap) + r
@@ -246,9 +268,17 @@ async function printInvoice() {
 
       const sugarIce = []
       if (item.sugar != null) sugarIce.push(`Đường ${item.sugar}%`)
-      if (item.ice   != null) sugarIce.push(`Đá ${item.ice}%`)
+      if (item.ice != null) sugarIce.push(`Đá ${item.ice}%`)
       const sugarIceLine = sugarIce.length
         ? `<div class="sub-line">  [${sugarIce.join(' / ')}]</div>`
+        : ''
+
+      const customParts = []
+      if (item.beanName) customParts.push(` ${item.beanName}`)
+      if (item.baseName) customParts.push(` ${item.baseName}`)
+      if (item.milkName) customParts.push(` ${item.milkName}`)
+      const customLine = customParts.length
+        ? `<div class="sub-line">  [${customParts.join(' / ')}]</div>`
         : ''
 
       const noteLine = item.note
@@ -260,30 +290,31 @@ async function printInvoice() {
       const total = `${fmt(item.price * item.qty)}d`
 
       return `
-        <tr>
-          <td class="item-col">
-            <div class="item-name">${name}</div>
-            <div class="sub-line">  x${item.qty} x ${fmt(item.unitPrice ?? item.price)}d</div>
-            ${sugarIceLine}
-            ${toppingLines}
-            ${noteLine}
-          </td>
-          <td class="price-col">${total}</td>
-        </tr>`
+    <tr>
+      <td class="item-col">
+        <div class="item-name">${name}</div>
+        <div class="sub-line">  x${item.qty} x ${fmt(item.unitPrice ?? item.price)}d</div>
+        ${sugarIceLine}
+        ${customLine}
+        ${toppingLines}
+        ${noteLine}
+      </td>
+      <td class="price-col">${total}</td>
+    </tr>`
     }).join('')
 
     // ── payment method label ──────────────────
     const pmLabel = (() => {
       const pm = (inv.payment_method || '').toLowerCase()
       if (pm.includes('transfer') || pm.includes('chuyển')) return 'Chuyển khoản'
-      if (pm.includes('cash')    || pm.includes('tiền mặt')) return 'Tiền mặt'
+      if (pm.includes('cash') || pm.includes('tiền mặt')) return 'Tiền mặt'
       return inv.payment_method || '—'
     })()
 
     // ── cashier / table info ──────────────────
-    const tableInfo  = inv.table     || inv.receive_type || '—'
-    const cashier    = inv.cashier   || 'Thu ngân'
-    const now        = inv.created_at || new Date().toLocaleString('vi-VN')
+    const tableInfo = inv.table || inv.receive_type || '—'
+    const cashier = inv.cashier || 'Thu ngân'
+    const now = inv.created_at || new Date().toLocaleString('vi-VN')
 
     // ── full HTML document ────────────────────
     const html = `<!DOCTYPE html>
@@ -566,7 +597,7 @@ async function printInvoice() {
     await new Promise(r => setTimeout(r, 1400))
 
     const receiptEl = iframe.contentDocument.getElementById('receipt')
-    const receiptH  = receiptEl.scrollHeight
+    const receiptH = receiptEl.scrollHeight
     iframe.style.height = receiptH + 'px'
 
     // Chụp bằng html2canvas
@@ -588,9 +619,9 @@ async function printInvoice() {
 
     // ── Xuất PDF (width 80mm, height tự động) ──
     const { jsPDF } = window.jspdf
-    const MM_WIDTH  = 80   // mm
-    const imgWmm    = MM_WIDTH
-    const imgHmm    = (canvas.height / canvas.width) * MM_WIDTH
+    const MM_WIDTH = 80   // mm
+    const imgWmm = MM_WIDTH
+    const imgHmm = (canvas.height / canvas.width) * MM_WIDTH
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -621,11 +652,16 @@ async function printInvoice() {
 .fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #e5e7eb;
   border-radius: 10px;

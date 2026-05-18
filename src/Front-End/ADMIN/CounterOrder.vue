@@ -443,7 +443,6 @@ function getItemToppingDetails(item) {
       </div>
     </div>
 
-    <!-- ==================== POPUP HỦY HÓA ĐƠN ==================== -->
     <div v-if="showCancelOrderPopup" class="confirm-overlay">
       <div class="confirm-popup cancel-order-popup">
         <div class="confirm-logo">
@@ -458,7 +457,6 @@ function getItemToppingDetails(item) {
       </div>
     </div>
 
-    <!-- ==================== POPUP CHỌN HÌNH THỨC + BÀN ==================== -->
     <div v-if="showTablePopup" class="confirm-overlay">
       <div class="table-mode-popup">
         <p class="table-mode-title">Chọn Hình Thức & Bàn</p>
@@ -516,7 +514,7 @@ function getItemToppingDetails(item) {
       </div>
     </div>
 
-    <!-- ==================== POPUP TOPPING ==================== -->
+    
     <div v-if="showPopup" class="popup-overlay">
       <div class="popup">
         <div class="popup-header">
@@ -723,9 +721,9 @@ function getItemToppingDetails(item) {
             </span>
           </div>
           <div v-if="item.isCustom" class="review-item-meta" style="margin-top:2px">
-            <span v-if="item.beanName">Hạt: {{ item.beanName }}</span>
-            <span v-if="item.base"> | Base: {{ item.base }}</span>
-            <span v-if="item.milkName"> | Sữa: {{ item.milkName }}</span>
+            <span v-if="item.beanName" class="rpc-custom-tag">☕ {{ item.beanName }}</span>
+            <span v-if="item.baseName" class="rpc-custom-tag">⚗️ {{ item.baseName }}</span>
+            <span v-if="item.milkName" class="rpc-custom-tag">🥛 {{ item.milkName }}</span>
           </div>
         </div>
         <div class="review-divider"></div>

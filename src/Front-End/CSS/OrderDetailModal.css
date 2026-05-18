@@ -817,3 +817,21 @@
   margin-top: 2px;
   color: #e11d48;
 }
+
+.option-tag--custom {
+  background: rgba(180, 120, 60, 0.10);
+  color: #7c4a1e;
+  border-color: rgba(180, 120, 60, 0.20);
+}
+
+.option-tag--sugar {
+  background: rgba(251, 191, 36, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.option-tag--ice {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}

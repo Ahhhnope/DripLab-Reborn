@@ -198,10 +198,24 @@
                     <div v-for="it in props.order.itemsDetail || []" :key="it.id" class="item-row">
                       <div class="item-info">
                         <p class="item-name">{{ it.name }}</p>
-                        <div v-if="it.options?.length || it.orderItemToppings?.length" class="item-options">
+
+                        <!-- Size + Toppings (giữ nguyên) -->
+                        <div v-if="it.options?.length" class="item-options">
                           <span v-for="(op, idx) in it.options" :key="'opt-' + idx" class="option-tag">{{ op }}</span>
-                          <span v-for="t in it.orderItemToppings" :key="t.id" class="option-tag">{{ t.topping?.name
-                            }}</span>
+                        </div>
+
+                        <!-- Custom coffee info -->
+                        <div v-if="it.isCustom" class="item-options item-options--custom">
+                          <span v-if="it.beanName" class="option-tag option-tag--custom"> {{ it.beanName }}</span>
+                          <span v-if="it.baseName" class="option-tag option-tag--custom"> {{ it.baseName }}</span>
+                          <span v-if="it.milkName" class="option-tag option-tag--custom"> {{ it.milkName }}</span>
+                        </div>
+
+                        <!-- Đá / Đường -->
+                        <div v-if="it.ice != null || it.sugar != null" class="item-options item-options--specs">
+                          <span v-if="it.sugar != null" class="option-tag option-tag--sugar">Đường {{ it.sugar
+                            }}%</span>
+                          <span v-if="it.ice != null" class="option-tag option-tag--ice">Đá {{ it.ice }}%</span>
                         </div>
                       </div>
                       <div class="item-qty">x{{ it.qty }}</div>

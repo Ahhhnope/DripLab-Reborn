@@ -74,6 +74,11 @@ export default {
         sugar: item.sugar || '100',
         ice: item.ice || '100',
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
+
+        isCustom: item.isCustom || false,
+        beanName: item.coffeeBean?.name || null,
+        baseName: item.base || null,
+        milkName: item.milk?.name || null,
       }))
     },
 

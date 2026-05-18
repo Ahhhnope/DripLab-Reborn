@@ -18,6 +18,7 @@ const {
   price, formatVnd,
   notice,
   logoUrl,
+  addToCart, isAdding, addError,
 } = useBrewing()
 
 // ─── Popup thông báo "đã thêm vào giỏ" ───────────────────────
@@ -44,9 +45,7 @@ function closeCartPopup() {
   document.documentElement.classList.remove('no-scroll')
 }
 
-function addToCart() {
-  openCartPopup()
-}
+
 
 function onPopupKeydown(e) {
   if (e.key === 'Escape') closeCartPopup()
@@ -95,14 +94,14 @@ onBeforeUnmount(() => {
                       <stop offset="100%" stop-color="#fff" stop-opacity="0.22" />
                     </linearGradient>
                     <linearGradient id="surfaceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%"   :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.22" />
-                      <stop offset="40%"  :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.06" />
-                      <stop offset="70%"  stop-color="#fff" stop-opacity="0.10" />
+                      <stop offset="0%" :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.22" />
+                      <stop offset="40%" :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.06" />
+                      <stop offset="70%" stop-color="#fff" stop-opacity="0.10" />
                       <stop offset="100%" :stop-color="cupLayers.bean.color || '#3d2010'" stop-opacity="0.14" />
                     </linearGradient>
                     <radialGradient id="foamGrad" cx="50%" cy="30%" r="60%">
-                      <stop offset="0%"   :stop-color="cupLayers.milk.show ? '#fffcf5' : '#e8e0d8'" />
-                      <stop offset="60%"  :stop-color="cupLayers.milk.show ? '#f3ead8' : '#d4ccc4'" />
+                      <stop offset="0%" :stop-color="cupLayers.milk.show ? '#fffcf5' : '#e8e0d8'" />
+                      <stop offset="60%" :stop-color="cupLayers.milk.show ? '#f3ead8' : '#d4ccc4'" />
                       <stop offset="100%" :stop-color="cupLayers.milk.show ? '#e8d9c0' : '#c4bdb6'" />
                     </radialGradient>
                     <linearGradient id="depthGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -171,13 +170,17 @@ onBeforeUnmount(() => {
 
                     <g v-if="cupLayers.bubbles.enabled" class="bubbles">
                       <circle v-for="i in 14" :key="'b' + i" :cx="42 + (i * 11) % 118" :cy="200 + (i * 17) % 60"
-                        :r="1.5 + (i % 4) * 0.7" :style="{ '--dur': (2.2 + (i % 4) * 0.6) + 's', '--delay-anim': (i * 0.22) + 's' }" />
+                        :r="1.5 + (i % 4) * 0.7"
+                        :style="{ '--dur': (2.2 + (i % 4) * 0.6) + 's', '--delay-anim': (i * 0.22) + 's' }" />
                     </g>
 
                     <g v-if="cupLayers.bubbles.enabled" class="ice">
-                      <rect x="50" y="158" width="28" height="22" rx="4" :style="{ '--dur': '3.2s', '--delay-anim': '0s' }" />
-                      <rect x="88" y="170" width="24" height="18" rx="4" :style="{ '--dur': '2.8s', '--delay-anim': '0.5s' }" opacity="0.85" />
-                      <rect x="120" y="155" width="26" height="20" rx="4" :style="{ '--dur': '3.5s', '--delay-anim': '1s' }" opacity="0.75" />
+                      <rect x="50" y="158" width="28" height="22" rx="4"
+                        :style="{ '--dur': '3.2s', '--delay-anim': '0s' }" />
+                      <rect x="88" y="170" width="24" height="18" rx="4"
+                        :style="{ '--dur': '2.8s', '--delay-anim': '0.5s' }" opacity="0.85" />
+                      <rect x="120" y="155" width="26" height="20" rx="4"
+                        :style="{ '--dur': '3.5s', '--delay-anim': '1s' }" opacity="0.75" />
                     </g>
 
                     <g v-if="cupLayers.bubbles.enabled" class="condensation">
@@ -186,9 +189,7 @@ onBeforeUnmount(() => {
                       <ellipse cx="44" cy="202" rx="2" ry="3.5" :style="{ '--dur': '5s', '--delay-anim': '0.7s' }" />
                     </g>
 
-                    <ellipse
-                      v-if="cupLayers.bean.show && !cupLayers.mixed.enabled"
-                      :cx="100"
+                    <ellipse v-if="cupLayers.bean.show && !cupLayers.mixed.enabled" :cx="100"
                       :cy="272 - (cupLayers.bean.height + (cupLayers.milk.show ? cupLayers.milk.height : 0)) * 2.44"
                       rx="66" ry="2.5" fill="url(#surfaceGrad)" opacity="0.45" />
                   </g>
@@ -211,8 +212,8 @@ onBeforeUnmount(() => {
                   </g>
 
                   <g v-if="cupLayers.straw.enabled" class="straw">
-                    <path d="M 150 220 L 150 38 Q 152 14 174 4" fill="none" stroke="#4caf50"
-                      stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 150 220 L 150 38 Q 152 14 174 4" fill="none" stroke="#4caf50" stroke-width="8"
+                      stroke-linecap="round" stroke-linejoin="round" />
                     <path d="M 147 220 L 147 38 Q 149 14 171 4" fill="none" stroke="rgba(255,255,255,0.28)"
                       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                   </g>
@@ -277,8 +278,11 @@ onBeforeUnmount(() => {
             <div v-if="notice" class="cup-notice">{{ notice }}</div>
 
             <div v-if="isComplete" class="cup-actions">
-              <button class="btn-cart" @click="addToCart">Thêm vào giỏ hàng</button>
-              <button class="btn-reset" @click="reset">Làm lại</button>
+              <p v-if="addError" class="cup-notice cup-notice--error">{{ addError }}</p>
+              <button class="btn-cart" :disabled="isAdding" @click="addToCart">
+                {{ isAdding ? 'Đang thêm...' : 'Thêm vào giỏ hàng' }}
+              </button>
+              <button class="btn-reset" :disabled="isAdding" @click="reset">Làm lại</button>
             </div>
           </div>
         </aside>
@@ -292,18 +296,25 @@ onBeforeUnmount(() => {
           <div class="stepper-grid">
             <button v-for="(step, idx) in STEPS" :key="step.key" class="stepper-cell" :class="{
               'stepper-cell--active': currentStep === idx,
-              'stepper-cell--done':   stepDone[step.key] && currentStep !== idx,
+              'stepper-cell--done': stepDone[step.key] && currentStep !== idx,
               'stepper-cell--locked': idx > currentStep,
             }" @click="goToStep(idx)">
               <span class="stepper-cell__num">{{ String(idx + 1).padStart(2, '0') }}</span>
               <span class="stepper-cell__label">{{ step.label }}</span>
               <span v-if="step.key === 'topping'" class="stepper-cell__count">({{ toppingCountLabel }})</span>
-              <span v-if="step.key === 'bean'    && selectedBean"  class="stepper-cell__value">{{ selectedBean.label }}</span>
-              <span v-if="step.key === 'base'    && selectedBase"  class="stepper-cell__value">{{ selectedBase.label }}</span>
-              <span v-if="step.key === 'milk'    && selectedMilk"  class="stepper-cell__value">{{ selectedMilk.label }}</span>
-              <span v-if="step.key === 'topping' && selection.toppings.size > 0" class="stepper-cell__value">{{ selection.toppings.size }} đã chọn</span>
-              <span v-if="step.key === 'size'    && selectedSize"  class="stepper-cell__value">Size {{ selectedSize.label }}</span>
-              <span v-if="step.key === 'confirm' && currentStep >= 5" class="stepper-cell__value">Đá {{ selection.ice }} · Đường {{ selection.sugar }} · {{ selection.quantity }} ly</span>
+              <span v-if="step.key === 'bean' && selectedBean" class="stepper-cell__value">{{ selectedBean.label
+              }}</span>
+              <span v-if="step.key === 'base' && selectedBase" class="stepper-cell__value">{{ selectedBase.label
+              }}</span>
+              <span v-if="step.key === 'milk' && selectedMilk" class="stepper-cell__value">{{ selectedMilk.label
+              }}</span>
+              <span v-if="step.key === 'topping' && selection.toppings.size > 0" class="stepper-cell__value">{{
+                selection.toppings.size }} đã chọn</span>
+              <span v-if="step.key === 'size' && selectedSize" class="stepper-cell__value">Size {{ selectedSize.label
+              }}</span>
+              <span v-if="step.key === 'confirm' && currentStep >= 5" class="stepper-cell__value">Đá {{ selection.ice }}
+                · Đường
+                {{ selection.sugar }} · {{ selection.quantity }} ly</span>
             </button>
           </div>
 
@@ -325,6 +336,10 @@ onBeforeUnmount(() => {
                   <span class="option-card__price">+{{ formatVnd(b.priceDelta) }}</span>
                 </button>
               </div>
+              <div class="options-nav">
+                <button class="btn-nav btn-nav--finish" :disabled="!selection.bean" @click="nextStep">Tiếp theo
+                  →</button>
+              </div>
             </div>
 
             <!-- ── BƯỚC 1: Chọn base ── -->
@@ -344,6 +359,8 @@ onBeforeUnmount(() => {
               </div>
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
+                <button class="btn-nav btn-nav--finish" :disabled="!selection.base" @click="nextStep">Tiếp theo
+                  →</button>
               </div>
             </div>
 
@@ -360,11 +377,14 @@ onBeforeUnmount(() => {
                     :style="{ background: m.color || 'rgba(0,0,0,0.06)', border: m.color ? 'none' : '2px dashed #ccc' }"></span>
                   <span class="option-card__name">{{ m.label }}</span>
                   <span class="option-card__sub">{{ m.sub }}</span>
-                  <span class="option-card__price">{{ m.priceDelta ? '+' + formatVnd(m.priceDelta) : 'Miễn phí' }}</span>
+                  <span class="option-card__price">{{ m.priceDelta ? '+' + formatVnd(m.priceDelta) : 'Miễn phí'
+                  }}</span>
                 </button>
               </div>
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
+                <button class="btn-nav btn-nav--finish" :disabled="selection.milk === null" @click="nextStep">Tiếp theo
+                  →</button>
               </div>
             </div>
 
@@ -392,14 +412,9 @@ onBeforeUnmount(() => {
                 </button>
               </div>
 
-              <!-- Hint tự động chuyển bước -->
-              <p v-if="selection.toppings.size > 0" class="topping-auto-hint">
-                ✓ Tự động chuyển bước sau khi chọn xong...
-              </p>
-
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
-                <button class="btn-nav btn-nav--finish" @click="confirmTopping">Bỏ qua →</button>
+                <button class="btn-nav btn-nav--finish" @click="confirmTopping">Tiếp theo →</button>
               </div>
             </div>
 
@@ -419,6 +434,8 @@ onBeforeUnmount(() => {
               </div>
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
+                <button class="btn-nav btn-nav--finish" :disabled="!selection.size" @click="nextStep">Tiếp theo
+                  →</button>
               </div>
             </div>
 
@@ -437,8 +454,8 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="level-pills">
                   <button v-for="opt in iceOptions" :key="opt" class="level-pill"
-                    :class="{ 'level-pill--active': selection.ice === opt }"
-                    @click="selection.ice = opt">{{ opt }}</button>
+                    :class="{ 'level-pill--active': selection.ice === opt }" @click="selection.ice = opt">{{ opt
+                    }}</button>
                 </div>
               </div>
 
@@ -450,8 +467,8 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="level-pills">
                   <button v-for="opt in sugarOptions" :key="opt" class="level-pill"
-                    :class="{ 'level-pill--active': selection.sugar === opt }"
-                    @click="selection.sugar = opt">{{ opt }}</button>
+                    :class="{ 'level-pill--active': selection.sugar === opt }" @click="selection.sugar = opt">{{ opt
+                    }}</button>
                 </div>
               </div>
 
@@ -469,8 +486,8 @@ onBeforeUnmount(() => {
 
               <div class="options-nav">
                 <button class="btn-nav btn-nav--back" @click="prevStep">← Quay lại</button>
-                <button class="btn-nav btn-nav--finish" @click="addToCart">
-                  Thêm vào giỏ →
+                <button class="btn-nav btn-nav--finish" :disabled="isAdding" @click="addToCart">
+                  {{ isAdding ? 'Đang thêm...' : 'Thêm vào giỏ →' }}
                 </button>
               </div>
             </div>
@@ -489,7 +506,9 @@ onBeforeUnmount(() => {
           <img :src="driplabLogo2" class="cart-pop__logo" alt="Drip Lab" />
           <h3 class="cart-pop__title">Thêm vào giỏ hàng thành công!</h3>
           <p class="cart-pop__desc">
-            Cảm ơn bạn đã quan tâm Drip Lab! Sản phẩm đã được thêm vào giỏ hàng. Bạn hãy kiểm tra lại và tiến hành đặt hàng khi sẵn sàng nhé.
+            Cảm ơn bạn đã quan tâm Drip Lab! Sản phẩm đã được thêm vào giỏ hàng. Bạn hãy kiểm tra lại và tiến hành đặt
+            hàng
+            khi sẵn sàng nhé.
           </p>
           <button class="cart-pop__btn" @click="closeCartPopup">Hoàn tất</button>
         </div>

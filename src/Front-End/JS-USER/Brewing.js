@@ -1,4 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../Authorization/Auth.js'
 import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
 import api from '@/api/axios'
 
@@ -15,162 +17,141 @@ import api from '@/api/axios'
  */
 export function useBrewing() {
 
+  const router = useRouter()
+  const authStore = useAuthStore()
+
   // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
 
-
-
-  const beanOptions = [
-
-
-    { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000, color: '#3d2010' },
-
-
-    { id: 'robusta',  label: 'Robusta',  sub: 'Đậm, đắng mạnh',          priceDelta: 8000,  color: '#2a1508' },
-
-
-    { id: 'liberica', label: 'Liberica', sub: 'Khói, vị gỗ độc đáo',     priceDelta: 12000, color: '#3b1e0e' },
-
-
-    { id: 'blend',    label: 'Blend',    sub: 'Cân bằng hoàn hảo',       priceDelta: 9000,  color: '#2e1a0d' },
-
-
-  ]
-
-
-
-
-
-  // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
-
-
-  const baseOptions = [
-
-
-    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000, color: '#0f0705' },
-
-
-    { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000, color: '#24160f' },
-
-
-    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000, color: '#5c3220' },
-
-
-  ]
-
-
-
-
-
-  // ─── DỮ LIỆU: SỮA ─────────────────────────────────────────────────
-
-
-  const milkOptions = [
-
-
-    { id: 'none',   label: 'Không sữa',     sub: 'Giữ nguyên vị',          priceDelta: 0,    color: null        },
-
-
-    { id: 'whole',  label: 'Sữa tươi',      sub: 'Béo ngậy, truyền thống', priceDelta: 8000, color: '#f3e9dc' },
-
-
-    { id: 'oat',    label: 'Sữa yến mạch',  sub: 'Nhẹ, hơi ngọt',         priceDelta: 9000, color: '#ead9c5' },
-
-
-    { id: 'almond', label: 'Sữa hạnh nhân', sub: 'Hương hạt nhẹ',          priceDelta: 9000, color: '#efe2d1' },
-
-
-    { id: 'soy',    label: 'Sữa đậu nành',  sub: 'Thuần chay',             priceDelta: 9000, color: '#efe7dc' },
-
-
-  ]
-
-
-
-
-
-  // ─── DỮ LIỆU: TOPPING ─────────────────────────────────────────────
-
-
-  const toppingOptions = [
-
-
-    { id: 'whip',            label: 'Kem tươi',       sub: 'Đánh bông mịn',   priceDelta: 8000, color: '#fffcf0' },
-
-
-    { id: 'cinnamon',        label: 'Bột quế',         sub: 'Thơm ấm áp',      priceDelta: 3000, color: '#c8834a' },
-
-
-    { id: 'cocoa',           label: 'Bột cacao',       sub: 'Đắng nhẹ',        priceDelta: 4000, color: '#5c3317' },
-
-
-    { id: 'caramel_drizzle', label: 'Sốt caramel',     sub: 'Ngọt, bóng',      priceDelta: 8000, color: '#b9793a' },
-
-
-    { id: 'vanilla_powder',  label: 'Bột vanilla',     sub: 'Thơm Madagascar', priceDelta: 7000, color: '#d4a84b' },
-
-
-  ]
-
-
-
-
+  const BEAN_COLORS = ['#3d2010', '#2a1508', '#3b1e0e', '#2e1a0d']
+
+  const BASE_COLORS = {
+    'Pha Máy': '#0f0705',
+    'Pha Phin': '#5c3220',
+    'Ủ Lạnh': '#24160f',
+  }
+
+  const BASE_PRICES = {
+    'Pha Máy': 15000,
+    'Pha Phin': 16000,
+    'Ủ Lạnh': 18000,
+  }
+
+  const MILK_COLORS = ['#f3e9dc', '#ead9c5', '#efe2d1', '#efe7dc']
+
+  const TOPPING_COLORS = {
+    'Trân châu đen': '#1a1008',
+    'Thạch cà phê': '#3b2a1a',
+    'Kem cheese': '#fffaed',
+    'Pudding trứng': '#f5dfa0',
+    'Kem béo': '#fffcf0',
+    'Whipping cr...': '#fffcf0',
+    'Lmao special': '#c8834a',
+  }
+
+  const beanOptions = ref([])
+  const baseOptions = ref([])
+  const milkOptions = ref([])
+  const toppingOptions = ref([])
+
+  async function loadOptions() {
+    try {
+      const [beansRes, instructionsRes, milksRes, toppingsRes] = await Promise.all([
+        api.get('/ingredients/coffee-beans'),
+        api.get('/instructions'),           // route riêng: /api/instructions
+        api.get('/ingredients/milks'),
+        api.get('/ingredients/toppings'),
+      ])
+
+      // Map coffee_beans → beanOptions
+      beanOptions.value = beansRes.data.map((b, i) => ({
+        id: String(b.id),
+        label: b.name,
+        sub: 'Premium Selection',
+        priceDelta: b.price ?? 0,
+        color: BEAN_COLORS[i % BEAN_COLORS.length],
+      }))
+
+      // Map instructions → baseOptions (Pha Máy / Pha Phin / Ủ Lạnh)
+      // Instruction entity không có field price nên priceDelta = 0
+      baseOptions.value = instructionsRes.data.map((ins) => ({
+        id: String(ins.id),
+        label: ins.name,
+        sub: ins.instructions,
+        priceDelta: BASE_PRICES[ins.name] ?? 0,
+        color: BASE_COLORS[ins.name] ?? '#2b1b14',
+      }))
+
+      // Map milks → milkOptions (thêm option "Không sữa" ở đầu)
+      milkOptions.value = [
+        { id: 'none', label: 'Không sữa', sub: 'Giữ nguyên vị', priceDelta: 0, color: null },
+        ...milksRes.data.map((m, i) => ({
+          id: String(m.id),
+          label: m.name,
+          sub: '',
+          priceDelta: m.price ?? 0,
+          color: MILK_COLORS[i % MILK_COLORS.length],
+        })),
+      ]
+
+      // Map toppings → toppingOptions
+      toppingOptions.value = toppingsRes.data.map((t) => ({
+        id: String(t.id),
+        label: t.name,
+        sub: '',
+        priceDelta: t.price ?? 0,
+        color: TOPPING_COLORS[t.name] ?? '#c6a562',
+      }))
+
+    } catch (err) {
+      console.error('Lỗi load options:', err)
+    }
+  }
+
+  // Gọi khi composable được khởi tạo
+  loadOptions()
 
   // ─── DỮ LIỆU: SIZE ────────────────────────────────────────────────
 
-
   const sizeOptions = [
-
-
-    { id: 'S', label: 'S', sub: 'Gốc',   priceDelta: 0      },
-
-
-    { id: 'M', label: 'M', sub: 'Vừa',   priceDelta: 5000   },
-
-
-    { id: 'L', label: 'L', sub: 'Lớn',   priceDelta: 10000  },
-
-
+    { id: 'S', label: 'S', sub: 'Gốc', priceDelta: 0 },
+    { id: 'M', label: 'M', sub: 'Vừa', priceDelta: 5000 },
+    { id: 'L', label: 'L', sub: 'Lớn', priceDelta: 10000 },
   ]
-  // const beanOptions = ref([])
-  // const baseOptions = ref([])
-  // const milkOptions = ref([])
-  // const toppingOptions = ref([])
-  // const sizeOptions = ref([])
 
-  const iceOptions    = ['0%', '30%', '50%', '70%', '100%']
-  const sugarOptions  = ['0%', '30%', '50%', '70%', '100%']
+  const iceOptions = ['0%', '30%', '50%', '70%', '100%']
+  const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
 
   // ─── BƯỚC HIỆN TẠI ────────────────────────────────────────────────
   const currentStep = ref(0)
 
   const STEPS = [
-    { key: 'bean',    label: 'Chọn hạt cà phê' },
-    { key: 'base',    label: 'Chọn base'        },
-    { key: 'milk',    label: 'Chọn sữa'         },
-    { key: 'topping', label: 'Chọn topping'     },
-    { key: 'size',    label: 'Chọn size'        },
-    { key: 'confirm', label: 'Xác nhận'         },
+    { key: 'bean', label: 'Chọn hạt cà phê' },
+    { key: 'base', label: 'Chọn base' },
+    { key: 'milk', label: 'Chọn sữa' },
+    { key: 'topping', label: 'Chọn topping' },
+    { key: 'size', label: 'Chọn size' },
+    { key: 'confirm', label: 'Xác nhận' },
   ]
 
   // ─── TRẠNG THÁI LỰA CHỌN ──────────────────────────────────────────
   const selection = reactive({
-    bean:     null,
-    base:     null,
-    milk:     null,
+    bean: null,
+    base: null,
+    milk: null,
     toppings: new Set(),
-    size:     null,
-    ice:      '100%',
-    sugar:    '100%',
+    size: null,
+    ice: '100%',
+    sugar: '100%',
     quantity: 1,
   })
 
   // ─── COMPUTED: bước nào đã hoàn thành ─────────────────────────────
   const stepDone = computed(() => ({
-    bean:    selection.bean !== null,
-    base:    selection.base !== null,
-    milk:    selection.milk !== null,
+    bean: selection.bean !== null,
+    base: selection.base !== null,
+    milk: selection.milk !== null,
     topping: true,   // Topping luôn coi là "done" (có thể bỏ qua)
-    size:    selection.size !== null,
+    size: selection.size !== null,
     confirm: false,
   }))
 
@@ -208,11 +189,7 @@ export function useBrewing() {
       selection.toppings.add(id)
     }
 
-    // Reset timer mỗi lần người dùng tương tác, tự next sau 800ms
     clearTimeout(toppingTimer)
-    toppingTimer = setTimeout(() => {
-      nextStep()
-    }, 800)
   }
 
   // ─── ĐIỀU HƯỚNG BƯỚC ──────────────────────────────────────────────
@@ -233,17 +210,14 @@ export function useBrewing() {
 
   function selectBean(id) {
     selection.bean = id
-    setTimeout(nextStep, 320)
   }
 
   function selectBase(id) {
     selection.base = id
-    setTimeout(nextStep, 320)
   }
 
   function selectMilk(id) {
     selection.milk = id
-    setTimeout(nextStep, 320)
   }
 
   // Topping: bấm nút "Bỏ qua" thủ công (không chọn topping nào)
@@ -254,12 +228,11 @@ export function useBrewing() {
 
   function selectSize(id) {
     selection.size = id
-    setTimeout(nextStep, 320)
   }
 
   // Điều chỉnh số lượng
-  function incQty()  { if (selection.quantity < 99) selection.quantity++ }
-  function decQty()  { if (selection.quantity > 1)  selection.quantity-- }
+  function incQty() { if (selection.quantity < 99) selection.quantity++ }
+  function decQty() { if (selection.quantity > 1) selection.quantity-- }
 
   // ─── ANIMATION TICK ───────────────────────────────────────────────
   const animTick = ref(0)
@@ -295,10 +268,10 @@ export function useBrewing() {
   })
 
   // ─── COMPUTED: đối tượng nguyên liệu đang chọn ───────────────────
-  const selectedBean  = computed(() => beanOptions.find(x => x.id === selection.bean))
-  const selectedBase  = computed(() => baseOptions.find(x => x.id === selection.base))
-  const selectedMilk  = computed(() => milkOptions.find(x => x.id === selection.milk))
-  const selectedSize  = computed(() => sizeOptions.find(x => x.id === selection.size))
+  const selectedBean = computed(() => beanOptions.value.find(x => x.id === selection.bean))
+  const selectedBase = computed(() => baseOptions.value.find(x => x.id === selection.base))
+  const selectedMilk = computed(() => milkOptions.value.find(x => x.id === selection.milk))
+  const selectedSize = computed(() => sizeOptions.find(x => x.id === selection.size))
 
   // ─── HELPER: trộn màu ─────────────────────────────────────────────
   function mixHex(a, b, t = 0.5) {
@@ -328,18 +301,19 @@ export function useBrewing() {
 
   // ─── COMPUTED: CUP LAYERS ─────────────────────────────────────────
   const cupLayers = computed(() => {
-    const hasBean  = !!selection.bean
-    const hasBase  = !!selection.base
-    const hasMilk  = !!selection.milk && selection.milk !== 'none'
+    const hasBean = !!selection.bean
+    const hasBase = !!selection.base
+    const hasMilk = !!selection.milk && selection.milk !== 'none'
     const hasTopping = currentStep.value >= 3
 
     const hasCoffee = hasBase
-    const coffeeH   = hasCoffee ? 50 : 0
-    const milkH     = hasMilk   ? 40 : 0
-    const foamH     = hasTopping ? 10 : 0
+    const coffeeH = hasCoffee ? 50 : 0
+    const milkH = hasMilk ? 40 : 0
+    const foamH = hasTopping ? 10 : 0
 
-    const isColdBrew = selection.base === 'cold_brew'
-    const isHot      = hasBase && !isColdBrew
+    // Dùng label để kiểm tra cold brew thay vì hardcode id
+    const isColdBrew = selectedBase.value?.label === 'Ủ Lạnh'
+    const isHot = hasBase && !isColdBrew
 
     const coffeeColor = mixHex(
       selectedBean.value?.color ?? '#3d2010',
@@ -352,9 +326,9 @@ export function useBrewing() {
       base: { show: false, height: 0, color: selectedBase.value?.color ?? '#2b1b14' },
       milk: { show: hasMilk, height: milkH, color: selectedMilk.value?.color ?? '#f3e9dc' },
       foam: {
-        show:   hasTopping && (hasMilk || selection.toppings.has('whip')),
+        show: hasTopping && (hasMilk || selection.toppings.has('whip')),
         height: foamH,
-        color:  '#fffcf0',
+        color: '#fffcf0',
       },
       mixed: {
         enabled: isComplete.value,
@@ -367,22 +341,22 @@ export function useBrewing() {
         dustColor: selection.toppings.has('cocoa') ? '#5c3317' : (selection.toppings.has('cinnamon') ? '#c8834a' : '#d4a84b'),
         fxKey: toppingFxKey.value,
       },
-      drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
-      bubbles:  { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
-      steam:    { enabled: isHot },
-      straw:    { enabled: isComplete.value },
-      logo:     { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
+      drizzle: { enabled: selection.toppings.has('caramel_drizzle') },
+      bubbles: { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
+      steam: { enabled: isHot },
+      straw: { enabled: isComplete.value },
+      logo: { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
     }
   })
 
   // ─── TÍNH GIÁ ─────────────────────────────────────────────────────
   const price = computed(() => {
     let total = 0
-    if (selectedBean.value)  total += selectedBean.value.priceDelta
-    if (selectedBase.value)  total += selectedBase.value.priceDelta
+    if (selectedBean.value) total += selectedBean.value.priceDelta
+    if (selectedBase.value) total += selectedBase.value.priceDelta
     if (selectedMilk.value && selection.milk !== 'none') total += selectedMilk.value.priceDelta
     for (const id of selection.toppings) {
-      const t = toppingOptions.find(x => x.id === id)
+      const t = toppingOptions.value.find(x => x.id === id)
       if (t) total += t.priceDelta
     }
     if (selectedSize.value) total += selectedSize.value.priceDelta
@@ -395,18 +369,73 @@ export function useBrewing() {
 
   const toppingCountLabel = computed(() => `${selection.toppings.size}/3`)
 
+
+  // ─── THÊM VÀO GIỎ HÀNG ───────────────────────────────────────────
+  const isAdding = ref(false)
+  const addError = ref('')
+
+  async function addToCart() {
+    if (!isComplete.value) return
+    const userId = authStore.user?.id
+    if (!userId) {
+      addError.value = 'Bạn cần đăng nhập để thêm vào giỏ hàng!'
+      return
+    }
+
+    isAdding.value = true
+    addError.value = ''
+
+    try {
+      // Map size label → sizeId (S=1, M=2, L=3)
+      const SIZE_ID_MAP = { S: 1, M: 2, L: 3 }
+
+      // Parse ice/sugar: "70%" → 70
+      const iceNum = parseInt(selection.ice)
+      const sugarNum = parseInt(selection.sugar)
+
+      // Toppings: Set of string id → array of number id
+      const toppingIds = [...selection.toppings].map(id => parseInt(id))
+
+      // milkId: null nếu chọn 'none'
+      const milkId = selection.milk === 'none' ? null : parseInt(selection.milk)
+
+      const cartItemReq = {
+        userId: userId,
+        drinkId: 15,                                     // custom drink — id=15 "Custom coffee" (active=0)
+        sizeId: SIZE_ID_MAP[selection.size] ?? 1,
+        quantity: selection.quantity,
+        ice: iceNum,
+        sugar: sugarNum,
+        toppings: toppingIds,
+        isCustom: true,
+        base: selectedBase.value?.label ?? null,      // "Pha Máy" / "Pha Phin" / "Ủ Lạnh"
+        beanId: parseInt(selection.bean),
+        milkId: milkId,
+      }
+
+      await api.post('/carts/add', cartItemReq)
+      reset()
+      router.push('/cart')
+    } catch (err) {
+      console.error('Lỗi thêm vào giỏ:', err)
+      addError.value = err.response?.data?.message || 'Không thể thêm vào giỏ hàng. Thử lại nhé!'
+    } finally {
+      isAdding.value = false
+    }
+  }
+
   // ─── RESET ────────────────────────────────────────────────────────
   function reset() {
     clearTimeout(toppingTimer)
-    selection.bean     = null
-    selection.base     = null
-    selection.milk     = null
+    selection.bean = null
+    selection.base = null
+    selection.milk = null
     selection.toppings = new Set()
-    selection.size     = null
-    selection.ice      = '100%'
-    selection.sugar    = '100%'
+    selection.size = null
+    selection.ice = '100%'
+    selection.sugar = '100%'
     selection.quantity = 1
-    currentStep.value  = 0
+    currentStep.value = 0
     toppingAnimPlayed.value = false
     toppingFxKey.value = 0
     animTick.value++
@@ -424,5 +453,6 @@ export function useBrewing() {
     selectedBean, selectedBase, selectedMilk, selectedSize,
     price, formatVnd,
     notice, showNotice,
+    addToCart, isAdding, addError,
   }
 }
