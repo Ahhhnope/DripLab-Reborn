@@ -4,32 +4,32 @@ import { onMounted, onUnmounted } from 'vue'
 import { useAdminDatBan } from '../JS/AdminDatBan'
 
 const logoDrip = new URL('../IMG/DripLab_Logo.png', import.meta.url).href
-const router   = useRouter()
+const router = useRouter()
 
 const {
-    TOTAL_TABLES,
-    showDetail,
-    selectedTable,
-    selectedOrder,
-    showConfirmDone,
-    activeFilter,
-    filteredTables,
-    activeInvoices,
-    isOccupied,
-    getTableLabel,
-    openDetail,
-    openDetailForInvoice,
-    closeDetail,
-    confirmDone,
-    addProduct,
-    totalPrice,
-    setFilter,
-    setRouter,
-    syncFromShared,
-    getModalTableLabel,
-    isTableOccupiedInModal,
-    countOccupied,
-    countAvailable,
+  TOTAL_TABLES,
+  showDetail,
+  selectedTable,
+  selectedOrder,
+  showConfirmDone,
+  activeFilter,
+  filteredTables,
+  activeInvoices,
+  isOccupied,
+  getTableLabel,
+  openDetail,
+  openDetailForInvoice,
+  closeDetail,
+  confirmDone,
+  addProduct,
+  totalPrice,
+  setFilter,
+  setRouter,
+  syncFromShared,
+  getModalTableLabel,
+  isTableOccupiedInModal,
+  countOccupied,
+  countAvailable,
 } = useAdminDatBan()
 
 // Truyền router vào composable để addProduct() có thể navigate
@@ -38,21 +38,25 @@ setRouter(router)
 // Đồng bộ mỗi khi tab được focus hoặc component mount
 let syncTimer = null
 onMounted(() => {
-    syncFromShared()
-    syncTimer = setInterval(syncFromShared, 2000)
+  syncFromShared()
+  syncTimer = setInterval(syncFromShared, 2000)
 })
 onUnmounted(() => {
-    if (syncTimer) clearInterval(syncTimer)
+  if (syncTimer) clearInterval(syncTimer)
 })
 
+function getImageUrl(url) {
+  if (!url) return ''
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`
+}
+
 function getProductImg(item) {
-    if (item.imageUrl) return item.imageUrl
-    if (item.image)    return item.image
-    return ''
+    const url = item.drink?.imageUrl || item.drink?.image || item.imageUrl || item.image || ''
+    return getImageUrl(url)
 }
 
 function getCustomerDisplay(order) {
-    return order?.customerName || order?.anonCode || '—'
+  return order?.customerName || order?.anonCode || '—'
 }
 </script>
 
@@ -66,42 +70,24 @@ function getCustomerDisplay(order) {
 
     <!-- ═══ FILTER TABS ═══ -->
     <div class="adb-filter-bar">
-      <button
-        class="adb-filter-btn"
-        :class="{ active: activeFilter === 'all' }"
-        @click="setFilter('all')"
-      >
+      <button class="adb-filter-btn" :class="{ active: activeFilter === 'all' }" @click="setFilter('all')">
         Tất cả <span class="adb-filter-count">{{ TOTAL_TABLES }}</span>
       </button>
-      <button
-        class="adb-filter-btn occupied-filter"
-        :class="{ active: activeFilter === 'occupied' }"
-        @click="setFilter('occupied')"
-      >
+      <button class="adb-filter-btn occupied-filter" :class="{ active: activeFilter === 'occupied' }"
+        @click="setFilter('occupied')">
         Đang sử dụng <span class="adb-filter-count">{{ countOccupied() }}</span>
       </button>
-      <button
-        class="adb-filter-btn available-filter"
-        :class="{ active: activeFilter === 'available' }"
-        @click="setFilter('available')"
-      >
+      <button class="adb-filter-btn available-filter" :class="{ active: activeFilter === 'available' }"
+        @click="setFilter('available')">
         Còn trống <span class="adb-filter-count">{{ countAvailable() }}</span>
       </button>
     </div>
 
     <!-- ═══ VIEW: TẤT CẢ / CÒN TRỐNG — lưới bàn ═══ -->
-    <div
-      v-if="activeFilter === 'all' || activeFilter === 'available'"
-      class="adb-grid-wrap"
-    >
+    <div v-if="activeFilter === 'all' || activeFilter === 'available'" class="adb-grid-wrap">
       <div v-if="filteredTables.length" class="adb-grid">
-        <div
-          v-for="num in filteredTables"
-          :key="num"
-          class="adb-table-card"
-          :class="{ 'occupied-card': isOccupied(num) }"
-          @click="openDetail(num)"
-        >
+        <div v-for="num in filteredTables" :key="num" class="adb-table-card"
+          :class="{ 'occupied-card': isOccupied(num) }" @click="openDetail(num)">
           <span class="adb-table-num">{{ getTableLabel(num) }}</span>
           <span v-if="isOccupied(num)" class="adb-occupied-badge">Đang sử dụng</span>
           <span v-if="isOccupied(num)" class="adb-card-dot"></span>
@@ -123,19 +109,12 @@ function getCustomerDisplay(order) {
           <div v-if="!activeInvoices.length" class="adb-invoice-empty">
             Chưa có hóa đơn nào đang sử dụng bàn
           </div>
-          <div
-            v-for="invoice in activeInvoices"
-            :key="invoice.id"
-            class="adb-invoice-item"
-            @click="openDetailForInvoice(invoice)"
-          >
+          <div v-for="invoice in activeInvoices" :key="invoice.id" class="adb-invoice-item"
+            @click="openDetailForInvoice(invoice)">
             <div class="adb-invoice-num">Hóa đơn {{ invoice.orderNumber }}</div>
             <div class="adb-invoice-tables">
-              <span
-                v-for="t in invoice.selectedTables"
-                :key="t"
-                class="adb-invoice-table-badge"
-              >Bàn {{ String(t).padStart(2, '0') }}</span>
+              <span v-for="t in invoice.selectedTables" :key="t" class="adb-invoice-table-badge">Bàn {{
+                String(t).padStart(2, '0') }}</span>
             </div>
             <div class="adb-invoice-customer">
               {{ getCustomerDisplay(invoice) }}
@@ -149,11 +128,7 @@ function getCustomerDisplay(order) {
         <template v-if="countOccupied() > 0">
           <div class="adb-grid adb-grid--occupied">
             <template v-for="num in TOTAL_TABLES" :key="num">
-              <div
-                v-if="isOccupied(num)"
-                class="adb-table-card occupied-card"
-                @click="openDetail(num)"
-              >
+              <div v-if="isOccupied(num)" class="adb-table-card occupied-card" @click="openDetail(num)">
                 <span class="adb-table-num">{{ getTableLabel(num) }}</span>
                 <span class="adb-occupied-badge">Đang sử dụng</span>
                 <span class="adb-card-dot"></span>
@@ -175,10 +150,7 @@ function getCustomerDisplay(order) {
         <!-- Topbar -->
         <div class="adb-modal-topbar">
           <span class="adb-modal-table-id">{{ getModalTableLabel() }}</span>
-          <span
-            class="adb-modal-status"
-            :class="isTableOccupiedInModal() ? 'occupied' : 'available'"
-          >
+          <span class="adb-modal-status" :class="isTableOccupiedInModal() ? 'occupied' : 'available'">
             {{ isTableOccupiedInModal() ? 'Đang Sử Dụng' : 'Sẵn Bàn' }}
           </span>
           <button class="adb-modal-close" @click="closeDetail">✕</button>
@@ -189,23 +161,16 @@ function getCustomerDisplay(order) {
           <!-- Cột trái: chi tiết -->
           <div class="adb-modal-left">
             <div class="adb-detail-logo-wrap">
-              <img :src="logoDrip" alt="DripLab" class="adb-logo-img"
-                   @error="$event.target.style.display='none'" />
+              <img :src="logoDrip" alt="DripLab" class="adb-logo-img" @error="$event.target.style.display = 'none'" />
               <p class="adb-detail-title">Chi Tiết Đặt Bàn</p>
             </div>
 
             <!-- Badge nhiều bàn -->
-            <div
-              v-if="selectedOrder?.selectedTables?.length > 1"
-              class="adb-section adb-tables-section"
-            >
+            <div v-if="selectedOrder?.selectedTables?.length > 1" class="adb-section adb-tables-section">
               <p class="adb-section-title">Bàn Đang Dùng</p>
               <div class="adb-tables-badges">
-                <span
-                  v-for="t in selectedOrder.selectedTables"
-                  :key="t"
-                  class="adb-table-badge-large"
-                >Bàn {{ String(t).padStart(2, '0') }}</span>
+                <span v-for="t in selectedOrder.selectedTables" :key="t" class="adb-table-badge-large">Bàn {{
+                  String(t).padStart(2, '0') }}</span>
               </div>
             </div>
 
@@ -234,19 +199,10 @@ function getCustomerDisplay(order) {
             <div class="adb-section">
               <p class="adb-section-title">Thông Tin Sản Phẩm</p>
               <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
-              <div
-                v-for="item in selectedOrder?.items"
-                :key="item.id"
-                class="adb-product-item"
-              >
+              <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
                 <div class="adb-product-img-wrap">
-                  <img
-                    v-if="getProductImg(item)"
-                    :src="getProductImg(item)"
-                    :alt="item.name"
-                    class="adb-product-img"
-                    @error="$event.target.style.display='none'"
-                  />
+                  <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.name" class="adb-product-img"
+                    @error="$event.target.style.display = 'none'" />
                   <span v-else>☕</span>
                 </div>
                 <div class="adb-product-info">
@@ -256,17 +212,15 @@ function getCustomerDisplay(order) {
                     <span class="adb-tag">Đá: {{ item.ice }}</span>
                     <span class="adb-tag">Đường: {{ item.sugar }}</span>
                     <template v-if="item.orderItemToppings?.length">
-                      <span
-                        v-for="otp in item.orderItemToppings"
-                        :key="otp.id"
-                        class="adb-tag topping"
-                      >
+                      <span v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-tag topping">
                         {{ otp.topping?.name }}
                       </span>
                     </template>
                   </div>
                   <p class="adb-product-price">
-                    {{ (((item.basePriceAtPurchase || 0) + (item.size?.price || 0)) * (item.quantity || 0)).toLocaleString() }}đ
+                    {{ (((item.basePriceAtPurchase || 0) + (item.size?.price || 0)) * (item.quantity ||
+                      0)).toLocaleString()
+                    }}đ
                   </p>
                 </div>
               </div>
