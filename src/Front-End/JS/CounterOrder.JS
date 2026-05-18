@@ -116,7 +116,7 @@ export function useCounterOrder() {
         isEditingInfo.value = true
         selectedTables.value = []
         orderNote.value = ''
-        dineMode.value = null 
+        dineMode.value = null
     }
 
     /* ══ POPUP CHỌN HÌNH THỨC + BÀN ══ */
@@ -242,7 +242,14 @@ export function useCounterOrder() {
     const availableTables = computed(() =>
         Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1)
     )
-    const tablesFull = computed(() => occupiedTables.value.length >= TOTAL_TABLES)
+
+    // FIX 4: otherOccupiedTables phải loại trừ bàn đang được chọn bởi order hiện tại
+    const otherOccupiedTables = computed(() => {
+        const currentSelected = selectedTables.value
+        return occupiedTables.value.filter(t => !currentSelected.includes(t))
+    })
+
+    const tablesFull = computed(() => otherOccupiedTables.value.length >= TOTAL_TABLES)
 
     /* ══ XÁC NHẬN THÔNG TIN ═══ */
     const showConfirmInfo = ref(false)
@@ -295,15 +302,26 @@ export function useCounterOrder() {
     const searchText = ref('')
     const products = ref([])
 
-    async function fetchCartItems() {
+    // FIX 3: fetchCartItems nhận orderId để load đúng items cho từng hóa đơn
+    async function fetchCartItems(targetOrder = null) {
+        const order = targetOrder || currentOrder.value
+        if (!order) return
+
         try {
             const staffId = 2;
             const res = await api.get(`/carts/items/${staffId}`);
 
-            orderedItems.value = res.data.map(item => {
+            const items = res.data.map(item => {
                 const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0;
                 const sizePrice = item.size?.price || 0;
                 const unitPrice = item.drink.basePrice + sizePrice + toppingTotal;
+
+                // FIX 2: Map toppingDetails đầy đủ để hiển thị trong review/receipt
+                const toppingDetails = item.toppings?.map(t => ({
+                    id: t.topping?.id,
+                    name: t.topping?.name,
+                    price: t.topping?.price
+                })) || []
 
                 return {
                     id: item.drink.id,
@@ -316,6 +334,7 @@ export function useCounterOrder() {
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
                     toppings: item.toppings,
+                    toppingDetails: toppingDetails,
                     isCustom: item.isCustom,
                     beanName: item.coffeeBean?.name,
                     base: item.base,
@@ -323,9 +342,12 @@ export function useCounterOrder() {
                 };
             });
 
-            if (currentOrder.value) {
-                currentOrder.value.items = [...orderedItems.value];
+            // FIX 3: Chỉ cập nhật orderedItems nếu order này đang được active
+            if (order.id === currentOrder.value?.id) {
+                orderedItems.value = items
             }
+            // Luôn lưu vào order object để giữ trạng thái khi switch tab
+            order.items = [...items]
 
             console.log(orderedItems.value)
         } catch (error) {
@@ -380,9 +402,11 @@ export function useCounterOrder() {
         selectOrder(order)
     }
 
+    // FIX 3: selectOrder phải load đúng items của order đó từ cache (không gọi API chung)
     function selectOrder(order) {
         currentOrder.value = order
-        orderedItems.value = order.items
+        // Load items từ order cache (không phụ thuộc API chung)
+        orderedItems.value = order.items ? [...order.items] : []
         discountInput.value = order.discountInput
         appliedCode.value = order.appliedCode
         discountPercent.value = order.discountPercent
@@ -408,7 +432,7 @@ export function useCounterOrder() {
         }
 
         orderedItems.value.splice(index, 1)
-        if (currentOrder.value) currentOrder.value.items = orderedItems.value
+        if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
     }
 
     /* ══ MÃ GIẢM GIÁ ═══ */
@@ -496,7 +520,7 @@ export function useCounterOrder() {
         finalPrice: 0, change: 0, items: [],
         customerName: '', customerPhone: '', tableNums: [],
         anonCode: '', discountPercent: 0, originalPrice: 0, note: '',
-        dineMode: null,  
+        dineMode: null,
     })
 
     function checkout() {
@@ -526,16 +550,36 @@ export function useCounterOrder() {
         customerMoney.value = raw
     }
 
+    // FIX 2: _buildReceiptData map toppingDetails đầy đủ
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
         const resolvedName = payNameInput.value.trim() || order?.customerName || customerName.value || ''
         const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
         if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
         const resolvedDineMode = dineMode.value === true ? true : false
+
+        // Deep clone items với toppingDetails đầy đủ
+        const itemsWithDetails = orderedItems.value.map(item => {
+            const cloned = JSON.parse(JSON.stringify(item))
+            // Đảm bảo toppingDetails được map đúng từ toppings nếu chưa có
+            if (!cloned.toppingDetails || !cloned.toppingDetails.length) {
+                if (cloned.toppings && cloned.toppings.length) {
+                    cloned.toppingDetails = cloned.toppings.map(t => ({
+                        id: t.topping?.id || t.id,
+                        name: t.topping?.name || t.name,
+                        price: t.topping?.price || t.price || 0
+                    }))
+                } else {
+                    cloned.toppingDetails = []
+                }
+            }
+            return cloned
+        })
+
         receiptData.value = {
             finalPrice: finalPrice.value,
             change,
-            items: JSON.parse(JSON.stringify(orderedItems.value)),
+            items: itemsWithDetails,
             customerName: resolvedName,
             customerPhone: resolvedPhone,
             tableNums: order?.selectedTables || selectedTables.value || [],
@@ -703,10 +747,18 @@ export function useCounterOrder() {
 
         try {
             const res = await api.post('/carts/add', cartItemReq)
+            const newCartItemId = res.data.items[res.data.items.length - 1].id
+
+            // FIX 2: Map toppingDetails đầy đủ khi thêm sản phẩm mới
+            const toppingDetails = selectedToppings.value.map(t => ({
+                id: t.id,
+                name: t.name,
+                price: t.price
+            }))
 
             const displayItem = {
                 id: selectedProduct.value.id,
-                cartItemId: res.data.items[res.data.items.length - 1].id,
+                cartItemId: newCartItemId,
                 name: selectedProduct.value.name,
                 image: selectedProduct.value.image,
                 unitPrice: unitPrice,
@@ -715,6 +767,7 @@ export function useCounterOrder() {
                 ice: selectedIce.value,
                 sugar: selectedSugar.value,
                 toppings: selectedToppings.value,
+                toppingDetails: toppingDetails,
             }
 
             orderedItems.value.push(displayItem)
@@ -723,7 +776,6 @@ export function useCounterOrder() {
 
             delete popupStateCache.value[selectedProduct.value.id]
 
-            fetchCartItems()
             showPopup.value = false
         } catch (error) {
             console.error("Confirm order error: " + error);
@@ -754,7 +806,7 @@ export function useCounterOrder() {
     const displayDineMode = computed(() => {
         const o = currentOrder.value
         if (o && o.dineMode !== undefined) return o.dineMode
-        return dineMode.value 
+        return dineMode.value
     })
 
     const brewingCart = useBrewingCart()
@@ -789,13 +841,11 @@ export function useCounterOrder() {
         fetchToppings()
         fetchSizes()
         checkAndConsumePendingDrinks()
-        fetchCartItems()
         timer = setInterval(() => {
             refreshTableStatus()
             fetchDrinks()
             fetchToppings()
             fetchSizes()
-            fetchCartItems()
         }, 5000)
     })
 
@@ -820,6 +870,7 @@ export function useCounterOrder() {
         onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
         TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
         availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
+        otherOccupiedTables,
         showConfirmInfo, confirmWarning, confirmWarningTable,
         goToConfirm, proceedToOrder, backFromConfirmToInfo,
         searchText, products, searchProducts,

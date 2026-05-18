@@ -103,15 +103,13 @@ function availableTableCount() {
   return TOTAL_TABLES - occupiedTables.value.length
 }
 
-// FIX: Bàn được chọn bởi order hiện tại → selected (xanh)
-// Bàn bị chiếm bởi order khác → occupied (xám)
-// Bàn còn trống → có thể chọn
+
 function isTableSelected(num) {
   return selectedTables.value.includes(num)
 }
 
 function isTableOccupiedByOther(num) {
-  return otherOccupiedTables?.value.includes(num)
+  return otherOccupiedTables.value.includes(num)
 }
 
 function formatTableNums(nums) {
@@ -138,7 +136,6 @@ function onDineModeChange(val) {
   if (currentOrder.value) {
     currentOrder.value.dineMode = val
   }
-  // Nếu chuyển sang "mang đi" → sẽ release bàn khi đóng popup (xử lý ở closeTablePopup)
 }
 
 function getDineModeLabel(mode) {
@@ -151,6 +148,20 @@ function getDineModeClass(mode) {
   if (mode === null || mode === undefined) return 'mode-none'
   if (mode === true) return 'mode-dine'
   return 'mode-takeaway'
+}
+
+function getItemToppingDetails(item) {
+  if (item.toppingDetails && item.toppingDetails.length) {
+    return item.toppingDetails
+  }
+  if (item.toppings && item.toppings.length) {
+    return item.toppings.map(t => ({
+      id: t.topping?.id || t.id,
+      name: t.topping?.name || t.name,
+      price: t.topping?.price || t.price || 0
+    }))
+  }
+  return []
 }
 </script>
 
@@ -355,34 +366,47 @@ function getDineModeClass(mode) {
           </div>
         </div>
 
-        <!-- product card of order detail side bar -->
+        <!-- Danh sách sản phẩm sidebar - REDESIGNED -->
         <div class="right-products-block">
           <p class="right-products-title">Sản Phẩm Mua</p>
           <p v-if="!orderedItems.length" style="font-size:12px;color:#aaa;text-align:center;padding:20px 0">Chưa có sản
             phẩm</p>
 
-          <div v-for="(item, index) in orderedItems" :key="index" class="right-product-card">
-            <button class="right-pc-remove" @click="removeItem(index, item.cartItemId)">✕</button>
-
-            <div class="right-pc-header">
-              <span class="right-pc-name">{{ item.name }} x{{ item.qty }}</span>
-              <span class="right-pc-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</span>
+          <div v-for="(item, index) in orderedItems" :key="index" class="rpc-card">
+            <!-- Header: tên nổi bật + size + số lượng + nút xóa -->
+            <div class="rpc-top">
+              <span class="rpc-name">{{ item.name }}</span>
+              <div class="rpc-meta-row">
+                <span class="rpc-size-badge">Size: {{ item.size }}</span>
+                <span class="rpc-qty-badge">×{{ item.qty }}</span>
+              </div>
+              <button class="rpc-remove" @click="removeItem(index, item.cartItemId)" title="Xóa">✕</button>
             </div>
 
-            <div class="right-pc-tags">
-              <span class="right-pc-tag size">Size: {{ item.size }}</span>
-              <span class="right-pc-tag">Đá: {{ item.ice }}</span>
-              <span class="right-pc-tag">Đường: {{ item.sugar }}</span>
+            <!-- Body: đá + đường + custom + topping -->
+            <div class="rpc-body">
+              <div class="rpc-specs">
+                <span class="rpc-spec">Đá {{ item.ice }}</span>
+                <span class="rpc-spec">Đường {{ item.sugar }}</span>
+              </div>
+
+              <div v-if="item.isCustom" class="rpc-custom-row">
+                <span class="rpc-custom-tag">{{ item.beanName }}</span>
+                <span class="rpc-custom-tag">{{ item.base }}</span>
+                <span v-if="item.milkName" class="rpc-custom-tag">{{ item.milkName }}</span>
+              </div>
+
+              <div v-if="getItemToppingDetails(item).length" class="rpc-toppings">
+                <span v-for="t in getItemToppingDetails(item)" :key="t.name || t.id" class="rpc-topping">
+                  + {{ t.name }}<em v-if="t.price"> {{ t.price.toLocaleString() }}đ</em>
+                </span>
+              </div>
             </div>
 
-            <div v-if="item.isCustom" class="right-pc-tags custom-details">
-              <span class="right-pc-tag bean">Hạt: {{ item.beanName }}</span>
-              <span class="right-pc-tag base">Base: {{ item.base }}</span>
-              <span v-if="item.milkName" class="right-pc-tag milk">Sữa: {{ item.milkName }}</span>
-            </div>
-
-            <div v-if="item.toppings && item.toppings.length" class="right-pc-tags">
-              <span v-for="t in item.toppings" :key="t.name" class="right-pc-tag topping">{{ t.topping?.name }}</span>
+            <!-- Footer: giá -->
+            <div class="rpc-footer">
+              <span class="rpc-unit-price">Tổng số tiền</span>
+              <span class="rpc-total-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</span>
             </div>
           </div>
         </div>
@@ -448,14 +472,14 @@ function getDineModeClass(mode) {
           </button>
         </div>
 
-        <!-- Chọn bàn chỉ hiện khi tại quán -->
         <template v-if="dineMode === true">
           <div class="table-count-row" style="margin-top:14px">
             <template v-if="tablesFull">
               <span class="table-count-full">⚠ FULL BÀN — Không còn bàn trống!</span>
             </template>
             <template v-else>
-              Bàn trống: <strong>{{ String(TOTAL_TABLES - occupiedTables.length).padStart(2, '0') }}</strong>
+              Bàn trống:
+              <strong>{{ String(TOTAL_TABLES - otherOccupiedTables.length).padStart(2, '0') }}</strong>
               &nbsp;|&nbsp;
               <span class="table-selected-hint">
                 Đã chọn: <strong>{{ selectedTables.length }}</strong>/{{ MAX_TABLES_PER_ORDER }}
@@ -469,12 +493,6 @@ function getDineModeClass(mode) {
             </span>
           </div>
           <div class="table-grid" style="margin-top:10px">
-            <!--
-              FIX logic hiển thị bàn:
-              - isTableSelected(num)        → bàn đang được chọn bởi order này (xanh, có thể bỏ chọn)
-              - isTableOccupiedByOther(num) → bàn bị order khác giữ (xám, disabled)
-              - còn lại                     → trống, có thể chọn
-            -->
             <button
               v-for="num in availableTables"
               :key="num"
@@ -692,14 +710,23 @@ function getDineModeClass(mode) {
         <div class="review-divider"></div>
         <p class="review-section-title">Sản Phẩm Đặt</p>
         <div v-for="(item, i) in receiptData.items" :key="i" class="review-item">
-          <div class="review-item-name">{{ item.name }} ({{ item.size }}) × {{ item.qty }}</div>
+          <div class="review-item-header">
+            <div class="review-item-name">{{ item.name }} ({{ item.size }}) × {{ item.qty }}</div>
+            <div class="review-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
+          </div>
           <div class="review-item-meta">
             Đá: {{ item.ice }} | Đường: {{ item.sugar }}
-            <span v-if="item.toppingDetails && item.toppingDetails.length">
-              | Topping: {{item.toppingDetails.map(t => t.name).join(', ')}}
+          </div>
+          <div v-if="getItemToppingDetails(item).length" class="review-item-toppings">
+            <span v-for="t in getItemToppingDetails(item)" :key="t.name" class="review-topping-tag">
+              + {{ t.name }}<em v-if="t.price"> ({{ t.price.toLocaleString() }}đ)</em>
             </span>
           </div>
-          <div class="review-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
+          <div v-if="item.isCustom" class="review-item-meta" style="margin-top:2px">
+            <span v-if="item.beanName">Hạt: {{ item.beanName }}</span>
+            <span v-if="item.base"> | Base: {{ item.base }}</span>
+            <span v-if="item.milkName"> | Sữa: {{ item.milkName }}</span>
+          </div>
         </div>
         <div class="review-divider"></div>
         <div v-if="receiptData.discountPercent > 0" class="review-row">
@@ -792,11 +819,16 @@ function getDineModeClass(mode) {
             <div class="receipt-items-section">
               <p class="receipt-items-title">Sản phẩm đã mua</p>
               <div v-for="(item, i) in receiptData.items" :key="i" class="receipt-item">
-                <div class="receipt-item-name">{{ item.name }} ({{ item.size }}) x{{ item.qty }}</div>
+                <div class="receipt-item-header">
+                  <div class="receipt-item-name">{{ item.name }} ({{ item.size }}) x{{ item.qty }}</div>
+                  <div class="receipt-item-price-inline">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
+                </div>
                 <div class="receipt-item-meta">
                   Đá: {{ item.ice }} | Đường: {{ item.sugar }}
-                  <span v-if="item.toppingDetails && item.toppingDetails.length">
-                    | Topping: {{item.toppingDetails.map(t => t.name).join(', ')}}
+                </div>
+                <div v-if="getItemToppingDetails(item).length" class="receipt-item-toppings">
+                  <span v-for="t in getItemToppingDetails(item)" :key="t.name" class="receipt-topping-tag">
+                    + {{ t.name }}<em v-if="t.price"> ({{ t.price.toLocaleString() }}đ)</em>
                   </span>
                 </div>
               </div>
