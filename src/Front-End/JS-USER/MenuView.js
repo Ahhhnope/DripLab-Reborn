@@ -2,7 +2,7 @@
 //  MenuView.js – DripLab Menu Logic (+ Search & Pagination)
 // ============================================================
 import { computed, ref, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import api from '../../api/axios'
 import { useCartStore } from '../../stores/cart'
 import { useAuthStore } from '../Authorization/Auth'
@@ -23,6 +23,7 @@ const BEST_SELLERS = [
 
 export function useMenuView() {
   const router = useRouter()
+  const route = useRoute()
   const cartStore = useCartStore()
   const authStore = useAuthStore()
 
@@ -54,9 +55,20 @@ export function useMenuView() {
   const isSearchOpen = ref(false)
   const SEARCH_PREVIEW_LIMIT = 5
 
-  // 4. Pagination State
-  const currentPage = ref(1)
+  // 4. Pagination State — đồng bộ với URL query ?page=N
   const PAGE_SIZE = 9 // 3×3 grid
+
+  const currentPage = computed({
+    get: () => {
+      const p = parseInt(route.query.page)
+      return isNaN(p) || p < 1 ? 1 : p
+    },
+    set: (n) => {
+      router.replace({
+        query: { ...route.query, page: n === 1 ? undefined : String(n) }
+      })
+    }
+  })
 
   // 5. Fetch Data from CafeDB
   onMounted(async () => {
@@ -156,17 +168,12 @@ export function useMenuView() {
     return sortedProducts.value.slice(start, start + PAGE_SIZE)
   })
 
-  // Reset page when category/sort/search changes
-  watch([activeCategoryId, activeSort], () => {
-    currentPage.value = 1
-  })
-
   function goToPage(n) {
     if (n < 1 || n > totalPages.value) return
     currentPage.value = n
   }
 
-  // Visible page numbers (max 5 around current)
+  // Visible page numbers (max 7 with ellipsis)
   const visiblePages = computed(() => {
     const total = totalPages.value
     const cur = currentPage.value
@@ -177,7 +184,6 @@ export function useMenuView() {
       pages.add(i)
     }
     const sorted = [...pages].sort((a, b) => a - b)
-    // Insert ellipsis markers as null
     const result = []
     for (let i = 0; i < sorted.length; i++) {
       if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push(null)
@@ -189,12 +195,14 @@ export function useMenuView() {
   // 9. Action Handlers
   function setCategory(id) {
     activeCategoryId.value = id
-    currentPage.value = 1
+    // Reset về trang 1 khi đổi danh mục
+    router.replace({ query: { ...route.query, page: undefined } })
   }
 
   function setSort(id) {
     activeSort.value = id
-    currentPage.value = 1
+    // Reset về trang 1 khi đổi sắp xếp
+    router.replace({ query: { ...route.query, page: undefined } })
   }
 
   function formatVnd(v) {
