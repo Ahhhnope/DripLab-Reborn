@@ -123,12 +123,12 @@ export function useRegister() {
     if (isLoading.value) return
     isLoading.value = true
     try {
-      // ── Bước 1: Đăng ký tài khoản ──
       const registerRes = await api.post('/auth/register', {
         fullName: name.value,
         email:    email.value,
         phone:    phone.value,
         password: password.value,
+        defaultAddress: fullAddress.value + ", " + ward.value + ", "+ city
       })
 
       // ── LOG để xem backend trả về gì ──
@@ -145,19 +145,19 @@ export function useRegister() {
       console.log('Token:', token, '| CustomerId:', customerId)
 
       // ── Bước 2: Lưu địa chỉ ──
-      await api.post('/customers/address', {
-        customerId,
-        fullAddress: fullAddress.value,
-        ward:        ward.value,
-        city,
-        isDefault:   true,
-      }, token ? {
-        headers: { Authorization: `Bearer ${token}` }
-      } : {})
+      // await api.post('/customers/address', {
+      //   customerId,
+      //   fullAddress: fullAddress.value,
+      //   ward:        ward.value,
+      //   city,
+      //   isDefault:   true,
+      // }, token ? {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // } : {})
 
       step.value = 3
     } catch (err) {
-      console.error('❌ Error:', err.response?.data)
+      console.error('❌ Error registering:', err.response?.data)
       errorMsg.value = err.response?.data?.message || 'Đăng ký thất bại.'
     } finally {
       isLoading.value = false

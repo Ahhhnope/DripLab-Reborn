@@ -45,20 +45,20 @@
             <div class="form-grid single-col">
               <div class="form-group">
                 <label>Địa chỉ đường phố</label>
-                <input v-model="addressForm.street" type="text" placeholder=" 72A Nguyễn Trãi, phường Thượng Đình, quận Thanh Xuân" />
+                <input v-model="addressForm.street" type="text" :placeholder="user.defaultAddress" />
               </div>
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label>Căn hộ, phòng, v.v. (Tùy chọn)</label>
                 <input v-model="addressForm.apt" type="text" placeholder="Căn 48b Chung cư Royal City" />
-              </div>
+              </div> -->
             </div>
 
-            <div class="form-grid three-col">
+            <!-- <div class="form-grid three-col">
               <div class="form-group">
                 <label>Thành phố</label>
                 <input value="Hà Nội" readonly />
               </div>
-            </div>
+            </div> -->
 
             <p v-if="message" :class="['form-message', messageType]">{{ message }}</p>
 
