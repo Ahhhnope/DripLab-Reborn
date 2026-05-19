@@ -192,6 +192,8 @@ export default {
                     this.userLng = pos.coords.longitude;
                     this._recalcDistances();
                     this.locationText = await reverseGeocode(this.userLat, this.userLng);
+                    // ✅ Lưu địa chỉ GPS vào sessionStorage để Cart.js dùng
+                    sessionStorage.setItem("userLocationText", this.locationText);
                     this.locating = false;
                 },
                 (err) => {
@@ -238,6 +240,8 @@ export default {
             this.userLat = null;
             this.userLng = null;
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
+            // ✅ Xóa địa chỉ GPS khỏi sessionStorage khi user xóa vị trí
+            sessionStorage.removeItem("userLocationText");
         },
 
         _syncBodyScrollLock(locked) {

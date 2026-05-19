@@ -24,12 +24,14 @@ export default {
       deleteTarget: null,
       showDeleteSelected: false,
 
-
       showCustomerInfoModal: false,
       customerInfoName: '',
       customerInfoPhone: '',
       customerInfoAddress: '',
       customerInfoErrors: { name: '', phone: '', address: '' },
+
+      // ✅ Địa chỉ GPS lấy từ trang chọn cửa hàng (lưu trong sessionStorage)
+      gpsLocationText: sessionStorage.getItem('userLocationText') || '',
 
       // Popup 2: Xác nhận đơn hàng
       showOrderModal: false,
@@ -181,6 +183,9 @@ export default {
       if (!this.selectedItems.length) return
       this.customerInfoErrors = { name: '', phone: '', address: '' }
 
+      // ✅ Refresh địa chỉ GPS mỗi lần mở popup (phòng trường hợp user vừa chọn vị trí)
+      this.gpsLocationText = sessionStorage.getItem('userLocationText') || ''
+
       const user = this.authStore.user
       if (user) {
         this.customerInfoName = user.fullName || user.full_name || ''
@@ -199,6 +204,18 @@ export default {
       this.customerInfoPhone = e.target.value.replace(/\D/g, '').slice(0, 10)
       e.target.value = this.customerInfoPhone
     },
+
+    // ✅ Dùng địa chỉ GPS từ trang chọn cửa hàng để điền vào ô địa chỉ giao hàng
+    useGpsLocation() {
+      if (this.gpsLocationText) {
+        this.customerInfoAddress = this.gpsLocationText
+        // Xóa lỗi nếu trước đó có
+        if (this.customerInfoErrors.address) {
+          this.customerInfoErrors.address = ''
+        }
+      }
+    },
+
     validateCustomerInfo() {
       let valid = true
       this.customerInfoErrors = { name: '', phone: '', address: '' }
@@ -217,11 +234,6 @@ export default {
       return valid
     },
     submitCustomerInfo() {
-      console.log('submitCustomerInfo called')
-      console.log('name:', this.customerInfoName)
-      console.log('phone:', this.customerInfoPhone)
-      console.log('address:', this.customerInfoAddress)
-
       if (!this.validateCustomerInfo()) return
       this.showCustomerInfoModal = false
       this.paymentMethod = 'COD'
