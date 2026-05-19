@@ -260,7 +260,7 @@ export default {
     async loadSavedCoupon(userId) {
       try {
         const res = await api.get('/promo-codes/my-promos', {params: { userId }})
-        this.savedPromo = res.data
+        this.savedPromo = res.data.filter(p => {if(p.status) return p})
       } catch (error) {
         console.log("error fetching saved promo codes: "+error )
       }
@@ -270,13 +270,14 @@ export default {
       if (!this.couponCode) return
 
       try {
-        const res = await api.post('/promo-codes/validate', {
+        const res = await api.post('/promo-codes/check', {
           userId:     this.authStore.user.id,
           code:       this.couponCode,
           orderTotal: this.selectedSubtotal,
         })
         this.couponDiscount = res.data.discount
         this.couponApplied  = true
+        this.couponAppliedId = 
         this.couponMessage  = `✓ Áp dụng thành công! (-${this.formatVND(res.data.discount)})`
       } catch (e) {
         this.couponDiscount = 0
@@ -299,6 +300,7 @@ export default {
           `/carts/user/${this.authStore.user.id}/checkout-selected`,
           {
             cartItemIds: selectedCartItemIds,
+            promoCode: this.couponCode,
             note: this.orderNote
               ? (this.couponApplied ? `Online Order - Note: "${this.orderNote}" - Coupon: ${this.couponCode}` : `Online Order - Note:"${this.orderNote}"`)
               : (this.couponApplied ? `Online Order - Coupon: ${this.couponCode}` : 'Online Order'),
