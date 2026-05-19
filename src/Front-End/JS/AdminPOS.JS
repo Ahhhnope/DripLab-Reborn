@@ -13,28 +13,42 @@ import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
  *   4 - Chọn size
  *   5 - Mức đá, mức đường, số lượng → Hoàn thành
  */
+const BASE_COLORS = {
+  'Pha Máy':  '#0f0705',
+  'Pha Phin': '#5c3220',
+  'Ủ Lạnh':  '#24160f',
+}
+
+const BASE_PRICES = {
+  'Pha Máy':  15000,
+  'Pha Phin': 16000,
+  'Ủ Lạnh':  18000,
+}
+
 export function useBrewing() {
 
   const beanOptions = ref([])
   const milkOptions = ref([])
+  const baseOptions = ref([])
   const toppingOptions = ref([])
   const sizeOptions = ref([])
 
   async function fetchIngridients() {
     try {
-      const [beansRes, milksRes, toppingsRes, sizesRes] = await Promise.all([
+      const [beansRes, milksRes, toppingsRes, sizesRes, instructionsRes] = await Promise.all([
         api.get('/ingredients/coffee-beans'),
         api.get('/ingredients/milks'),
         api.get('/ingredients/toppings'),
-        api.get('/sizes')
+        api.get('/sizes'),
+        api.get('/instructions'),
       ])
 
       beanOptions.value = beansRes.data.map(item => ({
         id: item.id,
-        label: item.name, 
-        sub: 'Premium Selection', 
+        label: item.name,
+        sub: 'Premium Selection',
         priceDelta: item.price || 0,
-        color: '#3d2010' 
+        color: '#3d2010'
       }))
 
       const apiMilks = milksRes.data.map(item => ({
@@ -56,22 +70,27 @@ export function useBrewing() {
 
       sizeOptions.value = sizesRes.data.map(item => ({
         id: item.id,
-        label: item.name, // e.g., "Small", "Medium"
+        label: item.name,
         sub: item.name === 'S' ? 'Standard' : 'Upsize',
         priceDelta: item.price || 0
       }))
+
+      baseOptions.value = instructionsRes.data.map((ins) => ({
+        id: String(ins.id),
+        label: ins.name,
+        sub: ins.instructions,
+        priceDelta: BASE_PRICES[ins.name] ?? 0,
+        color: BASE_COLORS[ins.name] ?? '#2b1b14',
+      }))
+
     } catch (error) {
-      console.log("error fetch ingridients for custom coffee: "+error)
+      console.log("error fetch ingridients for custom coffee: " + error)
     }
   }
 
-  // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
-  const baseOptions = [
-    { id: 'espresso',  label: 'Espresso',  sub: 'Cô đặc, mạnh mẽ',  priceDelta: 15000},
-    { id: 'cold_brew', label: 'Cold Brew', sub: 'Lạnh, mượt mà',     priceDelta: 18000},
-    { id: 'pour_over', label: 'Pour Over', sub: 'Thanh, tinh tế',    priceDelta: 16000},
-  ]
 
+
+  // ─── DỮ LIỆU: BASE ────────────────────────────────────────────────
   // ─── DỮ LIỆU: HẠT CÀ PHÊ ─────────────────────────────────────────
   // const beanOptions = [
   //   { id: 'arabica',  label: 'Arabica',  sub: 'Chua nhẹ, thơm hoa quả', priceDelta: 10000},
@@ -106,40 +125,40 @@ export function useBrewing() {
   // ]
 
   // ─── DỮ LIỆU: MỨC ĐÁ / MỨC ĐƯỜNG ────────────────────────────────
-  const iceOptions    = ['0%', '30%', '50%', '70%', '100%']
-  const sugarOptions  = ['0%', '30%', '50%', '70%', '100%']
+  const iceOptions = ['0%', '30%', '50%', '70%', '100%']
+  const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
 
   // ─── BƯỚC HIỆN TẠI ────────────────────────────────────────────────
   const currentStep = ref(0)
 
   const STEPS = [
-    { key: 'bean',    label: 'Chọn hạt cà phê' },
-    { key: 'base',    label: 'Chọn base'        },
-    { key: 'milk',    label: 'Chọn sữa'         },
-    { key: 'topping', label: 'Chọn topping'     },
-    { key: 'size',    label: 'Chọn size'        },
-    { key: 'confirm', label: 'Xác nhận'         },
+    { key: 'bean', label: 'Chọn hạt cà phê' },
+    { key: 'base', label: 'Chọn base' },
+    { key: 'milk', label: 'Chọn sữa' },
+    { key: 'topping', label: 'Chọn topping' },
+    { key: 'size', label: 'Chọn size' },
+    { key: 'confirm', label: 'Xác nhận' },
   ]
 
   // ─── TRẠNG THÁI LỰA CHỌN ──────────────────────────────────────────
   const selection = reactive({
-    bean:     null,
-    base:     null,
-    milk:     null,
+    bean: null,
+    base: null,
+    milk: null,
     toppings: new Set(),
-    size:     null,
-    ice:      '100%',
-    sugar:    '100%',
+    size: null,
+    ice: '100%',
+    sugar: '100%',
     quantity: 1,
   })
 
   // ─── COMPUTED: bước nào đã hoàn thành ─────────────────────────────
   const stepDone = computed(() => ({
-    bean:    selection.bean !== null,
-    base:    selection.base !== null,
-    milk:    selection.milk !== null,
+    bean: selection.bean !== null,
+    base: selection.base !== null,
+    milk: selection.milk !== null,
     topping: true,   // Topping luôn coi là "done" (có thể bỏ qua)
-    size:    selection.size !== null,
+    size: selection.size !== null,
     confirm: false,
   }))
 
@@ -227,8 +246,8 @@ export function useBrewing() {
   }
 
   // Điều chỉnh số lượng
-  function incQty()  { if (selection.quantity < 99) selection.quantity++ }
-  function decQty()  { if (selection.quantity > 1)  selection.quantity-- }
+  function incQty() { if (selection.quantity < 99) selection.quantity++ }
+  function decQty() { if (selection.quantity > 1) selection.quantity-- }
 
   // ─── ANIMATION TICK ───────────────────────────────────────────────
   const animTick = ref(0)
@@ -264,10 +283,10 @@ export function useBrewing() {
   })
 
   // ─── COMPUTED: đối tượng nguyên liệu đang chọn ───────────────────
-  const selectedBean  = computed(() => beanOptions.value.find(x => x.id === selection.bean))
-  const selectedBase  = computed(() => baseOptions.find(x => x.id === selection.base))
-  const selectedMilk  = computed(() => milkOptions.value.find(x => x.id === selection.milk))
-  const selectedSize  = computed(() => sizeOptions.value.find(x => x.id === selection.size))
+  const selectedBean = computed(() => beanOptions.value.find(x => x.id === selection.bean))
+  const selectedBase = computed(() => baseOptions.value.find(x => x.id === selection.base))
+  const selectedMilk = computed(() => milkOptions.value.find(x => x.id === selection.milk))
+  const selectedSize = computed(() => sizeOptions.value.find(x => x.id === selection.size))
 
   // ─── HELPER: trộn màu ─────────────────────────────────────────────
   function mixHex(a, b, t = 0.5) {
@@ -297,18 +316,18 @@ export function useBrewing() {
 
   // ─── COMPUTED: CUP LAYERS ─────────────────────────────────────────
   const cupLayers = computed(() => {
-    const hasBean  = !!selection.bean
-    const hasBase  = !!selection.base
-    const hasMilk  = !!selection.milk && selection.milk !== 'none'
+    const hasBean = !!selection.bean
+    const hasBase = !!selection.base
+    const hasMilk = !!selection.milk && selection.milk !== 'none'
     const hasTopping = currentStep.value >= 3
 
     const hasCoffee = hasBase
-    const coffeeH   = hasCoffee ? 50 : 0
-    const milkH     = hasMilk   ? 40 : 0
-    const foamH     = hasTopping ? 10 : 0
+    const coffeeH = hasCoffee ? 50 : 0
+    const milkH = hasMilk ? 40 : 0
+    const foamH = hasTopping ? 10 : 0
 
     const isColdBrew = selection.base === 'cold_brew'
-    const isHot      = hasBase && !isColdBrew
+    const isHot = hasBase && !isColdBrew
 
     const coffeeColor = mixHex(
       selectedBean.value?.color ?? '#3d2010',
@@ -321,9 +340,9 @@ export function useBrewing() {
       base: { show: false, height: 0, color: selectedBase.value?.color ?? '#2b1b14' },
       milk: { show: hasMilk, height: milkH, color: selectedMilk.value?.color ?? '#f3e9dc' },
       foam: {
-        show:   hasTopping && (hasMilk || selection.toppings.has('whip')),
+        show: hasTopping && (hasMilk || selection.toppings.has('whip')),
         height: foamH,
-        color:  '#fffcf0',
+        color: '#fffcf0',
       },
       mixed: {
         enabled: isComplete.value,
@@ -336,19 +355,19 @@ export function useBrewing() {
         dustColor: selection.toppings.has('cocoa') ? '#5c3317' : (selection.toppings.has('cinnamon') ? '#c8834a' : '#d4a84b'),
         fxKey: toppingFxKey.value,
       },
-      drizzle:  { enabled: selection.toppings.has('caramel_drizzle') },
-      bubbles:  { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
-      steam:    { enabled: isHot },
-      straw:    { enabled: isComplete.value },
-      logo:     { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
+      drizzle: { enabled: selection.toppings.has('caramel_drizzle') },
+      bubbles: { enabled: (isColdBrew && hasBase) || (selection.milk === 'none' && hasBase) },
+      steam: { enabled: isHot },
+      straw: { enabled: isComplete.value },
+      logo: { enabled: isComplete.value && !!logoUrl.value, url: logoUrl.value },
     }
   })
 
   // ─── TÍNH GIÁ ─────────────────────────────────────────────────────
   const price = computed(() => {
     let total = 0
-    if (selectedBean.value)  total += selectedBean.value.priceDelta
-    if (selectedBase.value)  total += selectedBase.value.priceDelta
+    if (selectedBean.value) total += selectedBean.value.priceDelta
+    if (selectedBase.value) total += selectedBase.value.priceDelta
     if (selectedMilk.value && selection.milk !== 'none') total += selectedMilk.value.priceDelta
     for (const id of selection.toppings) {
       const t = toppingOptions.value.find(x => x.id === id)
@@ -367,15 +386,15 @@ export function useBrewing() {
   // ─── RESET ────────────────────────────────────────────────────────
   function reset() {
     clearTimeout(toppingTimer)
-    selection.bean     = null
-    selection.base     = null
-    selection.milk     = null
+    selection.bean = null
+    selection.base = null
+    selection.milk = null
     selection.toppings = new Set()
-    selection.size     = null
-    selection.ice      = '100%'
-    selection.sugar    = '100%'
+    selection.size = null
+    selection.ice = '100%'
+    selection.sugar = '100%'
     selection.quantity = 1
-    currentStep.value  = 0
+    currentStep.value = 0
     toppingAnimPlayed.value = false
     toppingFxKey.value = 0
     animTick.value++

@@ -43,11 +43,18 @@
                 <span class="tag tag-size">Size {{ item.sizeName }}</span>
               </div>
 
+              <div v-if="item.isCustom" class="card-tags card-tags--custom">
+                <span v-if="item.beanName" class="tag tag-custom">{{ item.beanName }}</span>
+                <span v-if="item.baseName" class="tag tag-custom">{{ item.baseName }}</span>
+                <span v-if="item.milkName" class="tag tag-custom">{{ item.milkName }}</span>
+              </div>
+
               <div class="card-tags" v-if="item.toppings && item.toppings.length">
                 <span v-for="(tp, i) in item.toppings" :key="i" class="tag tag-topping">
                   {{ tp }}
                 </span>
               </div>
+
 
               <div class="card-specs">
                 <span class="card-spec">Đường: <strong>{{ item.sugar }}%</strong></span>
@@ -104,6 +111,23 @@
                     <span class="preview-detail-price" v-if="item.sizePrice > 0">+{{ formatVND(item.sizePrice) }}</span>
                     <span class="preview-detail-price free" v-else>+0 đ</span>
                   </div>
+                  <template v-if="item.isCustom">
+                    <div v-if="item.beanName" class="preview-detail-row">
+                      <span class="preview-detail-icon">-</span>
+                      <span class="preview-detail-label">{{ item.beanName }}</span>
+                      <span class="preview-detail-price free">+0 đ</span>
+                    </div>
+                    <div v-if="item.baseName" class="preview-detail-row">
+                      <span class="preview-detail-icon">-</span>
+                      <span class="preview-detail-label">{{ item.baseName }}</span>
+                      <span class="preview-detail-price free">+0 đ</span>
+                    </div>
+                    <div v-if="item.milkName" class="preview-detail-row">
+                      <span class="preview-detail-icon">-</span>
+                      <span class="preview-detail-label">{{ item.milkName }}</span>
+                      <span class="preview-detail-price free">+0 đ</span>
+                    </div>
+                  </template>
                   <!-- Từng topping riêng -->
                   <div v-for="(tp, i) in item.toppingDetails" :key="i" class="preview-detail-row">
                     <span class="preview-detail-icon">+</span>
@@ -334,6 +358,23 @@
                     <span class="moi-detail-price" v-if="item.sizePrice > 0">+{{ formatVND(item.sizePrice) }}</span>
                     <span class="moi-detail-price free" v-else>+0 đ</span>
                   </div>
+                  <template v-if="item.isCustom">
+                    <div v-if="item.beanName" class="moi-detail-row">
+                      <span class="moi-detail-icon">-</span>
+                      <span class="moi-detail-label">{{ item.beanName }}</span>
+                      <span class="moi-detail-price free">+0 đ</span>
+                    </div>
+                    <div v-if="item.baseName" class="moi-detail-row">
+                      <span class="moi-detail-icon">-</span>
+                      <span class="moi-detail-label">{{ item.baseName }}</span>
+                      <span class="moi-detail-price free">+0 đ</span>
+                    </div>
+                    <div v-if="item.milkName" class="moi-detail-row">
+                      <span class="moi-detail-icon">-</span>
+                      <span class="moi-detail-label">{{ item.milkName }}</span>
+                      <span class="moi-detail-price free">+0 đ</span>
+                    </div>
+                  </template>
                   <!-- Từng topping riêng với giá -->
                   <div v-for="(tp, i) in item.toppingDetails" :key="i" class="moi-detail-row">
                     <span class="moi-detail-icon">+</span>
@@ -364,7 +405,8 @@
                       {{ couponApplied ? "Hủy" : "Áp dụng" }}
                     </button>
                   </div>
-                  <div v-if="couponMessage" class="coupon-feedback-centered" :class="couponApplied ? 'success' : 'error'">
+                  <div v-if="couponMessage" class="coupon-feedback-centered"
+                    :class="couponApplied ? 'success' : 'error'">
                     {{ couponMessage }}
                   </div>
                 </div>

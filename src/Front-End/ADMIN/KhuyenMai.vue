@@ -47,7 +47,6 @@
 
       <thead>
         <tr>
-          <th></th>
           <th>STT</th>
           <th>Mã</th>
           <th>Tên</th>
@@ -65,7 +64,6 @@
 
       <tbody>
         <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
-          <td><input type="checkbox" /></td>
           <td>{{ (currentPage - 1) * 8 + i + 1 }}</td>
           <td>{{ v.code }}</td>
           <td>{{ v.name }}</td>

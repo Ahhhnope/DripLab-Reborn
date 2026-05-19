@@ -30,12 +30,12 @@ function goToPage(page) {
 function mapInvoice(inv) {
   const isOnline = inv.receiveType === 'Online'
   const items = (inv.items ?? []).map(item => {
+    console.log('mapInvoice called:', inv.invoiceId, inv.items?.[0])
     const toppingList = (item.toppings ?? []).map(t => ({
       name: t.name || "",
       price: t.price || 0,
     }))
-    const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-    const unitPrice = (item.unitPrice || 0) + toppingTotal
+    const unitPrice = item.unitPrice || 0
     return {
       name: item.name || "Món không tên",
       qty: item.qty || 1,
@@ -45,6 +45,11 @@ function mapInvoice(inv) {
       sugar: item.sugar ?? null,
       ice: item.ice ?? null,
       toppings: toppingList,
+
+      isCustom: !!(item.beanName || item.baseName || item.milkName),
+      beanName: item.beanName ?? null,
+      baseName: item.baseName ?? null,
+      milkName: item.milkName ?? null,
     }
   })
 

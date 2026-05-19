@@ -33,6 +33,8 @@ export function useOrderList() {
       console.log("Order 168609:", latest?.receiverName, latest?.receiverPhone, latest?.shippingAddress)
 
       allItems.value = res.data.map((o) => {
+        console.log('RAW items[0]:', JSON.stringify(o.items?.[0], null, 2))
+
         const orderDateMs = o.orderDate ? Date.parse(o.orderDate) : 0;
         const createdAtMs = o.createdAt ? Date.parse(o.createdAt) : 0;
         const sortTs = orderDateMs || createdAtMs || 0;
@@ -63,16 +65,26 @@ export function useOrderList() {
             address: o.shippingAddress || "-",
           },
 
-          itemsDetail: (o.items ?? []).map((i) => ({
-            id: i.id,
-            name: i.drink?.name ?? "-",
-            qty: i.quantity ?? 1,
-            total: (i.basePriceAtPurchase ?? 0) * (i.quantity ?? 1),
-            options: [
-              i.size?.name ? `Size ${i.size.name}` : null,
-              ...(i.orderItemToppings ?? []).map((t) => t.topping?.name).filter(Boolean),
-            ].filter(Boolean),
-          })),
+          itemsDetail: (o.items ?? []).map((i) => {
+            return {
+              id: i.id,
+              name: i.drink?.name ?? "-",
+              qty: i.quantity ?? 1,
+              total: (i.basePriceAtPurchase ?? 0) * (i.quantity ?? 1),
+              options: [
+                i.size?.name ? `Size ${i.size.name}` : null,
+                ...(i.orderItemToppings ?? []).map((t) => t.topping?.name).filter(Boolean),
+              ].filter(Boolean),
+
+              ice: i.ice ?? null,
+              sugar: i.sugar ?? null,
+
+              isCustom: !!(i.beanName || i.baseName || i.milkName),
+              beanName: i.beanName ?? null,
+              baseName: i.baseName ?? null,
+              milkName: i.milkName ?? null,
+            }
+          }),
 
           subtotal: o.originalPrice ?? 0,
           shippingFee: o.shippingFee ?? 0,

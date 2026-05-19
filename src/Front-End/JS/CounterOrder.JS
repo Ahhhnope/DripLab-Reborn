@@ -1,5 +1,6 @@
 import { ref, computed, onMounted, onUnmounted, reactive, onActivated } from 'vue'
 import api from '../../api/axios.js'
+import { useAuthStore } from '../Authorization/Auth.js'
 import { useBrewingCart } from './BrewingCart.JS'
 
 
@@ -24,15 +25,16 @@ function genTxId() {
 function genAnonCode() {
     const now = new Date()
     const resetKey = `anonCounter_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${now.getHours() < 12 ? 'am' : 'pm'}`
-    
+
     const stored = sessionStorage.getItem(resetKey)
     const count = stored ? parseInt(stored) + 1 : 1
     sessionStorage.setItem(resetKey, count)
-    
-    return `#DRIPLAB${String(count).padStart(2, '0')}`
+
+    return `DRIPLAB${String(count).padStart(2, '0')}`
 }
 
 export function useCounterOrder() {
+    const authStore = useAuthStore()
 
     /* ══ BƯỚC MỞ ĐẦU ═══════ */
     const appStep = ref('welcome')
@@ -314,13 +316,15 @@ export function useCounterOrder() {
         if (!order) return
 
         try {
-            const staffId = 2;
-            const res = await api.get(`/carts/items/${staffId}`);
+            const userId = authStore.user?.id
+             const res = await api.get(`/carts/items/${userId}`) 
 
             const items = res.data.map(item => {
                 const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0;
                 const sizePrice = item.size?.price || 0;
-                const unitPrice = item.drink.basePrice + sizePrice + toppingTotal;
+                const unitPrice = item.unitPrice
+                    ? item.unitPrice
+                    : item.drink.basePrice + sizePrice + toppingTotal;
 
                 // FIX 2: Map toppingDetails đầy đủ để hiển thị trong review/receipt
                 const toppingDetails = item.toppings?.map(t => ({
@@ -343,7 +347,7 @@ export function useCounterOrder() {
                     toppingDetails: toppingDetails,
                     isCustom: item.isCustom,
                     beanName: item.coffeeBean?.name,
-                    base: item.base,
+                    baseName: item.base ?? null,
                     milkName: item.milk?.name,
                 };
             });
@@ -610,28 +614,41 @@ export function useCounterOrder() {
 
     async function confirmPayment() {
         try {
-            const staffId = 2
-            
-            console.log('note:', orderNote.value)
-            const params = new URLSearchParams();
-            params.append('userId', staffId);
-            params.append('note', orderNote.value || '');
-            params.append('paymentMethod', paymentMethod.value)
-            params.append('receiverName', payNameInput.value ? payNameInput.value : currentOrder.value.anonCode);
-            params.append('receiverPhone', payPhoneInput.value);
-            console.log(payNameInput.value ? payNameInput.value : currentOrder.value.anonCode)
-            console.log(payPhoneInput?.value)
+            const userId = authStore.user?.id  // ← dùng auth thay vì hardcode 2
 
-            displayTableNums.value.forEach(tableId => {
-                params.append('tables', tableId)
-            });
+            const receiverName = payNameInput.value.trim()
+                || currentOrder.value?.customerName
+                || currentOrder.value?.anonCode
+                || ''
 
-            const res = await api.post(`/orders/add?${params.toString()}`)
+            const res = await api.post('/orders/add', null, {
+                params: {
+                    userId: userId,
+                    note: orderNote.value || '',
+                    paymentMethod: paymentMethod.value,
+                    receiverName: receiverName,
+                    receiverPhone: payPhoneInput.value || '',
+                    tables: displayTableNums.value,
+                    finalPrice: finalPrice.value,
+                    originalPrice: totalPrice.value,
+                    discountAmount: totalPrice.value - finalPrice.value,
+                },
+                paramsSerializer: params => {
+                    const search = new URLSearchParams()
+                    Object.entries(params).forEach(([key, val]) => {
+                        if (Array.isArray(val)) {
+                            val.forEach(v => search.append(key, v))
+                        } else if (val !== null && val !== undefined) {
+                            search.append(key, String(val))
+                        }
+                    })
+                    return search.toString()
+                }
+            })
 
             showReviewPopup.value = false
             txId.value = res.data.orderNumber
             txTime.value = new Date().toLocaleString('vi-VN')
-
             if (paymentMethod.value === 'Tiền mặt') receiptData.value.change = changeAmount.value
             showSuccessPopup.value = true
         } catch (error) {
@@ -742,7 +759,7 @@ export function useCounterOrder() {
         const unitPrice = selectedProduct.value.price + toppingPrice + sizePrice
 
         const cartItemReq = {
-            userId: 2,
+            userId: authStore.user?.id,
             drinkId: selectedProduct.value.id,
             quantity: selectedQty.value,
             sizeId: selectedSize.value === 'S' ? 1 : (selectedSize.value === 'M' ? 2 : 3),
