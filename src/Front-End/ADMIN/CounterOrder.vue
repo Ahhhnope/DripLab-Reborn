@@ -378,7 +378,7 @@ function getItemToppingDetails(item) {
               <span class="rpc-name">{{ item.name }}</span>
               <div class="rpc-meta-row">
                 <span class="rpc-size-badge">Size: {{ item.size }}</span>
-                <span class="rpc-qty-badge">×{{ item.qty }}</span>
+                <span class="rpc-qty-badge">SL: {{ item.qty }}</span>
               </div>
               <button class="rpc-remove" @click="removeItem(index, item.cartItemId)" title="Xóa">✕</button>
             </div>
