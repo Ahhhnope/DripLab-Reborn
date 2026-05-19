@@ -29,8 +29,8 @@ function genAnonCode() {
     const stored = sessionStorage.getItem(resetKey)
     const count = stored ? parseInt(stored) + 1 : 1
     sessionStorage.setItem(resetKey, count)
-
-    return `DRIPLAB${String(count).padStart(2, '0')}`
+    
+    return `#DRIPLAB${String(count).padStart(2, '0')}`
 }
 
 export function useCounterOrder() {
@@ -79,12 +79,24 @@ export function useCounterOrder() {
         showCancelOrderPopup.value = true
     }
 
-    function confirmCancelOrder() {
+    async function confirmCancelOrder() {
         showCancelOrderPopup.value = false
         const order = cancelTargetOrder.value
         if (!order) return
 
-        if (order.selectedTables) {
+        if (order.selectedTables && order.selectedTables.length) {
+            try {
+                await Promise.all(
+                    order.selectedTables.map(t =>
+                        api.put(`/tables/release/${t}`).catch(err => {
+                            console.error(`Error releasing table ${t}:`, err)
+                        })
+                    )
+                )
+            } catch (error) {
+                console.error('Error releasing tables on cancel:', error)
+            }
+
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
                 if (idx !== -1) occupiedTables.value.splice(idx, 1)
@@ -129,9 +141,6 @@ export function useCounterOrder() {
         dineMode.value = null
     }
 
-    // FIX 1: Xóa toàn bộ cart items trên server khi tạo hóa đơn mới
-    // Mỗi hóa đơn tự quản lý items trong memory (order.items)
-    // Cart server chỉ dùng để add/remove real-time, không load lại khi switch tab
     async function _clearCartForOrder(order) {
         if (!order || !order.items || !order.items.length) return
         try {
@@ -318,10 +327,7 @@ export function useCounterOrder() {
                 currentOrder.value.anonCode = genAnonCode()
             currentOrder.value.step = 'order'
         }
-        // FIX 1: KHÔNG gọi fetchCartItems khi chuyển sang order - items đã được lưu trong order.items
-        // Chỉ load từ server nếu order này là order restore từ addProduct (addProductMode)
         if (currentOrder.value?.addProductMode) {
-            // Không load items - giữ nguyên trống để mua món mới
             orderedItems.value = []
         }
         appStep.value = 'order'
@@ -331,7 +337,6 @@ export function useCounterOrder() {
     const searchText = ref('')
     const products = ref([])
 
-    // FIX 1: fetchCartItems chỉ dùng khi cần đồng bộ, KHÔNG tự động gọi khi tạo/switch order
     async function fetchCartItems(targetOrder = null) {
         const order = targetOrder || currentOrder.value
         if (!order) return
@@ -415,31 +420,30 @@ export function useCounterOrder() {
     const orderedItems = ref([])
     let orderCounter = 0
 
-    // FIX 1: Tạo hóa đơn mới KHÔNG load cart từ server, items = [] trống hoàn toàn
     function createNewOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
         orderCounter++
         const order = {
-            id: Date.now(), orderNumber: orderCounter, items: [],  // items luôn trống khi tạo mới
+            id: Date.now(), orderNumber: orderCounter, items: [],
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: '', customerPhone: '',
             selectedTables: [], anonCode: '', step: 'info',
             note: '',
             dineMode: null,
-            addProductMode: false, // flag để biết đây là order thêm sản phẩm
+            addProductMode: false,
+            originalOrderId: null,
         }
         orderList.value.push(order)
         selectOrder(order)
     }
 
-    // FIX 3: Tạo hóa đơn "thêm sản phẩm" với thông tin restore từ AdminDatBan
     function createAddProductOrder(orderInfo) {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
         orderCounter++
         const order = {
             id: Date.now(),
             orderNumber: orderCounter,
-            items: [], // trống - chuẩn bị mua món mới
+            items: [], // trống — mua món mới
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: orderInfo.customerName || '',
             customerPhone: orderInfo.customerPhone || '',
@@ -447,19 +451,28 @@ export function useCounterOrder() {
             anonCode: orderInfo.anonCode || '',
             step: 'order', // thẳng vào màn order
             note: '',
-            dineMode: true, // tại quán vì đã có bàn
-            addProductMode: true, // flag thêm sản phẩm
-            originalOrderId: orderInfo.originalOrderId, // ID order gốc để link sau khi thanh toán
+            dineMode: true, // tại quán
+            addProductMode: true, // flag: đây là order thêm sản phẩm
+            originalOrderId: orderInfo.originalOrderId || null,
         }
         orderList.value.push(order)
-        selectOrder(order)
+
+        currentOrder.value = order
+        orderedItems.value = [] // giỏ hàng trống
+        discountInput.value = order.discountInput
+        appliedCode.value = order.appliedCode
+        discountPercent.value = order.discountPercent
+        discountMessage.value = order.discountMessage
+        selectedTables.value = [...order.selectedTables]
+        orderNote.value = order.note || ''
+        dineMode.value = true
+        customerNameInput.value = order.customerName || ''
+        customerPhoneInput.value = order.customerPhone || ''
         appStep.value = 'order'
     }
 
-    // FIX 1: selectOrder load items từ cache của order, KHÔNG gọi API
     function selectOrder(order) {
         currentOrder.value = order
-        // Load items từ order cache - không gọi API
         orderedItems.value = order.items ? [...order.items] : []
         discountInput.value = order.discountInput
         appliedCode.value = order.appliedCode
@@ -656,11 +669,10 @@ export function useCounterOrder() {
     async function confirmPayment() {
         try {
             const userId = authStore.user?.id
+            const order = currentOrder.value
 
-            const receiverName = payNameInput.value.trim()
-                || currentOrder.value?.customerName
-                || currentOrder.value?.anonCode
-                || ''
+            const receiverName = payNameInput.value.trim() || order?.customerName || order?.anonCode|| ''
+            const tablesToSubmit = displayTableNums.value
 
             const res = await api.post('/orders/add', null, {
                 params: {
@@ -669,7 +681,7 @@ export function useCounterOrder() {
                     paymentMethod: paymentMethod.value,
                     receiverName: receiverName,
                     receiverPhone: payPhoneInput.value || '',
-                    tables: displayTableNums.value,
+                    tables: tablesToSubmit,
                     finalPrice: finalPrice.value,
                     originalPrice: totalPrice.value,
                     discountAmount: totalPrice.value - finalPrice.value,
@@ -703,7 +715,7 @@ export function useCounterOrder() {
         showSuccessPopup.value = false
         const order = currentOrder.value
 
-        if (order?.selectedTables) {
+        if (!order?.addProductMode && order?.selectedTables) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
                 if (idx !== -1) occupiedTables.value.splice(idx, 1)
@@ -903,6 +915,7 @@ export function useCounterOrder() {
 
         try {
             const orderInfo = JSON.parse(raw)
+            console.log('Restoring add product order:', orderInfo)
             createAddProductOrder(orderInfo)
         } catch (e) {
             console.error('Error restoring add product order:', e)
@@ -935,7 +948,7 @@ export function useCounterOrder() {
 
     onUnmounted(() => { if (timer) clearInterval(timer) })
 
-    /* ══ EXPORT ════════════════════════════════════════════════════ */
+    /* ══ EXPORT ══ */
     return {
         fetchDrinks, fetchToppings,
         appStep, orderMode,

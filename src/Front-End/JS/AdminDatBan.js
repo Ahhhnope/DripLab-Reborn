@@ -1,5 +1,7 @@
 import { ref, computed } from 'vue'
 import api from '@/api/axios'
+const _tableOrdersCache = new Map()   
+const _tableLatestOrderId = new Map() 
 
 export function useAdminDatBan() {
     const TOTAL_TABLES = 20
@@ -10,20 +12,50 @@ export function useAdminDatBan() {
     const selectedOrder = ref(null)
     const showConfirmDone = ref(false)
     const activeFilter = ref('all')
-    // Hóa đơn đang được chọn ở cột trái (chỉ lọc lưới bàn, không mở modal)
     const selectedInvoice = ref(null)
     let _router = null
 
-    const occupiedTables = computed(() => tables.value.filter(t => t.status === "Đang sử dụng").map(t => t.id))
+    const occupiedTables = computed(() =>
+        tables.value.filter(t => t.status === "Đang sử dụng").map(t => t.id)
+    )
 
     function setRouter(r) { _router = r }
 
     async function fetchTables() {
         try {
-            const res = await api.get("/tables");
-            tables.value = res.data;
+            const res = await api.get("/tables")
+            tables.value = res.data
+
+            res.data.forEach(t => {
+                if (t.status === "Đang sử dụng" && t.currentOrder) {
+                    const order = t.currentOrder
+                    const tableId = t.id
+
+                    if (!_tableOrdersCache.has(tableId)) {
+                        _tableOrdersCache.set(tableId, new Map())
+                    }
+
+                    const ordersMap = _tableOrdersCache.get(tableId)
+
+                    if (!ordersMap.has(order.id)) {
+                        ordersMap.set(order.id, {
+                            order: { ...order },
+                            _cachedAt: Date.now(),
+                        })
+                        console.log(`[Cache] Bàn ${tableId}: thêm order ${order.id}, tổng ${ordersMap.size} orders`)
+                    }
+
+                    _tableLatestOrderId.set(tableId, order.id)
+
+                } else if (t.status !== "Đang sử dụng") {
+                    if (_tableOrdersCache.has(t.id)) {
+                        _tableOrdersCache.delete(t.id)
+                        _tableLatestOrderId.delete(t.id)
+                    }
+                }
+            })
         } catch (error) {
-            console.error("fetch tables error: " + error);
+            console.error("fetch tables error: " + error)
         }
     }
 
@@ -40,9 +72,7 @@ export function useAdminDatBan() {
         return `Bàn ${String(num).padStart(2, '0')}`
     }
 
-    // Chọn hóa đơn để lọc lưới bàn bên phải — KHÔNG mở modal
     function selectInvoice(invoice) {
-        // Nếu click vào cùng hóa đơn đang chọn thì bỏ chọn
         if (selectedInvoice.value?.id === invoice.id) {
             selectedInvoice.value = null
         } else {
@@ -50,19 +80,84 @@ export function useAdminDatBan() {
         }
     }
 
-    // Mở modal chi tiết bàn (gọi khi click ô bàn xanh)
+    function getRelatedTableIds(tableId) {
+        const tableObj = tables.value.find(t => t.id === tableId)
+        const orderId = tableObj?.currentOrder?.id
+        if (!orderId) return [tableId]
+
+        return tables.value
+            .filter(t => t.currentOrder?.id === orderId)
+            .map(t => t.id)
+            .sort((a, b) => a - b)
+    }
+
     function openDetail(tableNum) {
         selectedTable.value = tableNum
         const tableObj = tables.value.find(t => t.id === tableNum)
-        selectedOrder.value = tableObj?.currentOrder ?? {
-            id: null,
-            tableNum: tableNum,
-            items: [],
-            selectedTables: [tableNum],
-            customerName: '',
-            customerPhone: '',
-            paymentMethod: ''
+        const latestOrder = tableObj?.currentOrder ?? {
+            id: null, tableNum: tableNum, items: [],
+            selectedTables: [tableNum], customerName: '',
+            customerPhone: '', paymentMethod: ''
         }
+
+        const relatedTableIds = getRelatedTableIds(tableNum)
+
+        const allOrdersMap = new Map()
+        relatedTableIds.forEach(tid => {
+            const ordersMap = _tableOrdersCache.get(tid)
+            if (ordersMap) {
+                ordersMap.forEach((entry, orderId) => {
+                    if (!allOrdersMap.has(orderId)) {
+                        allOrdersMap.set(orderId, entry)
+                    }
+                })
+            }
+        })
+
+        console.log(`[openDetail] Bàn ${tableNum}: ${allOrdersMap.size} orders trong cache`)
+
+        const sortedEntries = Array.from(allOrdersMap.values()).sort((a, b) => (a._cachedAt || 0) - (b._cachedAt || 0))
+
+        let orderSections = []
+        let firstOrderData = null
+
+        sortedEntries.forEach((entry, idx) => {
+            const o = entry.order
+            if (!firstOrderData) firstOrderData = o
+            console.log(`[openDetail] Order ${idx + 1}: id=${o.id}, orderNumber=${o.orderNumber}, items=${o.items?.length || 0}`)
+
+            if (o.items && o.items.length) {
+                orderSections.push({
+                    orderId: o.id,
+                    orderNumber: o.orderNumber,
+                    items: o.items.map(item => ({ ...item })),
+                    _cachedAt: entry._cachedAt,
+                })
+            }
+        })
+
+        if (!orderSections.length && latestOrder.items?.length) {
+            orderSections = [{
+                orderId: latestOrder.id,
+                orderNumber: latestOrder.orderNumber,
+                items: [...latestOrder.items],
+                _cachedAt: Date.now(),
+            }]
+        }
+
+        const baseOrder = firstOrderData || latestOrder
+
+        selectedOrder.value = {
+            ...latestOrder,
+            customerName: baseOrder.customerName || latestOrder.customerName || '',
+            customerPhone: baseOrder.customerPhone || latestOrder.customerPhone || '',
+            anonCode: baseOrder.anonCode || latestOrder.anonCode || '',
+            receiverName: baseOrder.receiverName || latestOrder.receiverName || '',
+            receiverPhone: baseOrder.receiverPhone || latestOrder.receiverPhone || '',
+            items: orderSections.flatMap(s => s.items),
+            orderSections: orderSections,
+        }
+
         showDetail.value = true
     }
 
@@ -73,13 +168,13 @@ export function useAdminDatBan() {
         showConfirmDone.value = false
     }
 
-    // Trả bàn hiện tại
     async function confirmDoneSingle() {
         if (!selectedTable.value) return
         try {
             await api.put(`/tables/release/${selectedTable.value}`)
+            _tableOrdersCache.delete(selectedTable.value)
+            _tableLatestOrderId.delete(selectedTable.value)
             await fetchTables()
-            // Nếu bàn vừa trả là bàn cuối trong invoice đang chọn thì reset
             if (selectedInvoice.value) {
                 const remaining = selectedInvoice.value.selectedTables.filter(t => t !== selectedTable.value)
                 selectedInvoice.value = remaining.length === 0
@@ -92,11 +187,26 @@ export function useAdminDatBan() {
         }
     }
 
-    // Trả tất cả bàn trong hóa đơn
     async function confirmDoneAll() {
-        const tables_to_release = selectedOrder.value?.selectedTables || [selectedTable.value]
+        const currentOrderId = selectedOrder.value?.id
+        let tables_to_release = []
+
+        if (currentOrderId) {
+            tables_to_release = tables.value
+                .filter(t => t.currentOrder?.id === currentOrderId)
+                .map(t => t.id)
+        }
+
+        if (!tables_to_release.length) {
+            tables_to_release = [selectedTable.value]
+        }
+
         try {
             await Promise.all(tables_to_release.map(t => api.put(`/tables/release/${t}`)))
+            tables_to_release.forEach(t => {
+                _tableOrdersCache.delete(t)
+                _tableLatestOrderId.delete(t)
+            })
             await fetchTables()
             selectedInvoice.value = null
             closeDetail()
@@ -110,12 +220,36 @@ export function useAdminDatBan() {
     }
 
     function addProduct() {
-        if (!selectedOrder.value?.id) {
-            closeDetail();
+        if (!selectedOrder.value) {
+            closeDetail()
             return
         }
+
+        const currentOrderId = selectedOrder.value?.id
+        let allTables = []
+        if (currentOrderId) {
+            allTables = tables.value
+                .filter(t => t.currentOrder?.id === currentOrderId)
+                .map(t => t.id)
+                .sort((a, b) => a - b)
+        }
+        if (!allTables.length && selectedTable.value) {
+            allTables = [selectedTable.value]
+        }
+
+        const addProductOrderInfo = {
+            originalOrderId: currentOrderId || null,
+            customerName: selectedOrder.value.customerName || selectedOrder.value.receiverName || '',
+            customerPhone: selectedOrder.value.customerPhone || selectedOrder.value.receiverPhone || '',
+            anonCode: selectedOrder.value.anonCode || '',
+            tables: allTables,
+            dineMode: true,
+        }
+
+        sessionStorage.setItem('addProductOrderInfo', JSON.stringify(addProductOrderInfo))
+
         if (_router) {
-            _router.push({ path: '/QuanLyDonTaiQuay', query: { selectOrder: selectedOrder.value.id } })
+            _router.push('/QuanLyDonTaiQuay')
         }
         closeDetail()
     }
@@ -139,8 +273,25 @@ export function useAdminDatBan() {
             .forEach(t => {
                 const order = t.currentOrder
                 const orderId = order.id
+
                 if (!map.has(orderId)) {
-                    const displayName = order.customerName || order.anonCode || `#DRIPLAB${String(orderId).slice(-2).padStart(2, '0')}`
+                    let displayName = order.customerName || order.anonCode || order.receiverName
+
+                    const ordersMap = _tableOrdersCache.get(t.id)
+                    if (ordersMap && ordersMap.size > 0) {
+                        const sorted = Array.from(ordersMap.values())
+                            .sort((a, b) => (a._cachedAt || 0) - (b._cachedAt || 0))
+                        const first = sorted[0]?.order
+                        if (first) {
+                            displayName = first.customerName
+                                || first.anonCode
+                                || first.receiverName
+                                || displayName
+                        }
+                    }
+
+                    if (!displayName) displayName = `Order #${orderId}`
+
                     map.set(orderId, { ...order, displayName, selectedTables: [] })
                 }
                 map.get(orderId).selectedTables.push(t.id)
@@ -152,6 +303,15 @@ export function useAdminDatBan() {
     })
 
     const totalPrice = computed(() => {
+        const sections = selectedOrder.value?.orderSections || []
+        if (sections.length) {
+            return sections.flatMap(s => s.items).reduce((sum, item) => {
+                const basePrice = item.basePriceAtPurchase || 0
+                const sizePrice = item.size?.price || 0
+                const qty = item.quantity || 0
+                return sum + (basePrice + sizePrice) * qty
+            }, 0)
+        }
         const items = selectedOrder.value?.items || []
         return items.reduce((sum, item) => {
             const basePrice = item.basePriceAtPurchase || 0
@@ -162,9 +322,9 @@ export function useAdminDatBan() {
     })
 
     function getModalTableLabel() {
-        const currentOrderId = selectedOrder.value?.id;
+        const currentOrderId = selectedOrder.value?.id
         if (!currentOrderId) {
-            return selectedTable.value ? getTableLabel(selectedTable.value) : '';
+            return selectedTable.value ? getTableLabel(selectedTable.value) : ''
         }
         const relatedTables = tables.value
             .filter(t => t.currentOrder?.id === currentOrderId)
@@ -172,9 +332,9 @@ export function useAdminDatBan() {
             .sort((a, b) => a - b)
 
         if (relatedTables.length > 1) {
-            return relatedTables.map(id => getTableLabel(id)).join(' + ');
+            return relatedTables.map(id => getTableLabel(id)).join(' + ')
         }
-        return getTableLabel(selectedTable.value);
+        return getTableLabel(selectedTable.value)
     }
 
     function isTableOccupiedInModal() {

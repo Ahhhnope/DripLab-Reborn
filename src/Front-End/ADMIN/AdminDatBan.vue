@@ -108,16 +108,11 @@ function getBasePrice(item) {
           <div v-if="!activeInvoices.length" class="adb-invoice-empty">
             Chưa có hóa đơn nào đang sử dụng bàn
           </div>
-          <div
-            v-for="invoice in activeInvoices"
-            :key="invoice.id"
-            class="adb-invoice-item"
-            :class="{ 'is-active': selectedInvoice?.id === invoice.id }"
-            @click="selectInvoice(invoice)"
-          >
+          <div v-for="invoice in activeInvoices" :key="invoice.id" class="adb-invoice-item"
+            :class="{ 'is-active': selectedInvoice?.id === invoice.id }" @click="selectInvoice(invoice)">
             <div class="adb-invoice-name">Tên: {{ invoice.displayName }}</div>
             <div class="adb-invoice-tables-line">
-              Bàn: {{ invoice.selectedTables.map(t => String(t).padStart(2, '0')).join(' + ') }}
+              Bàn: {{invoice.selectedTables.map(t => String(t).padStart(2, '0')).join(' + ')}}
             </div>
           </div>
         </div>
@@ -134,12 +129,8 @@ function getBasePrice(item) {
 
         <template v-else>
           <div v-if="selectedInvoice.selectedTables.length" class="adb-grid adb-grid--occupied">
-            <div
-              v-for="num in selectedInvoice.selectedTables"
-              :key="num"
-              class="adb-table-card occupied-card"
-              @click="openDetail(num)"
-            >
+            <div v-for="num in selectedInvoice.selectedTables" :key="num" class="adb-table-card occupied-card"
+              @click="openDetail(num)">
               <span class="adb-table-num">{{ getTableLabel(num) }}</span>
               <span class="adb-occupied-badge">Đang sử dụng</span>
               <span class="adb-card-dot"></span>
@@ -183,11 +174,13 @@ function getBasePrice(item) {
             <p class="adb-section-title">Thông Tin Khách Hàng</p>
             <div class="adb-info-row">
               <span class="adb-info-lbl">Họ và tên</span>
-              <span class="adb-info-val">{{ selectedOrder?.receiverName || selectedOrder?.customerName || selectedOrder?.anonCode || 'Không có thông tin' }}</span>
+              <span class="adb-info-val">{{ selectedOrder?.receiverName || selectedOrder?.customerName ||
+                selectedOrder?.anonCode || 'Không có thông tin' }}</span>
             </div>
             <div class="adb-info-row">
               <span class="adb-info-lbl">Số điện thoại</span>
-              <span class="adb-info-val">{{ selectedOrder?.receiverPhone || selectedOrder?.customerPhone || '–' }}</span>
+              <span class="adb-info-val">{{ selectedOrder?.receiverPhone || selectedOrder?.customerPhone || '–'
+                }}</span>
             </div>
             <div class="adb-info-row">
               <span class="adb-info-lbl">Hình thức thanh toán</span>
@@ -199,54 +192,107 @@ function getBasePrice(item) {
             </div>
           </div>
 
-          <!-- Sản phẩm -->
-          <div class="adb-section">
-            <div class="adb-section-title-row">
-              <p class="adb-section-title">Thông Tin Sản Phẩm</p>
-              <span v-if="selectedOrder?.orderNumber" class="adb-txn-badge">
-                Mã giao dịch: {{ selectedOrder.orderNumber }}
-              </span>
-            </div>
-            <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
-
-            <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
-              <div class="adb-product-img-wrap">
-                <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.drink?.name"
-                  class="adb-product-img" @error="$event.target.style.display = 'none'" />
-                <span v-else>☕</span>
+          <template v-if="selectedOrder?.orderSections && selectedOrder.orderSections.length">
+            <div v-for="(section, sIdx) in selectedOrder.orderSections" :key="section.orderId || sIdx"
+              class="adb-section">
+              <div class="adb-section-title-row">
+                <p class="adb-section-title">
+                  {{ sIdx === 0 ? 'Thông Tin Sản Phẩm' : 'Sản Phẩm Thêm' }}
+                </p>
+                <span v-if="section.orderNumber" class="adb-txn-badge">
+                  Mã giao dịch: {{ section.orderNumber }}
+                </span>
               </div>
 
-              <div class="adb-product-info">
-                <!-- Tên + số lượng ngay cạnh nhau, giá đẩy sang phải -->
-                <div class="adb-product-name-row">
-                  <span class="adb-product-name">{{ item.drink?.name }}</span>
-                  <span class="adb-product-qty">x{{ item.quantity }}</span>
-                  <span class="adb-product-base-price">{{ getBasePrice(item).toLocaleString() }} đ</span>
+              <p v-if="!section.items?.length" class="adb-empty">Chưa có sản phẩm</p>
+
+              <div v-for="item in section.items" :key="item.id" class="adb-product-item">
+                <div class="adb-product-img-wrap">
+                  <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.drink?.name"
+                    class="adb-product-img" @error="$event.target.style.display = 'none'" />
+                  <span v-else>☕</span>
                 </div>
 
-                <div class="adb-product-options">
-                  <div v-if="item.size" class="adb-option-row">
-                    <span class="adb-option-icon">≡</span>
-                    <span class="adb-option-name">Size {{ item.size.name }}</span>
-                    <span class="adb-option-price" :class="item.size.price > 0 ? 'plus' : 'zero'">
-                      +{{ (item.size.price || 0).toLocaleString() }} đ
-                    </span>
+                <div class="adb-product-info">
+                  <div class="adb-product-name-row">
+                    <span class="adb-product-name">{{ item.drink?.name }}</span>
+                    <span class="adb-product-qty">x{{ item.quantity }}</span>
+                    <span class="adb-product-base-price">{{ getBasePrice(item).toLocaleString() }} đ</span>
                   </div>
-                  <template v-if="item.orderItemToppings?.length">
-                    <div v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-option-row">
-                      <span class="adb-option-icon">+</span>
-                      <span class="adb-option-name">{{ otp.topping?.name }}</span>
-                      <span class="adb-option-price plus">+{{ (otp.topping?.price || 0).toLocaleString() }} đ</span>
+
+                  <div class="adb-product-options">
+                    <div v-if="item.size" class="adb-option-row">
+                      <span class="adb-option-icon">≡</span>
+                      <span class="adb-option-name">Size {{ item.size.name }}</span>
+                      <span class="adb-option-price" :class="item.size.price > 0 ? 'plus' : 'zero'">
+                        +{{ (item.size.price || 0).toLocaleString() }} đ
+                      </span>
                     </div>
-                  </template>
-                  <div class="adb-badge-row">
-                    <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }} %</span>
-                    <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }} %</span>
+                    <template v-if="item.orderItemToppings?.length">
+                      <div v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-option-row">
+                        <span class="adb-option-icon">+</span>
+                        <span class="adb-option-name">{{ otp.topping?.name }}</span>
+                        <span class="adb-option-price plus">+{{ (otp.topping?.price || 0).toLocaleString() }} đ</span>
+                      </div>
+                    </template>
+                    <div class="adb-badge-row">
+                      <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }} %</span>
+                      <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }} %</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </template>
+
+          <template v-else>
+            <div class="adb-section">
+              <div class="adb-section-title-row">
+                <p class="adb-section-title">Thông Tin Sản Phẩm</p>
+                <span v-if="selectedOrder?.orderNumber" class="adb-txn-badge">
+                  Mã giao dịch: {{ selectedOrder.orderNumber }}
+                </span>
+              </div>
+              <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
+
+              <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
+                <div class="adb-product-img-wrap">
+                  <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.drink?.name"
+                    class="adb-product-img" @error="$event.target.style.display = 'none'" />
+                  <span v-else>☕</span>
+                </div>
+
+                <div class="adb-product-info">
+                  <div class="adb-product-name-row">
+                    <span class="adb-product-name">{{ item.drink?.name }}</span>
+                    <span class="adb-product-qty">x{{ item.quantity }}</span>
+                    <span class="adb-product-base-price">{{ getBasePrice(item).toLocaleString() }} đ</span>
+                  </div>
+
+                  <div class="adb-product-options">
+                    <div v-if="item.size" class="adb-option-row">
+                      <span class="adb-option-icon">≡</span>
+                      <span class="adb-option-name">Size {{ item.size.name }}</span>
+                      <span class="adb-option-price" :class="item.size.price > 0 ? 'plus' : 'zero'">
+                        +{{ (item.size.price || 0).toLocaleString() }} đ
+                      </span>
+                    </div>
+                    <template v-if="item.orderItemToppings?.length">
+                      <div v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-option-row">
+                        <span class="adb-option-icon">+</span>
+                        <span class="adb-option-name">{{ otp.topping?.name }}</span>
+                        <span class="adb-option-price plus">+{{ (otp.topping?.price || 0).toLocaleString() }} đ</span>
+                      </div>
+                    </template>
+                    <div class="adb-badge-row">
+                      <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }} %</span>
+                      <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }} %</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
 
           <!-- Nút hành động -->
           <template v-if="isTableOccupiedInModal()">
@@ -278,10 +324,10 @@ function getBasePrice(item) {
             <span> Quay lại</span>
           </button>
           <button class="adb-confirm-single" @click="confirmDoneSingle">
-            <span>Trả bàn này</span> 
+            <span>Trả bàn này</span>
           </button>
           <button class="adb-confirm-all" @click="confirmDoneAll">
-            <span> Trả tất cả  </span>
+            <span> Trả tất cả </span>
           </button>
         </div>
       </div>
