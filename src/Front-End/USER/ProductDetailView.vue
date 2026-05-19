@@ -196,18 +196,18 @@ function closeNotice() {
             <div class="absolute bottom-0 p-8 text-white">
               <div class="mb-2">
                 <!-- Best Seller → badge vàng, ẩn Món mới -->
-                <span
+                <!-- <span
                   v-if="product.isBestSeller"
                   class="flex items-center gap-1 w-fit rounded-full bg-amber-400 px-3 py-1
-                         text-[10px] font-extrabold tracking-wide text-amber-900 shadow-md"
-                >
+                         text-[10px] font-extrabold tracking-wide text-amber-900 shadow-md">
                   ★ BEST SELLER
-                </span>
+                </span> -->
                 <!-- Không phải Best Seller → hiện Món mới -->
-                <span
+                <!-- <span
                   v-else
-                  class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter inline-block"
-                >Món mới</span>
+                  class="bg-[#3eb06b] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter inline-block">
+                  Món mới
+                </span> -->
               </div>
               <h1 class="text-4xl font-black leading-none uppercase">{{ product.name }}</h1>
               <p class="mt-2 text-2xl font-light opacity-90">{{ formatVnd(product.basePrice) }}</p>
