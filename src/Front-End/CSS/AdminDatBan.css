@@ -15,6 +15,8 @@
     --blue:        #2563eb;
     --white:       #ffffff;
     --gray:        #aaa;
+    --orange:      #f59e0b;
+    --orange-dark: #c05c00;
 
     font-family: 'Be Vietnam Pro', sans-serif;
     width: 100%;
@@ -222,11 +224,11 @@
     display: flex;
     overflow: hidden;
     min-height: 0;
+    position: relative;
 }
 
 /* ═══════════════════════════════════════════════════
    CỘT TRÁI: PANEL HÓA ĐƠN
-   — nét dọc phải rõ bằng border-right solid đậm
 ═══════════════════════════════════════════════════ */
 .adb-invoice-panel {
     width: 230px;
@@ -236,8 +238,12 @@
     flex-direction: column;
     overflow: hidden;
     background: var(--white);
-    /* NÉT DỌC THẲNG — đây là chỗ quan trọng */
+    /* Nét dọc phải + trái + dưới */
     border-right: 3px solid #9c8878;
+    border-left: 3px solid #9c8878;
+    border-bottom: 3px solid #9c8878;
+    /* Kéo dài full chiều cao của occupied-view */
+    height: 100%;
 }
 
 .adb-invoice-panel-title {
@@ -276,22 +282,21 @@
 
 /* ── Invoice item bình thường ── */
 .adb-invoice-item {
-    padding: 13px 16px;
+    padding: 13px 16px 13px 13px;
     border-bottom: 1.5px solid #e8e0d4;
     cursor: pointer;
-    transition: background 0.15s;
-    /* Chừa chỗ cho border-left active (3px) */
-    border-left: 3px solid transparent;
+    transition: background 0.15s, border-left-color 0.15s;
+    border-left: 4px solid transparent;
 }
 
 .adb-invoice-item:hover {
     background: var(--cream);
 }
 
-/* ── Item đang được chọn — highlight rõ ── */
+/* ── Item đang được chọn — highlight rõ với nét dọc trái đậm ── */
 .adb-invoice-item.is-active {
     background: #f0e8d8;
-    border-left: 3px solid var(--brown-dark);
+    border-left: 4px solid var(--brown-dark);
 }
 
 .adb-invoice-item.is-active .adb-invoice-name {
@@ -538,16 +543,50 @@
 
 .adb-product-info { flex: 1; min-width: 0; }
 
+/* ═══ PRODUCT NAME ROW: tên + qty sát nhau, giá đẩy phải ═══ */
 .adb-product-name-row {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 6px;
     margin-bottom: 6px;
+    flex-wrap: nowrap;
 }
 
-.adb-product-name { font-size: 14px; font-weight: 800; color: var(--brown-dark); flex: 1; min-width: 0; }
-.adb-product-qty  { font-size: 12px; font-weight: 700; color: var(--brown-light); white-space: nowrap; }
-.adb-product-base-price { font-size: 13px; font-weight: 800; color: var(--brown-dark); white-space: nowrap; }
+/* Tên sản phẩm */
+.adb-product-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--brown-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+/* Số lượng — ô nền xám nhạt có border như hình mẫu */
+.adb-product-qty {
+    font-size: 11px;
+    font-weight: 700;
+    color: #555;
+    background: #e8e2d8;
+    border: 1px solid #d0c8bc;
+    border-radius: 5px;
+    padding: 1px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.5;
+}
+
+/* Giá — đẩy sang phải, màu cam đậm như hình mẫu */
+.adb-product-base-price {
+    font-size: 14px;
+    font-weight: 800;
+    color: #d97706;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: auto;
+}
 
 .adb-product-options { display: flex; flex-direction: column; gap: 3px; }
 
@@ -558,11 +597,30 @@
 .adb-option-price.plus { color: var(--red); }
 .adb-option-price.zero { color: var(--gray); }
 
-.adb-badge-row { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+.adb-badge-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 
-.adb-badge-pill { border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; color: var(--white); }
-.adb-badge-pill.sugar { background: #f59e0b; }
-.adb-badge-pill.ice   { background: #60a5fa; }
+.adb-badge-pill {
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Badge đường — viền cam, nền cam nhạt, chữ cam đậm — giống hình 3 */
+.adb-badge-pill.sugar {
+    background: #fff8e6;
+    border: 2px solid #f59e0b;
+    color: #b45309;
+}
+
+/* Badge đá — viền xanh, nền xanh nhạt, chữ xanh đậm — giống hình 3 */
+.adb-badge-pill.ice {
+    background: #eff6ff;
+    border: 2px solid #60a5fa;
+    color: #2563eb;
+}
 
 .adb-empty { text-align: center; color: var(--gray); font-size: 13px; padding: 18px 0; }
 

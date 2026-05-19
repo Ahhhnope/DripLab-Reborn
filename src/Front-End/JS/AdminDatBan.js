@@ -40,9 +40,14 @@ export function useAdminDatBan() {
         return `Bàn ${String(num).padStart(2, '0')}`
     }
 
-    // Chỉ chọn hóa đơn để lọc lưới bàn bên phải — KHÔNG mở modal
+    // Chọn hóa đơn để lọc lưới bàn bên phải — KHÔNG mở modal
     function selectInvoice(invoice) {
-        selectedInvoice.value = invoice
+        // Nếu click vào cùng hóa đơn đang chọn thì bỏ chọn
+        if (selectedInvoice.value?.id === invoice.id) {
+            selectedInvoice.value = null
+        } else {
+            selectedInvoice.value = invoice
+        }
     }
 
     // Mở modal chi tiết bàn (gọi khi click ô bàn xanh)

@@ -610,7 +610,7 @@ function getItemToppingDetails(item) {
         <div class="payment-methods">
           <div class="payment-method-item" :class="{ active: paymentMethod === 'Tiền mặt' }"
             @click="paymentMethod = 'Tiền mặt'">
-            💵 Tiền mặt
+             Tiền mặt
           </div>
           <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
             @click="paymentMethod = 'momo'">
@@ -693,7 +693,7 @@ function getItemToppingDetails(item) {
         </div>
         <div class="review-row">
           <span class="review-lbl">Thanh Toán</span>
-          <span class="review-val">{{ paymentMethod === 'Tiền mặt' ? '💵 Tiền mặt' : '🟣 Ví MoMo' }}</span>
+          <span class="review-val">{{ paymentMethod === 'Tiền mặt' ? ' Tiền mặt' : '🟣 Ví MoMo' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>

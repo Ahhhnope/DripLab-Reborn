@@ -101,7 +101,7 @@ function getBasePrice(item) {
     <!-- ═══ VIEW: ĐANG SỬ DỤNG ═══ -->
     <div v-if="activeFilter === 'occupied'" class="adb-occupied-view">
 
-      <!-- Cột trái: danh sách hóa đơn — click chỉ lọc bàn, KHÔNG mở modal -->
+      <!-- Cột trái: danh sách hóa đơn -->
       <div class="adb-invoice-panel">
         <div class="adb-invoice-panel-title">TỔNG HÓA ĐƠN</div>
         <div class="adb-invoice-list">
@@ -112,6 +112,7 @@ function getBasePrice(item) {
             v-for="invoice in activeInvoices"
             :key="invoice.id"
             class="adb-invoice-item"
+            :class="{ 'is-active': selectedInvoice?.id === invoice.id }"
             @click="selectInvoice(invoice)"
           >
             <div class="adb-invoice-name">Tên: {{ invoice.displayName }}</div>
@@ -122,7 +123,7 @@ function getBasePrice(item) {
         </div>
       </div>
 
-      <!-- Cột phải: lưới bàn — click ô bàn mới mở modal -->
+      <!-- Cột phải: lưới bàn -->
       <div class="adb-occupied-grid-wrap">
         <template v-if="!selectedInvoice">
           <div class="adb-empty-filter">
@@ -216,6 +217,7 @@ function getBasePrice(item) {
               </div>
 
               <div class="adb-product-info">
+                <!-- Tên + số lượng ngay cạnh nhau, giá đẩy sang phải -->
                 <div class="adb-product-name-row">
                   <span class="adb-product-name">{{ item.drink?.name }}</span>
                   <span class="adb-product-qty">x{{ item.quantity }}</span>
@@ -238,8 +240,8 @@ function getBasePrice(item) {
                     </div>
                   </template>
                   <div class="adb-badge-row">
-                    <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }}</span>
-                    <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }}</span>
+                    <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }} %</span>
+                    <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }} %</span>
                   </div>
                 </div>
               </div>
@@ -273,13 +275,13 @@ function getBasePrice(item) {
         <p class="adb-confirm-sub">Sau khi xác nhận, bàn sẽ trở về trạng thái trống và đơn hàng sẽ được đóng lại.</p>
         <div class="adb-confirm-btns">
           <button class="adb-confirm-back" @click="showConfirmDone = false">
-            <span>↩</span> Quay lại
+            <span> Quay lại</span>
           </button>
           <button class="adb-confirm-single" @click="confirmDoneSingle">
-            <span>🪑</span> Trả bàn này
+            <span>Trả bàn này</span> 
           </button>
           <button class="adb-confirm-all" @click="confirmDoneAll">
-            <span>✅</span> Trả tất cả
+            <span> Trả tất cả  </span>
           </button>
         </div>
       </div>
