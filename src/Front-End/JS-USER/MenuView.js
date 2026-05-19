@@ -53,6 +53,7 @@ export function useMenuView() {
   const searchQuery = ref('')
   const searchResults = ref([])
   const isSearchOpen = ref(false)
+  const isExpandedSearch = ref(false)
   const SEARCH_PREVIEW_LIMIT = 5
 
   // 4. Pagination State — đồng bộ với URL query ?page=N
@@ -128,6 +129,7 @@ export function useMenuView() {
     if (!trimmed) {
       searchResults.value = []
       isSearchOpen.value = false
+      isExpandedSearch.value = false
       return
     }
     searchResults.value = products.value.filter(p =>
@@ -156,6 +158,15 @@ export function useMenuView() {
     searchQuery.value = ''
     searchResults.value = []
     isSearchOpen.value = false
+    isExpandedSearch.value = false
+  }
+
+  function expandSearch() {
+    isExpandedSearch.value = true
+  }
+
+  function collapseSearch() {
+    isExpandedSearch.value = false
   }
 
   // 8. Pagination Logic
@@ -258,12 +269,16 @@ export function useMenuView() {
     goToPage,
     // Search
     searchQuery,
+    searchResults,
     previewResults,
     hasMoreResults,
     extraResultCount,
     isSearchOpen,
+    isExpandedSearch,
     closeSearch,
     clearSearch,
+    expandSearch,
+    collapseSearch,
     formatVnd,
     addProduct: goToProduct,
     openFromImage: goToProduct,

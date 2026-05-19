@@ -167,18 +167,18 @@
           </div>
           <h2 class="cs-modal-title">Khoảng cách vận chuyển khá xa</h2>
           <p class="cs-modal-desc">
-            Vì quãng đường vận chuyển khá xa, Drip Lab lo lắng chất lượng hương vị sẽ không còn ở mức 100% khi đến tay bạn.
-            Bạn vẫn muốn tiếp tục đặt hàng hay ghé qua cửa hàng để chúng mình được phục vụ bạn tốt nhất?
+            Vì quãng đường vận chuyển khá xa, Drip Lab lo lắng chất lượng hương vị sẽ không còn trọn vẹn khi đến tay bạn.
+            Bạn vẫn muốn tiếp tục đặt hàng hay đổi cửa hàng gần hơn để chúng mình được phục vụ bạn tốt nhất?
           </p>
           <div class="cs-modal-actions">
             <button class="cs-modal-btn" @click="confirmContinueOrder">Tiếp tục đặt đơn</button>
-            <button class="cs-modal-btn cs-modal-btn--secondary" @click="goNearestStore">Ghé cửa hàng gần nhất</button>
+            <button class="cs-modal-btn cs-modal-btn--secondary" @click="goNearestStore">Đổi cửa hàng gần nhất</button>
           </div>
         </div>
       </div>
     </transition>
 
-    <!-- Reject Distance Modal (>10km) -->
+    <!-- Reject Distance Modal (>8km) -->
     <transition name="cs-modal">
       <div v-if="showRejectModal" class="cs-modal-overlay" @click.self="closeRejectModal">
         <div class="cs-modal cs-modal--reject">
