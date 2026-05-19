@@ -118,7 +118,6 @@ function toVietnameseStatus(s) {
   return map[s] ?? s;
 }
 
-// ✅ Thêm tham số reason (lý do từ combobox)
 async function patchOrder(updated) {
   const finalStatuses = ["delivered", "delivery_failed", "cancelled"];
 
@@ -133,11 +132,22 @@ async function patchOrder(updated) {
   try {
     const vStatus = toVietnameseStatus(updated.status);
 
-    await api.patch(`/orders/update/${updated.id}`, {
-      status:        vStatus,
-      note:          updated.reason ?? updated.note ?? null,  // ✅ lưu reason vào note
+    const body = {
+      status: vStatus,
       paymentMethod: updated.shippingType,
-    });
+    };
+
+    // ✅ Nếu là delivery_failed → gửi failReason vào field riêng, KHÔNG đè note
+    if (updated.status === "delivery_failed" && updated.reason) {
+      body.failReason = updated.reason;
+    }
+
+    // Nếu là cancelled → vẫn lưu lý do vào note như cũ
+    if (updated.status === "cancelled" && updated.reason) {
+      body.note = updated.reason;
+    }
+
+    await api.patch(`/orders/update/${updated.id}`, body);
 
     if (vStatus === "Đã giao") notifyInvoiceUpdate();
 
@@ -146,8 +156,9 @@ async function patchOrder(updated) {
     if (selectedOrder.value && selectedOrder.value.id === updated.id) {
       selectedOrder.value = {
         ...selectedOrder.value,
-        status:       updated.status,
-        cancelReason: updated.reason ?? null,  // ✅ cập nhật local để modal hiện ngay
+        status:      updated.status,
+        failReason:  updated.status === "delivery_failed" ? updated.reason : selectedOrder.value.failReason,
+        cancelReason: updated.status === "cancelled"      ? updated.reason : selectedOrder.value.cancelReason,
       };
     }
   } catch (e) {
