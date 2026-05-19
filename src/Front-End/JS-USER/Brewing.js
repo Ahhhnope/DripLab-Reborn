@@ -376,13 +376,22 @@ export function useBrewing() {
 
   const customCoffee = ref(null)
   async function fetchCustomTemplate() {
-  try {
-    const res = await api.get('/drinks/get-custom')
-    customCoffee.value = res.data
-  } catch (error) {
-    console.log("error fetching custom coffee template: " + error)
+    try {
+      const res = await api.get('/drinks/get-custom')
+      customCoffee.value = res.data
+    } catch (error) {
+      console.log("error fetching custom coffee template: " + error)
+    }
   }
-}
+
+  function customCoffeeImage(base) {
+    switch (base) {
+      case "Pha Máy": return '/IMG/custom_Espresso.jpg'
+      case "Pha Phin": return '/IMG/custom_Pour.jpg'
+      case "Ủ Lạnh": return '/IMG/custom_ColdBrew.jpg'
+      default: return '/IMG/lel.png'
+    }
+  }
 
   async function addToCart() {
     await fetchCustomTemplate()
@@ -422,6 +431,7 @@ export function useBrewing() {
         base: selectedBase.value?.label ?? null,      // "Pha Máy" / "Pha Phin" / "Ủ Lạnh"
         beanId: parseInt(selection.bean),
         milkId: milkId,
+        imageUrl: customCoffeeImage(selectedBase.value?.label ?? null)
       }
 
       await api.post('/carts/add', cartItemReq)
