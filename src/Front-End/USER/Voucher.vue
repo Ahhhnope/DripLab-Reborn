@@ -148,6 +148,7 @@ import coinImg from '../IMG/logoIconVoucher.png'
 import dripLabLogo from '../IMG/DripLab_Logo.png'
 import { useVoucher } from '../JS-USER/Voucher.JS'
 import { useUserVoucher } from '../JS-USER/UserVoucher'
+import { useAuthStore } from '../Authorization/Auth'
 
 const router = useRouter()
 
@@ -156,8 +157,8 @@ const { promos, isSaved, savePromo, fmtValue, toast } = useUserVoucher()
 
 // Kiểm tra đăng nhập trước khi nhận điểm
 function handleClaimDay(day) {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-  if (!token) {
+  const auth = useAuthStore()
+  if (!auth.user) {
     authModal.value = { show: true, action: 'nhận xu hàng ngày' }
     return
   }
@@ -165,8 +166,8 @@ function handleClaimDay(day) {
 }
 
 function handleSavePromo(id) {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-  if (!token) {
+  const auth = useAuthStore()
+  if (!auth.user) {
     authModal.value = { show: true, action: 'lưu mã voucher' }
     return
   }

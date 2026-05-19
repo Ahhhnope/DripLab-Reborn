@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount, watch, nextTick } from "vue";
+import { ref, onBeforeUnmount, watch, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useBrewing } from "../JS/AdminPOS.JS";
 import { useBrewingCart } from "../JS/BrewingCart.JS";
@@ -53,6 +53,7 @@ const brewingCart = useBrewingCart()
 
 const cartPopupOpen = ref(false);
 const popupBackdropEl = ref(null);
+const customCoffee = ref(null)
 
 
 function goBack() {
@@ -79,8 +80,18 @@ function closeCartPopup() {
   document.documentElement.classList.remove("no-scroll");
 }
 
+async function fetchCustomTemplate() {
+  try {
+    const res = await api.get('/drinks/get-custom')
+    customCoffee.value = res.data
+  } catch (error) {
+    console.log("error fetching custom coffee template: " + error)
+  }
+}
+
 async function addToCart() {
   const staffId = auth.user?.id
+  fetchCustomTemplate()
 
   const drinkItem = {
     userId: staffId,
@@ -92,7 +103,7 @@ async function addToCart() {
     iceLabel: selection.ice,
     sugarLabel: selection.sugar,
 
-    drinkId: 15,
+    drinkId: customCoffee.value?.id,
     quantity: selection.quantity,
     sizeId: selectedSize.value?.id ?? selection.size,
     ice: parseInt(selection.ice),
@@ -134,6 +145,10 @@ function onConfirmAndBack() {
 function onPopupKeydown(e) {
   if (e.key === "Escape") closeCartPopup();
 }
+
+onMounted(() => {
+  fetchCustomTemplate()
+})
 
 onBeforeUnmount(() => {
   document.documentElement.classList.remove("no-scroll");

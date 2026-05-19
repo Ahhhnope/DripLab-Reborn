@@ -38,6 +38,7 @@ export default {
       paymentMethod: 'COD',
       orderNote: '',
 
+      savedPromo: [],
       couponCode: '',
       couponApplied: false,
       couponDiscount: 0,
@@ -58,6 +59,7 @@ export default {
         id: item.id,
         productId: item.drinkId,
         name: item.drink?.name || 'Drink',
+        image: item.isCustom ? getImageUrl(item.imageUrl) : (getImageUrl(item.drink?.imageUrl) || '/placeholder.png'),
         image: getImageUrl(item.drink?.imageUrl) || '/placeholder.png',
         drinkBasePrice: item.drink?.basePrice || 0,
         sizePrice: item.size?.price || 0,
@@ -92,7 +94,7 @@ export default {
     },
     shippingFee() {
       if (!this.selectedItems.length) return 0
-      return this.selectedSubtotal >= 100000 ? 0 : 20000
+      return this.selectedSubtotal >= 100000 ? 0 : 0 //for now, freeship
     },
     selectedTotal() { return this.selectedSubtotal + this.shippingFee },
     grandTotal() { return Math.max(0, this.selectedTotal - this.couponDiscount) },
@@ -104,11 +106,12 @@ export default {
     },
   },
 
-  async created() {
+  async created() { //basically onMounted()
     const userId = this.authStore.user?.id
     if (userId) {
       await this.cartStore.fetchUserCart(userId)
       this.selectedIds = this.cartItems.map(i => i.id)
+      await this.loadSavedCoupon(userId)
     }
   },
 
@@ -267,26 +270,39 @@ export default {
       await this.placeOrder()
     },
 
-    applyCoupon() {
-      if (!this.couponCode.trim()) return
-      const code = this.couponCode.toUpperCase()
-      if (code === 'CAFE10') {
-        this.couponDiscount = Math.round(this.selectedSubtotal * 0.1)
-        this.couponApplied = true
-        this.couponMessage = `✓ Giảm 10%! (-${this.formatVND(this.couponDiscount)})`
-      } else if (code === 'FREESHIP') {
-        this.couponDiscount = 20000
-        this.couponApplied = true
-        this.couponMessage = `✓ Miễn phí vận chuyển! (-${this.formatVND(20000)})`
-      } else {
+    async loadSavedCoupon(userId) {
+      try {
+        const res = await api.get('/promo-codes/my-promos', {params: { userId }})
+        this.savedPromo = res.data.filter(p => {if(p.status) return p})
+      } catch (error) {
+        console.log("error fetching saved promo codes: "+error )
+      }
+    },
+
+    async applyCoupon() {
+      if (!this.couponCode) return
+
+      try {
+        const res = await api.post('/promo-codes/check', {
+          userId:     this.authStore.user.id,
+          code:       this.couponCode,
+          orderTotal: this.selectedSubtotal,
+        })
+        this.couponDiscount = res.data.discount
+        this.couponApplied  = true
+        this.couponAppliedId = 
+        this.couponMessage  = `✓ Áp dụng thành công! (-${this.formatVND(res.data.discount)})`
+      } catch (e) {
         this.couponDiscount = 0
-        this.couponApplied = false
-        this.couponMessage = 'Mã giảm giá không hợp lệ.'
+        this.couponApplied  = false
+        this.couponMessage  = e.response?.data?.message || 'Mã không hợp lệ'
       }
     },
     removeCoupon() {
-      this.couponCode = ''; this.couponApplied = false
-      this.couponDiscount = 0; this.couponMessage = ''
+      this.couponCode     = ''
+      this.couponApplied  = false
+      this.couponDiscount = 0
+      this.couponMessage  = ''
     },
 
     async placeOrder() {
@@ -297,8 +313,9 @@ export default {
           `/carts/user/${this.authStore.user.id}/checkout-selected`,
           {
             cartItemIds: selectedCartItemIds,
+            promoCode: this.couponCode,
             note: this.orderNote
-              ? (this.couponApplied ? `Online Order - ${this.orderNote} - Coupon: ${this.couponCode}` : `Online Order - ${this.orderNote}`)
+              ? (this.couponApplied ? `Online Order - Note: "${this.orderNote}" - Coupon: ${this.couponCode}` : `Online Order - Note:"${this.orderNote}"`)
               : (this.couponApplied ? `Online Order - Coupon: ${this.couponCode}` : 'Online Order'),
             paymentMethod: this.paymentMethod === 'COD' ? 'Tiền mặt' : 'MoMo',
             customerName: this.customerInfoName,

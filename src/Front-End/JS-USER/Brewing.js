@@ -1,4 +1,4 @@
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../Authorization/Auth.js'
 import dripLabLogo from '../IMG/dripLab_Logo_Footer.png'
@@ -374,7 +374,27 @@ export function useBrewing() {
   const isAdding = ref(false)
   const addError = ref('')
 
+  const customCoffee = ref(null)
+  async function fetchCustomTemplate() {
+    try {
+      const res = await api.get('/drinks/get-custom')
+      customCoffee.value = res.data
+    } catch (error) {
+      console.log("error fetching custom coffee template: " + error)
+    }
+  }
+
+  function customCoffeeImage(base) {
+    switch (base) {
+      case "Pha Máy": return '/IMG/custom_Espresso.jpg'
+      case "Pha Phin": return '/IMG/custom_Pour.jpg'
+      case "Ủ Lạnh": return '/IMG/custom_ColdBrew.jpg'
+      default: return '/IMG/lel.png'
+    }
+  }
+
   async function addToCart() {
+    await fetchCustomTemplate()
     if (!isComplete.value) return
     const userId = authStore.user?.id
     if (!userId) {
@@ -401,7 +421,7 @@ export function useBrewing() {
 
       const cartItemReq = {
         userId: userId,
-        drinkId: 15,                                     // custom drink — id=15 "Custom coffee" (active=0)
+        drinkId: customCoffee.value?.id,                                     // custom drink — id=15 "Custom coffee" (active=0)
         sizeId: SIZE_ID_MAP[selection.size] ?? 1,
         quantity: selection.quantity,
         ice: iceNum,
@@ -411,6 +431,7 @@ export function useBrewing() {
         base: selectedBase.value?.label ?? null,      // "Pha Máy" / "Pha Phin" / "Ủ Lạnh"
         beanId: parseInt(selection.bean),
         milkId: milkId,
+        imageUrl: customCoffeeImage(selectedBase.value?.label ?? null)
       }
 
       await api.post('/carts/add', cartItemReq)

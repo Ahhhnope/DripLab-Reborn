@@ -56,7 +56,7 @@ export function useUserOrders() {
                          : '-',
       shippingAddress: order.shippingAddress ?? '',
       // ✅ Lấy lý do giao thất bại từ note (admin lưu vào note)
-      failReason:      order.note ?? null,
+      failReason: order.failReason ?? null,
       receiptData: {
         id:    `#DL-${order.orderNumber ?? order.id}`,
         date:  order.orderDate
