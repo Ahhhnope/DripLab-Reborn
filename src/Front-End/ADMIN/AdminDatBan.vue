@@ -50,7 +50,8 @@ function getImageUrl(url) {
 }
 
 function getProductImg(item) {
-  const url = item.drink?.imageUrl || item.drink?.image || item.imageUrl || item.image || ''
+  let url = item.drink?.imageUrl || item.drink?.image || item.imageUrl || item.image || ''
+  console.log(item)
   if (item.isCustom) {
     url = item.imageUrl
   }

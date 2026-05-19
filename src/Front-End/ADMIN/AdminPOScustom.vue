@@ -89,6 +89,15 @@ async function fetchCustomTemplate() {
   }
 }
 
+function customCoffeeImage(base) {
+    switch (base) {
+      case "Pha Máy": return '/IMG/custom_Espresso.jpg'
+      case "Pha Phin": return '/IMG/custom_Pour.jpg'
+      case "Ủ Lạnh": return '/IMG/custom_ColdBrew.jpg'
+      default: return '/IMG/lel.png'
+    }
+  }
+
 async function addToCart() {
   const staffId = auth.user?.id
   fetchCustomTemplate()
@@ -119,6 +128,7 @@ async function addToCart() {
     milkName: selectedMilk.value && selection.milk !== 'none'
       ? selectedMilk.value.label
       : null,
+    imageUrl: customCoffeeImage(selectedBase.value?.label ?? null,),
 
     toppingDetails: toppingOptions.value
       .filter(t => selection.toppings.has(t.id))
