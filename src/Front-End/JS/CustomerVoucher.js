@@ -93,6 +93,7 @@ export default {
         async loadVouchers() {
             try {
                 const res = await api.get(API)
+                console.log(res.data)
                 this.vouchers         = res.data.map(format)
                 this.filteredVouchers = [...this.vouchers]
             } catch (e) {

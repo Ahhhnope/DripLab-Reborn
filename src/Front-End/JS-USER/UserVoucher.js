@@ -3,10 +3,13 @@ import api from '../../api/axios.js'
 
 export function useUserVoucher() {
 
-    const promos   = ref([])
-    const myPromos = ref([])
-    const userId   = ref(null)
-    const toast    = ref({ show: false, message: '', type: 'success' })
+    const promos = ref([])
+    const rewardPromos = ref([])
+
+    const myPromos = ref([]) //ze coppied code from ze promocode site
+
+    const userId = ref(null)
+    const toast = ref({ show: false, message: '', type: 'success' })
 
     async function loadAll() {
         const res = await api.get('/promo-codes')
@@ -53,7 +56,12 @@ export function useUserVoucher() {
 
     onMounted(async () => {
         userId.value = JSON.parse(localStorage.getItem('user'))?.id
-        await Promise.all([loadAll(), loadMine()])
+
+        await Promise.all([
+            loadAll(),
+            loadMine()
+        ])
+        console.log(promos)
     })
 
     return { promos, myPromos, isSaved, savePromo, fmtValue, toast }

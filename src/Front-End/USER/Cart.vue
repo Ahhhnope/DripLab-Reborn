@@ -356,9 +356,8 @@
                   <div class="coupon-wrap-centered">
                     <select v-model="couponCode" class="coupon-select" :disabled="couponApplied">
                       <option value="">-- Chọn mã khuyến mãi --</option>
-                      <option value="CAFE10">CAFE10 — Giảm 10% đơn hàng</option>
-                      <option value="FREESHIP">
-                        FREESHIP — Miễn phí vận chuyển
+                      <option v-for="p in savedPromo" :key="p.id" :value="p.code">
+                        {{ p.code }} - {{ p.category === 'PHẦN TRĂM' ? p.value + '%' : (+p.value).toLocaleString('vi-VN') + 'đ' }}
                       </option>
                     </select>
                     <button class="btn-apply-coupon" @click="couponApplied ? removeCoupon() : applyCoupon()">
