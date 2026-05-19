@@ -262,14 +262,31 @@
                     }}</span>
                   </div>
 
+                  <!-- ✅ ĐỊA CHỈ GIAO HÀNG với nút Dùng vị trí hiện tại -->
                   <div class="form-field">
                     <label>Địa chỉ giao hàng <span class="required">*</span></label>
+
+                    <!-- ✅ Nút GPS: chỉ hiện khi có địa chỉ GPS từ trang chọn cửa hàng -->
+                    <button
+                      v-if="gpsLocationText"
+                      type="button"
+                      class="btn-use-gps-location"
+                      @click="useGpsLocation"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      Dùng vị trí hiện tại
+                    </button>
+
                     <textarea v-model="customerInfoAddress" rows="3"
                       placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành..." :class="[
                         'form-input form-textarea',
                         { 'form-input--error': customerInfoErrors.address },
                       ]">
-                </textarea>
+                    </textarea>
                     <span v-if="customerInfoErrors.address" class="form-error">{{ customerInfoErrors.address }}</span>
                   </div>
 
@@ -277,7 +294,7 @@
                     <label>Ghi chú đơn hàng</label>
                     <textarea v-model="orderNote" rows="2"
                       placeholder="Ví dụ: ít đá hơn, không đường, giao trước 12h..." class="form-input form-textarea">
-                </textarea>
+                    </textarea>
                   </div>
                 </div>
               </div>

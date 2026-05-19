@@ -1846,3 +1846,40 @@ aside {
   margin-top: 2px;
   font-weight: 400;
 }
+
+/* ================================================================
+   ✅ NÚT DÙNG VỊ TRÍ HIỆN TẠI (GPS) – trong form địa chỉ giao hàng
+   ================================================================ */
+.btn-use-gps-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--caramel);
+  border-radius: 8px;
+  background: var(--gold-faint);
+  color: var(--dark-brown);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  line-height: 1;
+}
+
+.btn-use-gps-location:hover {
+  background: var(--caramel);
+  color: #fff;
+  border-color: var(--caramel);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(196, 125, 43, 0.3);
+}
+
+.btn-use-gps-location:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-use-gps-location svg {
+  flex-shrink: 0;
+}
