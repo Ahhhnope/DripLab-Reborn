@@ -9,7 +9,7 @@
             <img :src="auth.user.avatar" alt="Ảnh đại diện" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
-          <p class="sidebar-role">{{ user.tier?.name }}</p>
+          <p class="sidebar-role">{{ auth.user.tier?.name }}</p>
         </div>
         <nav class="sidebar-nav">
           <a
