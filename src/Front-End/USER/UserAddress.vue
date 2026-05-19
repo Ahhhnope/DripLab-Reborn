@@ -13,10 +13,8 @@
         </div>
 
         <nav class="sidebar-nav">
-          <a v-for="item in navItems" :key="item.id"
-            :class="['nav-item', { active: currentRoute === item.route }]"
-            @click="goTo(item.route)"
-          >
+          <a v-for="item in navItems" :key="item.id" :class="['nav-item', { active: currentRoute === item.route }]"
+            @click="goTo(item.route)">
             <span class="material-symbols-outlined">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
           </a>
@@ -43,29 +41,42 @@
 
           <form class="profile-form" @submit.prevent="saveAddress">
             <div class="form-grid single-col">
-              <div class="form-group">
-                <label>Địa chỉ đường phố</label>
-                <input v-model="addressForm.street" type="text" :placeholder="user.defaultAddress" />
-              </div>
-              <!-- <div class="form-group">
-                <label>Căn hộ, phòng, v.v. (Tùy chọn)</label>
-                <input v-model="addressForm.apt" type="text" placeholder="Căn 48b Chung cư Royal City" />
-              </div> -->
-            </div>
 
-            <!-- <div class="form-grid three-col">
+              <!-- Số nhà, tên đường -->
+              <div class="form-group">
+                <label>Số nhà, tên đường</label>
+                <input v-model="fullAddress" type="text" placeholder="123 Đường Lê Lợi" />
+              </div>
+
+              <!-- Phường / Xã -->
+              <div class="form-group">
+                <label>Phường / Xã</label>
+                <div class="field-input-wrap">
+                  <input v-model="wardSearch" list="ward-list" type="text" :class="{ 'ward-selected': ward }"
+                    placeholder="Tìm phường / xã…" autocomplete="off" @change="onWardChange" @input="onWardInput" />
+                  <datalist id="ward-list">
+                    <option v-for="w in ALL_WARDS" :key="w" :value="w" />
+                  </datalist>
+                </div>
+              </div>
+
+              <!-- Thành phố (fixed) -->
               <div class="form-group">
                 <label>Thành phố</label>
-                <input value="Hà Nội" readonly />
+                <input :value="city" type="text" readonly />
               </div>
-            </div> -->
+
+            </div>
 
             <p v-if="message" :class="['form-message', messageType]">{{ message }}</p>
 
             <div class="form-footer">
-              <button class="save-btn" type="submit">Lưu địa chỉ</button>
+              <button class="save-btn" type="submit" :disabled="isLoading">
+                {{ isLoading ? 'Đang lưu...' : 'Lưu địa chỉ' }}
+              </button>
             </div>
           </form>
+
 
         </section>
       </main>
@@ -80,16 +91,24 @@ import { useAuthStore } from "../Authorization/Auth";
 import { useRouter } from "vue-router";
 
 const {
-  addressForm,
-  navItems, currentRoute,
-  message, messageType,
-  saveAddress, goTo
+  fullAddress,
+  wardSearch,      // ← thêm
+  ward,            // ← thêm
+  ALL_WARDS,       // ← thêm
+  city,            // ← thêm
+  navItems,
+  currentRoute,
+  message,
+  messageType,
+  isLoading,       // ← thêm
+  saveAddress,
+  goTo,
+  onWardInput,     // ← thêm
+  onWardChange,    // ← thêm
 } = useUserAddress()
-
 
 const auth = useAuthStore();
 const router = useRouter();
-
 const user = auth.user;
 
 const logout = () => {
