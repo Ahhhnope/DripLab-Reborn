@@ -60,7 +60,6 @@ export default {
         productId: item.drinkId,
         name: item.drink?.name || 'Drink',
         image: item.isCustom ? getImageUrl(item.imageUrl) : (getImageUrl(item.drink?.imageUrl) || '/placeholder.png'),
-        image: getImageUrl(item.drink?.imageUrl) || '/placeholder.png',
         drinkBasePrice: item.drink?.basePrice || 0,
         sizePrice: item.size?.price || 0,
         sizeName: item.size?.name || '',
