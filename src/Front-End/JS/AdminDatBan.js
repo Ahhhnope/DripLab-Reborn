@@ -2,14 +2,16 @@ import { ref, computed } from 'vue'
 import api from '@/api/axios'
 
 export function useAdminDatBan() {
-    const TOTAL_TABLES = 15
+    const TOTAL_TABLES = 20
 
-    const tables = ref([]) 
+    const tables = ref([])
     const showDetail = ref(false)
     const selectedTable = ref(null)
     const selectedOrder = ref(null)
     const showConfirmDone = ref(false)
     const activeFilter = ref('all')
+    // Hóa đơn đang được chọn ở cột trái (chỉ lọc lưới bàn, không mở modal)
+    const selectedInvoice = ref(null)
     let _router = null
 
     const occupiedTables = computed(() => tables.value.filter(t => t.status === "Đang sử dụng").map(t => t.id))
@@ -19,15 +21,6 @@ export function useAdminDatBan() {
     async function fetchTables() {
         try {
             const res = await api.get("/tables");
-            tables.value = res.data;
-        } catch (error) {
-            console.error("fetch tables error: " + error);
-        }
-    }
-
-    async function fetchTablesFromOrderId(currentOrderId) {
-        try {
-            const res = await api.get(`/tables/${currentOrderId}`);
             tables.value = res.data;
         } catch (error) {
             console.error("fetch tables error: " + error);
@@ -47,11 +40,20 @@ export function useAdminDatBan() {
         return `Bàn ${String(num).padStart(2, '0')}`
     }
 
+    // Chọn hóa đơn để lọc lưới bàn bên phải — KHÔNG mở modal
+    function selectInvoice(invoice) {
+        // Nếu click vào cùng hóa đơn đang chọn thì bỏ chọn
+        if (selectedInvoice.value?.id === invoice.id) {
+            selectedInvoice.value = null
+        } else {
+            selectedInvoice.value = invoice
+        }
+    }
+
+    // Mở modal chi tiết bàn (gọi khi click ô bàn xanh)
     function openDetail(tableNum) {
         selectedTable.value = tableNum
         const tableObj = tables.value.find(t => t.id === tableNum)
-        console.log("Detail: "+tableObj.currentOrder)
-        
         selectedOrder.value = tableObj?.currentOrder ?? {
             id: null,
             tableNum: tableNum,
@@ -64,12 +66,6 @@ export function useAdminDatBan() {
         showDetail.value = true
     }
 
-    function openDetailForInvoice(invoice) {
-        selectedTable.value = invoice.selectedTables?.[0] ?? null
-        selectedOrder.value = { ...invoice }
-        showDetail.value = true
-    }
-
     function closeDetail() {
         showDetail.value = false
         selectedTable.value = null
@@ -77,21 +73,46 @@ export function useAdminDatBan() {
         showConfirmDone.value = false
     }
 
-    async function confirmDone() {
+    // Trả bàn hiện tại
+    async function confirmDoneSingle() {
         if (!selectedTable.value) return
         try {
             await api.put(`/tables/release/${selectedTable.value}`)
             await fetchTables()
+            // Nếu bàn vừa trả là bàn cuối trong invoice đang chọn thì reset
+            if (selectedInvoice.value) {
+                const remaining = selectedInvoice.value.selectedTables.filter(t => t !== selectedTable.value)
+                selectedInvoice.value = remaining.length === 0
+                    ? null
+                    : { ...selectedInvoice.value, selectedTables: remaining }
+            }
             closeDetail()
         } catch (err) {
             console.error("Error releasing table:", err)
         }
     }
 
+    // Trả tất cả bàn trong hóa đơn
+    async function confirmDoneAll() {
+        const tables_to_release = selectedOrder.value?.selectedTables || [selectedTable.value]
+        try {
+            await Promise.all(tables_to_release.map(t => api.put(`/tables/release/${t}`)))
+            await fetchTables()
+            selectedInvoice.value = null
+            closeDetail()
+        } catch (err) {
+            console.error("Error releasing all tables:", err)
+        }
+    }
+
+    async function confirmDone() {
+        await confirmDoneSingle()
+    }
+
     function addProduct() {
-        if (!selectedOrder.value?.id) { 
-            closeDetail(); 
-            return 
+        if (!selectedOrder.value?.id) {
+            closeDetail();
+            return
         }
         if (_router) {
             _router.push({ path: '/QuanLyDonTaiQuay', query: { selectOrder: selectedOrder.value.id } })
@@ -101,6 +122,7 @@ export function useAdminDatBan() {
 
     function setFilter(f) {
         activeFilter.value = f
+        selectedInvoice.value = null
     }
 
     const filteredTables = computed(() => {
@@ -111,9 +133,22 @@ export function useAdminDatBan() {
     })
 
     const activeInvoices = computed(() => {
-        return tables.value
+        const map = new Map()
+        tables.value
             .filter(t => t.status === "Đang sử dụng" && t.currentOrder)
-            .map(t => t.currentOrder)
+            .forEach(t => {
+                const order = t.currentOrder
+                const orderId = order.id
+                if (!map.has(orderId)) {
+                    const displayName = order.customerName || order.anonCode || `#DRIPLAB${String(orderId).slice(-2).padStart(2, '0')}`
+                    map.set(orderId, { ...order, displayName, selectedTables: [] })
+                }
+                map.get(orderId).selectedTables.push(t.id)
+            })
+        return Array.from(map.values()).map(inv => ({
+            ...inv,
+            selectedTables: inv.selectedTables.sort((a, b) => a - b)
+        }))
     })
 
     const totalPrice = computed(() => {
@@ -122,23 +157,23 @@ export function useAdminDatBan() {
             const basePrice = item.basePriceAtPurchase || 0
             const sizePrice = item.size?.price || 0
             const qty = item.quantity || 0
-            
             return sum + (basePrice + sizePrice) * qty
         }, 0)
     })
 
     function getModalTableLabel() {
         const currentOrderId = selectedOrder.value?.id;
-
         if (!currentOrderId) {
             return selectedTable.value ? getTableLabel(selectedTable.value) : '';
         }
-        const relatedTables = tables.value.filter(t => t.currentOrder?.id === currentOrderId).map(t => t.id).sort((a, b) => a - b)
+        const relatedTables = tables.value
+            .filter(t => t.currentOrder?.id === currentOrderId)
+            .map(t => t.id)
+            .sort((a, b) => a - b)
 
         if (relatedTables.length > 1) {
             return relatedTables.map(id => getTableLabel(id)).join(' + ');
         }
-
         return getTableLabel(selectedTable.value);
     }
 
@@ -146,12 +181,12 @@ export function useAdminDatBan() {
         return isOccupied(selectedTable.value)
     }
 
-    function countOccupied() { 
-        return tables.value.filter(t => t.status === "Đang sử dụng").length 
+    function countOccupied() {
+        return tables.value.filter(t => t.status === "Đang sử dụng").length
     }
-    
-    function countAvailable() { 
-        return TOTAL_TABLES - countOccupied() 
+
+    function countAvailable() {
+        return TOTAL_TABLES - countOccupied()
     }
 
     return {
@@ -164,13 +199,16 @@ export function useAdminDatBan() {
         activeFilter,
         filteredTables,
         activeInvoices,
+        selectedInvoice,
         fetchTables,
         isOccupied,
         getTableLabel,
         openDetail,
-        openDetailForInvoice,
+        selectInvoice,
         closeDetail,
         confirmDone,
+        confirmDoneSingle,
+        confirmDoneAll,
         addProduct,
         totalPrice,
         setFilter,
@@ -179,6 +217,6 @@ export function useAdminDatBan() {
         isTableOccupiedInModal,
         countOccupied,
         countAvailable,
-        syncFromShared 
+        syncFromShared
     }
 }

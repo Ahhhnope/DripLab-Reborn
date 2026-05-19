@@ -378,7 +378,7 @@ function getItemToppingDetails(item) {
               <span class="rpc-name">{{ item.name }}</span>
               <div class="rpc-meta-row">
                 <span class="rpc-size-badge">Size: {{ item.size }}</span>
-                <span class="rpc-qty-badge">×{{ item.qty }}</span>
+                <span class="rpc-qty-badge">SL: {{ item.qty }}</span>
               </div>
               <button class="rpc-remove" @click="removeItem(index, item.cartItemId)" title="Xóa">✕</button>
             </div>
@@ -610,7 +610,7 @@ function getItemToppingDetails(item) {
         <div class="payment-methods">
           <div class="payment-method-item" :class="{ active: paymentMethod === 'Tiền mặt' }"
             @click="paymentMethod = 'Tiền mặt'">
-            💵 Tiền mặt
+             Tiền mặt
           </div>
           <div class="payment-method-item momo-tab" :class="{ active: paymentMethod === 'momo' }"
             @click="paymentMethod = 'momo'">
@@ -693,7 +693,7 @@ function getItemToppingDetails(item) {
         </div>
         <div class="review-row">
           <span class="review-lbl">Thanh Toán</span>
-          <span class="review-val">{{ paymentMethod === 'Tiền mặt' ? '💵 Tiền mặt' : '🟣 Ví MoMo' }}</span>
+          <span class="review-val">{{ paymentMethod === 'Tiền mặt' ? ' Tiền mặt' : '🟣 Ví MoMo' }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Hình thức</span>

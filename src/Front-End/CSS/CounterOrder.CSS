@@ -1051,8 +1051,9 @@
   white-space: nowrap;
 }
 
+/* ── SỬA: badge số lượng dùng cùng màu nền với đá/đường ── */
 .rpc-qty-badge {
-  background: var(--gold);
+  background: var(--cream-dark);
   color: var(--brown-dark);
   border-radius: 5px;
   padding: 2px 8px;

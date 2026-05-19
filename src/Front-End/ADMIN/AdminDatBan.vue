@@ -15,14 +15,15 @@ const {
   activeFilter,
   filteredTables,
   activeInvoices,
+  selectedInvoice,
   isOccupied,
   getTableLabel,
   openDetail,
-  openDetailForInvoice,
+  selectInvoice,
   closeDetail,
-  confirmDone,
+  confirmDoneSingle,
+  confirmDoneAll,
   addProduct,
-  totalPrice,
   setFilter,
   setRouter,
   syncFromShared,
@@ -32,10 +33,8 @@ const {
   countAvailable,
 } = useAdminDatBan()
 
-// Truyền router vào composable để addProduct() có thể navigate
 setRouter(router)
 
-// Đồng bộ mỗi khi tab được focus hoặc component mount
 let syncTimer = null
 onMounted(() => {
   syncFromShared()
@@ -51,12 +50,12 @@ function getImageUrl(url) {
 }
 
 function getProductImg(item) {
-    const url = item.drink?.imageUrl || item.drink?.image || item.imageUrl || item.image || ''
-    return getImageUrl(url)
+  const url = item.drink?.imageUrl || item.drink?.image || item.imageUrl || item.image || ''
+  return getImageUrl(url)
 }
 
-function getCustomerDisplay(order) {
-  return order?.customerName || order?.anonCode || '—'
+function getBasePrice(item) {
+  return item.basePriceAtPurchase || 0
 }
 </script>
 
@@ -83,7 +82,7 @@ function getCustomerDisplay(order) {
       </button>
     </div>
 
-    <!-- ═══ VIEW: TẤT CẢ / CÒN TRỐNG — lưới bàn ═══ -->
+    <!-- ═══ VIEW: TẤT CẢ / CÒN TRỐNG ═══ -->
     <div v-if="activeFilter === 'all' || activeFilter === 'available'" class="adb-grid-wrap">
       <div v-if="filteredTables.length" class="adb-grid">
         <div v-for="num in filteredTables" :key="num" class="adb-table-card"
@@ -102,44 +101,55 @@ function getCustomerDisplay(order) {
     <!-- ═══ VIEW: ĐANG SỬ DỤNG ═══ -->
     <div v-if="activeFilter === 'occupied'" class="adb-occupied-view">
 
-      <!-- Cột trái: tổng hóa đơn -->
+      <!-- Cột trái: danh sách hóa đơn -->
       <div class="adb-invoice-panel">
         <div class="adb-invoice-panel-title">TỔNG HÓA ĐƠN</div>
         <div class="adb-invoice-list">
           <div v-if="!activeInvoices.length" class="adb-invoice-empty">
             Chưa có hóa đơn nào đang sử dụng bàn
           </div>
-          <div v-for="invoice in activeInvoices" :key="invoice.id" class="adb-invoice-item"
-            @click="openDetailForInvoice(invoice)">
-            <div class="adb-invoice-num">Hóa đơn {{ invoice.orderNumber }}</div>
-            <div class="adb-invoice-tables">
-              <span v-for="t in invoice.selectedTables" :key="t" class="adb-invoice-table-badge">Bàn {{
-                String(t).padStart(2, '0') }}</span>
-            </div>
-            <div class="adb-invoice-customer">
-              {{ getCustomerDisplay(invoice) }}
+          <div
+            v-for="invoice in activeInvoices"
+            :key="invoice.id"
+            class="adb-invoice-item"
+            :class="{ 'is-active': selectedInvoice?.id === invoice.id }"
+            @click="selectInvoice(invoice)"
+          >
+            <div class="adb-invoice-name">Tên: {{ invoice.displayName }}</div>
+            <div class="adb-invoice-tables-line">
+              Bàn: {{ invoice.selectedTables.map(t => String(t).padStart(2, '0')).join(' + ') }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Cột phải: bàn đang dùng -->
+      <!-- Cột phải: lưới bàn -->
       <div class="adb-occupied-grid-wrap">
-        <template v-if="countOccupied() > 0">
-          <div class="adb-grid adb-grid--occupied">
-            <template v-for="num in TOTAL_TABLES" :key="num">
-              <div v-if="isOccupied(num)" class="adb-table-card occupied-card" @click="openDetail(num)">
-                <span class="adb-table-num">{{ getTableLabel(num) }}</span>
-                <span class="adb-occupied-badge">Đang sử dụng</span>
-                <span class="adb-card-dot"></span>
-              </div>
-            </template>
+        <template v-if="!selectedInvoice">
+          <div class="adb-empty-filter">
+            <span class="adb-empty-icon">👈</span>
+            <span>Chọn một hóa đơn để xem bàn</span>
           </div>
         </template>
-        <div v-else class="adb-empty-filter">
-          <span class="adb-empty-icon">✅</span>
-          <span>Không có bàn nào đang sử dụng</span>
-        </div>
+
+        <template v-else>
+          <div v-if="selectedInvoice.selectedTables.length" class="adb-grid adb-grid--occupied">
+            <div
+              v-for="num in selectedInvoice.selectedTables"
+              :key="num"
+              class="adb-table-card occupied-card"
+              @click="openDetail(num)"
+            >
+              <span class="adb-table-num">{{ getTableLabel(num) }}</span>
+              <span class="adb-occupied-badge">Đang sử dụng</span>
+              <span class="adb-card-dot"></span>
+            </div>
+          </div>
+          <div v-else class="adb-empty-filter">
+            <span class="adb-empty-icon">✅</span>
+            <span>Không có bàn nào trong hóa đơn này</span>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -149,132 +159,130 @@ function getCustomerDisplay(order) {
 
         <!-- Topbar -->
         <div class="adb-modal-topbar">
-          <span class="adb-modal-table-id">{{ getModalTableLabel() }}</span>
+          <button class="adb-modal-close" @click="closeDetail">✕</button>
           <span class="adb-modal-status" :class="isTableOccupiedInModal() ? 'occupied' : 'available'">
             {{ isTableOccupiedInModal() ? 'Đang Sử Dụng' : 'Sẵn Bàn' }}
           </span>
-          <button class="adb-modal-close" @click="closeDetail">✕</button>
         </div>
 
         <div class="adb-modal-body">
 
-          <!-- Cột trái: chi tiết -->
-          <div class="adb-modal-left">
-            <div class="adb-detail-logo-wrap">
-              <img :src="logoDrip" alt="DripLab" class="adb-logo-img" @error="$event.target.style.display = 'none'" />
-              <p class="adb-detail-title">Chi Tiết Đặt Bàn</p>
-            </div>
+          <!-- Logo + tiêu đề -->
+          <div class="adb-detail-logo-wrap">
+            <img :src="logoDrip" alt="DripLab" class="adb-logo-img" @error="$event.target.style.display = 'none'" />
+            <p class="adb-detail-title">Chi Tiết Đặt Bàn</p>
+          </div>
 
-            <!-- Badge nhiều bàn -->
-            <div v-if="selectedOrder?.selectedTables?.length > 1" class="adb-section adb-tables-section">
-              <p class="adb-section-title">Bàn Đang Dùng</p>
-              <div class="adb-tables-badges">
-                <span v-for="t in selectedOrder.selectedTables" :key="t" class="adb-table-badge-large">Bàn {{
-                  String(t).padStart(2, '0') }}</span>
-              </div>
-            </div>
+          <!-- Badge bàn -->
+          <div class="adb-table-badge-wrap">
+            <span class="adb-table-badge">{{ getModalTableLabel() }}</span>
+          </div>
 
-            <!-- Thông tin khách -->
-            <div class="adb-section">
-              <p class="adb-section-title">Thông Tin Khách Hàng</p>
-              <div class="adb-info-row">
-                <span class="adb-info-lbl">Họ và tên</span>
-                <span class="adb-info-val">{{ selectedOrder?.receiverName || '-' }}</span>
-              </div>
-              <div class="adb-info-row">
-                <span class="adb-info-lbl">Số điện thoại</span>
-                <span class="adb-info-val">{{ selectedOrder?.receiverPhone || '—' }}</span>
-              </div>
-              <div class="adb-info-row">
-                <span class="adb-info-lbl">Hình thức thanh toán</span>
-                <span class="adb-info-val">{{ selectedOrder?.paymentMethod || '—' }}</span>
-              </div>
-              <div class="adb-info-row">
-                <span class="adb-info-lbl">Thời gian đặt</span>
-                <span class="adb-info-val">{{ selectedOrder?.createdAt || '—' }}</span>
-              </div>
+          <!-- Thông tin khách -->
+          <div class="adb-section">
+            <p class="adb-section-title">Thông Tin Khách Hàng</p>
+            <div class="adb-info-row">
+              <span class="adb-info-lbl">Họ và tên</span>
+              <span class="adb-info-val">{{ selectedOrder?.receiverName || selectedOrder?.customerName || selectedOrder?.anonCode || 'Không có thông tin' }}</span>
             </div>
+            <div class="adb-info-row">
+              <span class="adb-info-lbl">Số điện thoại</span>
+              <span class="adb-info-val">{{ selectedOrder?.receiverPhone || selectedOrder?.customerPhone || '–' }}</span>
+            </div>
+            <div class="adb-info-row">
+              <span class="adb-info-lbl">Hình thức thanh toán</span>
+              <span class="adb-info-val">{{ selectedOrder?.paymentMethod || 'Không có thông tin' }}</span>
+            </div>
+            <div class="adb-info-row">
+              <span class="adb-info-lbl">Thời gian đặt</span>
+              <span class="adb-info-val">{{ selectedOrder?.createdAt || 'Không có thông tin' }}</span>
+            </div>
+          </div>
 
-            <!-- Sản phẩm -->
-            <div class="adb-section">
+          <!-- Sản phẩm -->
+          <div class="adb-section">
+            <div class="adb-section-title-row">
               <p class="adb-section-title">Thông Tin Sản Phẩm</p>
-              <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
-              <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
-                <div class="adb-product-img-wrap">
-                  <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.name" class="adb-product-img"
-                    @error="$event.target.style.display = 'none'" />
-                  <span v-else>☕</span>
+              <span v-if="selectedOrder?.orderNumber" class="adb-txn-badge">
+                Mã giao dịch: {{ selectedOrder.orderNumber }}
+              </span>
+            </div>
+            <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
+
+            <div v-for="item in selectedOrder?.items" :key="item.id" class="adb-product-item">
+              <div class="adb-product-img-wrap">
+                <img v-if="getProductImg(item)" :src="getProductImg(item)" :alt="item.drink?.name"
+                  class="adb-product-img" @error="$event.target.style.display = 'none'" />
+                <span v-else>☕</span>
+              </div>
+
+              <div class="adb-product-info">
+                <!-- Tên + số lượng ngay cạnh nhau, giá đẩy sang phải -->
+                <div class="adb-product-name-row">
+                  <span class="adb-product-name">{{ item.drink?.name }}</span>
+                  <span class="adb-product-qty">x{{ item.quantity }}</span>
+                  <span class="adb-product-base-price">{{ getBasePrice(item).toLocaleString() }} đ</span>
                 </div>
-                <div class="adb-product-info">
-                  <p class="adb-product-name">{{ item.drink.name }} × {{ item.quantity }}</p>
-                  <div class="adb-product-tags">
-                    <span class="adb-tag size">Size: {{ item.size.name }}</span>
-                    <span class="adb-tag">Đá: {{ item.ice }}</span>
-                    <span class="adb-tag">Đường: {{ item.sugar }}</span>
-                    <template v-if="item.orderItemToppings?.length">
-                      <span v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-tag topping">
-                        {{ otp.topping?.name }}
-                      </span>
-                    </template>
+
+                <div class="adb-product-options">
+                  <div v-if="item.size" class="adb-option-row">
+                    <span class="adb-option-icon">≡</span>
+                    <span class="adb-option-name">Size {{ item.size.name }}</span>
+                    <span class="adb-option-price" :class="item.size.price > 0 ? 'plus' : 'zero'">
+                      +{{ (item.size.price || 0).toLocaleString() }} đ
+                    </span>
                   </div>
-                  <p class="adb-product-price">
-                    {{ (((item.basePriceAtPurchase || 0) + (item.size?.price || 0)) * (item.quantity ||
-                      0)).toLocaleString()
-                    }}đ
-                  </p>
+                  <template v-if="item.orderItemToppings?.length">
+                    <div v-for="otp in item.orderItemToppings" :key="otp.id" class="adb-option-row">
+                      <span class="adb-option-icon">+</span>
+                      <span class="adb-option-name">{{ otp.topping?.name }}</span>
+                      <span class="adb-option-price plus">+{{ (otp.topping?.price || 0).toLocaleString() }} đ</span>
+                    </div>
+                  </template>
+                  <div class="adb-badge-row">
+                    <span v-if="item.sugar" class="adb-badge-pill sugar">Đường {{ item.sugar }} %</span>
+                    <span v-if="item.ice" class="adb-badge-pill ice">Đá {{ item.ice }} %</span>
+                  </div>
                 </div>
               </div>
             </div>
-
           </div>
 
-          <!-- Cột phải: thanh toán -->
-          <div class="adb-modal-right">
-            <p class="adb-right-title">Thanh Toán</p>
+          <!-- Nút hành động -->
+          <template v-if="isTableOccupiedInModal()">
+            <div class="adb-action-row">
+              <button class="adb-btn-done" @click="showConfirmDone = true">Trả Bàn</button>
+              <button class="adb-btn-add-product" @click="addProduct">+ Thêm sản phẩm</button>
+            </div>
+          </template>
 
-            <template v-if="isTableOccupiedInModal()">
-              <div class="adb-price-row">
-                <span>Tạm tính</span>
-                <span>{{ totalPrice.toLocaleString() }} đ</span>
-              </div>
-              <div class="adb-price-row">
-                <span>Giảm giá</span>
-                <span class="discount">- 0 đ</span>
-              </div>
-              <div class="adb-divider"></div>
-              <div class="adb-total-row">
-                <span class="adb-total-lbl">Tổng cộng</span>
-                <span class="adb-total-val">{{ totalPrice.toLocaleString() }} đ</span>
-              </div>
-              <button class="adb-btn-done" @click="showConfirmDone = true">
-                Trả Bàn
-              </button>
-              <button class="adb-btn-add-product" @click="addProduct">
-                + Thêm sản phẩm
-              </button>
-              bro wtf nuuuu cái gì đây
-            </template>
-
-            <template v-else>
-              <div class="adb-empty-right">
-                <span class="adb-empty-icon">🪑</span>
-                <span>Bàn đang trống<br />Chưa có đơn hàng</span>
-              </div>
-            </template>
-          </div>
+          <template v-else>
+            <div class="adb-empty-right">
+              <span class="adb-empty-icon">🪑</span>
+              <span>Bàn đang trống — Chưa có đơn hàng</span>
+            </div>
+          </template>
 
         </div>
       </div>
     </div>
 
     <!-- ═══ CONFIRM POPUP ═══ -->
-    <div v-if="showConfirmDone" class="adb-confirm-overlay">
+    <div v-if="showConfirmDone" class="adb-confirm-overlay" @click.self="showConfirmDone = false">
       <div class="adb-confirm-popup">
+        <div class="adb-confirm-icon">🪑</div>
         <p class="adb-confirm-title">Xác nhận trả bàn?</p>
-        <p class="adb-confirm-sub">Sau khi xác nhận, bàn sẽ trở về trạng thái trống!</p>
+        <p class="adb-confirm-sub">Sau khi xác nhận, bàn sẽ trở về trạng thái trống và đơn hàng sẽ được đóng lại.</p>
         <div class="adb-confirm-btns">
-          <button class="adb-confirm-back" @click="showConfirmDone = false">Quay lại</button>
-          <button class="adb-confirm-ok" @click="confirmDone">✓ Xác nhận</button>
+          <button class="adb-confirm-back" @click="showConfirmDone = false">
+            <span> Quay lại</span>
+          </button>
+          <button class="adb-confirm-single" @click="confirmDoneSingle">
+            <span>Trả bàn này</span> 
+          </button>
+          <button class="adb-confirm-all" @click="confirmDoneAll">
+            <span> Trả tất cả  </span>
+          </button>
         </div>
       </div>
     </div>

@@ -91,6 +91,8 @@ export function useCounterOrder() {
             })
         }
 
+        _clearCartForOrder(order)
+
         const idx = orderList.value.findIndex(o => o.id === order.id)
         if (idx !== -1) orderList.value.splice(idx, 1)
 
@@ -125,6 +127,21 @@ export function useCounterOrder() {
         selectedTables.value = []
         orderNote.value = ''
         dineMode.value = null
+    }
+
+    // FIX 1: Xóa toàn bộ cart items trên server khi tạo hóa đơn mới
+    // Mỗi hóa đơn tự quản lý items trong memory (order.items)
+    // Cart server chỉ dùng để add/remove real-time, không load lại khi switch tab
+    async function _clearCartForOrder(order) {
+        if (!order || !order.items || !order.items.length) return
+        try {
+            const removePromises = order.items.map(item =>
+                api.delete(`/carts/remove/${item.cartItemId}`).catch(() => { })
+            )
+            await Promise.all(removePromises)
+        } catch (error) {
+            console.error('Error clearing cart:', error)
+        }
     }
 
     /* ══ POPUP CHỌN HÌNH THỨC + BÀN ══ */
@@ -251,7 +268,6 @@ export function useCounterOrder() {
         Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1)
     )
 
-    // FIX 4: otherOccupiedTables phải loại trừ bàn đang được chọn bởi order hiện tại
     const otherOccupiedTables = computed(() => {
         const currentSelected = selectedTables.value
         return occupiedTables.value.filter(t => !currentSelected.includes(t))
@@ -302,7 +318,12 @@ export function useCounterOrder() {
                 currentOrder.value.anonCode = genAnonCode()
             currentOrder.value.step = 'order'
         }
-        fetchCartItems()
+        // FIX 1: KHÔNG gọi fetchCartItems khi chuyển sang order - items đã được lưu trong order.items
+        // Chỉ load từ server nếu order này là order restore từ addProduct (addProductMode)
+        if (currentOrder.value?.addProductMode) {
+            // Không load items - giữ nguyên trống để mua món mới
+            orderedItems.value = []
+        }
         appStep.value = 'order'
     }
 
@@ -310,14 +331,14 @@ export function useCounterOrder() {
     const searchText = ref('')
     const products = ref([])
 
-    // FIX 3: fetchCartItems nhận orderId để load đúng items cho từng hóa đơn
+    // FIX 1: fetchCartItems chỉ dùng khi cần đồng bộ, KHÔNG tự động gọi khi tạo/switch order
     async function fetchCartItems(targetOrder = null) {
         const order = targetOrder || currentOrder.value
         if (!order) return
 
         try {
             const userId = authStore.user?.id
-             const res = await api.get(`/carts/items/${userId}`) 
+            const res = await api.get(`/carts/items/${userId}`)
 
             const items = res.data.map(item => {
                 const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0;
@@ -326,7 +347,6 @@ export function useCounterOrder() {
                     ? item.unitPrice
                     : item.drink.basePrice + sizePrice + toppingTotal;
 
-                // FIX 2: Map toppingDetails đầy đủ để hiển thị trong review/receipt
                 const toppingDetails = item.toppings?.map(t => ({
                     id: t.topping?.id,
                     name: t.topping?.name,
@@ -352,11 +372,9 @@ export function useCounterOrder() {
                 };
             });
 
-            // FIX 3: Chỉ cập nhật orderedItems nếu order này đang được active
             if (order.id === currentOrder.value?.id) {
                 orderedItems.value = items
             }
-            // Luôn lưu vào order object để giữ trạng thái khi switch tab
             order.items = [...items]
 
             console.log(orderedItems.value)
@@ -397,25 +415,51 @@ export function useCounterOrder() {
     const orderedItems = ref([])
     let orderCounter = 0
 
+    // FIX 1: Tạo hóa đơn mới KHÔNG load cart từ server, items = [] trống hoàn toàn
     function createNewOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
         orderCounter++
         const order = {
-            id: Date.now(), orderNumber: orderCounter, items: [],
+            id: Date.now(), orderNumber: orderCounter, items: [],  // items luôn trống khi tạo mới
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: '', customerPhone: '',
             selectedTables: [], anonCode: '', step: 'info',
             note: '',
             dineMode: null,
+            addProductMode: false, // flag để biết đây là order thêm sản phẩm
         }
         orderList.value.push(order)
         selectOrder(order)
     }
 
-    // FIX 3: selectOrder phải load đúng items của order đó từ cache (không gọi API chung)
+    // FIX 3: Tạo hóa đơn "thêm sản phẩm" với thông tin restore từ AdminDatBan
+    function createAddProductOrder(orderInfo) {
+        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
+        orderCounter++
+        const order = {
+            id: Date.now(),
+            orderNumber: orderCounter,
+            items: [], // trống - chuẩn bị mua món mới
+            discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
+            customerName: orderInfo.customerName || '',
+            customerPhone: orderInfo.customerPhone || '',
+            selectedTables: orderInfo.tables || [],
+            anonCode: orderInfo.anonCode || '',
+            step: 'order', // thẳng vào màn order
+            note: '',
+            dineMode: true, // tại quán vì đã có bàn
+            addProductMode: true, // flag thêm sản phẩm
+            originalOrderId: orderInfo.originalOrderId, // ID order gốc để link sau khi thanh toán
+        }
+        orderList.value.push(order)
+        selectOrder(order)
+        appStep.value = 'order'
+    }
+
+    // FIX 1: selectOrder load items từ cache của order, KHÔNG gọi API
     function selectOrder(order) {
         currentOrder.value = order
-        // Load items từ order cache (không phụ thuộc API chung)
+        // Load items từ order cache - không gọi API
         orderedItems.value = order.items ? [...order.items] : []
         discountInput.value = order.discountInput
         appliedCode.value = order.appliedCode
@@ -560,7 +604,6 @@ export function useCounterOrder() {
         customerMoney.value = raw
     }
 
-    // FIX 2: _buildReceiptData map toppingDetails đầy đủ
     function _buildReceiptData(change = changeAmount.value) {
         const order = currentOrder.value
         const resolvedName = payNameInput.value.trim() || order?.customerName || customerName.value || ''
@@ -568,10 +611,8 @@ export function useCounterOrder() {
         if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
         const resolvedDineMode = dineMode.value === true ? true : false
 
-        // Deep clone items với toppingDetails đầy đủ
         const itemsWithDetails = orderedItems.value.map(item => {
             const cloned = JSON.parse(JSON.stringify(item))
-            // Đảm bảo toppingDetails được map đúng từ toppings nếu chưa có
             if (!cloned.toppingDetails || !cloned.toppingDetails.length) {
                 if (cloned.toppings && cloned.toppings.length) {
                     cloned.toppingDetails = cloned.toppings.map(t => ({
@@ -614,7 +655,7 @@ export function useCounterOrder() {
 
     async function confirmPayment() {
         try {
-            const userId = authStore.user?.id  // ← dùng auth thay vì hardcode 2
+            const userId = authStore.user?.id
 
             const receiverName = payNameInput.value.trim()
                 || currentOrder.value?.customerName
@@ -773,7 +814,6 @@ export function useCounterOrder() {
             const res = await api.post('/carts/add', cartItemReq)
             const newCartItemId = res.data.items[res.data.items.length - 1].id
 
-            // FIX 2: Map toppingDetails đầy đủ khi thêm sản phẩm mới
             const toppingDetails = selectedToppings.value.map(t => ({
                 id: t.id,
                 name: t.name,
@@ -856,6 +896,19 @@ export function useCounterOrder() {
         }
     }
 
+    function checkAndRestoreAddProductOrder() {
+        const raw = sessionStorage.getItem('addProductOrderInfo')
+        if (!raw) return
+        sessionStorage.removeItem('addProductOrderInfo')
+
+        try {
+            const orderInfo = JSON.parse(raw)
+            createAddProductOrder(orderInfo)
+        } catch (e) {
+            console.error('Error restoring add product order:', e)
+        }
+    }
+
     /* ══ LIFECYCLE ══ */
     let timer = null
 
@@ -864,6 +917,7 @@ export function useCounterOrder() {
         fetchDrinks()
         fetchToppings()
         fetchSizes()
+        checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
         timer = setInterval(() => {
             refreshTableStatus()
@@ -875,6 +929,7 @@ export function useCounterOrder() {
 
     onActivated(() => {
         console.log('CounterOrder activated')
+        checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
     })
 

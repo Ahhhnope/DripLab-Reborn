@@ -21,12 +21,16 @@ const {
   goToPage,
   // Search
   searchQuery,
+  searchResults,
   previewResults,
   hasMoreResults,
   extraResultCount,
   isSearchOpen,
+  isExpandedSearch,
   closeSearch,
   clearSearch,
+  expandSearch,
+  collapseSearch,
   formatVnd,
   addProduct,
   openFromImage,
@@ -63,7 +67,10 @@ function onDocClick(e) {
   if (!catEl) isCatOpen.value = false
 
   const searchEl = e.target.closest?.('[data-search-box]')
-  if (!searchEl) closeSearch()
+  if (!searchEl) {
+    closeSearch()
+    collapseSearch()
+  }
 }
 
 document.addEventListener('click', onDocClick)
@@ -85,122 +92,153 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         <!-- Hàng 1: Danh mục + Search -->
         <div class="flex items-center gap-4 w-full">
 
-        <!-- Danh mục dropdown -->
-        <div class="relative shrink-0" data-cat-dropdown>
-          <button
-            class="inline-flex items-center justify-between gap-3 min-w-44
-                   rounded-xl border border-slate-200 bg-white px-3 py-2
-                   text-sm font-semibold text-slate-900 shadow-sm
-                   hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300"
-            @click.stop="isCatOpen = !isCatOpen"
-          >
-            <span>{{ activeCategoryLabel() }}</span>
-            <span class="text-slate-400 transition-transform duration-200" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
-          </button>
-
-          <div
-            v-if="isCatOpen"
-            class="dropdown-panel absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
-          >
+          <!-- Danh mục dropdown -->
+          <div class="relative shrink-0" data-cat-dropdown>
             <button
-              v-for="c in categories"
-              :key="c.id"
-              class="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
-              @click="onPickCategory(c.id)"
+              class="inline-flex items-center justify-between gap-3 min-w-44
+                     rounded-xl border border-slate-200 bg-white px-3 py-2
+                     text-sm font-semibold text-slate-900 shadow-sm
+                     hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              @click.stop="isCatOpen = !isCatOpen"
             >
-              <span :class="c.id === activeCategoryId ? 'font-semibold text-slate-900' : 'text-slate-700'">
-                {{ c.label }}
-              </span>
-              <span v-if="c.id === activeCategoryId" class="text-emerald-600 font-bold">✓</span>
+              <span>{{ activeCategoryLabel() }}</span>
+              <span class="text-slate-400 transition-transform duration-200" :class="isCatOpen ? 'rotate-180' : ''">⌄</span>
             </button>
-          </div>
-        </div>
-
-        <!-- ── Search Box ── -->
-        <div class="relative flex-1 min-w-0" data-search-box>
-          <div class="relative flex items-center">
-            <span class="absolute left-3 text-slate-400 pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-              </svg>
-            </span>
-
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Xin chào, bạn cần gì hôm nay?"
-              class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800
-                     placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300
-                     transition search-input"
-              @focus="searchQuery.length && (isSearchOpen = true)"
-            />
-
-            <button
-              v-if="searchQuery"
-              class="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
-              @click.stop="clearSearch"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Search Dropdown Panel -->
-          <div
-            v-if="isSearchOpen && previewResults.length"
-            class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 overflow-hidden"
-          >
-            <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
-              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                Kết quả cho
-                <span class="text-red-600 font-bold">"{{ searchQuery }}"</span>
-              </span>
-            </div>
-
-            <div class="px-4 pt-2 pb-1">
-              <span class="text-xs text-slate-400 font-medium">Hiển thị kết quả theo:</span>
-              <span class="ml-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">Sản phẩm</span>
-            </div>
-
-            <ul>
-              <li
-                v-for="p in previewResults"
-                :key="p.id"
-                class="search-result-item flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
-                @click="openFromImage(p); clearSearch()"
-              >
-                <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
-                  <img :src="p.imageUrl || '/placeholder.png'" :alt="p.name" class="h-full w-full object-cover" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-semibold text-slate-800 truncate">{{ p.name }}</p>
-                </div>
-                <div class="text-sm font-black text-red-600 shrink-0">
-                  {{ formatVnd(p.price) }}
-                </div>
-              </li>
-            </ul>
 
             <div
-              v-if="hasMoreResults"
-              class="px-4 py-2.5 border-t border-slate-100 text-center text-xs text-slate-500 bg-slate-50/60"
+              v-if="isCatOpen"
+              class="dropdown-panel absolute left-0 z-50 mt-2 w-full overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5"
             >
-              Xem thêm
-              <span class="font-bold text-red-600">{{ extraResultCount }}</span>
-              sản phẩm có chứa
-              <span class="font-bold text-red-600">{{ searchQuery }}</span>
+              <button
+                v-for="c in categories"
+                :key="c.id"
+                class="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
+                @click="onPickCategory(c.id)"
+              >
+                <span :class="c.id === activeCategoryId ? 'font-semibold text-slate-900' : 'text-slate-700'">
+                  {{ c.label }}
+                </span>
+                <span v-if="c.id === activeCategoryId" class="text-emerald-600 font-bold">✓</span>
+              </button>
             </div>
           </div>
 
-          <!-- No results -->
-          <div
-            v-else-if="isSearchOpen && searchQuery && !previewResults.length"
-            class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 px-4 py-6 text-center"
-          >
-            <p class="text-sm text-slate-400">Không tìm thấy sản phẩm nào 😢</p>
+          <!-- ── Search Box ── -->
+          <div class="relative flex-1 min-w-0" data-search-box>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 text-slate-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                </svg>
+              </span>
+
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Xin chào, bạn cần gì hôm nay?"
+                class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm text-slate-800
+                       placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300
+                       transition search-input"
+                @focus="searchQuery.length && (isSearchOpen = true)"
+              />
+
+              <button
+                v-if="searchQuery"
+                class="absolute right-2.5 text-slate-400 hover:text-slate-600 transition"
+                @click.stop="clearSearch(); collapseSearch()"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Search Dropdown Panel -->
+            <div
+              v-if="isSearchOpen && searchResults.length"
+              class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 overflow-hidden"
+            >
+              <div class="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Kết quả cho
+                  <span class="text-red-600 font-bold">"{{ searchQuery }}"</span>
+                </span>
+                <span class="text-xs text-slate-400">{{ searchResults.length }} sản phẩm</span>
+              </div>
+
+              <div class="px-4 pt-2 pb-1">
+                <span class="text-xs text-slate-400 font-medium">Hiển thị kết quả theo:</span>
+                <span class="ml-2 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full">Sản phẩm</span>
+              </div>
+
+              <!-- Preview items (luôn hiện) -->
+              <ul>
+                <li
+                  v-for="p in previewResults"
+                  :key="p.id"
+                  class="search-result-item flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                  @click="openFromImage(p); clearSearch()"
+                >
+                  <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
+                    <img :src="p.imageUrl || '/placeholder.png'" :alt="p.name" class="h-full w-full object-cover" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-slate-800 truncate">{{ p.name }}</p>
+                  </div>
+                  <div class="text-sm font-black text-red-600 shrink-0">
+                    {{ formatVnd(p.price) }}
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Extra items (chỉ hiện khi đã expand) -->
+              <ul v-if="isExpandedSearch">
+                <li
+                  v-for="p in searchResults.slice(previewResults.length)"
+                  :key="p.id"
+                  class="search-result-item flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                  @click="openFromImage(p); clearSearch()"
+                >
+                  <div class="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
+                    <img :src="p.imageUrl || '/placeholder.png'" :alt="p.name" class="h-full w-full object-cover" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-slate-800 truncate">{{ p.name }}</p>
+                  </div>
+                  <div class="text-sm font-black text-red-600 shrink-0">
+                    {{ formatVnd(p.price) }}
+                  </div>
+                </li>
+              </ul>
+
+              <!-- Nút Xem thêm / Thu gọn -->
+              <div
+                v-if="hasMoreResults"
+                class="px-4 py-2.5 border-t border-slate-100 text-center text-xs cursor-pointer
+                       hover:bg-slate-50 transition-colors select-none"
+                @click.stop="isExpandedSearch ? collapseSearch() : expandSearch()"
+              >
+                <template v-if="!isExpandedSearch">
+                  <span class="text-slate-500">Xem thêm</span>
+                  <span class="font-bold text-red-600 mx-1">{{ extraResultCount }}</span>
+                  <span class="text-slate-500">sản phẩm</span>
+                  <span class="ml-1 text-red-600 font-bold">↓</span>
+                </template>
+                <template v-else>
+                  <span class="text-slate-500">Thu gọn</span>
+                  <span class="ml-1 text-slate-400 font-bold">↑</span>
+                </template>
+              </div>
+            </div>
+
+            <!-- No results -->
+            <div
+              v-else-if="isSearchOpen && searchQuery && !searchResults.length"
+              class="search-dropdown absolute left-0 right-0 z-50 mt-2 rounded-2xl bg-white shadow-2xl ring-1 ring-black/6 px-4 py-6 text-center"
+            >
+              <p class="text-sm text-slate-400">Không tìm thấy sản phẩm nào 😢</p>
+            </div>
           </div>
-        </div>
         </div>
 
         <!-- Hàng 2: Sắp xếp -->
@@ -248,7 +286,6 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
               />
             </div>
 
-            <!-- Best Seller Badge -->
             <div
               v-if="p.isBestSeller"
               class="pointer-events-none absolute top-3 left-3 z-10
