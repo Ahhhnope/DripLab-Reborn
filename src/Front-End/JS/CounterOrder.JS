@@ -29,7 +29,7 @@ function genAnonCode() {
     const stored = sessionStorage.getItem(resetKey)
     const count = stored ? parseInt(stored) + 1 : 1
     sessionStorage.setItem(resetKey, count)
-    
+
     return `#DRIPLAB${String(count).padStart(2, '0')}`
 }
 
@@ -229,7 +229,7 @@ export function useCounterOrder() {
     function editCustomerInfo() { isEditingInfo.value = true }
 
     /* ══ ĐẶT BÀN════ */
-    const TOTAL_TABLES = 15
+    const TOTAL_TABLES = 20
     const selectedTables = ref([])
     const occupiedTables = ref([])
 
@@ -414,14 +414,14 @@ export function useCounterOrder() {
     }
 
     /* ══ HÓA ĐƠN ══ */
-    const MAX_ORDERS = 15
+    const MAX_ORDERS = 20
     const orderList = ref([])
     const currentOrder = ref(null)
     const orderedItems = ref([])
     let orderCounter = 0
 
     function createNewOrder() {
-        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
+        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 20 hóa đơn!'); return }
         orderCounter++
         const order = {
             id: Date.now(), orderNumber: orderCounter, items: [],
@@ -438,27 +438,27 @@ export function useCounterOrder() {
     }
 
     function createAddProductOrder(orderInfo) {
-        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 15 hóa đơn!'); return }
+        if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 20 hóa đơn!'); return }
         orderCounter++
         const order = {
             id: Date.now(),
             orderNumber: orderCounter,
-            items: [], // trống — mua món mới
+            items: [],
             discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: orderInfo.customerName || '',
             customerPhone: orderInfo.customerPhone || '',
             selectedTables: orderInfo.tables || [],
             anonCode: orderInfo.anonCode || '',
-            step: 'order', // thẳng vào màn order
+            step: 'order',
             note: '',
-            dineMode: true, // tại quán
-            addProductMode: true, // flag: đây là order thêm sản phẩm
+            dineMode: true,
+            addProductMode: true,
             originalOrderId: orderInfo.originalOrderId || null,
         }
         orderList.value.push(order)
 
         currentOrder.value = order
-        orderedItems.value = [] // giỏ hàng trống
+        orderedItems.value = []
         discountInput.value = order.discountInput
         appliedCode.value = order.appliedCode
         discountPercent.value = order.discountPercent
@@ -555,6 +555,7 @@ export function useCounterOrder() {
     const paymentMethod = ref('Tiền mặt')
     const customerMoney = ref('')
     const cashMaxWarning = ref('')
+    // ── ĐÃ SỬA: txId lưu mã hóa đơn (HD_xx) thay vì mã giao dịch ngẫu nhiên ──
     const txId = ref('')
     const txTime = ref('')
 
@@ -671,7 +672,7 @@ export function useCounterOrder() {
             const userId = authStore.user?.id
             const order = currentOrder.value
 
-            const receiverName = payNameInput.value.trim() || order?.customerName || order?.anonCode|| ''
+            const receiverName = payNameInput.value.trim() || order?.customerName || order?.anonCode || ''
             const tablesToSubmit = displayTableNums.value
 
             const res = await api.post('/orders/add', null, {
@@ -700,7 +701,25 @@ export function useCounterOrder() {
             })
 
             showReviewPopup.value = false
-            txId.value = res.data.orderNumber
+
+            console.log('[confirmPayment] res.data:', JSON.stringify(res.data))
+
+            try {
+                const invoiceRes = await api.get('/invoices')
+                console.log('[confirmPayment] invoices[0]:', JSON.stringify(invoiceRes.data[0]))
+
+                const sorted = [...invoiceRes.data].sort((a, b) =>
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                )
+                const latest = sorted[0]
+                console.log('[confirmPayment] latest invoiceId:', latest?.invoiceId)
+
+                txId.value = latest?.invoiceId ? `HD_${latest.invoiceId}` : `HD_${res.data.invoiceId || ''}`
+            } catch (err) {
+                console.error('[confirmPayment] fetch invoices failed:', err)
+                txId.value = res.data.invoiceId ? `HD_${res.data.invoiceId}` : ''
+            }
+
             txTime.value = new Date().toLocaleString('vi-VN')
             if (paymentMethod.value === 'Tiền mặt') receiptData.value.change = changeAmount.value
             showSuccessPopup.value = true

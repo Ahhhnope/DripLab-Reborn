@@ -807,7 +807,7 @@ function getItemToppingDetails(item) {
               <span>{{ paymentMethod === 'Tiền mặt' ? 'Tiền mặt' : 'Ví MoMo' }}</span>
             </div>
             <div class="success-row b">
-              <span>Mã giao dịch</span>
+              <span>Mã Hóa Đơn</span>
               <span class="tx-id" :class="{ pink: paymentMethod === 'momo' }">{{ txId }}</span>
             </div>
             <div class="success-row b">

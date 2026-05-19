@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import api from '@/api/axios'
-const _tableOrdersCache = new Map()   
-const _tableLatestOrderId = new Map() 
+
+const _tableOrdersCache = new Map()
+const _tableLatestOrderId = new Map()
 
 export function useAdminDatBan() {
     const TOTAL_TABLES = 20
@@ -37,13 +38,13 @@ export function useAdminDatBan() {
 
                     const ordersMap = _tableOrdersCache.get(tableId)
 
-                    if (!ordersMap.has(order.id)) {
-                        ordersMap.set(order.id, {
-                            order: { ...order },
-                            _cachedAt: Date.now(),
-                        })
-                        console.log(`[Cache] Bàn ${tableId}: thêm order ${order.id}, tổng ${ordersMap.size} orders`)
+                    // Luôn cập nhật để lấy invoiceId mới nhất từ backend
+                    const existing = ordersMap.get(order.id)
+                    const updatedEntry = {
+                        order: { ...order },
+                        _cachedAt: existing?._cachedAt ?? Date.now(),
                     }
+                    ordersMap.set(order.id, updatedEntry)
 
                     _tableLatestOrderId.set(tableId, order.id)
 
@@ -91,6 +92,17 @@ export function useAdminDatBan() {
             .sort((a, b) => a - b)
     }
 
+    // ── Helper: lấy invoiceId đúng từ order object ──────────────────────────
+    // Backend trả về invoiceId dưới dạng số nguyên (vd: 17)
+    // Ta format thành HD_17
+    function resolveInvoiceLabel(order) {
+        if (!order) return null
+        // invoiceId là số sequential từ DB
+        if (order.invoiceId != null) return order.invoiceId
+        // fallback: orderNumber nếu invoiceId chưa có
+        return order.orderNumber ?? null
+    }
+
     function openDetail(tableNum) {
         selectedTable.value = tableNum
         const tableObj = tables.value.find(t => t.id === tableNum)
@@ -114,9 +126,8 @@ export function useAdminDatBan() {
             }
         })
 
-        console.log(`[openDetail] Bàn ${tableNum}: ${allOrdersMap.size} orders trong cache`)
-
-        const sortedEntries = Array.from(allOrdersMap.values()).sort((a, b) => (a._cachedAt || 0) - (b._cachedAt || 0))
+        const sortedEntries = Array.from(allOrdersMap.values())
+            .sort((a, b) => (a._cachedAt || 0) - (b._cachedAt || 0))
 
         let orderSections = []
         let firstOrderData = null
@@ -124,12 +135,13 @@ export function useAdminDatBan() {
         sortedEntries.forEach((entry, idx) => {
             const o = entry.order
             if (!firstOrderData) firstOrderData = o
-            console.log(`[openDetail] Order ${idx + 1}: id=${o.id}, orderNumber=${o.orderNumber}, items=${o.items?.length || 0}`)
 
             if (o.items && o.items.length) {
+                const invoiceNum = resolveInvoiceLabel(o)
                 orderSections.push({
                     orderId: o.id,
-                    orderNumber: o.orderNumber,
+                    // invoiceNum là số nguyên, format HD_xx khi hiển thị
+                    orderNumber: invoiceNum,
                     items: o.items.map(item => ({ ...item })),
                     _cachedAt: entry._cachedAt,
                 })
@@ -137,15 +149,19 @@ export function useAdminDatBan() {
         })
 
         if (!orderSections.length && latestOrder.items?.length) {
+            const invoiceNum = resolveInvoiceLabel(latestOrder)
             orderSections = [{
                 orderId: latestOrder.id,
-                orderNumber: latestOrder.orderNumber,
+                orderNumber: invoiceNum,
                 items: [...latestOrder.items],
                 _cachedAt: Date.now(),
             }]
         }
 
         const baseOrder = firstOrderData || latestOrder
+
+        // orderNumber trên selectedOrder: số nguyên invoiceId từ latestOrder
+        const latestInvoiceNum = resolveInvoiceLabel(latestOrder)
 
         selectedOrder.value = {
             ...latestOrder,
@@ -154,6 +170,7 @@ export function useAdminDatBan() {
             anonCode: baseOrder.anonCode || latestOrder.anonCode || '',
             receiverName: baseOrder.receiverName || latestOrder.receiverName || '',
             receiverPhone: baseOrder.receiverPhone || latestOrder.receiverPhone || '',
+            orderNumber: latestInvoiceNum,
             items: orderSections.flatMap(s => s.items),
             orderSections: orderSections,
         }

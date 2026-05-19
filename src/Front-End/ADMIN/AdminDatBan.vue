@@ -61,6 +61,18 @@ function getProductImg(item) {
 function getBasePrice(item) {
   return item.basePriceAtPurchase || 0
 }
+
+// ── Format mã hóa đơn ──────────────────────────────────────────────────────
+// orderNumber từ JS là invoiceId số nguyên (vd: 17) → hiển thị HD_17
+// Nếu đã có prefix HD_ thì giữ nguyên
+function formatInvoiceId(val) {
+  if (val == null || val === '') return ''
+  const s = String(val)
+  if (s.startsWith('HD_')) return s
+  // Loại bỏ mọi prefix cũ (HD_xxxxxxxx dạng random) → chỉ giữ số sequential
+  // invoiceId từ backend là số nhỏ (1, 2, 17...), không phải 6+ chữ số random
+  return `HD_${s}`
+}
 </script>
 
 <style src="../CSS/AdminDatBan.css"></style>
@@ -196,6 +208,7 @@ function getBasePrice(item) {
             </div>
           </div>
 
+          <!-- Có orderSections (nhiều đợt thêm món) -->
           <template v-if="selectedOrder?.orderSections && selectedOrder.orderSections.length">
             <div v-for="(section, sIdx) in selectedOrder.orderSections" :key="section.orderId || sIdx"
               class="adb-section">
@@ -203,8 +216,9 @@ function getBasePrice(item) {
                 <p class="adb-section-title">
                   {{ sIdx === 0 ? 'Thông Tin Sản Phẩm' : 'Sản Phẩm Thêm' }}
                 </p>
-                <span v-if="section.orderNumber" class="adb-txn-badge">
-                  Mã giao dịch: {{ section.orderNumber }}
+                <!-- Mã hóa đơn sequential: HD_17 -->
+                <span v-if="section.orderNumber != null" class="adb-txn-badge">
+                  Mã Hóa Đơn: {{ formatInvoiceId(section.orderNumber) }}
                 </span>
               </div>
 
@@ -249,12 +263,14 @@ function getBasePrice(item) {
             </div>
           </template>
 
+          <!-- Không có orderSections (đơn đơn giản) -->
           <template v-else>
             <div class="adb-section">
               <div class="adb-section-title-row">
                 <p class="adb-section-title">Thông Tin Sản Phẩm</p>
-                <span v-if="selectedOrder?.orderNumber" class="adb-txn-badge">
-                  Mã giao dịch: {{ selectedOrder.orderNumber }}
+                <!-- Mã hóa đơn sequential: HD_17 -->
+                <span v-if="selectedOrder?.orderNumber != null" class="adb-txn-badge">
+                  Mã Hóa Đơn: {{ formatInvoiceId(selectedOrder.orderNumber) }}
                 </span>
               </div>
               <p v-if="!selectedOrder?.items?.length" class="adb-empty">Chưa có sản phẩm</p>
