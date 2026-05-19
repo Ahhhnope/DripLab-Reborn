@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 /* ── LAYOUT ── */
 .voucher-page {
   min-height: 100vh;
   background: #f5f0e8;
-  font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   padding: 32px 40px 80px;
   display: flex;
   flex-direction: column;

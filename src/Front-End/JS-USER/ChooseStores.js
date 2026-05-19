@@ -136,7 +136,7 @@ export default {
         },
         closingSoonCloseTime() {
             const s = this.filteredStores.find((s) => s.isClosingSoon);
-            return s ? s.closeTime : "22:00";
+            return s ? s.closeTime : "4:00";
         },
     },
     watch: {

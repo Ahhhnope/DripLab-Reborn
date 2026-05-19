@@ -20,7 +20,7 @@
     background: var(--bg);
     min-height: 100vh;
     padding: 32px 80px 60px;
-    font-family: 'Manrope', 'Georgia', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--font-dark);
   }
 
@@ -66,7 +66,7 @@
   }
 
   .store-name {
-    font-family: 'Noto Serif', serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 30px;
     font-weight: 700;
     color: var(--font-dark);
@@ -155,7 +155,7 @@
     cursor: pointer;
     transition: opacity 0.2s;
     box-shadow: 0 4px 16px rgba(224, 192, 118, 0.3);
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
   .btn-directions:hover {
@@ -181,7 +181,7 @@
   }
 
   .score-number {
-    font-family: 'Noto Serif', serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 56px;
     font-weight: 700;
     color: var(--font-dark);
@@ -267,7 +267,7 @@
     margin-left: auto;
     transition: all 0.2s;
     white-space: nowrap;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
   .btn-rate:hover {
@@ -353,7 +353,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.2s;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
   .btn-submit:hover {
@@ -462,7 +462,7 @@
     text-transform: uppercase;
     cursor: pointer;
     transition: color 0.2s;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
   .btn-load-more:hover {
@@ -546,7 +546,7 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .us-back-btn:hover { opacity: 0.85; }

@@ -14,7 +14,7 @@
 }
 
 .about-container {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: #1a0f08;
   width: 100%;
   overflow-x: hidden;
@@ -133,7 +133,7 @@
 }
 
 .hero-year {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 120px;
   font-weight: 900;
   color: rgba(196, 124, 60, 0.06);
@@ -172,7 +172,7 @@
 }
 
 .hero-h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 56px;
   font-weight: 900;
   line-height: 1.05;
@@ -239,7 +239,7 @@
 }
 
 .intro-h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 40px;
   font-weight: 900;
   color: #1a0f08;
@@ -276,7 +276,7 @@
 }
 
 .fact-num {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 36px;
   font-weight: 900;
   color: #c47c3c;
@@ -309,7 +309,7 @@
 }
 
 .vals-h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 40px;
   font-weight: 900;
   color: #1a0f08;
@@ -348,7 +348,7 @@
 }
 
 .val-num {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 72px;
   font-weight: 900;
   color: rgba(26, 15, 8, 0.04);
@@ -410,7 +410,7 @@
 }
 
 .why-h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 40px;
   font-weight: 900;
   color: #fff;
@@ -477,7 +477,7 @@
 }
 
 .manifesto {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 26px;
   font-style: italic;
   color: rgba(255, 255, 255, 0.85);
@@ -509,7 +509,7 @@
 }
 
 .vision-h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 44px;
   font-weight: 900;
   color: #1a0f08;
@@ -595,7 +595,7 @@
 }
 
 .cta-h2 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 46px;
   font-weight: 900;
   color: #fff;
