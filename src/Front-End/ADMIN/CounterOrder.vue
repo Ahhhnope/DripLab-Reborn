@@ -821,9 +821,17 @@ function getItemToppingDetails(item) {
                   <div class="receipt-item-name">{{ item.name }} ({{ item.size }}) x{{ item.qty }}</div>
                   <div class="receipt-item-price-inline">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
                 </div>
+                
                 <div class="receipt-item-meta">
                   Đá: {{ item.ice }} | Đường: {{ item.sugar }}
                 </div>
+
+                <div v-if="item.isCustom" class="rpc-custom-row">
+                  <span class="rpc-custom-tag">{{ item.beanName }}</span>
+                  <span class="rpc-custom-tag">{{ item.base }}</span>
+                  <span v-if="item.milkName" class="rpc-custom-tag">{{ item.milkName }}</span>
+                </div>
+
                 <div v-if="getItemToppingDetails(item).length" class="receipt-item-toppings">
                   <span v-for="t in getItemToppingDetails(item)" :key="t.name" class="receipt-topping-tag">
                     + {{ t.name }}<em v-if="t.price"> ({{ t.price.toLocaleString() }}đ)</em>
