@@ -8,6 +8,26 @@ function getImageUrl(url) {
   return url.startsWith('http') ? url : `http://localhost:8080${url}`
 }
 
+function calcShippingFee(distanceKmStr) {
+  // Chưa bật GPS → mặc định 25.000đ
+  if (distanceKmStr === '' || distanceKmStr === null || distanceKmStr === undefined) {
+    return 25000
+  }
+
+  const km = parseFloat(distanceKmStr)
+
+  // Không parse được → mặc định 25.000đ
+  if (isNaN(km)) return 25000
+
+  // 0 – 1 km: miễn phí
+  if (km <= 1) return 0
+
+  
+  const extraKm = Math.ceil(km - 1)   // số bậc km vượt quá km đầu tiên
+  const cappedKm = Math.min(extraKm, 7) // tối đa 7 bậc (tương ứng 7–8km = 35.000đ)
+  return cappedKm * 5000
+}
+
 export default {
   name: 'CartApp',
   components: { MomoPopup },
@@ -30,7 +50,6 @@ export default {
       customerInfoAddress: '',
       customerInfoErrors: { name: '', phone: '', address: '' },
 
-      // ✅ Địa chỉ GPS lấy từ trang chọn cửa hàng (lưu trong sessionStorage)
       gpsLocationText: sessionStorage.getItem('userLocationText') || '',
 
       // Popup 2: Xác nhận đơn hàng
@@ -48,7 +67,6 @@ export default {
       showSuccessModal: false,
       lastOrderId: '',
 
-      // ✅ MoMo QR mới
       showMomoQR: false,
     }
   },
@@ -64,7 +82,6 @@ export default {
         sizePrice: item.size?.price || 0,
         sizeName: item.size?.name || '',
         toppingPrice: item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0,
-        // ✅ Chi tiết từng topping với giá riêng
         toppingDetails: item.toppings?.map((t) => ({
           name: t.topping?.name || '',
           price: t.topping?.price || 0,
@@ -91,10 +108,14 @@ export default {
     selectedSubtotal() {
       return this.selectedItems.reduce((s, i) => s + i.basePrice * i.quantity, 0)
     },
+
+    // ✅ Tính phí giao hàng theo km lấy từ sessionStorage
     shippingFee() {
       if (!this.selectedItems.length) return 0
-      return this.selectedSubtotal >= 100000 ? 0 : 0 //for now, freeship
+      const distanceKmStr = sessionStorage.getItem('selectedStoreDistanceKm')
+      return calcShippingFee(distanceKmStr)
     },
+
     selectedTotal() { return this.selectedSubtotal + this.shippingFee },
     grandTotal() { return Math.max(0, this.selectedTotal - this.couponDiscount) },
     isAllSelected() {
@@ -183,7 +204,6 @@ export default {
       if (!this.selectedItems.length) return
       this.customerInfoErrors = { name: '', phone: '', address: '' }
 
-      // ✅ Refresh địa chỉ GPS mỗi lần mở popup (phòng trường hợp user vừa chọn vị trí)
       this.gpsLocationText = sessionStorage.getItem('userLocationText') || ''
 
       const user = this.authStore.user
@@ -205,7 +225,6 @@ export default {
       e.target.value = this.customerInfoPhone
     },
 
-    // ✅ Dùng địa chỉ GPS từ trang chọn cửa hàng để điền vào ô địa chỉ giao hàng
     useGpsLocation() {
       if (this.gpsLocationText) {
         this.customerInfoAddress = this.gpsLocationText
@@ -251,7 +270,7 @@ export default {
       document.body.style.overflow = ''
     },
 
-    // ✅ MoMo flow mới
+  
     openMomoFlow() {
       this.paymentMethod = 'MOMO'
       this.showOrderModal = false
