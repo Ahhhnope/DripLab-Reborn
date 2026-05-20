@@ -188,12 +188,12 @@ export function useUserPoints() {
       // pointHistory.value = res.data
       // Tạm dùng data mẫu
       pointHistory.value = [
-        { type: 'earn', desc: 'Đặt hàng #DL-8080-41',  date: '30/03/2026', pts: 193   },
-        { type: 'use',  desc: 'Đổi voucher: Giảm 10%', date: '25/03/2026', pts: 20000 },
-        { type: 'earn', desc: 'Đặt hàng #DL-6401-08',  date: '15/08/2023', pts: 130   },
-        { type: 'earn', desc: 'Đặt hàng #DL-7501-19',  date: '01/09/2023', pts: 58    },
-        { type: 'earn', desc: 'Đặt hàng #DL-8122-42',  date: '28/09/2023', pts: 160   },
-        { type: 'earn', desc: 'Đặt hàng #DL-9283-01',  date: '12/10/2023', pts: 98    },
+        // { type: 'earn', desc: 'Đặt hàng #DL-8080-41',  date: '30/03/2026', pts: 193   },
+        // { type: 'use',  desc: 'Đổi voucher: Giảm 10%', date: '25/03/2026', pts: 20000 },
+        // { type: 'earn', desc: 'Đặt hàng #DL-6401-08',  date: '15/08/2023', pts: 130   },
+        // { type: 'earn', desc: 'Đặt hàng #DL-7501-19',  date: '01/09/2023', pts: 58    },
+        // { type: 'earn', desc: 'Đặt hàng #DL-8122-42',  date: '28/09/2023', pts: 160   },
+        // { type: 'earn', desc: 'Đặt hàng #DL-9283-01',  date: '12/10/2023', pts: 98    },
       ]
     } catch (e) {
       console.error('Không thể tải lịch sử điểm:', e)
