@@ -64,7 +64,7 @@
       </div>
       <div class="tk-chart-box">
         <div class="tk-chart-title"><span>🍩 Phân Bổ Trạng Thái</span></div>
-        <DonutChart :segments="orderStatusSegments" :total="115" center-label="Tổng đơn" />
+        <DonutChart :segments="orderStatusSegments" :total="orderStatusTotal" center-label="Tổng đơn" />
       </div>
     </div>
 
@@ -82,7 +82,7 @@
   </div>
 </template>
 
-<script setup>
+<!-- <script setup>
 import { ref } from 'vue'
 
 import {
@@ -104,5 +104,23 @@ import TopProductsTable from './Topproductstable.vue'
 import GrowthChart from './Growthchart.vue'
 
 const activeTab = ref('today')
+</script> -->
+
+<script setup>
+import { useThongKe } from '../JS/thongke.js'
+
+import RevenueChart     from './RevenueChart.vue'
+import DonutChart       from './Donutchart.vue'
+import LowStockTable    from './Lowstocktable.vue'
+import TopProductsTable from './Topproductstable.vue'
+import GrowthChart      from './Growthchart.vue'
+
+const {
+  activeTab, loading, filterTabs,
+  summaryCards, statsRow,
+  revenueData, orderStatusSegments, orderStatusTotal,
+  topProducts, growthData,
+} = useThongKe()
 </script>
+
 <style src="../CSS/ThongKe.css"></style>

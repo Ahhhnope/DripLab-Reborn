@@ -136,7 +136,7 @@ export default {
         },
         closingSoonCloseTime() {
             const s = this.filteredStores.find((s) => s.isClosingSoon);
-            return s ? s.closeTime : "4:00";
+            return s ? s.closeTime : "22:00";
         },
     },
     watch: {
@@ -152,6 +152,7 @@ export default {
         localStorage.removeItem("selectedStoreId");
         sessionStorage.removeItem("selectedStore");
         sessionStorage.removeItem("selectedStoreId");
+        sessionStorage.removeItem("selectedStoreDistanceKm");
 
         this._clockTimer = setInterval(() => {
             this.nowTick = Date.now();
@@ -192,7 +193,6 @@ export default {
                     this.userLng = pos.coords.longitude;
                     this._recalcDistances();
                     this.locationText = await reverseGeocode(this.userLat, this.userLng);
-                    // ✅ Lưu địa chỉ GPS vào sessionStorage để Cart.js dùng
                     sessionStorage.setItem("userLocationText", this.locationText);
                     this.locating = false;
                 },
@@ -240,8 +240,8 @@ export default {
             this.userLat = null;
             this.userLng = null;
             this.stores = this.stores.map((s) => ({ ...s, distanceKm: null }));
-            // ✅ Xóa địa chỉ GPS khỏi sessionStorage khi user xóa vị trí
             sessionStorage.removeItem("userLocationText");
+            sessionStorage.removeItem("selectedStoreDistanceKm");
         },
 
         _syncBodyScrollLock(locked) {
@@ -279,7 +279,7 @@ export default {
             this.pendingStore = null;
         },
 
-        // ===== Modal từ chối giao (>10km) =====
+        // ===== Modal từ chối giao (>8km) =====
         closeRejectModal() {
             this.showRejectModal = false;
             this.pendingStore = null;
@@ -372,6 +372,12 @@ export default {
 
             sessionStorage.setItem("selectedStore", JSON.stringify(store));
             sessionStorage.setItem("selectedStoreId", String(store.db_id));
+
+           
+            sessionStorage.setItem(
+                "selectedStoreDistanceKm",
+                store.distanceKm != null ? String(store.distanceKm) : ""
+            );
 
             this.nearestSuggestedId = null;
 

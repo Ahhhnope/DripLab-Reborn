@@ -101,6 +101,8 @@ export function useUserOrders() {
   const pointedOrderIds = ref(
     new Set(JSON.parse(localStorage.getItem('pointedOrders') ?? '[]'))
   )
+
+  
   // ✅ IDs đơn failed đã đọc thông báo (không nhắc lại)
   const seenFailedIds = ref(
     new Set(JSON.parse(localStorage.getItem('seenFailedOrders') ?? '[]'))
@@ -214,6 +216,7 @@ export function useUserOrders() {
     )
     showReceiveConfirm.value = false
     receiveTarget.value      = null
+    checkDeliveredOrders()
   }
 
   // ✅ "Không nhận được đơn hàng" → đổi trạng thái về "Đang xử lý"
@@ -244,14 +247,6 @@ export function useUserOrders() {
 
   async function doConfirmReceive() {
     if (!receiveTarget.value) return
-    try {
-      await api.post(`/customers/${userId}/points`, {
-        orderId: receiveTarget.value.id,
-        points:  receiveTarget.value.earnPoints,
-      })
-    } catch (err) {
-      console.warn('points API chưa có, cộng local:', err)
-    }
 
     pointedOrderIds.value.add(receiveTarget.value.id)
     localStorage.setItem(
@@ -265,6 +260,8 @@ export function useUserOrders() {
 
     showPointsToast.value = true
     setTimeout(() => { showPointsToast.value = false }, 4000)
+
+    checkDeliveredOrders()
   }
 
   // ── Filter ───────────────────────────────────────────────

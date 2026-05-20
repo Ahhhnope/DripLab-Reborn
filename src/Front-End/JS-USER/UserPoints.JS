@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sharedUser } from './Useruser.JS'
 import api from '../../api/axios'
@@ -27,6 +27,7 @@ export function useUserPoints() {
   // ══════════════════════════════════════════════════════════
   const myPoints   = ref(0)
   const usedPoints = ref(0)
+  const spendable  = computed(() => Math.max(0, myPoints.value - usedPoints.value))
 
   const nextTier = computed(() => currentTierObj.value.next || 'MAX');
   const nextTierPoints = computed(() => currentTierObj.value.nextMin || currentTierObj.value.minPoint);
@@ -103,12 +104,14 @@ export function useUserPoints() {
     }
   }
 
+  const myPromos = ref([])
   async function loadSavedPromos() {
     if (!userId.value) return
     try {
       const res = await api.get('/promo-codes/my-promos', {
         params: { userId: userId.value }
       })
+      myPromos.value = res.data
       savedPromoIds.value = res.data.map(v => v.id)
     } catch (e) {
       console.error('Không thể tải kho mã:', e)
@@ -120,8 +123,7 @@ export function useUserPoints() {
     if (!userId.value) return false
     if (savedPromoIds.value.includes(voucher.id)) return false
     if (voucher.quantity <= 0) return false
-    // Nếu muốn trừ điểm: thêm field pointCost vào DB và so sánh ở đây
-    // return myPoints.value >= voucher.pointCost
+    if (voucher.pointCost && spendable.value < voucher.pointCost) return false
     return true
   }
 
@@ -135,28 +137,26 @@ export function useUserPoints() {
     if (!userId.value) { showToast('Vui lòng đăng nhập!', 'error'); return }
 
     try {
-      // Lưu mã vào kho của user + trừ quantity
       await api.post(`/promo-codes/${voucher.id}/save`, null, {
         params: { userId: userId.value }
       })
 
-      // Cập nhật local ngay, không cần reload toàn bộ
-      savedPromoIds.value.push(voucher.id)
+      savedPromoIds.value = [...savedPromoIds.value, voucher.id]
+      myPromos.value      = [...myPromos.value, voucher]
 
-      // Trừ quantity hiển thị local
       const v = vouchers.value.find(v => v.id === voucher.id)
       if (v) v.quantity = Math.max(0, (v.quantity ?? 1) - 1)
 
-      // Refresh điểm từ server (nếu backend trừ điểm)
       await loadPoints()
 
-      // Ghi vào lịch sử
       pointHistory.value.unshift({
         type: 'use',
         desc: `Đổi voucher: ${voucher.name}`,
         date: new Date().toLocaleDateString('vi-VN'),
-        pts:  0,  // thay bằng voucher.pointCost khi có field đó
+        pts:  voucher.pointCost,
       })
+
+      await loadPoints()
 
       showToast(`Đổi thành công: ${voucher.name}!`, 'success')
     } catch (e) {
@@ -232,20 +232,21 @@ export function useUserPoints() {
     ])
   }
 
-  const myPromos = computed(() =>
-  vouchers.value.filter(v => savedPromoIds.value.includes(v.id))
-)
-
   const timer = null
   onMounted(() => {
     initPage()
     loadTiers()
     console.log(TIERS)
+
+  })
+
+  onUnmounted(() => {
+    if (timer) clearInterval(timer)
   })
 
   return {
     user, navItems, currentRoute,
-    myPoints, usedPoints, nextTierPoints,
+    myPoints, spendable, usedPoints, nextTierPoints,
     currentTier, progress,
     vouchers, canRedeem, isAlreadySaved, redeem, fmtValue, tagColor,
     myPromos,

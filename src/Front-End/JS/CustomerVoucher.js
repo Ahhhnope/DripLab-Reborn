@@ -19,6 +19,7 @@ function format(v) {
         quantity:        v.quantity,
         minOrderValue:   v.minOrderValue  ?? 0,
         displayLocation: v.displayLocation ?? 'trên web',
+        pointCost:       v.pointCost ?? 0,
         start:           v.startDate?.split('T')[0] ?? '',
         end:             v.endDate?.split('T')[0]   ?? '',
         status:          expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
@@ -34,6 +35,7 @@ const emptyAdd = () => ({
     quantity:        1,
     minOrderValue:   0,
     displayLocation: 'trên web',
+    pointCost:       0,
     start:           '',
     end:             ''
 })
@@ -146,6 +148,7 @@ export default {
                     quantity:        parseInt(f.quantity),
                     minOrderValue:   parseFloat(f.minOrderValue)   || 0,
                     displayLocation: f.displayLocation,
+                    pointCost:       parseFloat(f.pointCost) || 0,
                     startDate:       new Date(f.start).toISOString(),
                     endDate:         new Date(f.end).toISOString(),
                     status:          true

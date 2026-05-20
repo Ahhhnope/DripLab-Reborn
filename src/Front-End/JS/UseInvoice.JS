@@ -30,6 +30,7 @@ function goToPage(page) {
 function mapInvoice(inv) {
   const isOnline = inv.receiveType === 'Online'
   const items = (inv.items ?? []).map(item => {
+    console.log('mapInvoice called:', inv.invoiceId, inv.items?.[0])
     const toppingList = (item.toppings ?? []).map(t => ({
       name: t.name || "",
       price: t.price || 0,
@@ -83,7 +84,6 @@ async function loadInvoices() {
 
     console.log("Sample invoice:", res.data[0])
 
-    // ✅ Sắp xếp mới nhất lên đầu
     mapped.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
     invoices.value = mapped
