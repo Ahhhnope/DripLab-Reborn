@@ -4,6 +4,9 @@ import api from '@/api/axios'
 const _tableOrdersCache = new Map()
 const _tableLatestOrderId = new Map()
 
+// Cache invoiceId thật từ /invoices, key = orderId
+const _orderInvoiceIdMap = new Map()
+
 export function useAdminDatBan() {
     const TOTAL_TABLES = 20
 
@@ -22,6 +25,21 @@ export function useAdminDatBan() {
 
     function setRouter(r) { _router = r }
 
+    // Fetch invoices một lần để build map orderId → invoiceId
+    async function fetchInvoiceMap() {
+        try {
+            const res = await api.get("/invoices")
+            res.data.forEach(inv => {
+                // inv.orderId là order ID, inv.invoiceId là mã HD thật (vd: 13)
+                if (inv.orderId && inv.invoiceId != null) {
+                    _orderInvoiceIdMap.set(inv.orderId, inv.invoiceId)
+                }
+            })
+        } catch (err) {
+            console.error("fetch invoices map error:", err)
+        }
+    }
+
     async function fetchTables() {
         try {
             const res = await api.get("/tables")
@@ -37,15 +55,12 @@ export function useAdminDatBan() {
                     }
 
                     const ordersMap = _tableOrdersCache.get(tableId)
-
-                    // Luôn cập nhật để lấy invoiceId mới nhất từ backend
                     const existing = ordersMap.get(order.id)
                     const updatedEntry = {
                         order: { ...order },
                         _cachedAt: existing?._cachedAt ?? Date.now(),
                     }
                     ordersMap.set(order.id, updatedEntry)
-
                     _tableLatestOrderId.set(tableId, order.id)
 
                 } else if (t.status !== "Đang sử dụng") {
@@ -61,7 +76,7 @@ export function useAdminDatBan() {
     }
 
     async function syncFromShared() {
-        await fetchTables()
+        await Promise.all([fetchTables(), fetchInvoiceMap()])
     }
 
     function isOccupied(num) {
@@ -92,15 +107,17 @@ export function useAdminDatBan() {
             .sort((a, b) => a - b)
     }
 
-    // ── Helper: lấy invoiceId đúng từ order object ──────────────────────────
-    // Backend trả về invoiceId dưới dạng số nguyên (vd: 17)
-    // Ta format thành HD_17
-    function resolveInvoiceLabel(order) {
+    // Lấy invoiceId thật: ưu tiên field invoiceId từ order,
+    // nếu không có thì tra _orderInvoiceIdMap theo orderId
+    function resolveInvoiceId(order) {
         if (!order) return null
-        // invoiceId là số sequential từ DB
+        // Backend có thể trả trực tiếp invoiceId
         if (order.invoiceId != null) return order.invoiceId
-        // fallback: orderNumber nếu invoiceId chưa có
-        return order.orderNumber ?? null
+        // Tra map đã build từ /invoices
+        if (order.id != null && _orderInvoiceIdMap.has(order.id)) {
+            return _orderInvoiceIdMap.get(order.id)
+        }
+        return null
     }
 
     function openDetail(tableNum) {
@@ -132,16 +149,15 @@ export function useAdminDatBan() {
         let orderSections = []
         let firstOrderData = null
 
-        sortedEntries.forEach((entry, idx) => {
+        sortedEntries.forEach((entry) => {
             const o = entry.order
             if (!firstOrderData) firstOrderData = o
 
             if (o.items && o.items.length) {
-                const invoiceNum = resolveInvoiceLabel(o)
+                const invoiceId = resolveInvoiceId(o)
                 orderSections.push({
                     orderId: o.id,
-                    // invoiceNum là số nguyên, format HD_xx khi hiển thị
-                    orderNumber: invoiceNum,
+                    orderNumber: invoiceId,   // invoiceId thật từ DB → HD_13
                     items: o.items.map(item => ({ ...item })),
                     _cachedAt: entry._cachedAt,
                 })
@@ -149,19 +165,17 @@ export function useAdminDatBan() {
         })
 
         if (!orderSections.length && latestOrder.items?.length) {
-            const invoiceNum = resolveInvoiceLabel(latestOrder)
+            const invoiceId = resolveInvoiceId(latestOrder)
             orderSections = [{
                 orderId: latestOrder.id,
-                orderNumber: invoiceNum,
+                orderNumber: invoiceId,
                 items: [...latestOrder.items],
                 _cachedAt: Date.now(),
             }]
         }
 
         const baseOrder = firstOrderData || latestOrder
-
-        // orderNumber trên selectedOrder: số nguyên invoiceId từ latestOrder
-        const latestInvoiceNum = resolveInvoiceLabel(latestOrder)
+        const latestInvoiceId = resolveInvoiceId(latestOrder)
 
         selectedOrder.value = {
             ...latestOrder,
@@ -170,7 +184,7 @@ export function useAdminDatBan() {
             anonCode: baseOrder.anonCode || latestOrder.anonCode || '',
             receiverName: baseOrder.receiverName || latestOrder.receiverName || '',
             receiverPhone: baseOrder.receiverPhone || latestOrder.receiverPhone || '',
-            orderNumber: latestInvoiceNum,
+            orderNumber: latestInvoiceId,   // invoiceId thật
             items: orderSections.flatMap(s => s.items),
             orderSections: orderSections,
         }
