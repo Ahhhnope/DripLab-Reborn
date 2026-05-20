@@ -28,86 +28,88 @@
     </div>
 
     <!-- ══════════ TABLE ══════════ -->
-    <table>
-      <colgroup>
-        <col style="width:36px">
-        <col style="width:44px">
-        <col style="width:100px">
-        <col style="width:130px">
-        <col style="width:82px">
-        <col style="width:76px">
-        <col style="width:55px">
-        <col style="width:110px">
-        <col style="width:95px">
-        <col style="width:100px">
-        <col style="width:100px">
-        <col style="width:90px">
-        <col style="width:130px">
-      </colgroup>
+    <div class="table-wrapper">
+      <table>
+        <colgroup>
+          <col style="width:36px">
+          <col style="width:44px">
+          <col style="width:100px">
+          <col style="width:130px">
+          <col style="width:82px">
+          <col style="width:76px">
+          <col style="width:55px">
+          <col style="width:110px">
+          <col style="width:95px">
+          <col style="width:100px">
+          <col style="width:100px">
+          <col style="width:90px">
+          <col style="width:130px">
+        </colgroup>
 
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Mã</th>
-          <th>Tên</th>
-          <th>Loại</th>
-          <th>Giá trị</th>
-          <th>SL</th>
-          <th>Đơn tối thiểu</th>
-          <th>Hiện ở</th>
-          <th>Điểm đổi</th>
-          <th>Ngày bắt đầu</th>
-          <th>Ngày kết thúc</th>
-          <th>Trạng thái</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Mã</th>
+            <th>Tên</th>
+            <th>Loại</th>
+            <th>Giá trị</th>
+            <th>SL</th>
+            <th>Đơn tối thiểu</th>
+            <th>Hiện ở</th>
+            <th>Điểm đổi</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
-          <td>{{ (currentPage - 1) * 8 + i + 1 }}</td>
-          <td>{{ v.code }}</td>
-          <td>{{ v.name }}</td>
-          <td>{{ v.type }}</td>
-          <td>{{ v.value }}</td>
-          <td>{{ v.quantity }}</td>
-          <td>
-            {{ v.minOrderValue > 0
-                ? (+v.minOrderValue).toLocaleString('vi-VN') + 'đ'
-                : '—' }}
-          </td>
-          <td>
-            <span :class="['location-badge',
-              v.displayLocation === 'trên web' ? 'web' : 'reward']">
-              {{ v.displayLocation }}
-            </span>
-          </td>
-          <td>
-            <span v-if="v.displayLocation == 'đổi thưởng'" placeholder="0">{{ v.pointCost }}</span>
-          </td>
-          <td>{{ v.start }}</td>
-          <td>{{ v.end }}</td>
-          <td>
-            <span :class="['status-badge',
-              v.status === 'HOẠT ĐỘNG' ? 'active' : 'expired']">
-              {{ v.status }}
-            </span>
-          </td>
-          <td>
-            <div class="action-buttons">
-              <button class="edit-btn"   @click="editVoucher(v)">Sửa</button>
-              <button class="delete-btn" @click="deleteVoucher(v.id)">Xóa</button>
-            </div>
-          </td>
-        </tr>
+        <tbody>
+          <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
+            <td>{{ (currentPage - 1) * 8 + i + 1 }}</td>
+            <td>{{ v.code }}</td>
+            <td>{{ v.name }}</td>
+            <td>{{ v.type }}</td>
+            <td>{{ v.value }}</td>
+            <td>{{ v.quantity }}</td>
+            <td>
+              {{ v.minOrderValue > 0
+                  ? (+v.minOrderValue).toLocaleString('vi-VN') + 'đ'
+                  : '—' }}
+            </td>
+            <td>
+              <span :class="['location-badge',
+                v.displayLocation === 'trên web' ? 'web' : 'reward']">
+                {{ v.displayLocation }}
+              </span>
+            </td>
+            <td>
+              <span v-if="v.displayLocation == 'đổi thưởng'" placeholder="0">{{ v.pointCost }}</span>
+            </td>
+            <td>{{ v.start }}</td>
+            <td>{{ v.end }}</td>
+            <td>
+              <span :class="['status-badge',
+                v.status === 'HOẠT ĐỘNG' ? 'active' : 'expired']">
+                {{ v.status }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="edit-btn"   @click="editVoucher(v)">Sửa</button>
+                <button class="delete-btn" @click="deleteVoucher(v.id)">Xóa</button>
+              </div>
+            </td>
+          </tr>
 
-        <!-- Dòng trống giữ chiều cao bảng -->
-        <tr v-for="n in (8 - paginatedVouchers.length)"
-            :key="'e' + n" class="empty-row">
-          <td v-for="c in 13" :key="c"></td>
-        </tr>
-      </tbody>
-    </table>
+          <!-- Dòng trống giữ chiều cao bảng -->
+          <tr v-for="n in (8 - paginatedVouchers.length)"
+              :key="'e' + n" class="empty-row">
+            <td v-for="c in 13" :key="c"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- ══════════ PAGINATION ══════════ -->
     <div class="pagination">
