@@ -5,8 +5,8 @@
 
       <!-- Điểm danh hàng ngày -->
       <div class="daily-login-box">
-        <h2 class="daily-title">Đăng Nhập Mỗi Ngày Nhận Xu</h2>
-        <p class="daily-subtitle">Mỗi ngày đăng nhập nhận 100 xu, đăng nhập Ngày 7 nhận 500 xu.</p>
+        <h2 class="daily-title">Đăng Nhập Mỗi Ngày Nhận Điểm</h2>
+        <p class="daily-subtitle">Mỗi ngày đăng nhập nhận 100 điểm, đăng nhập Ngày 7 nhận 500 điểm.</p>
 
         <div class="daily-content">
           <div class="days-6-grid">
@@ -32,7 +32,7 @@
               <img :src="coinImg" class="coin-img-big" :class="{ 'coin-dim': !isDayUnlocked(7) }" />
               <span v-if="!isDayUnlocked(7)" class="lock-icon lock-icon-big">🔒</span>
             </div>
-            <div class="day-7-reward">500 xu</div>
+            <div class="day-7-reward">500 Điểm</div>
             <button class="day-btn" :class="{ claimed: claimedDays.includes(7), locked: !isDayUnlocked(7) }"
               @click="handleClaimDay(7)" :disabled="claimedDays.includes(7) || !isDayUnlocked(7)">
               {{ claimedDays.includes(7) ? 'Đã Nhận' : isDayUnlocked(7) ? 'Nhận' : 'Chưa Tới' }}
@@ -159,7 +159,7 @@ const { promos, isSaved, savePromo, fmtValue, toast } = useUserVoucher()
 function handleClaimDay(day) {
   const auth = useAuthStore()
   if (!auth.user) {
-    authModal.value = { show: true, action: 'nhận xu hàng ngày' }
+    authModal.value = { show: true, action: 'nhận điểm hàng ngày' }
     return
   }
   claimDay(day)
