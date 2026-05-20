@@ -6,9 +6,9 @@
           <!-- HEADER -->
           <div class="modal-header">
             <div class="modal-header__left">
-              <span class="modal-order-code">#{{ props.order?.code || "-" }}</span>
-              <span class="status-badge" :class="`status-badge--${props.order?.status}`">
-                {{ statusText(props.order?.status) }}
+              <span class="modal-order-code">#{{ localOrder?.code || "-" }}</span>
+              <span class="status-badge" :class="`status-badge--${localOrder?.status}`">
+                {{ statusText(localOrder?.status) }}
               </span>
             </div>
             <button class="modal-close-btn" @click="close">
@@ -42,7 +42,7 @@
             </div>
 
             <!-- Content -->
-            <div v-else-if="props.order" class="modal-content">
+            <div v-else-if="localOrder" class="modal-content">
               <!-- TIMELINE TRẠNG THÁI -->
               <div class="status-timeline">
                 <div class="status-timeline__title">Trạng thái đơn hàng hiện tại</div>
@@ -100,14 +100,14 @@
               </div>
 
               <!-- BANNER LÝ DO HUỶ ĐƠN -->
-              <div v-if="props.order.status === 'cancelled' && props.order.cancelReason" class="cancel-reason-banner">
+              <div v-if="localOrder.status === 'cancelled' && localOrder.cancelReason" class="cancel-reason-banner">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   class="cancel-reason-banner__icon">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                 </svg>
                 <span>
-                  <strong>Đơn hàng đã bị huỷ</strong> — {{ props.order.cancelReason }}
+                  <strong>Đơn hàng đã bị huỷ</strong> — {{ localOrder.cancelReason }}
                 </span>
               </div>
 
@@ -118,23 +118,23 @@
                   <!-- Thông tin khách hàng -->
                   <section class="info-section">
                     <div class="section-header">
-                      <div class="avatar">{{ initials(props.order.user?.fullName) }}</div>
+                      <div class="avatar">{{ initials(localOrder.user?.fullName) }}</div>
                       <span class="section-title">Thông tin khách hàng</span>
                     </div>
                     <div class="info-card">
                       <div class="info-row">
                         <span class="info-label">Họ và tên</span>
-                        <span class="info-value info-value--bold">{{ props.order.user?.fullName || "-" }}</span>
+                        <span class="info-value info-value--bold">{{ localOrder.user?.fullName || "-" }}</span>
                       </div>
                       <div class="info-row">
                         <span class="info-label">Số điện thoại</span>
-                        <a v-if="props.order.user?.phone" :href="`tel:${props.order.user.phone}`"
-                          class="info-value info-value--link">{{ props.order.user.phone }}</a>
+                        <a v-if="localOrder.user?.phone" :href="`tel:${localOrder.user.phone}`"
+                          class="info-value info-value--link">{{ localOrder.user.phone }}</a>
                         <span v-else class="info-value info-value--empty">-</span>
                       </div>
                       <div class="info-row info-row--align-start">
                         <span class="info-label">Địa chỉ</span>
-                        <span class="info-value">{{ props.order.user?.address || "-" }}</span>
+                        <span class="info-value">{{ localOrder.user?.address || "-" }}</span>
                       </div>
                     </div>
                   </section>
@@ -152,15 +152,15 @@
                     <div class="info-card">
                       <div class="info-row">
                         <span class="info-label">Hình thức</span>
-                        <span class="info-value info-value--bold">{{ props.order.shippingType || "-" }}</span>
+                        <span class="info-value info-value--bold">{{ localOrder.shippingType || "-" }}</span>
                       </div>
                       <div class="info-row">
                         <span class="info-label">Thời gian đặt</span>
-                        <span class="info-value">{{ props.order.createdAt || "-" }}</span>
+                        <span class="info-value">{{ localOrder.createdAt || "-" }}</span>
                       </div>
                       <div class="info-row">
                         <span class="info-label">Ngày giao</span>
-                        <span class="info-value">{{ props.order.deadline || "-" }}</span>
+                        <span class="info-value">{{ localOrder.deadline || "-" }}</span>
                       </div>
                     </div>
                   </section>
@@ -176,7 +176,7 @@
                       <span class="section-title">Ghi chú</span>
                     </div>
                     <div class="info-card">
-                      <p v-if="props.order.note" class="note-text">{{ props.order.note }}</p>
+                      <p v-if="localOrder.note" class="note-text">{{ localOrder.note }}</p>
                       <p v-else class="note-text info-value--empty">Không có ghi chú</p>
                     </div>
                   </section>
@@ -192,14 +192,14 @@
                         </svg>
                         <span class="section-title">Chi tiết món</span>
                       </div>
-                      <span class="qty-badge">{{ props.order.qty }} món</span>
+                      <span class="qty-badge">{{ localOrder.qty }} món</span>
                     </div>
 
-                    <div v-for="it in props.order.itemsDetail || []" :key="it.id" class="item-row">
+                    <div v-for="it in localOrder.itemsDetail || []" :key="it.id" class="item-row">
                       <div class="item-info">
                         <p class="item-name">{{ it.name }}</p>
 
-                        <!-- Size + Toppings (giữ nguyên) -->
+                        <!-- Size + Toppings -->
                         <div v-if="it.options?.length" class="item-options">
                           <span v-for="(op, idx) in it.options" :key="'opt-' + idx" class="option-tag">{{ op }}</span>
                         </div>
@@ -213,8 +213,7 @@
 
                         <!-- Đá / Đường -->
                         <div v-if="it.ice != null || it.sugar != null" class="item-options item-options--specs">
-                          <span v-if="it.sugar != null" class="option-tag option-tag--sugar">Đường {{ it.sugar
-                            }}%</span>
+                          <span v-if="it.sugar != null" class="option-tag option-tag--sugar">Đường {{ it.sugar }}%</span>
                           <span v-if="it.ice != null" class="option-tag option-tag--ice">Đá {{ it.ice }}%</span>
                         </div>
                       </div>
@@ -230,27 +229,27 @@
                     <span class="section-title" style="display: block; margin-bottom: 14px;">Thanh toán</span>
                     <div class="payment-row">
                       <span class="payment-label">Tạm tính</span>
-                      <span class="payment-value">{{ money(props.order.subtotal) }}</span>
+                      <span class="payment-value">{{ money(localOrder.subtotal) }}</span>
                     </div>
                     <div class="payment-row">
                       <span class="payment-label">Phí giao hàng</span>
-                      <span class="payment-value">{{ money(props.order.shippingFee ?? 0) }}</span>
+                      <span class="payment-value">{{ money(localOrder.shippingFee ?? 0) }}</span>
                     </div>
                     <div class="payment-row payment-row--discount">
                       <span>Giảm giá</span>
-                      <span>- {{ money(props.order.discount) }}</span>
+                      <span>- {{ money(localOrder.discount) }}</span>
                     </div>
                     <div class="payment-total">
                       <span>Tổng cộng</span>
-                      <span class="payment-total__amount">{{ money(props.order.pay) }}</span>
+                      <span class="payment-total__amount">{{ money(localOrder.pay) }}</span>
                     </div>
                   </div>
 
                   <div class="action-group">
-                    <button class="btn btn--primary" :disabled="props.order.status !== 'pending'" @click="emitConfirm">
+                    <button class="btn btn--primary" :disabled="localOrder.status !== 'pending'" @click="emitConfirm">
                       Xác nhận đơn hàng
                     </button>
-                    <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(props.order.status)"
+                    <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(localOrder.status)"
                       @click="emitCancel">
                       Huỷ đơn
                     </button>
@@ -305,7 +304,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useOrderTable } from "../Front-End/JS/OrderTable";
 import { useOrderDetailModal } from "../Front-End/JS/OrderDetailModal";
 
@@ -318,6 +317,14 @@ const emit = defineEmits(["update:open", "confirm", "cancel", "set-status"]);
 
 const { money, statusText } = useOrderTable(() => { });
 const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, requestChangeStatus, statusSteps, getVisibleSteps } = useOrderDetailModal(props, emit, { money, statusText });
+
+// ✅ Local copy của order — cập nhật ngay khi đổi trạng thái, không chờ props
+const localOrder = ref(props.order ? { ...props.order } : null);
+
+// ✅ Sync khi props.order thay đổi từ bên ngoài (loadOrders xong)
+watch(() => props.order, (newOrder) => {
+  if (newOrder) localOrder.value = { ...newOrder };
+}, { deep: true, immediate: true });
 
 // ── Confirm modal state ────────────────────────────
 const confirmOpen = ref(false);
@@ -361,7 +368,7 @@ const reasonOptions = computed(
 function openConfirmStatus(st) {
   if (!st) return;
   pendingStatus.value = st.key;
-  cancelReason.value = "";          // reset khi đổi trạng thái
+  cancelReason.value = "";
   confirmTitle.value = "Vui lòng xác nhận";
   confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
   confirmPrimaryText.value = "Tiếp tục";
@@ -377,15 +384,24 @@ function closeConfirm() {
 function confirmProceed() {
   if (!pendingStatus.value) return closeConfirm();
   if (requiresReason.value && !cancelReason.value.trim()) return;
+
+  // ✅ Cập nhật localOrder ngay lập tức — timeline đổi ngay không chờ server
+  localOrder.value = {
+    ...localOrder.value,
+    status: pendingStatus.value,
+    ...(pendingStatus.value === 'delivery_failed' && { failReason: cancelReason.value.trim() }),
+    ...(pendingStatus.value === 'cancelled' && { cancelReason: cancelReason.value.trim() }),
+  };
+
   requestChangeStatus(pendingStatus.value, cancelReason.value.trim() || null);
   closeConfirm();
 }
 
 // ── Computed ───────────────────────────────────────
-const visibleSteps = computed(() => getVisibleSteps(props.order?.status));
+const visibleSteps = computed(() => getVisibleSteps(localOrder.value?.status));
 
 const currentStatusIndex = computed(() => {
-  const s = props.order?.status;
+  const s = localOrder.value?.status;
   return visibleSteps.value.findIndex((x) => x.key === s);
 });
 
