@@ -48,9 +48,9 @@
 
           <div class="point-summary">
             <div class="metric-card">
-              <p class="metric-label">Tổng điểm</p>
+              <p class="metric-label">Tổng điểm khả dụng</p>
               <p class="metric-value">
-                {{ myPoints.toLocaleString("vi-VN") }}
+                {{ spendable.toLocaleString("vi-VN") }}
                 <span class="metric-unit">điểm</span>
               </p>
             </div>
@@ -110,7 +110,7 @@
 
           <p class="section-sub">
             Bạn đang có
-            <strong>{{ myPoints.toLocaleString("vi-VN") }} điểm</strong>
+            <strong>{{ spendable.toLocaleString("vi-VN") }} điểm khả dụng</strong>
             — chọn voucher để đổi ngay
           </p>
 
@@ -326,6 +326,7 @@ const {
   currentRoute,
   myPromos,
   myPoints,
+  spendable,
   usedPoints,
   nextTierPoints,
   currentTier,
