@@ -103,12 +103,14 @@ export function useUserPoints() {
     }
   }
 
+  const myPromos = ref([])
   async function loadSavedPromos() {
     if (!userId.value) return
     try {
       const res = await api.get('/promo-codes/my-promos', {
         params: { userId: userId.value }
       })
+      myPromos.value = res.data
       savedPromoIds.value = res.data.map(v => v.id)
     } catch (e) {
       console.error('Không thể tải kho mã:', e)
@@ -231,10 +233,6 @@ export function useUserPoints() {
       loadHistory(),
     ])
   }
-
-  const myPromos = computed(() =>
-  vouchers.value.filter(v => savedPromoIds.value.includes(v.id))
-)
 
   const timer = null
   onMounted(() => {

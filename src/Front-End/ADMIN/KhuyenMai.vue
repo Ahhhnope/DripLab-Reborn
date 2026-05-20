@@ -55,6 +55,7 @@
           <th>SL</th>
           <th>Đơn tối thiểu</th>
           <th>Hiện ở</th>
+          <th>Điểm đổi</th>
           <th>Ngày bắt đầu</th>
           <th>Ngày kết thúc</th>
           <th>Trạng thái</th>
@@ -80,6 +81,9 @@
               v.displayLocation === 'trên web' ? 'web' : 'reward']">
               {{ v.displayLocation }}
             </span>
+          </td>
+          <td>
+            <span v-if="v.displayLocation == 'đổi thưởng'" placeholder="0">{{ v.pointCost }}</span>
           </td>
           <td>{{ v.start }}</td>
           <td>{{ v.end }}</td>
@@ -170,6 +174,12 @@
               <option value="trên web">Trên web</option>
               <option value="đổi thưởng">Đổi thưởng</option>
             </select>
+          </div>
+
+          <div class="form-group" v-if="addForm.displayLocation == 'đổi thưởng'">
+            <label>Số điểm cần để đổi</label>
+            <input v-model="addForm.pointCost" type="number" min="0"
+                   placeholder="số điểm cần để đổi" />
           </div>
 
           <div class="form-group">

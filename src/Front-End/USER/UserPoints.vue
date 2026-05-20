@@ -130,8 +130,9 @@
               <span :class="['voucher-tag', tagColor(v)]">
                 {{ v.category === "PHẦN TRĂM" ? "Giảm %" : "Giảm tiền" }}
               </span>
-              <span class="voucher-remain">Còn {{ v.quantity }} mã</span>
+
               <p class="voucher-name">{{ v.name }}</p>
+
               <p class="voucher-desc">
                 Mã: <strong>{{ v.code }}</strong>
                 <template v-if="v.minOrderValue > 0">
@@ -152,7 +153,7 @@
                 >
                   <template v-if="isAlreadySaved(v.id)">✓ Đã đổi</template>
                   <template v-else-if="v.quantity <= 0">Hết mã</template>
-                  <template v-else-if="canRedeem(v)">Đổi ngay</template>
+                  <template v-else-if="canRedeem(v)">Đổi ngay ({{ v.pointCost }} điểm)</template>
                   <template v-else>Không đủ điều kiện</template>
                 </button>
               </div>
