@@ -48,7 +48,7 @@
 
           <div class="point-summary">
             <div class="metric-card">
-              <p class="metric-label">Điểm hiện có</p>
+              <p class="metric-label">Tổng điểm</p>
               <p class="metric-value">
                 {{ myPoints.toLocaleString("vi-VN") }}
                 <span class="metric-unit">điểm</span>

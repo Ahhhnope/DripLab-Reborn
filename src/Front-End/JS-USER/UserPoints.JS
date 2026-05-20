@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { sharedUser } from './Useruser.JS'
 import api from '../../api/axios'
@@ -160,6 +160,11 @@ export function useUserPoints() {
         pts:  0,  // thay bằng voucher.pointCost khi có field đó
       })
 
+      savedPromoIds.value = [...savedPromoIds.value, voucher.id]
+      myPromos.value      = [...myPromos.value, voucher]
+
+      await loadPoints()
+
       showToast(`Đổi thành công: ${voucher.name}!`, 'success')
     } catch (e) {
       showToast(e.response?.data?.message || 'Lỗi khi đổi voucher', 'error')
@@ -239,6 +244,11 @@ export function useUserPoints() {
     initPage()
     loadTiers()
     console.log(TIERS)
+
+  })
+
+  onUnmounted(() => {
+    if (timer) clearInterval(timer)
   })
 
   return {
