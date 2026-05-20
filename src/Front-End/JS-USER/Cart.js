@@ -109,7 +109,7 @@ export default {
       return this.selectedItems.reduce((s, i) => s + i.basePrice * i.quantity, 0)
     },
 
-    // ✅ Tính phí giao hàng theo km lấy từ sessionStorage
+    // Tính phí giao hàng theo km lấy từ sessionStorage
     shippingFee() {
       if (!this.selectedItems.length) return 0
       const distanceKmStr = sessionStorage.getItem('selectedStoreDistanceKm')
@@ -331,6 +331,7 @@ export default {
           `/carts/user/${this.authStore.user.id}/checkout-selected`,
           {
             cartItemIds: selectedCartItemIds,
+            shippingFee: this.shippingFee,
             promoCode: this.couponCode,
             note: this.orderNote
               ? (this.couponApplied ? `Online Order - Note: "${this.orderNote}" - Coupon: ${this.couponCode}` : `Online Order - Note:"${this.orderNote}"`)

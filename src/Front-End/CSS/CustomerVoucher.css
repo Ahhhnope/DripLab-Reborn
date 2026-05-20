@@ -67,13 +67,40 @@
     color: white;
 }
 
+/* ── Wrapper bảng (scroll ngang) ── */
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+}
+
+/* Tùy chỉnh thanh scroll ngang */
+.table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 /* ── Bảng ── */
 table {
     width: 100%;
+    min-width: 1100px;
     border-collapse: collapse;
     background: white;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 thead th,
@@ -187,7 +214,9 @@ tbody tr:hover {
     font-size: 12px;
 }
 
-.edit-btn:hover { background: #2563eb; }
+.edit-btn:hover {
+    background: #2563eb;
+}
 
 .delete-btn {
     background: #ef4444;
@@ -199,7 +228,9 @@ tbody tr:hover {
     font-size: 12px;
 }
 
-.delete-btn:hover { background: #dc2626; }
+.delete-btn:hover {
+    background: #dc2626;
+}
 
 /* ── Modal overlay ── */
 .modal-overlay {
@@ -283,7 +314,9 @@ tbody tr:hover {
     font-weight: 600;
 }
 
-.save-btn:hover { background: #357abd; }
+.save-btn:hover {
+    background: #357abd;
+}
 
 .cancel-btn {
     background: #e0e0e0;
@@ -295,7 +328,9 @@ tbody tr:hover {
     font-weight: 600;
 }
 
-.cancel-btn:hover { background: #c8c8c8; }
+.cancel-btn:hover {
+    background: #c8c8c8;
+}
 
 /* ── Toast ── */
 .toast-notification {
@@ -320,5 +355,10 @@ tbody tr:hover {
     transform: translateY(0);
 }
 
-.toast-notification.success { background: #22c55e; }
-.toast-notification.error   { background: #ef4444; }
+.toast-notification.success {
+    background: #22c55e;
+}
+
+.toast-notification.error {
+    background: #ef4444;
+}

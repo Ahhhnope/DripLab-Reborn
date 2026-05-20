@@ -28,40 +28,41 @@
     </div>
 
     <!-- ══════════ TABLE ══════════ -->
-    <table>
-      <colgroup>
-        <col style="width:36px">
-        <col style="width:44px">
-        <col style="width:100px">
-        <col style="width:130px">
-        <col style="width:82px">
-        <col style="width:76px">
-        <col style="width:55px">
-        <col style="width:110px">
-        <col style="width:95px">
-        <col style="width:100px">
-        <col style="width:100px">
-        <col style="width:90px">
-        <col style="width:130px">
-      </colgroup>
+    <div class="table-wrapper">
+      <table>
+        <colgroup>
+          <col style="width:36px">
+          <col style="width:44px">
+          <col style="width:100px">
+          <col style="width:130px">
+          <col style="width:82px">
+          <col style="width:76px">
+          <col style="width:55px">
+          <col style="width:110px">
+          <col style="width:95px">
+          <col style="width:100px">
+          <col style="width:100px">
+          <col style="width:90px">
+          <col style="width:130px">
+        </colgroup>
 
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th>Mã</th>
-          <th>Tên</th>
-          <th>Loại</th>
-          <th>Giá trị</th>
-          <th>SL</th>
-          <th>Đơn tối thiểu</th>
-          <th>Hiện ở</th>
-          <th>Điểm đổi</th>
-          <th>Ngày bắt đầu</th>
-          <th>Ngày kết thúc</th>
-          <th>Trạng thái</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Mã</th>
+            <th>Tên</th>
+            <th>Loại</th>
+            <th>Giá trị</th>
+            <th>SL</th>
+            <th>Đơn tối thiểu</th>
+            <th>Hiện ở</th>
+            <th>Điểm đổi</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
 
       <tbody>
         <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
@@ -102,13 +103,14 @@
           </td>
         </tr>
 
-        <!-- Dòng trống giữ chiều cao bảng -->
-        <tr v-for="n in (8 - paginatedVouchers.length)"
-            :key="'e' + n" class="empty-row">
-          <td v-for="c in 13" :key="c"></td>
-        </tr>
-      </tbody>
-    </table>
+          <!-- Dòng trống giữ chiều cao bảng -->
+          <tr v-for="n in (8 - paginatedVouchers.length)"
+              :key="'e' + n" class="empty-row">
+            <td v-for="c in 13" :key="c"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- ══════════ PAGINATION ══════════ -->
     <div class="pagination">
