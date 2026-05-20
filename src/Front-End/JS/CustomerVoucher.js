@@ -22,7 +22,7 @@ function format(v) {
         pointCost:       v.pointCost ?? 0,
         start:           v.startDate?.split('T')[0] ?? '',
         end:             v.endDate?.split('T')[0]   ?? '',
-        status:          expired ? 'HẾT HẠN' : 'HOẠT ĐỘNG'
+        status:          expired ? 'TẮT / HẾT HẠN' : 'HOẠT ĐỘNG'
     }
 }
 
@@ -214,6 +214,19 @@ export default {
             } catch (e) {
                 this.showToast('Lỗi: ' + (e.response?.data?.message || e.message), 'error')
             }
+        },
+
+        async switchStatusVoucher(id) {
+            if (!confirm('Tắt voucher này?')) return
+            try {
+                await api.put(API + '/switch-status/' + id)
+                await this.loadVouchers()
+                if (this.currentPage > this.totalPages) this.currentPage = this.totalPages
+                this.showToast('Đã đổi trạng thái voucher!', 'success')
+            } catch (e) {
+                this.showToast('Lỗi bật / tắt voucher: ' + (e.response?.data?.message || e.message), 'error')
+            }
+
         },
 
         // ── Pagination ──────────────────────────────────────────

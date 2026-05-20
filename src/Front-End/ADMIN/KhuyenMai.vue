@@ -96,7 +96,8 @@
           <td>
             <div class="action-buttons">
               <button class="edit-btn"   @click="editVoucher(v)">Sửa</button>
-              <button class="delete-btn" @click="deleteVoucher(v.id)">Xóa</button>
+              <button class="delete-btn" v-if="v.status" @click="switchStatusVoucher(v.id)">Tắt</button>
+              <button class="delete-btn" v-if="!v.status" @click="switchStatusVouchers(v.id)">Bật</button>
             </div>
           </td>
         </tr>
