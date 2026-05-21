@@ -19,7 +19,7 @@
           <th style="width: 70px">ID</th>
           <th>Tên nhân viên</th>
           <th>Tài khoản</th>
-          <th>Mật khẩu</th>
+          <th>SDT</th>
           <th>Role</th>
           <th style="width: 130px">Hành động</th>
         </tr>
@@ -29,18 +29,16 @@
           <td>{{ index + 1 }}</td>
           <td><span class="badge-id">{{ emp.id }}</span></td>
           <td>{{ emp.fullName }}</td>
-          <td>{{ emp.account }}</td>
+          <td>{{ emp.phone }}</td>
           <td>••••••••</td>
           <td>
             <span
               class="badge-role"
               :class="{
                 admin: emp.role === 'ADMIN',
-                manager: emp.role === 'MANAGER',
-                staff: emp.role === 'STAFF' || !emp.role
-              }"
-            >
-              {{ emp.role || 'STAFF' }}
+                staff: emp.role === 'EMPLOYEE' || !emp.role
+              }">
+              {{ emp.role || 'idk' }}
             </span>
           </td>
           <td>
