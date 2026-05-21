@@ -50,9 +50,13 @@ async function saveCustomer() {
     const res = await api.post('/users/add', {
       fullName: form.value.fullName,
       email: form.value.email,
-      password: form.value.password,
       phone: form.value.phone,
-      defaultAddress: form.value.address,
+      password: form.value.password,
+      defaultAddress: form.value.defaultAddress,
+      loyaltyPoint: 0,
+      tier: {id: 1},
+      usedPoint: 0,
+      avatar: '/IMG/lel.png',
       role: 'USER'
     })
     

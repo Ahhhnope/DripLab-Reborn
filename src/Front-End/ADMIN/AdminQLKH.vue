@@ -58,7 +58,7 @@
           </div>
           <div class="form-group full">
             <label>Email / Tài khoản</label>
-            <input v-model="form.account" placeholder="example@gmail.com" />
+            <input v-model="form.email" placeholder="example@gmail.com" />
           </div>
           <div class="form-group full">
             <label>Mật khẩu</label>
@@ -70,7 +70,7 @@
           </div>
           <div class="form-group">
             <label>Địa chỉ</label>
-            <input v-model="form.address" />
+            <input v-model="form.defaultAddress" />
           </div>
         </div>
         <div class="popup-actions">
