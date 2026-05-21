@@ -115,7 +115,8 @@
                     <div v-if="item.beanName" class="preview-detail-row">
                       <span class="preview-detail-icon">-</span>
                       <span class="preview-detail-label">{{ item.beanName }}</span>
-                      <span class="preview-detail-price free">+0 đ</span>
+                    <span class="preview-detail-price" v-if="item.beanPrice > 0">+{{ formatVND(item.beanPrice) }}</span>
+                      <span class="preview-detail-price free" v-else>+0 đ</span>
                     </div>
                     <div v-if="item.baseName" class="preview-detail-row">
                       <span class="preview-detail-icon">-</span>
@@ -125,7 +126,8 @@
                     <div v-if="item.milkName" class="preview-detail-row">
                       <span class="preview-detail-icon">-</span>
                       <span class="preview-detail-label">{{ item.milkName }}</span>
-                      <span class="preview-detail-price free">+0 đ</span>
+                    <span class="preview-detail-price" v-if="item.milkPrice > 0">+{{ formatVND(item.milkPrice) }}</span>
+                      <span class="preview-detail-price free" v-else>+0 đ</span>
                     </div>
                   </template>
                   <!-- Từng topping riêng -->

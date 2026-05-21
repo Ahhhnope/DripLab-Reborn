@@ -45,11 +45,14 @@ const cartPreviewItems = computed(() =>
   cartStore.items.slice(0, 4).map(item => ({
     id: item.id,
     name: item.drink?.name || 'Sản phẩm',
-    image: getImageUrl(item.drink?.imageUrl) || '/placeholder.png',
+    image: item.isCustom ? getImageUrl(item.imageUrl) : (getImageUrl(item.drink?.imageUrl) || '/placeholder.png'),
     price:
-      (item.drink?.basePrice || 0) +
-      (item.size?.price || 0) +
-      (item.toppings?.reduce((s, t) => s + (t.topping?.price || 0), 0) || 0),
+          (item.drink?.basePrice || 0) +
+          (item.size?.price || 0) +
+          (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0) +
+          (item.isCustom ? (item.base?.price || 0) : 0) +
+          (item.isCustom ? (item.coffeeBean?.price || 0) : 0) +
+          (item.isCustom ? (item.milk?.price || 0) : 0),
     quantity: item.quantity || 1,
     sizeName: item.size?.name || '',
   }))

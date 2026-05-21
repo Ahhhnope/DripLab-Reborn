@@ -89,16 +89,21 @@ export default {
         basePrice:
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
-          (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0),
+          (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0) +
+          (item.isCustom ? (item.base?.price || 0) : 0) +
+          (item.isCustom ? (item.coffeeBean?.price || 0) : 0) +
+          (item.isCustom ? (item.milk?.price || 0) : 0),
         quantity: item.quantity,
         sugar: item.sugar || '100',
         ice: item.ice || '100',
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
 
         isCustom: item.isCustom || false,
-        beanName: item.coffeeBean?.name || null,
         baseName: item.base || null,
+        beanName: item.coffeeBean?.name || null,
+        beanPrice: item.coffeeBean?.price || 0,
         milkName: item.milk?.name || null,
+        milkPrice: item.milk?.price || 0
       }))
     },
 

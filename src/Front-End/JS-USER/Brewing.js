@@ -56,10 +56,10 @@ export function useBrewing() {
   async function loadOptions() {
     try {
       const [beansRes, instructionsRes, milksRes, toppingsRes] = await Promise.all([
-        api.get('/ingredients/coffee-beans'),
+        api.get('/ingredients/coffee-beans/active'),
         api.get('/instructions'),           // route riêng: /api/instructions
-        api.get('/ingredients/milks'),
-        api.get('/ingredients/toppings'),
+        api.get('/ingredients/milks/active'),
+        api.get('/ingredients/toppings/active'),
       ])
 
       // Map coffee_beans → beanOptions
