@@ -6,7 +6,7 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="auth.user.avatar" alt="Ảnh đại diện" class="avatar-img" />
+            <img :src="getImageUrl(auth.user?.avatar)" alt="Ảnh đại diện" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ auth.user.fullName }}</h2>
           <p class="sidebar-role">{{ auth.user.tier?.name }}</p>
@@ -607,6 +607,11 @@ function getProgressWidth(status) {
   if (curIdx < 0) return '0%'
   const pct = Math.min(((curIdx + 0.6) / (steps.length - 1)) * 100, 100)
   return `${pct}%`
+}
+
+function getImageUrl(url) {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`;
 }
 </script>
 

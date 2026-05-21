@@ -11,7 +11,7 @@
       <aside class="sidebar">
         <div class="sidebar-profile">
           <div class="avatar-ring">
-            <img :src="user.avatar" alt="Avatar" class="avatar-img" />
+            <img :src="getImageUrl(user.avatar)" alt="Avatar" class="avatar-img" />
           </div>
           <h2 class="sidebar-name">{{ user.fullName }}</h2>
           <p class="sidebar-role">{{ user.tier?.name }}</p>
@@ -399,6 +399,10 @@ function collapseHistory() {
   historyVisible.value = HISTORY_INIT;
 }
 
+function getImageUrl(url) {
+  if (!url) return '';
+  return url.startsWith('http') ? url : `http://localhost:8080${url}`;
+}
 </script>
 
 <style scoped src="../CSS-USER/UserAccount.CSS"></style>
