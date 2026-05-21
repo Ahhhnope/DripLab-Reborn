@@ -5,6 +5,7 @@
   color: #1f2937;
   background: #f8fafc;
   min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* HEADER */
@@ -57,6 +58,7 @@
   color: #374151;
   flex: 1;
   min-width: 200px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .filter input:focus {
@@ -72,6 +74,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .filter .btn-filter:hover { background: #ea6c0a; }
@@ -84,6 +87,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .filter .btn-reset:hover { background: #d1d5db; }
@@ -120,6 +124,41 @@ tbody tr:last-child td { border-bottom: none; }
 
 tbody tr:hover { background: #fafbff; }
 
+/* BADGE ID */
+.badge-id {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ROLE BADGE */
+.badge-role {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.badge-role.admin {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-role.staff {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.badge-role.manager {
+  background: #fef9c3;
+  color: #a16207;
+}
+
 /* ACTION BUTTONS */
 .action-buttons {
   display: flex;
@@ -136,6 +175,10 @@ tbody tr:hover { background: #fafbff; }
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .edit-btn:hover { background: #2563eb; }
@@ -144,11 +187,15 @@ tbody tr:hover { background: #fafbff; }
   background: #ef4444;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .delete-btn:hover { background: #dc2626; }
@@ -168,9 +215,10 @@ tbody tr:hover { background: #fafbff; }
 .popup {
   background: #fff;
   padding: 28px 32px;
-  width: 420px;
+  width: 440px;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .popup-header {
@@ -211,24 +259,49 @@ tbody tr:hover { background: #fafbff; }
   color: #374151;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   padding: 8px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #374151;
+  background: #fff;
 }
 
-.form-group input:focus { border-color: #3b82f6; }
+.form-group input:focus,
+.form-group select:focus { border-color: #3b82f6; }
+
+.form-group input:disabled {
+  background: #f9fafb;
+  color: #9ca3af;
+}
 
 .popup-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-top: 20px;
   padding-top: 14px;
   border-top: 1px solid #e5e7eb;
 }
+
+.cancel-btn {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  padding: 9px 18px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.cancel-btn:hover { background: #d1d5db; }
 
 .save-btn {
   background: #22c55e;
@@ -239,6 +312,7 @@ tbody tr:hover { background: #fafbff; }
   border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .save-btn:hover { background: #16a34a; }

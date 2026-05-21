@@ -6,11 +6,11 @@ const filteredEmployees = ref([])
 
 const search = ref("")
 
-const showPopup   = ref(false)
+const showPopup    = ref(false)
 const currentIndex = ref(null)
-const isEditing   = ref(false)
+const isEditing    = ref(false)
 
-const form = ref({ fullName: "", account: "", password: "", newPassword: "" })
+const form = ref({ fullName: "", account: "", password: "", newPassword: "", role: "STAFF" })
 
 // ── Load data ──
 async function loadEmployees() {
@@ -27,8 +27,8 @@ async function loadEmployees() {
 function filterEmployee() {
   const q = search.value.toLowerCase()
   filteredEmployees.value = employees.value.filter(emp =>
-    emp.name.toLowerCase().includes(q) ||
-    emp.username.toLowerCase().includes(q)
+    emp.fullName?.toLowerCase().includes(q) ||
+    emp.account?.toLowerCase().includes(q)
   )
 }
 
@@ -49,7 +49,7 @@ function syncFiltered() {
 function openAdd() {
   isEditing.value    = false
   currentIndex.value = null
-  form.value         = { fullName: "", account: "", password: "", newPassword: "" }
+  form.value         = { fullName: "", account: "", password: "", newPassword: "", role: "STAFF" }
   showPopup.value    = true
 }
 
@@ -57,7 +57,7 @@ function openEdit(index) {
   isEditing.value    = true
   const emp          = filteredEmployees.value[index]
   currentIndex.value = employees.value.findIndex(e => e.id === emp.id)
-  form.value         = { ...emp, newPassword: "" }
+  form.value         = { ...emp, newPassword: "", role: emp.role || "STAFF" }
   showPopup.value    = true
 }
 
@@ -69,24 +69,22 @@ async function saveEmployee() {
       const id = employees.value[currentIndex.value].id
       const payload = {
         fullName: form.value.fullName,
-        account: form.value.account,
-        // Only send new password if it was typed
-        password: form.value.newPassword || form.value.password 
+        account:  form.value.account,
+        password: form.value.newPassword || form.value.password,
+        role:     form.value.role,
       }
-      
       await api.put(`/workers/update/${id}`, payload)
     } else {
-      const res = await api.post('/workers/add', {
+      await api.post('/workers/add', {
         fullName: form.value.fullName,
-        account: form.value.account,
-        password: form.value.password
+        account:  form.value.account,
+        password: form.value.password,
+        role:     form.value.role,
       })
-      // The backend returns the newly created object with its SQL ID
-      employees.value.push(res.data)
     }
-    
+
     showPopup.value = false
-    await loadEmployees() // Refresh to ensure data integrity
+    await loadEmployees()
     syncFiltered()
   } catch (err) {
     console.error("Save failed:", err)
@@ -105,6 +103,7 @@ async function deleteEmployee(index) {
     }
   }
 }
+
 export default function useEmployee() {
   return {
     employees,
@@ -120,6 +119,6 @@ export default function useEmployee() {
     showPopup,
     form,
     closePopup,
-    saveEmployee
+    saveEmployee,
   }
 }
