@@ -377,7 +377,7 @@
               <div class="rpc-top">
                 <span class="rpc-name">{{ item.name }}</span>
                 <div class="rpc-meta-row">
-                  <span class="rpc-size-badge">Size: {{ item.sizeLabel }}</span>
+                  <span class="rpc-size-badge">Size: {{ item.sizeLabel ?? item.size}}</span>
                   <span class="rpc-qty-badge">SL: {{ item.qty }}</span>
                 </div>
                 <button class="rpc-remove" @click="removeItem(index, item.cartItemId)" title="Xóa">✕</button>
@@ -709,7 +709,7 @@
           <p class="review-section-title">Sản Phẩm Đặt</p>
           <div v-for="(item, i) in receiptData.items" :key="i" class="review-item">
             <div class="review-item-header">
-              <div class="review-item-name">{{ item.name }} ({{ item.size }}) × {{ item.qty }}</div>
+              <div class="review-item-name">{{ item.name }} ({{ item.sizeLabel }}) × {{ item.qty }}</div>
               <div class="review-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
             </div>
             <div class="review-item-meta">
@@ -818,7 +818,7 @@
                 <p class="receipt-items-title">Sản phẩm đã mua</p>
                 <div v-for="(item, i) in receiptData.items" :key="i" class="receipt-item">
                   <div class="receipt-item-header">
-                    <div class="receipt-item-name">{{ item.name }} ({{ item.sizeLabel }}) x{{ item.qty }}</div>
+                    <div class="receipt-item-name">{{ item.name }} ({{ item.size ?? item.sizeLabel }}) x{{ item.qty }}</div>
                     <div class="receipt-item-price-inline">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
                   </div>
                   

@@ -29,7 +29,7 @@
           <td>{{ index + 1 }}</td>
           <td><span class="badge-id">{{ emp.id }}</span></td>
           <td>{{ emp.fullName }}</td>
-          <td>{{ emp.phone }}</td>
+          <td>{{ emp.phone ?? "N/A" }}</td>
           <td>••••••••</td>
           <td>
             <span
@@ -74,7 +74,7 @@
         </div>
         <div class="form-group">
           <label>Tài khoản</label>
-          <input v-model="form.account" :readonly="isEditing" />
+          <input v-model="form.email" :readonly="isEditing" />
         </div>
         <div class="form-group">
           <label>{{ isEditing ? 'Mật khẩu hiện tại' : 'Mật khẩu' }}</label>
@@ -87,8 +87,7 @@
         <div class="form-group">
           <label>Role</label>
           <select v-model="form.role">
-            <option value="STAFF">STAFF</option>
-            <option value="MANAGER">MANAGER</option>
+            <option value="EMPLOYEE">EMPLOYEE</option>
             <option value="ADMIN">ADMIN</option>
           </select>
         </div>

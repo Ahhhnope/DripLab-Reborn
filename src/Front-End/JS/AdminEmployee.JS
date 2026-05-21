@@ -10,7 +10,13 @@ const showPopup    = ref(false)
 const currentIndex = ref(null)
 const isEditing    = ref(false)
 
-const form = ref({ fullName: "", account: "", password: "", newPassword: "", role: "STAFF" })
+const form = ref({
+  fullName: "",
+  email: "",
+  password: "",
+  newPassword: "",
+  role: "EMPLOYEE"
+})
 
 // ── Load data ──
 async function loadEmployees() {
@@ -28,7 +34,7 @@ function filterEmployee() {
   const q = search.value.toLowerCase()
   filteredEmployees.value = employees.value.filter(emp =>
     emp.fullName?.toLowerCase().includes(q) ||
-    emp.account?.toLowerCase().includes(q)
+    emp.email?.toLowerCase().includes(q)
   )
 }
 
@@ -68,8 +74,9 @@ async function saveEmployee() {
     if (isEditing.value) {
       const id = employees.value[currentIndex.value].id
       const payload = {
+        id: id,
         fullName: form.value.fullName,
-        account:  form.value.account,
+        email:  form.value.account,
         password: form.value.newPassword || form.value.password,
         role:     form.value.role,
       }
@@ -77,7 +84,7 @@ async function saveEmployee() {
     } else {
       await api.post('/workers/add', {
         fullName: form.value.fullName,
-        account:  form.value.account,
+        email:  form.value.account,
         password: form.value.password,
         role:     form.value.role,
       })
@@ -95,7 +102,7 @@ async function deleteEmployee(index) {
   const emp = filteredEmployees.value[index]
   if (confirm(`Bạn có chắc muốn xóa nhân viên ${emp.fullName}?`)) {
     try {
-      await api.delete(`/workers/remove/${emp.id}`)
+      await api.delete(`/users/remove/${emp.id}`)
       await loadEmployees()
       syncFiltered()
     } catch (err) {
