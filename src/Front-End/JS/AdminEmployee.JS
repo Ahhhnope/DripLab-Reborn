@@ -15,7 +15,7 @@ const form = ref({ fullName: "", account: "", password: "", newPassword: "", rol
 // ── Load data ──
 async function loadEmployees() {
   try {
-    const res = await api.get('/workers')
+    const res = await api.get('/users/employees')
     employees.value         = res.data
     filteredEmployees.value = res.data
   } catch (err) {
