@@ -85,6 +85,10 @@
           <input type="password" v-model="form.newPassword" />
         </div>
         <div class="form-group">
+          <label>SDT</label>
+          <input v-model="form.phone" placeholder="084" />
+        </div>
+        <div class="form-group">
           <label>Role</label>
           <select v-model="form.role">
             <option value="EMPLOYEE">EMPLOYEE</option>

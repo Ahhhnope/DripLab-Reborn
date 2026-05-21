@@ -11,11 +11,8 @@ const currentIndex = ref(null)
 const isEditing    = ref(false)
 
 const form = ref({
-  fullName: "",
-  email: "",
-  password: "",
-  newPassword: "",
-  role: "EMPLOYEE"
+  fullName: "", email: "", password: "",
+  phone: "", defaultAddress: "", role: ""
 })
 
 // ── Load data ──
@@ -55,7 +52,7 @@ function syncFiltered() {
 function openAdd() {
   isEditing.value    = false
   currentIndex.value = null
-  form.value         = { fullName: "", account: "", password: "", newPassword: "", role: "STAFF" }
+  form.value         = { fullName: "", email: "", phone: "", password: "", newPassword: "", role: "EMPLOYEE" }
   showPopup.value    = true
 }
 
@@ -63,7 +60,7 @@ function openEdit(index) {
   isEditing.value    = true
   const emp          = filteredEmployees.value[index]
   currentIndex.value = employees.value.findIndex(e => e.id === emp.id)
-  form.value         = { ...emp, newPassword: "", role: emp.role || "STAFF" }
+  form.value         = { ...emp, newPassword: "", role: emp.role || "EMPLOYEE" }
   showPopup.value    = true
 }
 
@@ -80,13 +77,19 @@ async function saveEmployee() {
         password: form.value.newPassword || form.value.password,
         role:     form.value.role,
       }
-      await api.put(`/workers/update/${id}`, payload)
+      await api.put(`/users/update/${id}`, payload)
     } else {
-      await api.post('/workers/add', {
+      await api.post('/users/add', {
         fullName: form.value.fullName,
-        email:  form.value.account,
+        email: form.value.email,
+        phone: form.value.phone,
         password: form.value.password,
-        role:     form.value.role,
+        defaultAddress: form.value.defaultAddress,
+        loyaltyPoint: 0,
+        tier: {id: 1},
+        usedPoint: 0,
+        avatar: '/IMG/lel.png',
+        role: form.value.role
       })
     }
 
