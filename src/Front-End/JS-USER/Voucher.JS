@@ -90,7 +90,7 @@ export function useVoucher() {
   }
 
   // ── MODAL XÁC THỰC ĐĂNG NHẬP ────────────────────────
-  // action: mô tả hành động người dùng muốn làm (VD: 'nhận xu hàng ngày')
+  // action: mô tả hành động người dùng muốn làm (VD: 'nhận điểm hàng ngày')
   const authModal = ref({ show: false, action: '' })
 
   // ── TOAST ────────────────────────────────────────────
