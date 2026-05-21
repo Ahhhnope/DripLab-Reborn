@@ -149,7 +149,7 @@ const {
   form, passwordForm,
   addresses, orders,
   navItems, activeTab,
-  fileInput,
+  fileInput, pendingAvatar,
   triggerFileInput,
   onAvatarChange,
   setTab,
@@ -164,6 +164,10 @@ import { computed } from 'vue'
 const user = computed(() => auth.user || {})
 
 const avatarUrl = computed(() => {
+  if (pendingAvatar.value) {
+    return pendingAvatar.value
+  }
+
   const url = user.value.avatar
   if (!url) return ''
   return url.startsWith('http') ? url : `http://localhost:8080${url}`

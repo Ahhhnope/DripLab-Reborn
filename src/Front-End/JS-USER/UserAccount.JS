@@ -39,6 +39,7 @@ export function useUserAccount() {
 
   const fileInput = ref(null)
   const pendingAvatar = ref(null)
+  const pendingAvatarFile = ref(null)
   const isSaving = ref(false)
 
   // ====================== ĐỒNG BỘ DỮ LIỆU ======================
@@ -70,13 +71,17 @@ export function useUserAccount() {
     fileInput.value?.click()
   }
 
-  function onAvatarChange(event) {
+  async function onAvatarChange(event) {
     const file = event.target.files[0]
+
     if (!file) return
+
     if (file.size > 2 * 1024 * 1024) {
-      alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.')
+      alert('Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.') // why only 2mb :((
       return
     }
+
+    pendingAvatarFile.value = file
     const reader = new FileReader()
     reader.onload = (e) => {
       pendingAvatar.value = e.target.result
@@ -89,31 +94,46 @@ export function useUserAccount() {
     isSaving.value = true
 
     try {
-      const payload = {
-        fullName: form.value.fullName.trim(),
-        avatar: form.value.avatar.trim(),
-        email: form.value.email.trim(),
-        phone: form.value.phone.trim(),
+
+      if (pendingAvatar.value) {
+
+        const formData = new FormData()
+        formData.append('file', pendingAvatarFile.value)
+
+        const avatarRes = await api.post('/users/me/avatar', formData, {
+          headers: {"Content-Type": 'multipart/form-data'}
+        })
+
+        form.value.avatar = avatarRes.data.avatar
+        pendingAvatar.value = null
+        pendingAvatarFile.value = null
       }
 
-      const res = await api.put('/users/me', payload)
+        const payload = {
+          fullName: form.value.fullName.trim(),
+          email: form.value.email.trim(),
+          phone: form.value.phone.trim(),
+        }
 
-      authStore.setUser({
-        ...authStore.user,
-        fullName: res.data.fullName || payload.fullName,
-        avatar: res.data.avatar || payload.avatar,
-        email: res.data.email || payload.email,
-        phone: res.data.phone || payload.phone,
-      }, authStore.token)
+        const res = await api.put('/users/me', payload)
 
-      alert('✅ Lưu thông tin thành công!')
-    } catch (err) {
-      console.error('Lỗi lưu profile:', err)
-      const msg = err.response?.data?.message || 'Lưu thất bại! Vui lòng thử lại.'
-      alert(msg)
-    } finally {
-      isSaving.value = false
-    }
+        authStore.setUser({
+          ...authStore.user,
+          fullName: res.data.fullName || payload.fullName,
+          avatar: form.value.avatar,
+          email: res.data.email || payload.email,
+          phone: res.data.phone || payload.phone,
+        }, authStore.token)
+
+        alert('✅ Lưu thông tin thành công!')
+      } catch (err) {
+        console.error('Lỗi lưu profile:', err)
+        const msg = err.response?.data?.message || 'Lưu thất bại! Vui lòng thử lại.'
+        alert(msg)
+      } finally {
+        isSaving.value = false
+      }
+
   }
 
   async function savePassword() {
