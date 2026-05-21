@@ -709,7 +709,7 @@
           <p class="review-section-title">Sản Phẩm Đặt</p>
           <div v-for="(item, i) in receiptData.items" :key="i" class="review-item">
             <div class="review-item-header">
-              <div class="review-item-name">{{ item.name }} ({{ item.sizeLabel }}) × {{ item.qty }}</div>
+              <div class="review-item-name">{{ item.name }} ({{ item.sizeLabel || item.size }}) × {{ item.qty }}</div>
               <div class="review-item-price">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
             </div>
             <div class="review-item-meta">
