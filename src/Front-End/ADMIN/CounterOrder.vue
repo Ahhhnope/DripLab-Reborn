@@ -377,7 +377,7 @@
               <div class="rpc-top">
                 <span class="rpc-name">{{ item.name }}</span>
                 <div class="rpc-meta-row">
-                  <span class="rpc-size-badge">Size: {{ item.sizeLabel }}</span>
+                  <span class="rpc-size-badge">Size: {{ item.sizeLabel || item.size }}</span>
                   <span class="rpc-qty-badge">SL: {{ item.qty }}</span>
                 </div>
                 <button class="rpc-remove" @click="removeItem(index, item.cartItemId)" title="Xóa">✕</button>
