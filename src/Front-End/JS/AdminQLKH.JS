@@ -14,7 +14,7 @@ const form = ref({
 
 async function loadCustomers() {
   try {
-    const res = await api.get("/users")
+    const res = await api.get("/users/customers")
     customers.value = res.data
     filteredCustomers.value = res.data
   } catch (err) {
@@ -52,7 +52,8 @@ async function saveCustomer() {
       email: form.value.email,
       password: form.value.password,
       phone: form.value.phone,
-      defaultAddress: form.value.address
+      defaultAddress: form.value.address,
+      role: 'USER'
     })
     
     // Refresh list to get the new ID and formatted date from SQL
