@@ -168,6 +168,7 @@ const pagedDrinks = computed(() => {
             <thead>
                 <tr>
                     <th>STT</th>
+                    <th>ID</th>
                     <th>Ảnh</th>
                     <th>Tên</th>
                     <th>Danh mục</th>
@@ -179,8 +180,9 @@ const pagedDrinks = computed(() => {
             <tbody>
                 <tr v-for="(drink, index) in pagedDrinks" :key="drink.id">
                     <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                    <td>SP_{{ drink.id }}</td>
                     <td>
-                        <img v-if="drink.imageUrl" :src="getImageUrl(drink.imageUrl)" class="drink-thumb" alt="ảnh" />
+                        <img v-if="drink.imageUrl" :src="getImageUrl(drink.imageUrl)" class="drink-thumb mx-auto" alt="ảnh" />
                         <span v-else class="no-img">—</span>
                     </td>
                     <td>{{ drink.name }}</td>
