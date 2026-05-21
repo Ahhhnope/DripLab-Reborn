@@ -55,19 +55,19 @@ export async function uploadImage(file) {
 //Thành phần
 // gotta catch them all
 export async function getCoffeeBeans() {
-  return (await api.get('/ingredients/coffee-beans')).data;
+  return (await api.get('/ingredients/coffee-beans/active')).data;
 }
 
 export async function getMilks() {
-  return (await api.get('/ingredients/milks')).data;
+  return (await api.get('/ingredients/milks/active')).data;
 }
 
 export async function getHeavyCreams() {
-  return (await api.get('/ingredients/heavy-creams')).data;
+  return (await api.get('/ingredients/heavy-creams/active')).data;
 }
 
 export async function getIceCreams() {
-  return (await api.get('/ingredients/ice-creams')).data;
+  return (await api.get('/ingredients/ice-creams/active')).data;
 }
 
 export async function getInstructions() {

@@ -28,7 +28,7 @@ export function useOrderList() {
 
   async function loadOrders() {
     try {
-      const res = await api.get("/orders");
+      const res = await api.get("/orders/online");
       const latest = res.data.find(o => o.orderNumber === 168609)
       console.log("Order 168609:", latest?.receiverName, latest?.receiverPhone, latest?.shippingAddress)
 

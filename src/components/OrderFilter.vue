@@ -21,14 +21,14 @@
       </select>
     </div>
 
-    <div class="filter-item flex-1">
+    <!-- <div class="filter-item flex-1">
       <select class="input-control" v-model="form.type">
         <option value="all">Tất cả loại</option>
         <option value="online">Online</option>
         <option value="counter">Tại quầy</option>
         <option value="cod">Thanh toán COD</option>
       </select>
-    </div>
+    </div> -->
 
     <div class="filter-item flex-1">
       <input class="input-control" type="date" v-model="form.fromDate" />
