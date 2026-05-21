@@ -17,7 +17,7 @@
       <thead>
         <tr>
           <th>STT</th><th>ID</th><th>Tên Topping</th>
-          <th>Giá (VNĐ)</th><th>Ngày tạo</th><th>Thao tác</th>
+          <th>Giá (VNĐ)</th><th>Ngày tạo</th><th>Trạng thái</th><th>Thao tác</th>
         </tr>
       </thead>
       <tbody>
@@ -32,13 +32,18 @@
             <td>{{ row.name }}</td>
             <td class="price">{{ fmtPrice(row.price) }}</td>
             <td class="date-cell">{{ fmtDate(row.createdAt) }}</td>
+            <td class="status-cell">{{ row.status ? "Đang hoạt động" : "Đã tắt" }}</td>
             <td>
               <div class="action-buttons">
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="delete-btn" title="Xóa" @click="openConfirm(row)">
+                <!-- <button class="delete-btn" title="Xóa" @click="openConfirm(row)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </button> -->
+                <button class="status-btn"  @click="openConfirmSwitchStatus(row)">
+                  <span v-if="row.status">Tắt</span>
+                  <span v-if="!row.status">Bật</span>
                 </button>
               </div>
             </td>
@@ -73,16 +78,25 @@
         </div>
       </div>
     </div>
+    <!-- CONFIRM BẬT / TẮT -->
     <div class="popup-overlay" :class="{ show: showConfirm }" @click.self="showConfirm = false">
       <div class="confirm-popup">
         <div class="confirm-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444"
+            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
         </div>
-        <div class="confirm-title">Xác nhận xóa</div>
-        <div class="confirm-msg">Bạn có chắc muốn xóa <strong>{{ deleteTarget?.tenLoai }}</strong>?<br>Hành động này không thể hoàn tác.</div>
+        <div class="confirm-title">Xác nhận {{ switchStatusTarget?.status ? "tắt" : "bật"}}</div>
+        <div class="confirm-msg">
+          Bạn có chắc muốn {{ switchStatusTarget?.status ? "tắt" : "bật"}} nguyên liệu này?<br>
+        </div>
         <div class="confirm-actions">
           <button class="no-btn" @click="showConfirm = false">Hủy</button>
-          <button class="yes-btn" @click="handleDelete">Xóa</button>
+          <button class="yes-btn" @click="switchStatus">{{ switchStatusTarget?.status ? "tắt" : "bật"}}</button>
         </div>
       </div>
     </div>
@@ -106,6 +120,7 @@ const {
   showForm, isEditing, inputName, form,
   openAdd, openEdit, submitForm,
   showConfirm, deleteTarget, openConfirm, doDelete,
+  switchStatus, switchStatusTarget, openConfirmSwitchStatus,
   toastShow, toastMsg, toastType, showToast
 } = useIngredients('toppings', 'TP'); // Use 'toppings' category
 

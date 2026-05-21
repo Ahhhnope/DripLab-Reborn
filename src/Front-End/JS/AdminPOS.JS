@@ -36,9 +36,9 @@ export function useBrewing() {
   async function fetchIngridients() {
     try {
       const [beansRes, milksRes, toppingsRes, sizesRes, instructionsRes] = await Promise.all([
-        api.get('/ingredients/coffee-beans'),
-        api.get('/ingredients/milks'),
-        api.get('/ingredients/toppings'),
+        api.get('/ingredients/coffee-beans/active'),
+        api.get('/ingredients/milks/active'),
+        api.get('/ingredients/toppings/active'),
         api.get('/sizes'),
         api.get('/instructions'),
       ])

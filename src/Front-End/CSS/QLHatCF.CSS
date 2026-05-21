@@ -50,7 +50,7 @@ thead th {
   border-bottom: 2px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.05em;
 }
 thead th:first-child { width: 60px; }
-thead th:last-child  { width: 120px; }
+thead th:last-child  { width: 250px; }
 
 tbody tr { border-bottom: 1px solid #f1f5f9; height: 52px; }
 tbody tr:last-child { border-bottom: none; }
@@ -75,7 +75,7 @@ tbody td {
 /* ── Action buttons ──────────────────────────────── */
 .action-buttons { display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-.edit-btn, .delete-btn {
+.edit-btn, .delete-btn, .status-btn {
   border: none; border-radius: 8px; cursor: pointer; transition: all 0.18s;
   display: inline-flex; align-items: center; justify-content: center;
   width: 34px; height: 34px; flex-shrink: 0;
@@ -84,6 +84,8 @@ tbody td {
 .edit-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59,130,246,0.3); transform: translateY(-1px); }
 .delete-btn { background: rgba(239,68,68,0.1); color: #ef4444; border: 1.5px solid rgba(239,68,68,0.3); }
 .delete-btn:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.3); transform: translateY(-1px); }
+.status-btn { background: rgba(239,68,68,0.1); color: #ef4444; border: 1.5px solid rgba(239,68,68,0.3); }
+.status-btn:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.3); transform: translateY(-1px); }
 .edit-btn:active, .delete-btn:active { transform: scale(0.92); }
 
 /* ── Pagination ──────────────────────────────────── */

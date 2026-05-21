@@ -818,7 +818,7 @@
                 <p class="receipt-items-title">Sản phẩm đã mua</p>
                 <div v-for="(item, i) in receiptData.items" :key="i" class="receipt-item">
                   <div class="receipt-item-header">
-                    <div class="receipt-item-name">{{ item.name }} ({{ item.size }}) x{{ item.qty }}</div>
+                    <div class="receipt-item-name">{{ item.name }} ({{ item.sizeLabel }}) x{{ item.qty }}</div>
                     <div class="receipt-item-price-inline">{{ (item.unitPrice * item.qty).toLocaleString() }}đ</div>
                   </div>
                   

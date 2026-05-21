@@ -31,6 +31,7 @@
           <th>Tên loại hạt</th>
           <th>Giá (VNĐ)</th>
           <th>Ngày tạo</th>
+          <th>Trạng thái</th>
           <th>Thao tác</th>
         </tr>
       </thead>
@@ -61,7 +62,9 @@
 
             <td class="date-cell">{{ fmtDate(row.createdAt) }}</td>
 
-            <td>
+            <td class="status-cell">{{ row.status ? "Đang hoạt động" : "Đã tắt" }}</td>
+
+            <td class="px">
               <div class="action-buttons">
 
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
@@ -73,7 +76,8 @@
                   </svg>
 
                 </button>
-                <button class="delete-btn" title="Xóa" @click="openConfirm(row)">
+
+                <!-- <button class="delete-btn" title="Xóa" @click="openConfirm(row)">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="3 6 5 6 21 6"/>
@@ -81,6 +85,11 @@
                     <path d="M10 11v6M14 11v6"/>
                     <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
                   </svg>
+                </button> -->
+                
+                <button class="status-btn"  @click="openConfirmSwitchStatus(row)">
+                  <span v-if="row.status">Tắt</span>
+                  <span v-if="!row.status">Bật</span>
                 </button>
               </div>
             </td>
@@ -156,7 +165,7 @@
       </div>
     </div>
 
-    <!-- CONFIRM XÓA -->
+    <!-- CONFIRM BẬT / TẮT -->
     <div class="popup-overlay" :class="{ show: showConfirm }" @click.self="showConfirm = false">
       <div class="confirm-popup">
         <div class="confirm-icon">
@@ -168,15 +177,13 @@
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
           </svg>
         </div>
-        <div class="confirm-title">Xác nhận xóa</div>
+        <div class="confirm-title">Xác nhận {{ switchStatusTarget?.status ? "tắt" : "bật"}}</div>
         <div class="confirm-msg">
-          Bạn có chắc muốn xóa sản phẩm<br>
-          <strong>{{ deleteTarget?.tenLoai }}</strong>?<br>
-          Hành động này không thể hoàn tác.
+          Bạn có chắc muốn {{ switchStatusTarget?.status ? "tắt" : "bật"}} nguyên liệu này?<br>
         </div>
         <div class="confirm-actions">
           <button class="no-btn" @click="showConfirm = false">Hủy</button>
-          <button class="yes-btn" @click="handleDelete">Xóa</button>
+          <button class="yes-btn" @click="switchStatus">{{ switchStatusTarget?.status ? "tắt" : "bật"}}</button>
         </div>
       </div>
     </div>
@@ -197,6 +204,7 @@ const {
   showForm, isEditing, inputName, form,
   openAdd, openEdit, submitForm,
   showConfirm, deleteTarget, openConfirm, doDelete,
+  switchStatus, switchStatusTarget, openConfirmSwitchStatus,
   toastShow, toastMsg, toastType, showToast
 } = useIngredients('coffee-beans', 'HCF');
 

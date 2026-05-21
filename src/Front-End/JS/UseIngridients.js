@@ -13,6 +13,7 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
   const isEditing = ref(false);
   const showConfirm = ref(false);
   const deleteTarget = ref(null);
+  const switchStatusTarget = ref(null);
   const inputName = ref(null);
 
   // --- Toast State ---
@@ -68,7 +69,7 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
       tenLoai: "",
       gia: 0,
       ngayTao: new Date().toISOString(),
-      ngayTaoDisp: new Date().toLocaleDateString('vi-VN')
+      ngayTaoDisp: new Date().toLocaleDateString('vi-VN'),
     };
     showForm.value = true;
     nextTick(() => inputName.value?.focus());
@@ -110,7 +111,8 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
     
     const payload = {
       name: form.value.tenLoai,
-      price: parseFloat(form.value.gia)
+      price: parseFloat(form.value.gia),
+      status: false
     };
 
     try {
@@ -132,6 +134,11 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
     showConfirm.value = true;
   };
 
+  const openConfirmSwitchStatus = (row) => {
+    switchStatusTarget.value = { id: row.id, tenLoai: row.name, status: row.status };
+    showConfirm.value = true;
+  };
+
   const doDelete = async () => {
     try {
       await api.delete(`/ingredients/remove/${endpoint}/${deleteTarget.value.id}`);
@@ -142,6 +149,17 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
       return { error: "Không thể xóa mục này" };
     }
   };
+
+  const switchStatus = async () => {
+    try {
+      await api.put(`/ingredients/switch-status/${endpoint}/${switchStatusTarget.value.id}`)
+      await fetchData()
+      showConfirm.value = false;
+      return { success: "Đã "+ switchStatusTarget.value.status ? "Tắt " : "Bật " + switchStatusTarget.value.name };
+    } catch (error) {
+      return { error: "Không thể bật / tắt mục này: "+error };
+    }
+  }
 
   const showToast = (msg, type = "ok") => {
     toastMsg.value = msg;
@@ -157,6 +175,7 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
     showForm, isEditing, inputName, form,
     openAdd, openEdit, submitForm,
     showConfirm, deleteTarget, openConfirm, doDelete,
+    switchStatus, switchStatusTarget, openConfirmSwitchStatus,
     toastShow, toastMsg, toastType, showToast
   };
 }
