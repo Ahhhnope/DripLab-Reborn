@@ -372,5 +372,13 @@ export default {
       document.body.style.overflow = ''
       this.$router.push('/menu')
     },
+    goToCheckout() {
+    console.log('goToCheckout called, selectedItems:', this.selectedItems.length)
+    if (!this.selectedItems.length) return
+    sessionStorage.setItem('checkoutSelectedIds', JSON.stringify(this.selectedIds))
+
+    this.$router.push('/cart/checkout')
+    },
   },
+  
 }

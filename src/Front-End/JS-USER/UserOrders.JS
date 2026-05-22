@@ -51,6 +51,7 @@ export function useUserOrders() {
       totalQty,
       price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
       finalPriceNum:   order.finalPrice ?? 0,
+      shippingFee:     order.shippingFee ?? 0,
       date:            order.orderDate
                          ? new Date(order.orderDate).toLocaleDateString('vi-VN')
                          : '-',
@@ -73,11 +74,15 @@ export function useUserOrders() {
           }))
 
           const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-          const itemUnitPrice = (item.basePriceAtPurchase ?? 0) + sizePrice + toppingTotal
+          const itemUnitPrice = item.basePriceAtPurchase ?? 0
+          const basePrice = (item.basePriceAtPurchase ?? 0) - sizePrice - toppingTotal
 
+
+         
           return {
             name:        item.drink?.name ?? 'Sản phẩm',
             qty:         item.quantity ?? 1,
+            basePrice,
             price:       `${(itemUnitPrice * (item.quantity ?? 1)).toLocaleString('vi-VN')} VNĐ`,
             sizeName,
             sizePrice,
@@ -86,6 +91,7 @@ export function useUserOrders() {
             img:         getImageUrl(item.drink?.imageUrl ?? null),
             sugar:       item.sugarLevel ?? 100,
             ice:         item.iceLevel   ?? 100,
+            
           }
         }),
       },
