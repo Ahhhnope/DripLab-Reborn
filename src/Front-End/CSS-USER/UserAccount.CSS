@@ -3317,3 +3317,118 @@
   color: #999;
   font-size: 12px;
 }
+
+.ud-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  min-width: 100px;
+}
+
+.ud-item-qty {
+  font-size: 13px;
+  color: #a8a098;
+  font-weight: 500;
+  align-self: flex-end;
+}
+
+.ud-item-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.ud-item-total__final {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3c2a21;
+  white-space: nowrap;
+}
+
+.ud-item-total__unit {
+  font-size: 11px;
+  color: #a8a098;
+  white-space: nowrap;
+}
+.item-row {
+  display: grid;
+  grid-template-columns: 1fr 36px 90px;
+  gap: 8px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px dashed #ede9e2;
+}
+.item-row:last-of-type { border-bottom: none; }
+
+.item-name {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3c2a21;
+}
+.item-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.item-options--priced {
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+.option-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.option-tag {
+  background: #f1efe8;
+  border: 1px solid #e7e5e0;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #7d7469;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.option-tag--sugar {
+  background: rgba(251,191,36,0.12);
+  color: #d97706;
+  border: 1px solid rgba(251,191,36,0.25);
+}
+.option-tag--ice {
+  background: rgba(59,130,246,0.08);
+  color: #2563eb;
+  border: 1px solid rgba(59,130,246,0.15);
+}
+.option-price {
+  font-size: 11px;
+  color: #b45309;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.item-qty {
+  text-align: center;
+  font-size: 13px;
+  color: #a8a098;
+  font-weight: 500;
+  padding-top: 1px;
+}
+.item-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.item-total__final {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3c2a21;
+  white-space: nowrap;
+}
+.item-total__unit {
+  font-size: 11px;
+  color: #a8a098;
+  white-space: nowrap;
+}

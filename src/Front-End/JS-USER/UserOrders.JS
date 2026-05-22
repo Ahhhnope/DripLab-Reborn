@@ -69,29 +69,27 @@ export function useUserOrders() {
           const sizePrice = item.size?.price ?? 0
 
           const toppingList = (item.orderItemToppings ?? []).map(t => ({
-            name:  t.topping?.name ?? '',
-            price: t.basePriceAtPurchase ?? t.topping?.price ?? 0,
+          name:  t.topping?.name ?? '',
+          price: t.basePriceAtPurchase ?? t.topping?.price ?? 0,
           }))
 
           const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
           const itemUnitPrice = item.basePriceAtPurchase ?? 0
-          const basePrice = (item.basePriceAtPurchase ?? 0) - sizePrice - toppingTotal
 
 
-         
+          const basePrice = itemUnitPrice - sizePrice - toppingTotal
+
           return {
-            name:        item.drink?.name ?? 'Sản phẩm',
-            qty:         item.quantity ?? 1,
-            basePrice,
-            price:       `${(itemUnitPrice * (item.quantity ?? 1)).toLocaleString('vi-VN')} VNĐ`,
-            sizeName,
-            sizePrice,
-            toppingList,
-            toppings:    toppingList.map(t => t.name).join(', '),
-            img:         getImageUrl(item.drink?.imageUrl ?? null),
-            sugar:       item.sugarLevel ?? 100,
-            ice:         item.iceLevel   ?? 100,
-            
+          name:        item.drink?.name ?? 'Sản phẩm',
+          qty:         item.quantity ?? 1,
+          basePrice:   basePrice,
+          total:       itemUnitPrice * (item.quantity ?? 1),  
+          sizeName,
+          sizeExtra:   sizePrice,                              
+          toppings:    toppingList,                            
+          img:         getImageUrl(item.drink?.imageUrl ?? null),
+          sugar:       item.sugarLevel ?? 100,
+          ice:         item.iceLevel   ?? 100,
           }
         }),
       },

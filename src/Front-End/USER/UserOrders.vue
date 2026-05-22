@@ -451,114 +451,59 @@
                     <div
                       v-for="(item, idx) in selectedOrder.receiptData.items"
                       :key="idx"
-                      class="ud-item-row"
+                      class="item-row"
                     >
-                      <div class="ud-item-img">
-                        <img v-if="item.img" :src="item.img" :alt="item.name" />
-                        <div v-else class="ud-item-img__placeholder">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"
-                            />
-                            <rect x="2" y="2" width="20" height="20" rx="3" />
-                          </svg>
-                        </div>
-                      </div>
+                      <div class="item-info">
+                        <p class="item-name">{{ item.name }}</p>
 
-                      <div class="ud-item-info">
-                        <p class="ud-item-name">{{ item.name }}</p>
-                        <!-- Giá gốc sản phẩm -->
-                        <div class="ud-item-attr-row">
-                          <span class="ud-item-attr">
-                            <svg
-                              width="11"
-                              height="11"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
+                        <div class="item-options item-options--priced">
+                          <!-- Size -->
+                          <div v-if="item.sizeName" class="option-line">
+                            <span class="option-tag"
+                              >Size {{ item.sizeName }}</span
                             >
-                              <path
-                                stroke-linecap="round"
-                                d="M12 2l3.09 6.26L22 9.27l-5 4.87
-            1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                              />
-                            </svg>
-                            Giá gốc
-                          </span>
-                          <span class="ud-item-attr-price">{{
-                            formatPrice(item.basePrice)
-                          }}</span>
-                        </div>
-                        <div v-if="item.sizeName" class="ud-item-attr-row">
-                          <span class="ud-item-attr">
-                            <svg
-                              width="11"
-                              height="11"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2"
+                            <span
+                              v-if="item.sizeExtra > 0"
+                              class="option-price"
                             >
-                              <path
-                                stroke-linecap="round"
-                                d="M3 6h18M3 12h18M3 18h18"
-                              />
-                            </svg>
-                            Size {{ item.sizeName }}
-                          </span>
-                          <span class="ud-item-attr-price"
-                            >+{{ formatPrice(item.sizePrice) }}</span
-                          >
-                        </div>
-                        <div v-if="item.toppingList?.length">
-                          <div
-                            v-for="t in item.toppingList"
-                            :key="t.name"
-                            class="ud-item-attr-row"
-                          >
-                            <span class="ud-item-attr">
-                              <svg
-                                width="11"
-                                height="11"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  d="M12 5v14M5 12h14"
-                                />
-                              </svg>
-                              {{ t.name }}
+                              +{{ formatPrice(item.sizeExtra) }}
                             </span>
-                            <span class="ud-item-attr-price"
-                              >+{{ formatPrice(t.price) }}</span
+                          </div>
+
+                          <!-- Toppings -->
+                          <div
+                            v-for="(tp, i) in item.toppings || []"
+                            :key="'tp-' + i"
+                            class="option-line"
+                          >
+                            <span class="option-tag">+ {{ tp.name }}</span>
+                            <span class="option-price"
+                              >+{{ formatPrice(tp.price) }}</span
                             >
                           </div>
                         </div>
-                        <div class="ud-item-tags">
-                          <span class="ud-tag ud-tag--sugar"
+
+                        <!-- Đường / Đá -->
+                        <div class="item-options">
+                          <span class="option-tag option-tag--sugar"
                             >Đường {{ item.sugar }}%</span
                           >
-                          <span class="ud-tag ud-tag--ice"
+                          <span class="option-tag option-tag--ice"
                             >Đá {{ item.ice }}%</span
                           >
                         </div>
                       </div>
 
-                      <div class="ud-item-right">
-                        <span class="ud-item-qty">x{{ item.qty }}</span>
-                        <span class="ud-item-price">{{ item.price }}</span>
+                      <div class="item-qty">x{{ item.qty }}</div>
+
+                      <div class="item-total">
+                        <span class="item-total__final">{{
+                          formatPrice(item.total)
+                        }}</span>
+                        <span class="item-total__unit"
+                          >{{ formatPrice(item.basePrice) }} ×
+                          {{ item.qty }}</span
+                        >
                       </div>
                     </div>
                   </section>
