@@ -24,6 +24,7 @@ import RegisterAcc from '../Front-End/Authorization/Register.vue'
 import UserPoints from '../Front-End/USER/UserPoints.vue'
 import ChooseStores from '../Front-End/USER/ChooseStores.vue'
 import ForgotPassword from '@/Front-End/Authorization/Forgotpassword.vue'
+import CheckOut from '../Front-End/USER/CheckOut.vue'
 const app = createApp(App)
 const pinia = createPinia()
 app.use(pinia)
@@ -40,6 +41,7 @@ const routes = [
             { path: '/account/orders', component: UserOrders, meta: {requiresAuth: true} },
             { path: '/account/points', component: UserPoints, meta: {requiresAuth: true} },
             { path: '/brewing', component: Brewing },
+            { path: '/cart/checkout', component: CheckOut, meta: {requiresAuth: true}},
             { path: '/choosestores', component: ChooseStores },
             { path: '/menu', component: MenuView },
             { path: 'product/:id', name: 'user-product', component: ProductDetailView },
