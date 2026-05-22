@@ -337,6 +337,7 @@ const { loading, error, fetchOrderDetail, close, emitConfirm, emitCancel, reques
 // ✅ Local copy của order — cập nhật ngay khi đổi trạng thái, không chờ props
 const localOrder = ref(props.order ? { ...props.order } : null);
 
+
 // ✅ Sync khi props.order thay đổi từ bên ngoài (loadOrders xong)
 watch(() => props.order, (newOrder) => {
   if (newOrder) localOrder.value = { ...newOrder };

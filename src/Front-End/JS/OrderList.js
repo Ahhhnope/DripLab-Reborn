@@ -33,14 +33,14 @@ export function useOrderList() {
       console.log("Order 168609:", latest?.receiverName, latest?.receiverPhone, latest?.shippingAddress)
 
       allItems.value = res.data.map((o) => {
-        console.log('RAW items[0]:', JSON.stringify(o.items?.[0], null, 2))
+        // console.log('RAW items[0]:', JSON.stringify(o.items?.[0], null, 2))
 
         const orderDateMs = o.orderDate ? Date.parse(o.orderDate) : 0;
         const createdAtMs = o.createdAt ? Date.parse(o.createdAt) : 0;
         const sortTs = orderDateMs || createdAtMs || 0;
 
         return {
-          id: o.id,
+                    id: o.id,
           code: String(o.orderNumber ?? o.id),
           shippingType: o.paymentMethod ?? "COD",
           status: mapStatus(o.status),
@@ -66,14 +66,37 @@ export function useOrderList() {
           },
 
           itemsDetail: (o.items ?? []).map((i) => {
+            const sizeExtra = i.size?.price ?? 0;
+            const toppings = (i.orderItemToppings ?? []).map((t) => ({
+              name: t.topping?.name ?? "-",
+              price: t.topping?.price ?? 0,
+            }));
+            const toppingTotal = toppings.reduce((sum, t) => sum + t.price, 0);
+            const basePrice = i.drink.basePrice ?? 0;
+            const qty = i.quantity ?? 1;
+
             return {
               id: i.id,
               name: i.drink?.name ?? "-",
-              qty: i.quantity ?? 1,
-              total: (i.basePriceAtPurchase ?? 0) * (i.quantity ?? 1),
+              qty,
+
+              // ✅ Giá gốc — hiển thị "đơn giá × qty" ở dòng nhỏ phía dưới
+              basePrice,
+
+              // ✅ Size
+              sizeName: i.size?.name ?? null,
+              sizeExtra,
+
+              // ✅ Toppings kèm giá riêng từng cái
+              toppings,
+
+              // ✅ Tổng = (basePrice + toppingTotal) × qty
+              total: (basePrice + toppingTotal + sizeExtra) * qty,
+
+              // Giữ lại options cũ (dùng ở OrderTable nếu có)
               options: [
                 i.size?.name ? `Size ${i.size.name}` : null,
-                ...(i.orderItemToppings ?? []).map((t) => t.topping?.name).filter(Boolean),
+                ...toppings.map((t) => t.name),
               ].filter(Boolean),
 
               ice: i.ice ?? null,
@@ -83,12 +106,13 @@ export function useOrderList() {
               beanName: i.beanName ?? null,
               baseName: i.baseName ?? null,
               milkName: i.milkName ?? null,
-            }
+            };
           }),
 
           subtotal: o.originalPrice ?? 0,
           shippingFee: o.shippingFee ?? 0,
           discount: o.discountAmount ?? 0,
+
         };
       });
     } catch (e) {
