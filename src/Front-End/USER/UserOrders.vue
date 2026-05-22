@@ -454,7 +454,7 @@
                       class="ud-item-row"
                     >
                       <div class="ud-item-img">
-                        <img v-if="item.img" :src="item.img" :alt="item.name" />
+                        <img v-if="item.img" :src="getImageUrl(item.img)" :alt="item.name" />
                         <div v-else class="ud-item-img__placeholder">
                           <svg
                             width="20"

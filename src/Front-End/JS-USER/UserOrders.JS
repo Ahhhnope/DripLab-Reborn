@@ -88,7 +88,7 @@ export function useUserOrders() {
             sizePrice,
             toppingList,
             toppings:    toppingList.map(t => t.name).join(', '),
-            img:         getImageUrl(item.drink?.imageUrl ?? null),
+            img:         item.isCustom ? getImageUrl(item.imageUrl) : (getImageUrl(item.drink?.imageUrl) || '/placeholder.png'),
             sugar:       item.sugarLevel ?? 100,
             ice:         item.iceLevel   ?? 100,
             

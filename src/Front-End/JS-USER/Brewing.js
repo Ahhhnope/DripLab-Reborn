@@ -77,7 +77,7 @@ export function useBrewing() {
         id: String(ins.id),
         label: ins.name,
         sub: ins.instructions,
-        priceDelta: BASE_PRICES[ins.name] ?? 0,
+        priceDelta: ins.price ?? 0,
         color: BASE_COLORS[ins.name] ?? '#2b1b14',
       }))
 
@@ -428,7 +428,8 @@ export function useBrewing() {
         sugar: sugarNum,
         toppings: toppingIds,
         isCustom: true,
-        base: selectedBase.value?.label ?? null,      // "Pha Máy" / "Pha Phin" / "Ủ Lạnh"
+        base: selectedBase.value,
+        basePrice: selectedBase.value.priceDelta ?? 0,
         beanId: parseInt(selection.bean),
         milkId: milkId,
         imageUrl: customCoffeeImage(selectedBase.value?.label ?? null)
