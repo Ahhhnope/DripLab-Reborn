@@ -63,8 +63,11 @@ const cartSubtotal = computed(() =>
     (sum, item) =>
       sum +
       ((item.drink?.basePrice || 0) +
-        (item.size?.price || 0) +
-        (item.toppings?.reduce((s, t) => s + (t.topping?.price || 0), 0) || 0)) *
+          (item.size?.price || 0) +
+          (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0) +
+          (item.isCustom ? (item.base?.price || 0) : 0) +
+          (item.isCustom ? (item.coffeeBean?.price || 0) : 0) +
+          (item.isCustom ? (item.milk?.price || 0) : 0)) *
         (item.quantity || 1),
     0
   )
@@ -106,7 +109,7 @@ const cartSubtotal = computed(() =>
         </div>
 
         <RouterLink to="/AboutUS" class="nav-link">Về Chúng Tôi</RouterLink>
-        <RouterLink to="/voucher" class="nav-link">Khuyến Mãi</RouterLink>
+        <RouterLink to="/voucher" class="nav-link">Điểm danh</RouterLink>
         <RouterLink to="/stores" class="nav-link">Cửa hàng</RouterLink>
       </nav>
 

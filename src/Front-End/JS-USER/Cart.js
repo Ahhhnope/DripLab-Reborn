@@ -91,7 +91,7 @@ export default {
           (item.drink?.basePrice || 0) +
           (item.size?.price || 0) +
           (item.toppings?.reduce((sum, t) => sum + (t.topping?.price || 0), 0) || 0) +
-          (item.isCustom ? (item.base?.price || 0) : 0) +
+          (item.isCustom ? (item.base?.price|| 0) : 0) +
           (item.isCustom ? (item.coffeeBean?.price || 0) : 0) +
           (item.isCustom ? (item.milk?.price || 0) : 0),
         quantity: item.quantity,
@@ -100,7 +100,8 @@ export default {
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
 
         isCustom: item.isCustom || false,
-        baseName: item.base || null,
+        baseName: item.base?.name|| null,
+        basesPrice: item.base?.price || 0,
         beanName: item.coffeeBean?.name || null,
         beanPrice: item.coffeeBean?.price || 0,
         milkName: item.milk?.name || null,
@@ -122,7 +123,7 @@ export default {
       return calcShippingFee(distanceKmStr)
     },
 
-    selectedTotal() { return this.selectedSubtotal + this.shippingFee },
+    selectedTotal() { return this.selectedSubtotal },
     grandTotal() { return Math.max(0, this.selectedTotal - this.couponDiscount) },
     isAllSelected() {
       return this.cartItems.length > 0 && this.cartItems.every(i => this.selectedIds.includes(i.id))

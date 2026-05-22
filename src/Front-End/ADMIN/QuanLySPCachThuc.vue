@@ -21,6 +21,7 @@
           <th>ID</th>
           <th>Tên cách thức</th>
           <th>Nội dung</th>
+          <th>Giá</th>
           <th>Thao tác</th>
         </tr>
       </thead>
@@ -35,6 +36,7 @@
             <td><span class="badge-id">{{ row.id }}</span></td>
             <td>{{ row.name }}</td>
             <td class="price">{{ row.instructions }}</td>
+            <td class="price">{{ fmtPrice(row.price) }}</td>
             <td>
               <div class="action-buttons">
                 <button class="edit-btn" title="Sửa" @click="openEdit(row)">
@@ -113,6 +115,7 @@ const PAGE_SIZE = 5
 // form
 const showForm = ref(false)
 const isEditing = ref(false)
+
 
 const generateNextId = () => {
   if (!rows.value || rows.value.length === 0) {

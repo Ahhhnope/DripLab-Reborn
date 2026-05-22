@@ -231,7 +231,7 @@
 
                       <div class="item-total">
                         <!-- Tổng tiền sau topping × qty -->
-                        <span class="item-total__final">{{ money(it.total) }}</span>
+                        <span class="item-total__final">{{ money(it.total)  }}</span>
                         <!-- Đơn giá gốc × qty (nhỏ, mờ) -->
                         <span class="item-total__unit">{{ money(it.basePrice) }} × {{ it.qty }}</span>
                       </div>

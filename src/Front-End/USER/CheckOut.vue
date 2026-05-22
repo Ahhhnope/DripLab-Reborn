@@ -466,6 +466,10 @@
                     <span>Giá gốc</span>
                     <span>{{ formatVND(item.drinkBasePrice) }}</span>
                   </div>
+                  <div class="si-pb-row" v-if="item.basePrice > 0">
+                    <span>Base {{ item.base }}</span>
+                    <span>+{{ formatVND(item.basesPrice) }}</span>
+                  </div>
                   <div class="si-pb-row" v-if="item.sizePrice > 0">
                     <span>Size {{ item.sizeName }}</span>
                     <span>+{{ formatVND(item.sizePrice) }}</span>
