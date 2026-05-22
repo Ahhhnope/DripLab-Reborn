@@ -74,8 +74,8 @@ export function useOrderList() {
             const toppingTotal = toppings.reduce((sum, t) => sum + t.price, 0);
             const basePrice = (i.drink?.basePrice || 0) +
             (i.isCustom ? (i.basePrice || 0) : 0) +
-            (i.isCustom ? (i.coffeeBean?.price || 0) : 0) +
-            (i.isCustom ? (i.milk?.price || 0) : 0);
+            (i.isCustom ? (i.beanPrice || 0) : 0) +
+            (i.isCustom ? (i.milkPrice || 0) : 0);
             const qty = i.quantity ?? 1;
 
             return {

@@ -150,8 +150,8 @@ export default {
         toppings: item.toppings?.map((t) => t.topping?.name).filter(Boolean) || [],
 
         isCustom: item.isCustom || false,
-        baseName: item.base.name|| null,
-        basesPrice: item.base.price || 0,
+        baseName: item.base?.name|| null,
+        basesPrice: item.base?.price || 0,
         beanName: item.coffeeBean?.name || null,
         beanPrice: item.coffeeBean?.price || 0,
         milkName: item.milk?.name || null,

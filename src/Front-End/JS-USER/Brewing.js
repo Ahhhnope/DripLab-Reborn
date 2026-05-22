@@ -428,7 +428,7 @@ export function useBrewing() {
         sugar: sugarNum,
         toppings: toppingIds,
         isCustom: true,
-        base: selectedBase.value,
+        baseId: selectedBase.value.id,
         basePrice: selectedBase.value.priceDelta ?? 0,
         beanId: parseInt(selection.bean),
         milkId: milkId,
