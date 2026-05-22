@@ -199,16 +199,25 @@
                       <div class="item-info">
                         <p class="item-name">{{ it.name }}</p>
 
-                        <!-- Size + Toppings -->
-                        <div v-if="it.options?.length" class="item-options">
-                          <span v-for="(op, idx) in it.options" :key="'opt-' + idx" class="option-tag">{{ op }}</span>
+                        <!-- Size có upsize (kèm giá) -->
+                        <div class="item-options item-options--priced">
+                          <div v-if="it.sizeName" class="option-line">
+                            <span class="option-tag">Size {{ it.sizeName }}</span>
+                            <span v-if="it.sizeExtra > 0" class="option-price">+{{ money(it.sizeExtra) }}</span>
+                          </div>
+
+                          <!-- Toppings kèm giá -->
+                          <div v-for="(tp, idx) in it.toppings || []" :key="'tp-' + idx" class="option-line">
+                            <span class="option-tag">+ {{ tp.name }}</span>
+                            <span class="option-price">+{{ money(tp.price) }}</span>
+                          </div>
                         </div>
 
                         <!-- Custom coffee info -->
                         <div v-if="it.isCustom" class="item-options item-options--custom">
-                          <span v-if="it.beanName" class="option-tag option-tag--custom"> {{ it.beanName }}</span>
-                          <span v-if="it.baseName" class="option-tag option-tag--custom"> {{ it.baseName }}</span>
-                          <span v-if="it.milkName" class="option-tag option-tag--custom"> {{ it.milkName }}</span>
+                          <span v-if="it.beanName" class="option-tag option-tag--custom">{{ it.beanName }}</span>
+                          <span v-if="it.baseName" class="option-tag option-tag--custom">{{ it.baseName }}</span>
+                          <span v-if="it.milkName" class="option-tag option-tag--custom">{{ it.milkName }}</span>
                         </div>
 
                         <!-- Đá / Đường -->
@@ -217,8 +226,15 @@
                           <span v-if="it.ice != null" class="option-tag option-tag--ice">Đá {{ it.ice }}%</span>
                         </div>
                       </div>
+
                       <div class="item-qty">x{{ it.qty }}</div>
-                      <div class="item-total">{{ money(it.total) }}</div>
+
+                      <div class="item-total">
+                        <!-- Tổng tiền sau topping × qty -->
+                        <span class="item-total__final">{{ money(it.total) }}</span>
+                        <!-- Đơn giá gốc × qty (nhỏ, mờ) -->
+                        <span class="item-total__unit">{{ money(it.basePrice) }} × {{ it.qty }}</span>
+                      </div>
                     </div>
                   </section>
                 </div>

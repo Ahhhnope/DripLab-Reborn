@@ -568,7 +568,7 @@
 /* ── ITEM ROW ─────────────────────────────────────── */
 .item-row {
   display: grid;
-  grid-template-columns: 1fr 36px 80px;
+  grid-template-columns: 1fr 36px 90px;
   gap: 8px;
   align-items: start;
   padding: 12px 0;
@@ -583,11 +583,33 @@
   font-weight: 600;
   color: #3c2a21;
 }
+
+/* ── OPTION LINE (tag + giá kèm theo) ────────────── */
 .item-options {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
 }
+
+.item-options--priced {
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.option-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.option-price {
+  font-size: 11px;
+  color: #b45309;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .option-tag {
   background: #f1efe8;
   border: 1px solid #e7e5e0;
@@ -595,7 +617,10 @@
   font-size: 11px;
   color: #7d7469;
   padding: 2px 7px;
+  white-space: nowrap;
 }
+
+/* ── ITEM QTY ─────────────────────────────────────── */
 .item-qty {
   text-align: center;
   font-size: 13px;
@@ -603,13 +628,29 @@
   font-weight: 500;
   padding-top: 1px;
 }
+
+/* ── ITEM TOTAL ───────────────────────────────────── */
 .item-total {
-  text-align: right;
-  font-size: 13px;
-  font-weight: 600;
-  color: #3c2a21;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
   padding-top: 1px;
 }
+
+.item-total__final {
+  font-size: 13px;
+  font-weight: 700;
+  color: #3c2a21;
+  white-space: nowrap;
+}
+
+.item-total__unit {
+  font-size: 11px;
+  color: #a8a098;
+  white-space: nowrap;
+}
+
 .empty-items {
   padding: 20px 0;
   text-align: center;
@@ -820,6 +861,7 @@
   color: #e11d48;
 }
 
+/* ── OPTION TAG VARIANTS ──────────────────────────── */
 .option-tag--custom {
   background: rgba(180, 120, 60, 0.10);
   color: #7c4a1e;
