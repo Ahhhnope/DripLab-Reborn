@@ -26,12 +26,15 @@ export function useVoucher() {
     return day === (next > 7 ? 1 : next)
   }
 
-  function claimDay(day) {
+  async function claimDay(day, user) {
     if (!isDayUnlocked(day)) return
     const newStreak = ((state.value.streak || 0) + 1) > 7 ? 1 : (state.value.streak || 0) + 1
     const newDays = newStreak === 1 ? [1] : [...claimedDays.value, day]
     state.value = { date: todayStr(), streak: newStreak, days: newDays }
     localStorage.setItem(KEY, JSON.stringify(state.value))
+    await api.put('/users/update/'+user.id, {
+      loyaltyPoint: user.loyaltyPoint + 100
+    })
     showToast(day === 7 ? 'Nhận thành công 500 xu! 🎉' : 'Nhận thành công 100 xu! 🎉')
   }
 
@@ -100,12 +103,12 @@ export function useVoucher() {
   function showToast(msg) {
     toast.value = { show: true, msg }
     clearTimeout(timer)
-    timer = setTimeout(() => { toast.value.show = false }, 2800)
+    timer = setTimeout(() => { toast.value.show = false }, 1)
   }
 
   // ── INIT ─────────────────────────────────────────────
   loadVouchers()
-  // resetLogin()
+  resetLogin()
   // Giải Thích resetLogin(): khi hoạt động thì sẽ về lại ngày ban đầu
 
   return {

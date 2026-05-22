@@ -62,7 +62,7 @@
     </div>
 
     <!-- KHO VOUCHER -->
-    <div class="voucher-grid">
+    <!-- <div class="voucher-grid">
       <div class="voucher-card" v-for="v in promos" :key="v.id">
 
         <div class="vc-left">
@@ -98,10 +98,10 @@
       <p v-if="promos.length === 0" class="empty-msg">
         Hiện không có voucher nào đang mở 😢
       </p>
-    </div>
+    </div> -->
 
     <!-- MODAL VOUCHER CODE -->
-    <div v-if="modal.show" class="modal-overlay" @click.self="modal.show = false">
+    <!-- <div v-if="modal.show" class="modal-overlay" @click.self="modal.show = false">
       <div class="modal-box">
         <div class="modal-header">
           <div class="modal-title">NHẬN KHUYẾN MÃI THÀNH CÔNG</div>
@@ -115,7 +115,7 @@
           <button class="modal-copy-btn" @click="copyCode">Sao Chép Mã</button>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- MODAL YÊU CẦU ĐĂNG NHẬP -->
     <div v-if="authModal.show" class="modal-overlay" @click.self="authModal.show = false">
@@ -162,7 +162,7 @@ function handleClaimDay(day) {
     authModal.value = { show: true, action: 'nhận điểm hàng ngày' }
     return
   }
-  claimDay(day)
+  claimDay(day, auth.user)
 }
 
 function handleSavePromo(id) {
