@@ -713,3 +713,37 @@
   .checkout-cta { flex-direction: column; }
   .btn-back-step, .btn-next, .btn-place-order { width: 100%; }
 }
+.btn-calc-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  border: 1.5px dashed var(--color-primary, #6b4c2a);
+  background: transparent;
+  color: var(--color-primary, #6b4c2a);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-calc-distance:hover:not(:disabled) {
+  background: var(--color-primary, #6b4c2a);
+  color: #fff;
+}
+.btn-calc-distance:disabled { opacity: .6; cursor: not-allowed; }
+
+.distance-result {
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.distance-ok  { background: #f0faf3; color: #2e7d4f; border: 1px solid #a8dbb8; }
+.distance-far { background: #fff4f4; color: #c0392b; border: 1px solid #f0b8b8; }
+.btn-next:disabled,
+.btn-aside-next:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}

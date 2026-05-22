@@ -19,136 +19,54 @@ function calcShippingFee(distanceKmStr) {
 }
 
 // ── Dữ liệu quận/phường Hà Nội ──────────────────────────────────────────────
-const HANOI_DISTRICTS = [
-  {
-    name: 'Quận Ba Đình',
-    wards: ['Phường Cống Vị','Phường Điện Biên','Phường Đội Cấn','Phường Giảng Võ',
-      'Phường Kim Mã','Phường Liễu Giai','Phường Ngọc Hà','Phường Ngọc Khánh',
-      'Phường Nguyễn Trung Trực','Phường Phúc Xá','Phường Quán Thánh','Phường Thành Công',
-      'Phường Trúc Bạch','Phường Vĩnh Phúc'],
-  },
-  {
-    name: 'Quận Hoàn Kiếm',
-    wards: ['Phường Chương Dương','Phường Cửa Đông','Phường Cửa Nam','Phường Đồng Xuân',
-      'Phường Hàng Bạc','Phường Hàng Bài','Phường Hàng Bồ','Phường Hàng Buồm',
-      'Phường Hàng Đào','Phường Hàng Gai','Phường Hàng Mã','Phường Hàng Trống',
-      'Phường Lý Thái Tổ','Phường Phan Chu Trinh','Phường Phúc Tân','Phường Tràng Tiền',
-      'Phường Trần Hưng Đạo','Phường Đình Công'],
-  },
-  {
-    name: 'Quận Đống Đa',
-    wards: ['Phường Cát Linh','Phường Hàng Bột','Phường Khâm Thiên','Phường Kim Liên',
-      'Phường Láng Hạ','Phường Láng Thượng','Phường Nam Đồng','Phường Ngã Tư Sở',
-      'Phường Ô Chợ Dừa','Phường Phương Liên','Phường Phương Mai','Phường Quang Trung',
-      'Phường Quốc Tử Giám','Phường Thịnh Quang','Phường Thổ Quan','Phường Trung Liệt',
-      'Phường Trung Phụng','Phường Trung Tự','Phường Văn Chương','Phường Văn Miếu',
-      'Phường Xã Đàn'],
-  },
-  {
-    name: 'Quận Hai Bà Trưng',
-    wards: ['Phường Bách Khoa','Phường Bạch Đằng','Phường Bạch Mai','Phường Bùi Thị Xuân',
-      'Phường Cầu Dền','Phường Đồng Nhân','Phường Đồng Tâm','Phường Lê Đại Hành',
-      'Phường Minh Khai','Phường Ngô Thì Nhậm','Phường Nguyễn Du','Phường Phạm Đình Hổ',
-      'Phường Phố Huế','Phường Quỳnh Lôi','Phường Quỳnh Mai','Phường Thanh Lương',
-      'Phường Thanh Nhàn','Phường Trương Định','Phường Vĩnh Tuy'],
-  },
-  {
-    name: 'Quận Hoàng Mai',
-    wards: ['Phường Đại Kim','Phường Định Công','Phường Giáp Bát','Phường Hoàng Liệt',
-      'Phường Hoàng Văn Thụ','Phường Lĩnh Nam','Phường Mai Động','Phường Tân Mai',
-      'Phường Thịnh Liệt','Phường Thanh Trì','Phường Tương Mai','Phường Trần Phú',
-      'Phường Vĩnh Hưng','Phường Yên Sở'],
-  },
-  {
-    name: 'Quận Thanh Xuân',
-    wards: ['Phường Hạ Đình','Phường Khương Đình','Phường Khương Mai','Phường Khương Trung',
-      'Phường Kim Giang','Phường Nhân Chính','Phường Phương Liệt','Phường Thanh Xuân Bắc',
-      'Phường Thanh Xuân Nam','Phường Thanh Xuân Trung'],
-  },
-  {
-    name: 'Quận Cầu Giấy',
-    wards: ['Phường Dịch Vọng','Phường Dịch Vọng Hậu','Phường Mai Dịch','Phường Nghĩa Đô',
-      'Phường Nghĩa Tân','Phường Quan Hoa','Phường Trung Hòa','Phường Yên Hòa'],
-  },
-  {
-    name: 'Quận Tây Hồ',
-    wards: ['Phường Bưởi','Phường Nhật Tân','Phường Phú Thượng','Phường Quảng An',
-      'Phường Tứ Liên','Phường Thụy Khuê','Phường Xuân La','Phường Yên Phụ'],
-  },
-  {
-    name: 'Quận Long Biên',
-    wards: ['Phường Bồ Đề','Phường Cự Khối','Phường Đức Giang','Phường Gia Thụy',
-      'Phường Giang Biên','Phường Long Biên','Phường Ngọc Lâm','Phường Ngọc Thụy',
-      'Phường Phúc Đồng','Phường Phúc Lợi','Phường Sài Đồng','Phường Thạch Bàn',
-      'Phường Thượng Thanh','Phường Việt Hưng'],
-  },
-  {
-    name: 'Quận Nam Từ Liêm',
-    wards: ['Phường Cầu Diễn','Phường Đại Mỗ','Phường Mễ Trì','Phường Mỹ Đình 1',
-      'Phường Mỹ Đình 2','Phường Phú Đô','Phường Phương Canh','Phường Tây Mỗ',
-      'Phường Trung Văn','Phường Xuân Phương'],
-  },
-  {
-    name: 'Quận Bắc Từ Liêm',
-    wards: ['Phường Cổ Nhuế 1','Phường Cổ Nhuế 2','Phường Đông Ngạc','Phường Đức Thắng',
-      'Phường Liên Mạc','Phường Minh Khai','Phường Phú Diễn','Phường Phúc Diễn',
-      'Phường Tây Tựu','Phường Thượng Cát','Phường Thụy Phương','Phường Xuân Đỉnh',
-      'Phường Xuân Tảo'],
-  },
-  {
-    name: 'Quận Hà Đông',
-    wards: ['Phường Biên Giang','Phường Đồng Mai','Phường Dương Nội','Phường Hà Cầu',
-      'Phường Kiến Hưng','Phường La Khê','Phường Mộ Lao','Phường Nguyễn Trãi',
-      'Phường Phú La','Phường Phú Lãm','Phường Phú Lương','Phường Phúc La',
-      'Phường Quang Trung','Phường Vạn Phúc','Phường Văn Quán','Phường Yên Nghĩa',
-      'Phường Yết Kiêu'],
-  },
-  {
-    name: 'Huyện Đông Anh',
-    wards: ['Thị trấn Đông Anh','Xã Bắc Hồng','Xã Cổ Loa','Xã Đại Mạch','Xã Đông Hội',
-      'Xã Dục Tú','Xã Hải Bối','Xã Kim Chung','Xã Kim Nỗ','Xã Liên Hà',
-      'Xã Mai Lâm','Xã Nam Hồng','Xã Nguyên Khê','Xã Tàm Xá','Xã Thụy Lâm',
-      'Xã Tiên Dương','Xã Uy Nỗ','Xã Vân Hà','Xã Vân Nội','Xã Việt Hùng',
-      'Xã Vĩnh Ngọc','Xã Xuân Canh','Xã Xuân Nộn','Xã Võng La'],
-  },
-  {
-    name: 'Huyện Gia Lâm',
-    wards: ['Thị trấn Trâu Quỳ','Thị trấn Yên Viên','Xã Bát Tràng','Xã Cổ Bi',
-      'Xã Dương Hà','Xã Dương Quang','Xã Dương Xá','Xã Đa Tốn','Xã Đặng Xá',
-      'Xã Đình Xuyên','Xã Đông Dư','Xã Kiêu Kỵ','Xã Kim Lan','Xã Kim Sơn',
-      'Xã Lệ Chi','Xã Ninh Hiệp','Xã Phú Thị','Xã Phụng Công','Xã Trung Mầu',
-      'Xã Văn Đức','Xã Yên Thường','Xã Yên Viên'],
-  },
-  {
-    name: 'Huyện Thanh Trì',
-    wards: ['Thị trấn Văn Điển','Xã Duyên Hà','Xã Đại Áng','Xã Đông Mỹ','Xã Hữu Hòa',
-      'Xã Liên Ninh','Xã Ngũ Hiệp','Xã Ngọc Hồi','Xã Tả Thanh Oai','Xã Tam Hiệp',
-      'Xã Tân Triều','Xã Thanh Liệt','Xã Tứ Hiệp','Xã Vĩnh Quỳnh','Xã Yên Mỹ'],
-  },
-  {
-    name: 'Huyện Hoài Đức',
-    wards: ['Thị trấn Trạm Trôi','Xã An Khánh','Xã An Thượng','Xã Cát Quế','Xã Di Trạch',
-      'Xã Đắc Sở','Xã Đông La','Xã Dương Liễu','Xã Lại Yên','Xã La Phù',
-      'Xã Minh Khai','Xã Song Phương','Xã Sơn Đồng','Xã Tiền Yên','Xã Vân Canh',
-      'Xã Vân Côn','Xã Yên Sở'],
-  },
-  {
-    name: 'Huyện Mê Linh',
-    wards: ['Thị trấn Chi Đông','Thị trấn Quang Minh','Xã Chu Phan','Xã Đại Thịnh',
-      'Xã Hoàng Kim','Xã Kim Hoa','Xã Liên Mạc','Xã Mê Linh','Xã Tam Đồng',
-      'Xã Thanh Lâm','Xã Tráng Việt','Xã Tiến Thắng','Xã Tiến Thịnh','Xã Tự Lập',
-      'Xã Văn Khê','Xã Vạn Yên'],
-  },
-  {
-    name: 'Huyện Thường Tín',
-    wards: ['Thị trấn Thường Tín','Xã Chương Dương','Xã Dũng Tiến','Xã Duyên Thái',
-      'Xã Hà Hồi','Xã Hiền Giang','Xã Hòa Bình','Xã Khánh Hà','Xã Lê Lợi',
-      'Xã Liên Phương','Xã Minh Cường','Xã Nghiêm Xuyên','Xã Nguyễn Trãi',
-      'Xã Nhị Khê','Xã Ninh Sở','Xã Quất Động','Xã Tân Minh','Xã Thắng Lợi',
-      'Xã Thống Nhất','Xã Thư Phú','Xã Tiền Phong','Xã Tô Hiệu','Xã Tự Nhiên',
-      'Xã Văn Bình','Xã Văn Phú','Xã Văn Tự','Xã Vạn Điểm','Xã Vân Tảo'],
-  },
-]
+const ALL_WARDS = [
+  'Phường Hàng Bạc', 'Phường Hàng Bài', 'Phường Hàng Boong', 'Phường Hàng Bồ',
+  'Phường Hàng Buồm', 'Phường Hàng Đào', 'Phường Hàng Gai', 'Phường Hàng Mã',
+  'Phường Hàng Trống', 'Phường Chương Dương', 'Phường Cửa Đông', 'Phường Cửa Nam',
+  'Phường Đồng Xuân', 'Phường Lý Thái Tổ', 'Phường Phan Chu Trinh', 'Phường Phúc Tân',
+  'Phường Tràng Tiền', 'Phường Trần Hưng Đạo',
+  'Phường Cống Vị', 'Phường Điện Biên', 'Phường Đội Cấn', 'Phường Giảng Võ',
+  'Phường Kim Mã', 'Phường Liễu Giai', 'Phường Ngọc Hà', 'Phường Ngọc Khánh',
+  'Phường Nhúc Lệ', 'Phường Phúc Xá', 'Phường Quán Thánh', 'Phường Thành Công',
+  'Phường Trúc Bạch', 'Phường Vĩnh Phúc',
+  'Phường Cát Linh', 'Phường Hàng Bột', 'Phường Khâm Thiên', 'Phường Khương Thượng',
+  'Phường Kim Liên', 'Phường Láng Hạ', 'Phường Láng Thượng', 'Phường Nam Đồng',
+  'Phường Ngã Tư Sở', 'Phường Nguyễn Trãi', 'Phường Ô Chợ Dừa', 'Phường Phương Liên',
+  'Phường Phương Mai', 'Phường Quang Trung', 'Phường Quốc Tử Giám', 'Phường Thịnh Quang',
+  'Phường Thổ Quan', 'Phường Trung Liệt', 'Phường Trung Phụng', 'Phường Trung Tự',
+  'Phường Văn Chương', 'Phường Văn Miếu',
+  'Phường Bách Khoa', 'Phường Bạch Đằng', 'Phường Bạch Mai', 'Phường Bùi Thị Xuân',
+  'Phường Cầu Dền', 'Phường Đồng Nhân', 'Phường Đồng Tâm', 'Phường Lê Đại Hành',
+  'Phường Minh Khai', 'Phường Ngô Thì Nhậm', 'Phường Nguyễn Du', 'Phường Phạm Đình Hổ',
+  'Phường Phố Huế', 'Phường Quỳnh Lôi', 'Phường Quỳnh Mai', 'Phường Thanh Lương',
+  'Phường Thanh Nhàn', 'Phường Trương Định', 'Phường Tương Mai', 'Phường Vĩnh Tuy',
+  'Phường Đại Kim', 'Phường Định Công', 'Phường Giáp Bát', 'Phường Hoàng Liệt',
+  'Phường Hoàng Văn Thụ', 'Phường Lĩnh Nam', 'Phường Mai Động', 'Phường Tân Mai',
+  'Phường Thanh Trì', 'Phường Thịnh Liệt', 'Phường Trần Phú', 'Phường Vĩnh Hưng', 'Phường Yên Sở',
+  'Phường Hạ Đình', 'Phường Khương Đình', 'Phường Khương Mai', 'Phường Khương Trung',
+  'Phường Kim Giang', 'Phường Nhân Chính', 'Phường Phương Liệt', 'Phường Thanh Xuân Bắc',
+  'Phường Thanh Xuân Nam', 'Phường Thanh Xuân Trung', 'Phường Thượng Đình',
+  'Phường Dịch Vọng', 'Phường Dịch Vọng Hậu', 'Phường Mai Dịch', 'Phường Nghĩa Đô',
+  'Phường Nghĩa Tân', 'Phường Quan Hoa', 'Phường Trung Hoà', 'Phường Yên Hoà',
+  'Phường Bưởi', 'Phường Nhật Tân', 'Phường Phú Thượng', 'Phường Quảng An',
+  'Phường Tứ Liên', 'Phường Thuỵ Khuê', 'Phường Xuân La', 'Phường Yên Phụ',
+  'Phường Bồ Đề', 'Phường Cự Khối', 'Phường Đức Giang', 'Phường Gia Thuỵ',
+  'Phường Giang Biên', 'Phường Long Biên', 'Phường Ngọc Lâm', 'Phường Ngọc Thuỵ',
+  'Phường Phúc Đồng', 'Phường Phúc Lợi', 'Phường Sài Đồng', 'Phường Thạch Bàn',
+  'Phường Thượng Thanh', 'Phường Việt Hưng',
+  'Phường Cổ Nhuế 1', 'Phường Cổ Nhuế 2', 'Phường Đông Ngạc', 'Phường Đức Thắng',
+  'Phường Liên Mạc', 'Phường Phú Diễn', 'Phường Phúc Diễn',
+  'Phường Tây Tựu', 'Phường Thụy Phương', 'Phường Thượng Cát', 'Phường Xuân Đỉnh', 'Phường Xuân Tảo',
+  'Phường Cầu Diễn', 'Phường Đại Mỗ', 'Phường Mễ Trì', 'Phường Mỹ Đình 1',
+  'Phường Mỹ Đình 2', 'Phường Phú Đô', 'Phường Phương Canh', 'Phường Tây Mỗ',
+  'Phường Trung Văn', 'Phường Xuân Phương',
+  'Phường Biên Giang', 'Phường Dương Nội', 'Phường Đồng Mai', 'Phường Hà Cầu',
+  'Phường La Khê', 'Phường Mộ Lao', 'Phường Phú La',
+  'Phường Phú Lãm', 'Phường Phú Lương', 'Phường Phúc La',
+  'Phường Vạn Phúc', 'Phường Văn Quán', 'Phường Yên Nghĩa', 'Phường Yết Kiêu',
+  'Xã Đông Anh', 'Xã Sóc Sơn', 'Xã Mê Linh', 'Xã Gia Lâm', 'Xã Thường Tín',
+  'Xã Thanh Oai', 'Xã Chương Mỹ', 'Xã Quốc Oai', 'Xã Thạch Thất', 'Xã Phúc Thọ',
+].sort((a, b) => a.localeCompare(b, 'vi'))
 
 export default {
   name: 'CheckoutApp',
@@ -194,8 +112,13 @@ export default {
       lastOrderId: '',
 
       showMomoQR: false,
+      computedDistanceKm: null,
+      allWards: ALL_WARDS,
+      wardSearch: '',
 
-      hanoiDistricts: HANOI_DISTRICTS,
+      distanceKm: null,
+      distanceLoading: false,
+      distanceTooFar: false,
     }
   },
 
@@ -246,22 +169,25 @@ export default {
 
     shippingFee() {
       if (!this.selectedItems.length) return 0
-      return calcShippingFee(sessionStorage.getItem('selectedStoreDistanceKm'))
+      const km = this.computedDistanceKm !== null
+        ? this.computedDistanceKm
+        : parseFloat(sessionStorage.getItem('selectedStoreDistanceKm') || '')
+      return calcShippingFee(isNaN(km) ? '' : String(km))
     },
 
     grandTotal() {
       return Math.max(0, this.selectedSubtotal + this.shippingFee - this.couponDiscount)
     },
 
-    currentWards() {
-      const d = this.hanoiDistricts.find(d => d.name === this.form.district)
-      return d ? d.wards : []
-    },
 
     computedFullAddress() {
       if (this.addressMode === 'saved' && this.savedAddress) return this.savedAddress
-      const parts = [this.form.street, this.form.ward, this.form.district, 'Hà Nội'].filter(Boolean)
+      const parts = [this.form.street, this.form.ward, 'Hà Nội'].filter(Boolean)
       return parts.join(', ')
+    },
+
+    canProceed() {
+      return !this.distanceTooFar && this.distanceKm !== -1
     },
   },
 
@@ -304,10 +230,12 @@ export default {
       e.target.value = this.form.phone
     },
 
-    onDistrictChange() {
-      this.form.ward = ''
+    filteredWards() {
+      if (!this.wardSearch) return this.allWards
+      return this.allWards.filter(w =>
+        w.toLowerCase().includes(this.wardSearch.toLowerCase())
+      )
     },
-
     useSavedAddress() {
       // Đã dùng savedAddress – không cần làm gì thêm
     },
@@ -319,20 +247,27 @@ export default {
       }
     },
 
+    canProceed() {
+        return !this.distanceTooFar && this.distanceKm !== -1
+    },
+
     validate() {
       const e = {}
+      if (this.distanceTooFar) {
+        e.distance = 'Shop không thể giao hàng vì địa chỉ quá xa (> 10km)'
+      }
       if (!this.form.name.trim()) e.name = 'Vui lòng nhập họ và tên'
       if (!this.form.phone || this.form.phone.length < 10) e.phone = 'Số điện thoại phải đủ 10 số'
-
+      
       // Validate địa chỉ
+      
       if (this.addressMode === 'saved') {
         if (!this.savedAddress) e.address = 'Vui lòng chọn địa chỉ giao hàng'
       } else {
-        if (!this.form.district) e.district = 'Vui lòng chọn quận/huyện'
         if (!this.form.ward) e.ward = 'Vui lòng chọn phường/xã'
         if (!this.form.street.trim()) e.street = 'Vui lòng nhập số nhà, tên đường'
       }
-
+      
       this.errors = e
       return Object.keys(e).length === 0
     },
@@ -383,6 +318,84 @@ export default {
     closeMomoQR() {
       this.showMomoQR = false
     },
+    onWardInput() {
+      const match = this.allWards.find(w => w === this.wardSearch)
+      this.form.ward = match || ''
+    },
+    onWardChange() {
+      const match = this.allWards.find(w => w === this.wardSearch)
+      this.form.ward = match || ''
+    },
+
+    async calcDistance() {
+      if (this.addressMode === 'saved' && this.savedAddress) {
+        const parts = this.savedAddress.split(',').map(s => s.trim())
+        const hanoiIdx = parts.findIndex(p => p.toLowerCase().includes('hà nội'))
+        let searchAddr, fallback
+        if (hanoiIdx >= 2) {
+          searchAddr = parts.slice(hanoiIdx - 2, hanoiIdx + 1).join(', ') + ', Việt Nam'
+          fallback   = parts.slice(hanoiIdx - 1, hanoiIdx + 1).join(', ') + ', Việt Nam'
+        } else {
+          searchAddr = parts.slice(-2).join(', ') + ', Hà Nội, Việt Nam'
+          fallback   = parts.slice(-1).join(', ') + ', Hà Nội, Việt Nam'
+        }
+        console.log('Tìm:', searchAddr, '| Fallback:', fallback)
+        await this._fetchDistance(searchAddr, fallback)
+        return
+      }
+      const ward = this.form.ward || this.wardSearch
+      if (!ward) return
+      await this._fetchDistance(`${ward}, Hà Nội, Việt Nam`)
+    },
+
+  async _fetchDistance(customerAddr, fallbackAddr = null) {
+    this.distanceLoading = true
+    this.distanceKm = null
+    this.distanceTooFar = false
+    try {
+      const encode = s => encodeURIComponent(s)
+      const shopAddr = '241 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Việt Nam'
+
+      const fetchCoord = async (addr) => {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encode(addr)}&format=json&limit=1&countrycodes=vn`
+        const res = await fetch(url, { headers: { 'Accept-Language': 'vi', 'User-Agent': 'DripLabApp/1.0' } })
+        const data = await res.json()
+        return data[0] || null
+      }
+
+      const [shop, customer] = await Promise.all([
+        fetchCoord(shopAddr),
+        fetchCoord(customerAddr),
+      ])
+
+      // Nếu customer null và có fallback → thử lại với phường/xã đơn giản hơn
+      let customerCoord = customer
+      if (!customerCoord && fallbackAddr) {
+        console.log('Thử fallback:', fallbackAddr)
+        customerCoord = await fetchCoord(fallbackAddr)
+      }
+
+      if (!shop || !customerCoord) {
+        this.distanceKm = -1; return
+      }
+
+      const toRad = d => d * Math.PI / 180
+      const lat1 = +shop.lat, lon1 = +shop.lon
+      const lat2 = +customerCoord.lat, lon2 = +customerCoord.lon
+      const R = 6371
+      const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1)
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2
+      this.distanceKm = +(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1)
+      this.distanceTooFar = this.distanceKm >= 10
+      this.computedDistanceKm = this.distanceTooFar ? null : this.distanceKm
+      sessionStorage.setItem('selectedStoreDistanceKm', this.distanceTooFar ? '' : String(this.distanceKm))
+    } catch (e) {
+      console.error('Distance error:', e)
+      this.distanceKm = -1
+    } finally {
+      this.distanceLoading = false
+    }
+  },
     async onMomoPaid() {
       this.showMomoQR = false
       this.form.payment = 'MOMO'
