@@ -2,67 +2,58 @@ import { ref, onMounted } from 'vue'
 import api from '../../api/axios.js'
 
 export function useUserVoucher() {
+  const promos = ref([])       // voucher hiển thị trên trang
+  const savedIds = ref([])     // id đã "có sẵn" (auto từ online+offline)
+  const toast = ref({ show: false, message: '' })
+  let toastTimer = null
 
-    const promos = ref([])
-    const rewardPromos = ref([])
+  function showToast(msg) {
+    toast.value = { show: true, message: msg }
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => { toast.value.show = false }, 2800)
+  }
 
-    const myPromos = ref([]) //ze coppied code from ze promocode site
+  // Voucher online+offline → tự động vào kho của user
+  async function loadPromos() {
+    try {
+      const { data } = await api.get('/promo-codes')
+      const now = new Date()
 
-    const userId = ref(null)
-    const toast = ref({ show: false, message: '', type: 'success' })
+      promos.value = data.filter(v =>
+        v.displayLocation === 'online + offline' &&
+        v.status === true &&
+        v.quantity > 0 &&
+        new Date(v.endDate) >= now
+      )
 
-    async function loadAll() {
-        const res = await api.get('/promo-codes')
-        const now = new Date()
-        promos.value = res.data.filter(v =>
-            v.status &&
-            v.quantity > 0 &&
-            new Date(v.endDate) >= now &&
-            (v.displayLocation ?? 'trên web') === 'trên web'
-        )
+      // Tất cả id này đều coi như "đã lưu" tự động
+      savedIds.value = promos.value.map(v => v.id)
+
+    } catch (e) {
+      console.error('Lỗi load promo:', e)
     }
+  }
 
-    async function loadMine() {
-        const res = await api.get('/promo-codes/my-promos',
-            { params: { userId: userId.value } })
-        myPromos.value = res.data.map(v => v.id)
-    }
+  function isSaved(id) {
+    return savedIds.value.includes(id)
+  }
 
-    function isSaved(promoId) {
-        return myPromos.value.includes(promoId)
-    }
+  // Không cần savePromo nữa vì tự động,
+  // nhưng giữ lại để copy mã
+  function savePromo(id) {
+    const v = promos.value.find(p => p.id === id)
+    if (!v) return
+    showToast(`Đã sao chép mã: ${v.code}`)
+    navigator.clipboard?.writeText(v.code).catch(() => {})
+  }
 
-    async function savePromo(promoId) {
-        try {
-            await api.post(`/promo-codes/${promoId}/save`, null,
-                { params: { userId: userId.value } })
-            await Promise.all([loadAll(), loadMine()])
-            showToast('Đã lưu mã vào kho của bạn!', 'success')
-        } catch (e) {
-            showToast(e.response?.data?.message || 'Lỗi khi lưu mã', 'error')
-        }
-    }
+  function fmtValue(v) {
+    return v.category === 'PHẦN TRĂM'
+      ? `${v.value}%`
+      : `${(+v.value).toLocaleString('vi-VN')}đ`
+  }
 
-    function fmtValue(v) {
-        return v.category === 'PHẦN TRĂM'
-            ? v.value + '%'
-            : (+v.value).toLocaleString('vi-VN') + 'đ'
-    }
+  onMounted(loadPromos)
 
-    function showToast(message, type = 'success') {
-        toast.value = { show: true, message, type }
-        setTimeout(() => { toast.value.show = false }, 3500)
-    }
-
-    onMounted(async () => {
-        userId.value = JSON.parse(localStorage.getItem('user'))?.id
-
-        await Promise.all([
-            loadAll(),
-            loadMine()
-        ])
-        console.log(promos)
-    })
-
-    return { promos, myPromos, isSaved, savePromo, fmtValue, toast }
+  return { promos, isSaved, savePromo, fmtValue, toast }
 }

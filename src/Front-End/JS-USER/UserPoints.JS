@@ -108,15 +108,23 @@ export function useUserPoints() {
   async function loadSavedPromos() {
     if (!userId.value) return
     try {
-      const res = await api.get('/promo-codes/my-promos', {
-        params: { userId: userId.value }
-      })
-      myPromos.value = res.data
-      savedPromoIds.value = res.data.map(v => v.id)
+        const res = await api.get('/promo-codes/my-promos', {
+            params: { userId: userId.value }
+        })
+        console.log('my-promos response:', res.data)
+        
+        const now = new Date()
+        myPromos.value = res.data.filter(v =>
+            v.status === true &&
+            v.quantity > 0 &&
+            new Date(v.endDate) >= now
+        )
+        savedPromoIds.value = myPromos.value.map(v => v.id)
+
     } catch (e) {
-      console.error('Không thể tải kho mã:', e)
+        console.error('Không thể tải kho mã:', e)
     }
-  }
+}
 
   /** Kiểm tra user có thể đổi voucher này không */
   function canRedeem(voucher) {

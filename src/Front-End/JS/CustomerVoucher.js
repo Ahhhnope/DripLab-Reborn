@@ -9,70 +9,70 @@ function format(v) {
         || new Date(v.endDate) < new Date()
 
     return {
-        id:              v.id,
-        code:            v.code,
-        name:            v.name,
-        type:            v.category,                          // "PHẦN TRĂM" | "TRỪ TIỀN"
-        value:           v.category === 'PHẦN TRĂM'
-                             ? v.value + '%'
-                             : (+v.value).toLocaleString('vi-VN') + 'đ',
-        quantity:        v.quantity,
-        minOrderValue:   v.minOrderValue  ?? 0,
-        displayLocation: v.displayLocation ?? 'trên web',
-        pointCost:       v.pointCost ?? 0,
-        start:           v.startDate?.split('T')[0] ?? '',
-        end:             v.endDate?.split('T')[0]   ?? '',
-        status:          expired ? 'TẮT / HẾT HẠN' : 'HOẠT ĐỘNG'
+        id: v.id,
+        code: v.code,
+        name: v.name,
+        type: v.category,
+        value: v.category === 'PHẦN TRĂM'
+            ? v.value + '%'
+            : (+v.value).toLocaleString('vi-VN') + 'đ',
+        quantity: v.quantity,
+        minOrderValue: v.minOrderValue ?? 0,
+        displayLocation: v.displayLocation ?? 'online - offline',
+        pointCost: v.pointCost ?? 0,
+        start: v.startDate?.split('T')[0] ?? '',
+        end: v.endDate?.split('T')[0] ?? '',
+        status: expired ? 'TẮT / HẾT HẠN' : 'HOẠT ĐỘNG'
     }
 }
 
 // ── Form trống khi thêm mới ────────────────────────────────────
 const emptyAdd = () => ({
-    code:            '',
-    name:            '',
-    category:        'PHẦN TRĂM',
-    value:           '',
-    quantity:        1,
-    minOrderValue:   0,
-    displayLocation: 'trên web',
-    pointCost:       0,
-    start:           '',
-    end:             ''
+    code: '',
+    name: '',
+    category: 'PHẦN TRĂM',
+    value: '',
+    quantity: 1,
+    minOrderValue: 0,
+    displayLocation: 'online + offline',
+    pointCost: 0,
+    start: '',
+    end: ''
 })
 
 export default {
 
     data: () => ({
         // Filter
-        search:   '',
-        status:   '',
-        type:     '',
+        search: '',
+        status: '',
+        type: '',
         fromDate: '',
-        toDate:   '',
+        toDate: '',
 
         // Data
-        vouchers:         [],
+        vouchers: [],
         filteredVouchers: [],
-        currentPage:      1,
+        currentPage: 1,
 
         // Modal thêm
         showAddModal: false,
-        addForm:      emptyAdd(),
+        addForm: emptyAdd(),
 
         // Modal sửa
         showEditModal: false,
         editForm: {
-            id:              null,
-            code:            '',
-            name:            '',
-            category:        'PHẦN TRĂM',
-            value:           '',
-            quantity:        1,
-            minOrderValue:   0,
-            displayLocation: 'trên web',
-            start:           '',
-            end:             '',
-            status:          'HOẠT ĐỘNG'
+            id: null,
+            code: '',
+            name: '',
+            category: 'PHẦN TRĂM',
+            value: '',
+            quantity: 1,
+            minOrderValue: 0,
+            displayLocation: 'online - offline',
+            start: '',
+            end: '',
+            status: 'HOẠT ĐỘNG'
         },
 
         // Toast
@@ -96,7 +96,7 @@ export default {
             try {
                 const res = await api.get(API)
                 console.log(res.data)
-                this.vouchers         = res.data.map(format)
+                this.vouchers = res.data.map(format)
                 this.filteredVouchers = [...this.vouchers]
             } catch (e) {
                 this.showToast(
@@ -112,10 +112,10 @@ export default {
         filterVoucher() {
             this.filteredVouchers = this.vouchers.filter(v =>
                 (v.code + v.name).toLowerCase().includes(this.search.toLowerCase()) &&
-                (!this.status   || v.status === this.status)   &&
-                (!this.type     || v.type   === this.type)     &&
-                (!this.fromDate || v.start  >= this.fromDate)  &&
-                (!this.toDate   || v.end    <= this.toDate)
+                (!this.status || v.status === this.status) &&
+                (!this.type || v.type === this.type) &&
+                (!this.fromDate || v.start >= this.fromDate) &&
+                (!this.toDate || v.end <= this.toDate)
             )
             this.currentPage = 1
         },
@@ -129,7 +129,7 @@ export default {
 
         // ── Thêm ────────────────────────────────────────────────
         openAddModal() {
-            this.addForm     = emptyAdd()
+            this.addForm = emptyAdd()
             this.showAddModal = true
         },
 
@@ -139,19 +139,23 @@ export default {
                 this.showToast('Vui lòng điền đầy đủ thông tin!', 'error')
                 return
             }
+            if (parseFloat(f.value) > 50) {
+                this.showToast('Giá trị giảm không được vượt quá 50%!', 'error')
+                return
+            }
             try {
                 await api.post(API + '/add', {
-                    code:            f.code.toUpperCase().trim(),
-                    name:            f.name,
-                    category:        f.category,
-                    value:           parseFloat(f.value),
-                    quantity:        parseInt(f.quantity),
-                    minOrderValue:   parseFloat(f.minOrderValue)   || 0,
+                    code: f.code.toUpperCase().trim(),
+                    name: f.name,
+                    category: f.category,
+                    value: parseFloat(f.value),
+                    quantity: parseInt(f.quantity),
+                    minOrderValue: parseFloat(f.minOrderValue) || 0,
                     displayLocation: f.displayLocation,
-                    pointCost:       parseFloat(f.pointCost) || 0,
-                    startDate:       new Date(f.start).toISOString(),
-                    endDate:         new Date(f.end).toISOString(),
-                    status:          true
+                    pointCost: parseFloat(f.pointCost) || 0,
+                    startDate: new Date(f.start).toISOString(),
+                    endDate: new Date(f.end).toISOString(),
+                    status: true
                 })
                 await this.loadVouchers()
                 this.showAddModal = false
@@ -164,17 +168,17 @@ export default {
         // ── Sửa ─────────────────────────────────────────────────
         editVoucher(v) {
             this.editForm = {
-                id:              v.id,
-                code:            v.code,
-                name:            v.name,
-                category:        v.type,
-                value:           parseFloat(v.value),
-                quantity:        v.quantity,
-                minOrderValue:   v.minOrderValue,
+                id: v.id,
+                code: v.code,
+                name: v.name,
+                category: v.type,
+                value: parseFloat(v.value),
+                quantity: v.quantity,
+                minOrderValue: v.minOrderValue,
                 displayLocation: v.displayLocation,
-                start:           v.start,
-                end:             v.end,
-                status:          v.status
+                start: v.start,
+                end: v.end,
+                status: v.status
             }
             this.showEditModal = true
         },
@@ -183,17 +187,17 @@ export default {
             const f = this.editForm
             try {
                 await api.put(API + '/update/' + f.id, {
-                    id:              f.id,
-                    code:            f.code.toUpperCase().trim(),
-                    name:            f.name,
-                    category:        f.category,
-                    value:           parseFloat(f.value),
-                    quantity:        parseInt(f.quantity),
-                    minOrderValue:   parseFloat(f.minOrderValue)   || 0,
+                    id: f.id,
+                    code: f.code.toUpperCase().trim(),
+                    name: f.name,
+                    category: f.category,
+                    value: parseFloat(f.value),
+                    quantity: parseInt(f.quantity),
+                    minOrderValue: parseFloat(f.minOrderValue) || 0,
                     displayLocation: f.displayLocation,
-                    startDate:       f.start ? new Date(f.start).toISOString() : null,
-                    endDate:         f.end   ? new Date(f.end).toISOString()   : null,
-                    status:          f.status === 'HOẠT ĐỘNG'
+                    startDate: f.start ? new Date(f.start).toISOString() : null,
+                    endDate: f.end ? new Date(f.end).toISOString() : null,
+                    status: f.status === 'HOẠT ĐỘNG'
                 })
                 await this.loadVouchers()
                 this.showEditModal = false
@@ -230,10 +234,10 @@ export default {
         },
 
         // ── Pagination ──────────────────────────────────────────
-        prevPage()     { this.currentPage-- },
-        nextPage()     { this.currentPage++ },
-        closeModal()   { this.showEditModal = false },
-        closeAddModal(){ this.showAddModal  = false },
+        prevPage() { this.currentPage-- },
+        nextPage() { this.currentPage++ },
+        closeModal() { this.showEditModal = false },
+        closeAddModal() { this.showAddModal = false },
 
         // ── Toast ───────────────────────────────────────────────
         showToast(message, type = 'success') {

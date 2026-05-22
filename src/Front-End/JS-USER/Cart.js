@@ -22,7 +22,7 @@ function calcShippingFee(distanceKmStr) {
   // 0 – 1 km: miễn phí
   if (km <= 1) return 0
 
-  
+
   const extraKm = Math.ceil(km - 1)   // số bậc km vượt quá km đầu tiên
   const cappedKm = Math.min(extraKm, 7) // tối đa 7 bậc (tương ứng 7–8km = 35.000đ)
   return cappedKm * 5000
@@ -58,6 +58,7 @@ export default {
       orderNote: '',
 
       savedPromo: [],
+      selectedPromoId: null,
       couponCode: '',
       couponApplied: false,
       couponDiscount: 0,
@@ -275,7 +276,7 @@ export default {
       document.body.style.overflow = ''
     },
 
-  
+
     openMomoFlow() {
       this.paymentMethod = 'MOMO'
       this.showOrderModal = false
@@ -295,37 +296,41 @@ export default {
 
     async loadSavedCoupon(userId) {
       try {
-        const res = await api.get('/promo-codes/my-promos', {params: { userId }})
-        this.savedPromo = res.data.filter(p => {if(p.status) return p})
+        const res = await api.get('/promo-codes/my-promos', { params: { userId } })
+        this.savedPromo = res.data.filter(p => { if (p.status) return p })
       } catch (error) {
-        console.log("error fetching saved promo codes: "+error )
+        console.log("error fetching saved promo codes: " + error)
       }
     },
 
     async applyCoupon() {
-      if (!this.couponCode) return
+      // Lấy code từ promo đang chọn
+      const promo = this.savedPromo.find(p => p.id === this.selectedPromoId)
+      if (!promo) return
+      this.couponCode = promo.code
 
       try {
         const res = await api.post('/promo-codes/check', {
-          userId:     this.authStore.user.id,
-          code:       this.couponCode,
+          userId: this.authStore.user.id,
+          code: this.couponCode,
           orderTotal: this.selectedSubtotal,
         })
         this.couponDiscount = res.data.discount
-        this.couponApplied  = true
-        this.couponAppliedId = 
-        this.couponMessage  = `✓ Áp dụng thành công! (-${this.formatVND(res.data.discount)})`
+        this.couponApplied = true
+        this.couponMessage = `✓ Áp dụng thành công! (-${this.formatVND(res.data.discount)})`
       } catch (e) {
         this.couponDiscount = 0
-        this.couponApplied  = false
-        this.couponMessage  = e.response?.data?.message || 'Mã không hợp lệ'
+        this.couponApplied = false
+        this.couponMessage = e.response?.data?.message || 'Mã không hợp lệ'
       }
     },
+
     removeCoupon() {
-      this.couponCode     = ''
-      this.couponApplied  = false
+      this.selectedPromoId = null
+      this.couponCode = ''
+      this.couponApplied = false
       this.couponDiscount = 0
-      this.couponMessage  = ''
+      this.couponMessage = ''
     },
 
     async placeOrder() {
@@ -373,12 +378,12 @@ export default {
       this.$router.push('/menu')
     },
     goToCheckout() {
-    console.log('goToCheckout called, selectedItems:', this.selectedItems.length)
-    if (!this.selectedItems.length) return
-    sessionStorage.setItem('checkoutSelectedIds', JSON.stringify(this.selectedIds))
+      console.log('goToCheckout called, selectedItems:', this.selectedItems.length)
+      if (!this.selectedItems.length) return
+      sessionStorage.setItem('checkoutSelectedIds', JSON.stringify(this.selectedIds))
 
-    this.$router.push('/cart/checkout')
+      this.$router.push('/cart/checkout')
     },
   },
-  
+
 }
