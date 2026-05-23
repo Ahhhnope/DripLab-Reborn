@@ -37,7 +37,7 @@
             <tr>
               <th>STT</th>
               <th>Mã hóa đơn</th>
-              <th>Mã đơn hàng</th>
+              <th>Tên khách hàng</th>
               <th>Ngày</th>
               <th>Phương thức</th>
               <th>Nhận hàng</th>
@@ -55,7 +55,7 @@
               <!-- STT liên tục qua các trang -->
               <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
               <td>{{ invoice.invoice_id }}</td>
-              <td>{{ invoice.order_id }}</td>
+              <td>{{ invoice.customer.name }}</td>
               <td>{{ invoice.date }}</td>
               <td>{{ invoice.payment_method }}</td>
               <td>
