@@ -2,16 +2,27 @@
   <div class="order-table-wrapper">
     <div class="table-scroll">
       <table>
+        <colgroup>
+          <col class="c-code" />
+          <col class="c-user" />
+          <col class="c-pay" />
+          <col class="c-status" />
+          <col class="c-qty" />
+          <col class="c-price" />
+          <col class="c-date" />
+          <col class="c-action" />
+        </colgroup>
+
         <thead>
           <tr>
             <th>Mã đơn</th>
             <th>Người đặt</th>
             <th>Thanh toán</th>
             <th>Trạng thái</th>
-            <th>Số món</th>
-            <th>Phải trả</th>
+            <th class="a-center">Số món</th>
+            <th class="a-right">Phải trả</th>
             <th>Ngày đặt</th>
-            <th>Thao tác</th>
+            <th class="a-center">Thao tác</th>
           </tr>
         </thead>
 
@@ -25,10 +36,10 @@
                 {{ statusText(r.status) }}
               </span>
             </td>
-            <td class="text-center">{{ r.qty ?? "-" }}</td>
-            <td class="text-right price">{{ money(r.pay) }}</td>
+            <td class="a-center">{{ r.qty ?? "-" }}</td>
+            <td class="a-right price">{{ money(r.pay) }}</td>
             <td class="nowrap">{{ r.deadline || "-" }}</td>
-            <td class="text-center">
+            <td class="a-center">
               <button class="btn-view" @click="emit('view', r)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2"
@@ -76,45 +87,64 @@ const { money, statusText, statusClass } = useOrderTable(emit);
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
+
+/* ── Độ rộng cột ─────────────────────────────── */
+col.c-code   { width: 120px; }
+col.c-user   { width: 150px; }
+col.c-pay    { width: 110px; }
+col.c-status { width: 135px; }
+col.c-qty    { width: 80px;  }
+col.c-price  { width: 115px; }
+col.c-date   { width: 165px; }
+col.c-action { width: 125px; }
 
 thead th {
   background: #f1f5f9;
-  padding: 13px 16px;
-  font-size: 12px;
+  padding: 11px 14px;
+  font-size: 11px;
   font-weight: 700;
   color: #374151;
   text-align: left;
-  border: 1px solid #e2e8f0;
+  border-bottom: 2px solid #cbd5e1;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 tbody tr { transition: background 0.12s; }
 tbody tr:hover { background: #fafbff; }
+tbody tr:not(:last-child) td { border-bottom: 1px solid #e2e8f0; }
 
 tbody td {
-  padding: 12px 16px;
+  padding: 11px 14px;
   font-size: 13.5px;
   color: #4b5563;
-  border: 1px solid #e5e7eb;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.text-center { text-align: center; }
-.text-right  { text-align: right; }
-.nowrap      { white-space: nowrap; }
+.a-center { text-align: center; }
+.a-right  { text-align: right;  }
+.nowrap   { white-space: nowrap; }
 
 .order-code {
   font-weight: 800;
   color: #2563eb;
-  font-size: 13.5px;
+  font-size: 13px;
 }
 
 .price {
   font-weight: 700;
   color: #111827;
+  letter-spacing: -0.01em;
 }
 
 /* ── Status badge ─────────────────────────────── */
@@ -123,7 +153,7 @@ tbody td {
   align-items: center;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   border: 1px solid transparent;
   white-space: nowrap;
@@ -147,13 +177,13 @@ tbody td {
 .btn-view {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: #2563eb;
   color: white;
   border: none;
-  padding: 7px 14px;
+  padding: 6px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
