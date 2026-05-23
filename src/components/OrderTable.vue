@@ -28,7 +28,7 @@
 
         <tbody>
           <tr v-for="r in items" :key="r.code">
-            <td><span class="order-code">{{ r.code }}</span></td>
+            <td><span class="order-code">{{ r.id }}</span></td>
             <td>{{ r.user?.fullName || "-" }}</td>
             <td>{{ r.shippingType || "-" }}</td>
             <td>
