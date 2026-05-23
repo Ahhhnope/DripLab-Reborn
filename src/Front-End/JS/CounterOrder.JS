@@ -159,7 +159,7 @@ export function useCounterOrder() {
 
     async function openSelectCustomerPopup() {
         try {
-            const res = await api.get('/customers')
+            const res = await api.get('/users/customers')
             customerList.value = res.data || []
         } catch (error) {
             console.error('Lỗi lấy danh sách khách hàng:', error)
@@ -173,9 +173,9 @@ export function useCounterOrder() {
     }
 
     function selectExistingCustomer(cus) {
-        customerNameInput.value = cus.name || ''
+        customerNameInput.value = cus.fullName || ''
         customerPhoneInput.value = cus.phone || ''
-        customerName.value = cus.name || ''
+        customerName.value = cus.fullName || ''
         customerPhone.value = cus.phone || ''
         nameError.value = ''
         phoneError.value = ''
@@ -200,6 +200,7 @@ export function useCounterOrder() {
         phoneError.value = ''
     }
 
+    // Trả về true nếu lưu thành công, false nếu thất bại
     function saveCustomerInfo() {
         let valid = true
         nameError.value = ''
@@ -213,16 +214,18 @@ export function useCounterOrder() {
             valid = false
         }
 
-        if (!valid) return
+        if (!valid) return false
 
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
+
         customerSaved.value = true
         isEditingInfo.value = false
         if (currentOrder.value) {
             currentOrder.value.customerName = customerName.value
             currentOrder.value.customerPhone = customerPhone.value
         }
+        return true
     }
 
     function editCustomerInfo() { isEditingInfo.value = true }

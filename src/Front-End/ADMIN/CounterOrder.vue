@@ -46,6 +46,57 @@ const {
 
 const showMomoQR = ref(false)
 
+// ── Thông báo thêm khách hàng ──
+const showCustomerNotif = ref(false)
+const customerNotifSuccess = ref(true)
+const customerNotifProgress = ref(100)
+let notifTimer = null
+let notifProgressInterval = null
+
+function showNotification(success) {
+  // Xóa timer cũ nếu đang chạy
+  if (notifTimer) { clearTimeout(notifTimer); notifTimer = null }
+  if (notifProgressInterval) { clearInterval(notifProgressInterval); notifProgressInterval = null }
+
+  customerNotifSuccess.value = success
+  customerNotifProgress.value = 100
+  showCustomerNotif.value = true
+
+  const duration = 5000
+  const step = 50
+  const decrement = (step / duration) * 100
+
+  notifProgressInterval = setInterval(() => {
+    customerNotifProgress.value = Math.max(0, customerNotifProgress.value - decrement)
+  }, step)
+
+  notifTimer = setTimeout(() => {
+    showCustomerNotif.value = false
+    clearInterval(notifProgressInterval)
+    notifProgressInterval = null
+  }, duration)
+}
+
+async function handleSaveCustomerInfo() {
+  // Validate trước khi gọi
+  let valid = true
+  if (!customerPhoneInput.value) valid = false
+  else if (customerPhoneInput.value.length < 10) valid = false
+
+  if (!valid) {
+    saveCustomerInfo()
+    showNotification(false)
+    return
+  }
+
+  try {
+    saveCustomerInfo()
+    showNotification(true)
+  } catch (e) {
+    showNotification(false)
+  }
+}
+
 // ── Phân trang popup chọn khách hàng ──
 const customerSearchText = ref('')
 const customerPageSize = 10
@@ -283,7 +334,7 @@ async function goToReviewWithId() {
             <button class="right-customer-btn right-customer-btn--select" @click="openSelectCustomerPopupWrapped">
               Chọn khách hàng
             </button>
-            <button class="right-customer-btn right-customer-btn--add" @click="saveCustomerInfo">
+            <button class="right-customer-btn right-customer-btn--add" @click="handleSaveCustomerInfo">
               Thêm khách hàng
             </button>
           </div>
@@ -397,6 +448,35 @@ async function goToReviewWithId() {
       </div>
     </div>
 
+    <!-- ==================== POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==================== -->
+    <div v-if="showCustomerNotif" class="confirm-overlay customer-notif-overlay">
+      <div class="confirm-popup customer-notif-popup" :class="customerNotifSuccess ? 'notif-success' : 'notif-error'">
+        <div class="confirm-logo">
+          <img :src="logoDrip" alt="DripLab" style="height:60px;object-fit:contain" />
+        </div>
+        <div class="notif-icon-wrap">
+          <span v-if="customerNotifSuccess" class="notif-icon notif-icon--success">✓</span>
+          <span v-else class="notif-icon notif-icon--error">✕</span>
+        </div>
+        <p class="confirm-title notif-title" :class="customerNotifSuccess ? 'notif-title--success' : 'notif-title--error'">
+          {{ customerNotifSuccess ? 'Thêm thành công!' : 'Thêm thất bại!' }}
+        </p>
+        <p class="cancel-order-sub">
+          {{ customerNotifSuccess
+            ? 'Thông tin khách hàng đã được lưu lại.'
+            : 'Vui lòng kiểm tra lại thông tin khách hàng.' }}
+        </p>
+        <!-- Thanh tiến trình tự đóng -->
+        <div class="notif-progress-wrap">
+          <div
+            class="notif-progress-bar"
+            :class="customerNotifSuccess ? 'notif-progress-bar--success' : 'notif-progress-bar--error'"
+            :style="{ width: customerNotifProgress + '%' }"
+          ></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ==================== POPUP CHỌN KHÁCH HÀNG ==================== -->
     <div v-if="showSelectCustomerPopup" class="confirm-overlay">
       <div class="select-customer-popup">
@@ -433,7 +513,7 @@ async function goToReviewWithId() {
               </tr>
               <tr v-for="(cus, i) in pagedCustomerList" :key="cus.id || cus.phone" class="scp-tr">
                 <td class="scp-td col-stt">{{ (customerCurrentPage - 1) * customerPageSize + i + 1 }}</td>
-                <td class="scp-td col-name">{{ cus.name || 'Không tên' }}</td>
+                <td class="scp-td col-name">{{ cus.fullName || 'Không tên' }}</td>
                 <td class="scp-td col-phone">{{ cus.phone || '—' }}</td>
                 <td class="scp-td col-action">
                   <button class="scp-choose-btn" @click="selectExistingCustomer(cus)">Chọn</button>
