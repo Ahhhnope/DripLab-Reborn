@@ -12,6 +12,12 @@
   margin-bottom: 16px;
 }
 
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
 .admin-table {
   border-collapse: collapse;
   width: 100%;
@@ -236,4 +242,72 @@
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* ── Confirm Modal ─────────────────────────────────────── */
+.confirm-modal {
+  background: white;
+  padding: 32px 28px 24px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.confirm-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.confirm-icon svg {
+  background: #f3f4f6;
+  border-radius: 50%;
+  padding: 10px;
+  width: 60px;
+  height: 60px;
+}
+
+.confirm-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-confirm-ok {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-confirm-ok:hover {
+  background: #15803d;
+}
+
+.btn-confirm-cancel {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-confirm-cancel:hover {
+  background: #d1d5db;
 }

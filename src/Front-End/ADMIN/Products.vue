@@ -25,6 +25,28 @@ const errors = ref({
     imageUrl: '',
 });
 
+// ── Confirm modal ──────────────────────────────────────────
+const showConfirmModal = ref(false);
+const confirmMessage = ref('');
+const confirmAction = ref(null);
+
+function openConfirm(message, action) {
+    confirmMessage.value = message;
+    confirmAction.value = action;
+    showConfirmModal.value = true;
+}
+
+function closeConfirm() {
+    showConfirmModal.value = false;
+    confirmAction.value = null;
+}
+
+async function doConfirm() {
+    if (confirmAction.value) await confirmAction.value();
+    closeConfirm();
+}
+// ──────────────────────────────────────────────────────────
+
 function validateNewDrink() {
     let valid = true;
     errors.value = { name: '', basePrice: '', description: '', imageUrl: '' };
@@ -48,8 +70,13 @@ function validateNewDrink() {
     return valid;
 }
 
-async function createDrink() {
+// Thêm mới — validate trước rồi mở confirm
+function requestCreateDrink() {
     if (!validateNewDrink()) return;
+    openConfirm('Xác nhận thêm sản phẩm mới?', createDrink);
+}
+
+async function createDrink() {
     try {
         await addDrink(newDrink.value);
         showAddModal.value = false;
@@ -57,6 +84,28 @@ async function createDrink() {
     } catch (e) {
         alert("Lỗi: " + e.message);
     }
+}
+
+// Sửa — mở confirm
+function requestSaveDrink(drink) {
+    openConfirm('Xác nhận lưu thay đổi?', () => saveDrink(drink));
+}
+
+async function saveDrink(drink) {
+    await updateDrink(drink);
+    showEditModal.value = false;
+    loadDrinks();
+}
+
+// Bật/Tắt — mở confirm
+function requestToggleDrink(id, isActive) {
+    const msg = isActive ? 'Xác nhận tạm dừng sản phẩm?' : 'Xác nhận mở bán sản phẩm?';
+    openConfirm(msg, () => toggleDrink(id));
+}
+
+async function toggleDrink(id) {
+    await toggleDrinks(id);
+    loadDrinks();
 }
 
 function getImageUrl(url) {
@@ -97,7 +146,6 @@ function openAddModal() {
     showAddModal.value = true;
 }
 
-
 function openEdit(drink) {
     selectedDrink.value = {
         ...drink,
@@ -115,17 +163,6 @@ function closeModal() {
     showEditModal.value = false;
 }
 
-async function saveDrink(drink) {
-    await updateDrink(drink);
-    showEditModal.value = false;
-    loadDrinks();
-}
-
-async function toggleDrink(id) {
-    await toggleDrinks(id);
-    loadDrinks();
-}
-
 async function handleImageUpload(event, target) {
     const file = event.target.files[0];
     if (!file) return;
@@ -139,20 +176,15 @@ onMounted(() => {
     loadIngredients();
 });
 
-
 const currentPage = ref(1);
 const pageSize = 10;
 
 const sortedDrinks = computed(() => [...drinks.value].reverse());
-
 const totalPages = computed(() => Math.ceil(sortedDrinks.value.length / pageSize));
-
 const pagedDrinks = computed(() => {
     const start = (currentPage.value - 1) * pageSize;
     return sortedDrinks.value.slice(start, start + pageSize);
 });
-
-
 </script>
 
 <style scoped src="../CSS/Products.css"></style>
@@ -190,7 +222,6 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.basePrice?.toLocaleString('vi-VN') }}₫</td>
                     <td>{{ drink.active ? 'Đang bán' : 'Tạm Dừng' }}</td>
                     <td>
-                        <!-- Icon bút chì sửa -->
                         <button class="btn-icon-edit" @click="openEdit(drink)" title="Sửa">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -199,9 +230,9 @@ const pagedDrinks = computed(() => {
                             </svg>
                         </button>
 
-                        <!-- Toggle bật/tắt -->
                         <label class="toggle-switch" :title="drink.active ? 'Tắt' : 'Bật'">
-                            <input type="checkbox" :checked="drink.active" @change="toggleDrink(drink.id)" />
+                            <input type="checkbox" :checked="drink.active"
+                                @change="requestToggleDrink(drink.id, drink.active)" />
                             <span class="toggle-slider"></span>
                         </label>
                     </td>
@@ -255,7 +286,6 @@ const pagedDrinks = computed(() => {
 
                 <div class="ingredients-section">
                     <div class="ingredients-title">Thành phần</div>
-
                     <div class="form-group">
                         <label>Hạt cà phê</label>
                         <select v-model="newDrink.coffeeBeanId">
@@ -294,7 +324,7 @@ const pagedDrinks = computed(() => {
                 </div>
 
                 <div class="modal-buttons">
-                    <button class="btn-save" @click="createDrink">Thêm</button>
+                    <button class="btn-save" @click="requestCreateDrink">Thêm</button>
                     <button class="btn-cancel" @click="closeModal">Hủy</button>
                 </div>
             </div>
@@ -331,7 +361,6 @@ const pagedDrinks = computed(() => {
 
                 <div class="ingredients-section">
                     <div class="ingredients-title">Thành phần</div>
-
                     <div class="form-group">
                         <label>Hạt cà phê</label>
                         <select v-model="selectedDrink.coffeeBeanId">
@@ -370,10 +399,31 @@ const pagedDrinks = computed(() => {
                 </div>
 
                 <div class="modal-buttons">
-                    <button class="btn-save" @click="saveDrink(selectedDrink)">Lưu</button>
+                    <button class="btn-save" @click="requestSaveDrink(selectedDrink)">Lưu</button>
                     <button class="btn-cancel" @click="closeModal">Hủy</button>
                 </div>
             </div>
         </div>
+
+        <!-- MODAL XÁC NHẬN -->
+        <div v-if="showConfirmModal" class="modal-overlay">
+            <div class="confirm-modal">
+                <div class="confirm-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                        viewBox="0 0 24 24" fill="none" stroke="#6b7280"
+                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <p class="confirm-message">{{ confirmMessage }}</p>
+                <div class="confirm-buttons">
+                    <button class="btn-confirm-ok" @click="doConfirm">Đồng ý</button>
+                    <button class="btn-confirm-cancel" @click="closeConfirm">Hủy</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
