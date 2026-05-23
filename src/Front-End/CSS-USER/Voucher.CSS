@@ -2,7 +2,7 @@
 
 /* ── LAYOUT ── */
 .voucher-page {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background: #f5f0e8;
   font-family: 'Plus Jakarta Sans', sans-serif;
   padding: 32px 40px 80px;
@@ -12,7 +12,8 @@
 }
 
 .top-section {
-  display: grid;
+  display: flex;
+  justify-content: center;
   grid-template-columns: 1fr 320px;
   gap: 20px;
   align-items: stretch;
@@ -23,6 +24,9 @@
   background: #1e1a2e;
   border-radius: 20px;
   padding: 24px 20px 20px;
+  width: 100%;
+  max-width: 1700px;
+  min-height: 350px;
 }
 
 .daily-title {
@@ -63,6 +67,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  min-height: 150px;
   transition: opacity 0.2s;
 }
 
@@ -185,7 +190,9 @@
   border: none;
   border-radius: 20px;
   padding: 5px 0;
-  font-size: 10px;
+  font-size: 15px;
+  min-height: 50px;
+  margin-top: auto;
   font-weight: 700;
   cursor: pointer;
   width: 100%;

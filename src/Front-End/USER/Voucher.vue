@@ -17,6 +17,11 @@
                 <img :src="coinImg" class="coin-img" :class="{ 'coin-dim': !isDayUnlocked(day) }" />
                 <span v-if="!isDayUnlocked(day)" class="lock-icon">🔒</span>
               </div>
+
+              <div class="point-label text-white">
+                100 điểm
+              </div>
+
               <button class="day-btn" :class="{ claimed: claimedDays.includes(day), locked: !isDayUnlocked(day) }"
                 @click="handleClaimDay(day)" :disabled="claimedDays.includes(day) || !isDayUnlocked(day)">
                 {{ claimedDays.includes(day) ? 'Đã Nhận' : isDayUnlocked(day) ? 'Nhận' : 'Chưa Tới' }}
@@ -42,7 +47,7 @@
       </div>
 
       <!-- Sidebar -->
-      <div class="sidebar">
+      <!-- <div class="sidebar">
         <div class="sidebar-card">
           <div class="right-box">
             <div class="right-label">MÃ HIỆN TẠI CÒN SỬ DỤNG</div>
@@ -57,7 +62,7 @@
             </p>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </div>
 
@@ -118,16 +123,18 @@
     </div> -->
 
     <!-- MODAL YÊU CẦU ĐĂNG NHẬP -->
-    <div v-if="authModal.show" class="modal-overlay" @click.self="authModal.show = false">
-      <div class="auth-modal-box">
-        <div class="auth-modal-logo-wrap">
-          <img :src="dripLabLogo" class="auth-modal-logo" alt="DripLab Logo" />
+    <Teleport to="body">
+      <div v-if="authModal.show" class="modal-overlay" @click.self="authModal.show = false">
+        <div class="auth-modal-box">
+          <div class="auth-modal-logo-wrap">
+            <img :src="dripLabLogo" class="auth-modal-logo" alt="DripLab Logo" />
+          </div>
+          <div class="auth-modal-title">Chưa đăng nhập</div>
+          <div class="auth-modal-desc">Vui lòng đăng nhập để {{ authModal.action }}.</div>
+          <button class="auth-modal-btn" @click="goToLogin">Đăng Nhập</button>
         </div>
-        <div class="auth-modal-title">Chưa đăng nhập</div>
-        <div class="auth-modal-desc">Vui lòng đăng nhập để {{ authModal.action }}.</div>
-        <button class="auth-modal-btn" @click="goToLogin">Đăng Nhập</button>
       </div>
-    </div>
+    </Teleport>
 
     <!-- TOAST -->
     <transition name="toast-slide">

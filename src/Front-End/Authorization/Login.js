@@ -50,7 +50,7 @@ export function useLogin() {
       } else if (user.role.toUpperCase() === 'EMPLOYEE') {
         window.location.href = 'http://localhost:5005/QuanLyDonTaiQuay';
       } else {
-          window.location.href = 'http://localhost:5173/choosestores';
+          window.location.href = 'http://localhost:5173/homepage';
       }
     } catch (err) {
       errorMsg.value = err.response?.data?.message || 'Đăng nhập thất bại'
