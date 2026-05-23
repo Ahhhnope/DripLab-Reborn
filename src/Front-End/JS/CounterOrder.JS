@@ -3,74 +3,32 @@ import api from '../../api/axios.js'
 import { useAuthStore } from '../Authorization/Auth.js'
 import { useBrewingCart } from './BrewingCart.JS'
 
-
+// Chuyển URL ảnh thành URL đầy đủ
 function getImageUrl(url) {
     if (!url) return ''
     return url.startsWith('http') ? url : `http://localhost:8080${url}`
 }
 
-function getImg(filename) {
-    return new URL(`../IMG/${filename}`, import.meta.url).href
-}
-
-const DISCOUNT_CODES = { KM50: 50, KM20: 20, KM10: 10 }
 export const MAX_CASH = 500_000_000
 export const MAX_TABLES_PER_ORDER = 3
 
-function genTxId() {
-    return String(Math.floor(10000000000 + Math.random() * 89999999999))
-}
-
-
-function genAnonCode() {
-    const now = new Date()
-    const resetKey = `anonCounter_${now.getFullYear()}_${now.getMonth()}_${now.getDate()}_${now.getHours() < 12 ? 'am' : 'pm'}`
-
-    const stored = sessionStorage.getItem(resetKey)
-    const count = stored ? parseInt(stored) + 1 : 1
-    sessionStorage.setItem(resetKey, count)
-
-    return `#DRIPLAB${String(count).padStart(2, '0')}`
+// Format mã hóa đơn: HD_01, HD_02,...
+function formatInvoiceId(raw) {
+    if (!raw && raw !== 0) return ''
+    const num = parseInt(raw)
+    if (isNaN(num)) return String(raw)
+    return `HD_${String(num).padStart(2, '0')}`
 }
 
 export function useCounterOrder() {
     const authStore = useAuthStore()
 
-    /* ══ BƯỚC MỞ ĐẦU ═══════ */
-    const appStep = ref('welcome')
+    // ── State chung ──
+    const appStep = ref('order')
     const orderMode = ref('')
-
-    const hasExistingSession = ref(false)
-
-    function goToChoice() {
-        if (orderList.value.length === 0) {
-            createNewOrder()
-        } else {
-            if (!currentOrder.value) {
-                selectOrder(orderList.value[0])
-            }
-        }
-        appStep.value = 'info'
-    }
-
-    function chooseTakeaway() {
-        orderMode.value = 'takeaway'
-        createNewOrder()
-        if (currentOrder.value && !currentOrder.value.anonCode) {
-            currentOrder.value.anonCode = genAnonCode()
-        }
-        appStep.value = 'order'
-    }
-
-    function chooseDine() {
-        orderMode.value = 'dine'
-        createNewOrder()
-        appStep.value = 'info'
-    }
-
     const dineMode = ref(null)
 
-    /* ══ POPUP HỦY HÓA ĐƠN ═════ */
+    // ── Popup hủy hóa đơn ──
     const showCancelOrderPopup = ref(false)
     const cancelTargetOrder = ref(null)
 
@@ -84,19 +42,17 @@ export function useCounterOrder() {
         const order = cancelTargetOrder.value
         if (!order) return
 
-        if (order.selectedTables && order.selectedTables.length) {
+        // Giải phóng bàn nếu có
+        if (order.selectedTables?.length) {
             try {
                 await Promise.all(
                     order.selectedTables.map(t =>
-                        api.put(`/tables/release/${t}`).catch(err => {
-                            console.error(`Error releasing table ${t}:`, err)
-                        })
+                        api.put(`/tables/release/${t}`).catch(err => console.error(`Lỗi giải phóng bàn ${t}:`, err))
                     )
                 )
             } catch (error) {
-                console.error('Error releasing tables on cancel:', error)
+                console.error('Lỗi giải phóng bàn:', error)
             }
-
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
                 if (idx !== -1) occupiedTables.value.splice(idx, 1)
@@ -109,10 +65,7 @@ export function useCounterOrder() {
         if (idx !== -1) orderList.value.splice(idx, 1)
 
         if (!orderList.value.length) {
-            appStep.value = 'welcome'
-            currentOrder.value = null
-            orderedItems.value = []
-            _resetOrderState()
+            _resetAllState()
         } else {
             const newIdx = idx > 0 ? idx - 1 : 0
             selectOrder(orderList.value[Math.min(newIdx, orderList.value.length - 1)])
@@ -125,48 +78,54 @@ export function useCounterOrder() {
         cancelTargetOrder.value = null
     }
 
-    function _resetOrderState() {
-        discountInput.value = ''
-        appliedCode.value = ''
-        discountPercent.value = 0
-        discountMessage.value = ''
+    // Reset toàn bộ state về mặc định
+    function _resetAllState() {
+        currentOrder.value = null
+        orderedItems.value = []
+        selectedTables.value = []
+        dineMode.value = null
         customerName.value = ''
         customerPhone.value = ''
         customerNameInput.value = ''
         customerPhoneInput.value = ''
+        nameError.value = ''
+        phoneError.value = ''
         customerSaved.value = false
         isEditingInfo.value = true
-        selectedTables.value = []
         orderNote.value = ''
-        dineMode.value = null
+        paymentMethod.value = 'Tiền mặt'
+        discountInput.value = ''
+        appliedCode.value = ''
+        discountPercent.value = 0
+        discountMessage.value = ''
+        pendingInvoiceId.value = ''
+        appStep.value = 'order'
     }
 
+    // Xóa toàn bộ cart item của một hóa đơn
     async function _clearCartForOrder(order) {
-        if (!order || !order.items || !order.items.length) return
+        if (!order?.items?.length) return
         try {
-            const removePromises = order.items.map(item =>
-                api.delete(`/carts/remove/${item.cartItemId}`).catch(() => { })
-            )
-            await Promise.all(removePromises)
+            await Promise.all(order.items.map(item => api.delete(`/carts/remove/${item.cartItemId}`).catch(() => {})))
         } catch (error) {
-            console.error('Error clearing cart:', error)
+            console.error('Lỗi xóa giỏ hàng:', error)
         }
     }
 
-    /* ══ POPUP CHỌN HÌNH THỨC + BÀN ══ */
+    // ── Popup hình thức + bàn ──
     const showTablePopup = ref(false)
-    const tempSelectedTables = ref([])
 
     function openTablePopup() {
         const order = currentOrder.value
-        if (order && order.selectedTables && order.selectedTables.length) {
+        // Tạm bỏ khỏi danh sách occupied để cho chọn lại
+        if (order?.selectedTables?.length) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
                 if (idx !== -1) occupiedTables.value.splice(idx, 1)
             })
         }
         selectedTables.value = order?.selectedTables ? [...order.selectedTables] : []
-        dineMode.value = (order?.dineMode !== undefined) ? order.dineMode : null
+        dineMode.value = order?.dineMode !== undefined ? order.dineMode : null
         showTablePopup.value = true
     }
 
@@ -176,6 +135,7 @@ export function useCounterOrder() {
             currentOrder.value.selectedTables = [...selectedTables.value]
             currentOrder.value.dineMode = dineMode.value
         }
+        // Thêm lại vào occupied
         if (dineMode.value === true) {
             selectedTables.value.forEach(t => {
                 if (!occupiedTables.value.includes(t)) occupiedTables.value.push(t)
@@ -183,7 +143,7 @@ export function useCounterOrder() {
         }
     }
 
-    /* ══ THÔNG TIN KHÁCH HÀNG ══ */
+    // ── Thông tin khách hàng ──
     const customerName = ref('')
     const customerPhone = ref('')
     const customerNameInput = ref('')
@@ -192,6 +152,39 @@ export function useCounterOrder() {
     const phoneError = ref('')
     const customerSaved = ref(false)
     const isEditingInfo = ref(true)
+
+    // ── Popup chọn khách hàng ──
+    const showSelectCustomerPopup = ref(false)
+    const customerList = ref([])
+
+    async function openSelectCustomerPopup() {
+        try {
+            const res = await api.get('/customers')
+            customerList.value = res.data || []
+        } catch (error) {
+            console.error('Lỗi lấy danh sách khách hàng:', error)
+            customerList.value = []
+        }
+        showSelectCustomerPopup.value = true
+    }
+
+    function closeSelectCustomerPopup() {
+        showSelectCustomerPopup.value = false
+    }
+
+    function selectExistingCustomer(cus) {
+        customerNameInput.value = cus.name || ''
+        customerPhoneInput.value = cus.phone || ''
+        customerName.value = cus.name || ''
+        customerPhone.value = cus.phone || ''
+        nameError.value = ''
+        phoneError.value = ''
+        if (currentOrder.value) {
+            currentOrder.value.customerName = customerName.value
+            currentOrder.value.customerPhone = customerPhone.value
+        }
+        closeSelectCustomerPopup()
+    }
 
     function onNameInput(e) {
         const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
@@ -211,11 +204,17 @@ export function useCounterOrder() {
         let valid = true
         nameError.value = ''
         phoneError.value = ''
-        if (customerPhoneInput.value && customerPhoneInput.value.length < 10) {
+
+        if (!customerPhoneInput.value) {
+            phoneError.value = 'Vui lòng nhập số điện thoại để thêm khách hàng!'
+            valid = false
+        } else if (customerPhoneInput.value.length < 10) {
             phoneError.value = 'Số điện thoại phải đủ 10 số!'
             valid = false
         }
+
         if (!valid) return
+
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
         customerSaved.value = true
@@ -228,7 +227,7 @@ export function useCounterOrder() {
 
     function editCustomerInfo() { isEditingInfo.value = true }
 
-    /* ══ ĐẶT BÀN════ */
+    // ── Bàn ──
     const TOTAL_TABLES = 20
     const selectedTables = ref([])
     const occupiedTables = ref([])
@@ -247,25 +246,21 @@ export function useCounterOrder() {
                 await api.put(`/tables/reserve/${num}`)
                 selectedTables.value.push(num)
             }
-
-            if (currentOrder.value) {
-                currentOrder.value.selectedTables = [...selectedTables.value]
-            }
-
+            if (currentOrder.value) currentOrder.value.selectedTables = [...selectedTables.value]
             await refreshTableStatus()
         } catch (error) {
-            console.log("Lỗi cập nhật trạng thái bàn:" + error);
+            console.log('Lỗi cập nhật trạng thái bàn:', error)
         }
     }
 
     async function refreshTableStatus() {
         try {
-            const res = await api.get("/tables")
+            const res = await api.get('/tables')
             occupiedTables.value = res.data
                 .filter(t => t.status !== 'Còn trống')
                 .map(t => t.tableNumber)
         } catch (error) {
-            console.error("Không thể lấy trạng thái bàn ;-; " + error)
+            console.error('Không thể lấy trạng thái bàn:', error)
         }
     }
 
@@ -277,116 +272,15 @@ export function useCounterOrder() {
         Array.from({ length: TOTAL_TABLES }, (_, i) => i + 1)
     )
 
-    const otherOccupiedTables = computed(() => {
-        const currentSelected = selectedTables.value
-        return occupiedTables.value.filter(t => !currentSelected.includes(t))
-    })
+    const otherOccupiedTables = computed(() =>
+        occupiedTables.value.filter(t => !selectedTables.value.includes(t))
+    )
 
     const tablesFull = computed(() => otherOccupiedTables.value.length >= TOTAL_TABLES)
 
-    /* ══ XÁC NHẬN THÔNG TIN ═══ */
-    const showConfirmInfo = ref(false)
-    const confirmWarning = ref('')
-    const confirmWarningTable = ref('')
-
-    function goToConfirm() {
-        let valid = true
-        nameError.value = ''
-        phoneError.value = ''
-        if (customerPhoneInput.value && customerPhoneInput.value.length < 10) {
-            phoneError.value = 'Số điện thoại phải đủ 10 số!'
-            valid = false
-        }
-        if (!valid) return
-
-        customerName.value = customerNameInput.value.trim()
-        customerPhone.value = customerPhoneInput.value.trim()
-
-        if (currentOrder.value) {
-            currentOrder.value.customerName = customerName.value
-            currentOrder.value.customerPhone = customerPhone.value
-        }
-
-        confirmWarning.value = ''
-        confirmWarningTable.value = ''
-
-        if (!customerName.value && !customerPhone.value) {
-            confirmWarning.value = 'Thông báo: Không có Tên và Số điện thoại!\nBạn có muốn thêm không?'
-        } else if (!customerName.value) {
-            confirmWarning.value = 'Thông báo: Chưa có Tên khách hàng!\nBạn có muốn thêm không?'
-        }
-        showConfirmInfo.value = true
-    }
-
-    function backFromConfirmToInfo() { showConfirmInfo.value = false }
-
-    function proceedToOrder() {
-        showConfirmInfo.value = false
-        if (currentOrder.value) {
-            if (!customerName.value && !currentOrder.value.anonCode)
-                currentOrder.value.anonCode = genAnonCode()
-            currentOrder.value.step = 'order'
-        }
-        if (currentOrder.value?.addProductMode) {
-            orderedItems.value = []
-        }
-        appStep.value = 'order'
-    }
-
-    /* ══ SẢN PHẨM ══ */
+    // ── Sản phẩm ──
     const searchText = ref('')
     const products = ref([])
-
-    async function fetchCartItems(targetOrder = null) {
-        const order = targetOrder || currentOrder.value
-        if (!order) return
-
-        try {
-            const userId = authStore.user?.id
-            const res = await api.get(`/carts/items/${userId}`)
-
-            const items = res.data.map(item => {
-                const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0;
-                const sizePrice = item.size?.price || 0;
-                const unitPrice = item.unitPrice
-                    ? item.unitPrice
-                    : item.drink.basePrice + sizePrice + toppingTotal;
-
-                const toppingDetails = item.toppings?.map(t => ({
-                    id: t.topping?.id,
-                    name: t.topping?.name,
-                    price: t.topping?.price
-                })) || []
-
-                return {
-                    id: item.drink.id,
-                    cartItemId: item.id,
-                    name: item.drink.name,
-                    image: getImageUrl(item.drink.imageUrl),
-                    unitPrice: unitPrice,
-                    qty: item.quantity,
-                    size: item.size?.name || 'S',
-                    ice: item.ice,
-                    sugar: item.sugar,
-                    toppings: item.toppings,
-                    toppingDetails: toppingDetails,
-                    isCustom: item.isCustom,
-                    beanName: item.coffeeBean?.name,
-                    baseName: item.base ?? null,
-                    milkName: item.milk?.name,
-                };
-            });
-
-            if (order.id === currentOrder.value?.id) {
-                orderedItems.value = items
-            }
-            order.items = [...items]
-
-            console.log(orderedItems.value)
-        } catch (error) {
-            console.error("fetch cart items: " + error)
-        }
-    }
 
     async function fetchDrinks() {
         try {
@@ -399,21 +293,57 @@ export function useCounterOrder() {
                 category: d.category
             }))
         } catch (error) {
-            console.log('error fetching drinks: ' + error)
+            console.log('Lỗi lấy sản phẩm:', error)
         }
     }
 
-    const _allProducts = ref([])
+    async function fetchCartItems(targetOrder = null) {
+        const order = targetOrder || currentOrder.value
+        if (!order) return
+        try {
+            const userId = authStore.user?.id
+            const res = await api.get(`/carts/items/${userId}`)
+            const items = res.data.map(item => {
+                const toppingDetails = item.toppings?.map(t => ({
+                    id: t.topping?.id,
+                    name: t.topping?.name,
+                    price: t.topping?.price
+                })) || []
+                const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0
+                const sizePrice = item.size?.price || 0
+                const unitPrice = item.unitPrice || (item.drink.basePrice + sizePrice + toppingTotal)
+                return {
+                    id: item.drink.id,
+                    cartItemId: item.id,
+                    name: item.drink.name,
+                    image: getImageUrl(item.drink.imageUrl),
+                    unitPrice,
+                    qty: item.quantity,
+                    size: item.size?.name || 'S',
+                    ice: item.ice + '%',
+                    sugar: item.sugar + '%',
+                    toppings: item.toppings,
+                    toppingDetails,
+                    isCustom: item.isCustom,
+                    beanName: item.coffeeBean?.name,
+                    baseName: item.base ?? null,
+                    milkName: item.milk?.name,
+                }
+            })
+            if (order.id === currentOrder.value?.id) orderedItems.value = items
+            order.items = [...items]
+        } catch (error) {
+            console.error('Lỗi lấy giỏ hàng:', error)
+        }
+    }
+
     function searchProducts() {
         const kw = searchText.value.toLowerCase().trim()
-        if (!kw) {
-            fetchDrinks()
-            return
-        }
+        if (!kw) { fetchDrinks(); return }
         products.value = products.value.filter(p => p.name.toLowerCase().includes(kw))
     }
 
-    /* ══ HÓA ĐƠN ══ */
+    // ── Hóa đơn ──
     const MAX_ORDERS = 20
     const orderList = ref([])
     const currentOrder = ref(null)
@@ -424,10 +354,13 @@ export function useCounterOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 20 hóa đơn!'); return }
         orderCounter++
         const order = {
-            id: Date.now(), orderNumber: orderCounter, items: [],
-            discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
-            customerName: '', customerPhone: '',
-            selectedTables: [], anonCode: '', step: 'info',
+            id: Date.now(),
+            orderNumber: orderCounter,
+            items: [],
+            customerName: '',
+            customerPhone: '',
+            selectedTables: [],
+            step: 'order',
             note: '',
             dineMode: null,
             addProductMode: false,
@@ -444,11 +377,9 @@ export function useCounterOrder() {
             id: Date.now(),
             orderNumber: orderCounter,
             items: [],
-            discountInput: '', appliedCode: '', discountPercent: 0, discountMessage: '',
             customerName: orderInfo.customerName || '',
             customerPhone: orderInfo.customerPhone || '',
             selectedTables: orderInfo.tables || [],
-            anonCode: orderInfo.anonCode || '',
             step: 'order',
             note: '',
             dineMode: true,
@@ -456,13 +387,8 @@ export function useCounterOrder() {
             originalOrderId: orderInfo.originalOrderId || null,
         }
         orderList.value.push(order)
-
         currentOrder.value = order
         orderedItems.value = []
-        discountInput.value = order.discountInput
-        appliedCode.value = order.appliedCode
-        discountPercent.value = order.discountPercent
-        discountMessage.value = order.discountMessage
         selectedTables.value = [...order.selectedTables]
         orderNote.value = order.note || ''
         dineMode.value = true
@@ -474,73 +400,41 @@ export function useCounterOrder() {
     function selectOrder(order) {
         currentOrder.value = order
         orderedItems.value = order.items ? [...order.items] : []
-        discountInput.value = order.discountInput
-        appliedCode.value = order.appliedCode
-        discountPercent.value = order.discountPercent
-        discountMessage.value = order.discountMessage
         selectedTables.value = order.selectedTables ? [...order.selectedTables] : []
         orderNote.value = order.note || ''
-        dineMode.value = (order.dineMode !== undefined) ? order.dineMode : null
+        dineMode.value = order.dineMode !== undefined ? order.dineMode : null
         customerNameInput.value = order.customerName || ''
         customerPhoneInput.value = order.customerPhone || ''
-        appStep.value = order.step || 'info'
+        customerName.value = order.customerName || ''
+        customerPhone.value = order.customerPhone || ''
+        nameError.value = ''
+        phoneError.value = ''
+        appStep.value = 'order'
     }
 
-    /* ══ GIỎ HÀNG ═══ */
+    // ── Giỏ hàng ──
     const totalPrice = computed(() =>
         orderedItems.value.reduce((sum, item) => sum + item.unitPrice * item.qty, 0)
     )
 
     function removeItem(index, cartItemId) {
-        try {
-            api.delete(`/carts/remove/${cartItemId}`)
-        } catch (error) {
-            console.error("error removing cart item: " + error)
-        }
-
+        api.delete(`/carts/remove/${cartItemId}`).catch(err => console.error('Lỗi xóa item:', err))
         orderedItems.value.splice(index, 1)
         if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
     }
 
-    /* ══ MÃ GIẢM GIÁ ═══ */
+    // ── Mã giảm giá ──
     const discountInput = ref('')
+    const discountCodeList = ref([])
     const appliedCode = ref('')
     const discountPercent = ref(0)
     const discountMessage = ref('')
 
-    const discountCodeList = ref([
-        { code: 'KM50', label: 'Giảm 50%' },
-        { code: 'KM20', label: 'Giảm 20%' },
-        { code: 'KM10', label: 'Giảm 10%' },
-    ])
+    function applyDiscount() {}
 
-    function applyDiscount() {
-        const code = discountInput.value.trim().toUpperCase()
-        if (DISCOUNT_CODES[code]) {
-            appliedCode.value = code
-            discountPercent.value = DISCOUNT_CODES[code]
-            discountMessage.value = `Áp dụng thành công! Giảm ${DISCOUNT_CODES[code]}%`
-        } else {
-            appliedCode.value = ''
-            discountPercent.value = 0
-            discountMessage.value = 'Mã không hợp lệ!'
-        }
-        if (currentOrder.value)
-            Object.assign(currentOrder.value, {
-                discountInput: discountInput.value,
-                appliedCode: appliedCode.value,
-                discountPercent: discountPercent.value,
-                discountMessage: discountMessage.value,
-            })
-    }
+    const finalPrice = computed(() => totalPrice.value)
 
-    const finalPrice = computed(() =>
-        discountPercent.value
-            ? Math.round(totalPrice.value * (1 - discountPercent.value / 100))
-            : totalPrice.value
-    )
-
-    /* ══ GHI CHÚ ══ */
+    // ── Ghi chú ──
     const orderNote = ref('')
 
     function onNoteInput(e) {
@@ -548,116 +442,82 @@ export function useCounterOrder() {
         if (currentOrder.value) currentOrder.value.note = orderNote.value
     }
 
-    /* ══ THANH TOÁN ═══ */
+    // ── Thanh toán ──
     const showPaymentPopup = ref(false)
     const showSuccessPopup = ref(false)
     const showReviewPopup = ref(false)
     const paymentMethod = ref('Tiền mặt')
-    const customerMoney = ref('')
-    const cashMaxWarning = ref('')
-    // ── ĐÃ SỬA: txId lưu mã hóa đơn (HD_xx) thay vì mã giao dịch ngẫu nhiên ──
     const txId = ref('')
     const txTime = ref('')
-
-    const payNameInput = ref('')
-    const payPhoneInput = ref('')
-    const payPhoneError = ref('')
-
-    function onPayNameInput(e) {
-        const val = e.target.value.replace(/[^a-zA-ZÀ-ỹà-ỹ\s]/g, '')
-        payNameInput.value = val
-        e.target.value = val
-        if (currentOrder.value) currentOrder.value.customerName = val.trim()
-    }
-
-    function onPayPhoneInput(e) {
-        const val = e.target.value.replace(/\D/g, '').slice(0, 10)
-        payPhoneInput.value = val
-        e.target.value = val
-        payPhoneError.value = ''
-        if (currentOrder.value) currentOrder.value.customerPhone = val.trim()
-    }
-
-    const customerMoneyNum = computed(() => {
-        if (!customerMoney.value) return 0
-        return parseInt(String(customerMoney.value).replace(/\./g, '')) || 0
-    })
-    const changeAmount = computed(() => Math.max(0, customerMoneyNum.value - finalPrice.value))
+    const pendingInvoiceId = ref('')
 
     const receiptData = ref({
-        finalPrice: 0, change: 0, items: [],
-        customerName: '', customerPhone: '', tableNums: [],
-        anonCode: '', discountPercent: 0, originalPrice: 0, note: '',
+        finalPrice: 0,
+        items: [],
+        customerName: '',
+        customerPhone: '',
+        tableNums: [],
+        note: '',
         dineMode: null,
+        invoiceId: '',
+        discountPercent: 0,
+        originalPrice: 0,
     })
 
     function checkout() {
         if (!orderedItems.value.length) { alert('Chưa có sản phẩm nào!'); return }
-        customerMoney.value = ''
-        cashMaxWarning.value = ''
         paymentMethod.value = 'Tiền mặt'
         const o = currentOrder.value
-        payNameInput.value = o?.customerName || customerName.value || ''
-        payPhoneInput.value = o?.customerPhone || customerPhone.value || ''
-        payPhoneError.value = ''
-        dineMode.value = (o?.dineMode !== undefined) ? o.dineMode : null
+        dineMode.value = o?.dineMode !== undefined ? o.dineMode : null
         showPaymentPopup.value = true
     }
 
-    function onCashInput(e) {
-        let raw = e.target.value.replace(/\D/g, '')
-        if (raw.length > 9) raw = raw.slice(0, 9)
-        const num = parseInt(raw) || 0
-        if (num > MAX_CASH) {
-            raw = String(MAX_CASH)
-            cashMaxWarning.value = '⚠ Tối đa 500.000.000 VND'
-        } else {
-            cashMaxWarning.value = ''
-        }
-        e.target.value = raw
-        customerMoney.value = raw
-    }
-
-    function _buildReceiptData(change = changeAmount.value) {
+    function _buildReceiptData(resolvedInvoiceId) {
         const order = currentOrder.value
-        const resolvedName = payNameInput.value.trim() || order?.customerName || customerName.value || ''
-        const resolvedPhone = payPhoneInput.value.trim() || order?.customerPhone || customerPhone.value || ''
-        if (order && !resolvedName && !order.anonCode) order.anonCode = genAnonCode()
-        const resolvedDineMode = dineMode.value === true ? true : false
-
         const itemsWithDetails = orderedItems.value.map(item => {
             const cloned = JSON.parse(JSON.stringify(item))
-            if (!cloned.toppingDetails || !cloned.toppingDetails.length) {
-                if (cloned.toppings && cloned.toppings.length) {
-                    cloned.toppingDetails = cloned.toppings.map(t => ({
-                        id: t.topping?.id || t.id,
-                        name: t.topping?.name || t.name,
-                        price: t.topping?.price || t.price || 0
-                    }))
-                } else {
-                    cloned.toppingDetails = []
-                }
+            if (!cloned.toppingDetails?.length) {
+                cloned.toppingDetails = cloned.toppings?.map(t => ({
+                    id: t.topping?.id || t.id,
+                    name: t.topping?.name || t.name,
+                    price: t.topping?.price || t.price || 0
+                })) || []
             }
             return cloned
         })
 
         receiptData.value = {
             finalPrice: finalPrice.value,
-            change,
             items: itemsWithDetails,
-            customerName: resolvedName,
-            customerPhone: resolvedPhone,
+            customerName: order?.customerName?.trim() || customerName.value?.trim() || '',
+            customerPhone: order?.customerPhone || customerPhone.value || '',
             tableNums: order?.selectedTables || selectedTables.value || [],
-            anonCode: order?.anonCode || '',
+            note: orderNote.value || order?.note || '',
+            dineMode: dineMode.value === true,
+            invoiceId: resolvedInvoiceId || '',
             discountPercent: discountPercent.value,
             originalPrice: totalPrice.value,
-            note: orderNote.value || order?.note || '',
-            dineMode: resolvedDineMode,
         }
     }
 
-    function goToReview() {
-        _buildReceiptData(changeAmount.value)
+    // Lấy mã hóa đơn tiếp theo từ API
+    async function _fetchNextInvoiceId() {
+        try {
+            const res = await api.get('/invoices')
+            const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            const latest = sorted[0]
+            if (latest?.invoiceId) return `HD_${String(parseInt(latest.invoiceId) + 1).padStart(2, '0')}`
+            return 'HD_01'
+        } catch {
+            return ''
+        }
+    }
+
+    async function goToReview() {
+        const resolvedInvoiceId = await _fetchNextInvoiceId()
+        pendingInvoiceId.value = resolvedInvoiceId
+        _buildReceiptData(resolvedInvoiceId)
+        txId.value = resolvedInvoiceId
         showPaymentPopup.value = false
         showReviewPopup.value = true
     }
@@ -672,29 +532,23 @@ export function useCounterOrder() {
             const userId = authStore.user?.id
             const order = currentOrder.value
 
-            const receiverName = payNameInput.value.trim() || order?.customerName || order?.anonCode || ''
-            const tablesToSubmit = displayTableNums.value
-
             const res = await api.post('/orders/add', null, {
                 params: {
-                    userId: userId,
+                    userId,
                     note: orderNote.value || '',
                     paymentMethod: paymentMethod.value,
-                    receiverName: receiverName,
-                    receiverPhone: payPhoneInput.value || '',
-                    tables: tablesToSubmit,
+                    receiverName: order?.customerName?.trim() || 'Khách vãng lai',
+                    receiverPhone: order?.customerPhone || '',
+                    tables: displayTableNums.value,
                     finalPrice: finalPrice.value,
                     originalPrice: totalPrice.value,
-                    discountAmount: totalPrice.value - finalPrice.value,
+                    discountAmount: 0,
                 },
                 paramsSerializer: params => {
                     const search = new URLSearchParams()
                     Object.entries(params).forEach(([key, val]) => {
-                        if (Array.isArray(val)) {
-                            val.forEach(v => search.append(key, v))
-                        } else if (val !== null && val !== undefined) {
-                            search.append(key, String(val))
-                        }
+                        if (Array.isArray(val)) val.forEach(v => search.append(key, v))
+                        else if (val !== null && val !== undefined) search.append(key, String(val))
                     })
                     return search.toString()
                 }
@@ -702,29 +556,24 @@ export function useCounterOrder() {
 
             showReviewPopup.value = false
 
-            console.log('[confirmPayment] res.data:', JSON.stringify(res.data))
-
+            // Lấy mã hóa đơn thực tế sau khi tạo thành công
+            let resolvedInvoiceId = pendingInvoiceId.value
             try {
                 const invoiceRes = await api.get('/invoices')
-                console.log('[confirmPayment] invoices[0]:', JSON.stringify(invoiceRes.data[0]))
-
-                const sorted = [...invoiceRes.data].sort((a, b) =>
-                    new Date(b.createdAt) - new Date(a.createdAt)
-                )
+                const sorted = [...invoiceRes.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 const latest = sorted[0]
-                console.log('[confirmPayment] latest invoiceId:', latest?.invoiceId)
-
-                txId.value = latest?.invoiceId ? `HD_${latest.invoiceId}` : `HD_${res.data.invoiceId || ''}`
-            } catch (err) {
-                console.error('[confirmPayment] fetch invoices failed:', err)
-                txId.value = res.data.invoiceId ? `HD_${res.data.invoiceId}` : ''
+                if (latest?.invoiceId) resolvedInvoiceId = formatInvoiceId(latest.invoiceId)
+                else if (res.data?.invoiceId) resolvedInvoiceId = formatInvoiceId(res.data.invoiceId)
+            } catch {
+                if (res.data?.invoiceId) resolvedInvoiceId = formatInvoiceId(res.data.invoiceId)
             }
 
+            txId.value = resolvedInvoiceId
             txTime.value = new Date().toLocaleString('vi-VN')
-            if (paymentMethod.value === 'Tiền mặt') receiptData.value.change = changeAmount.value
+            receiptData.value = { ...receiptData.value, invoiceId: resolvedInvoiceId }
             showSuccessPopup.value = true
         } catch (error) {
-            console.error("Confirm payment error: " + error)
+            console.error('Lỗi xác nhận thanh toán:', error)
         }
     }
 
@@ -734,6 +583,7 @@ export function useCounterOrder() {
         showSuccessPopup.value = false
         const order = currentOrder.value
 
+        // Giải phóng bàn nếu không phải addProductMode
         if (!order?.addProductMode && order?.selectedTables) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
@@ -745,16 +595,13 @@ export function useCounterOrder() {
         if (idx !== -1) orderList.value.splice(idx, 1)
 
         if (!orderList.value.length) {
-            appStep.value = 'welcome'
-            currentOrder.value = null
-            orderedItems.value = []
-            _resetOrderState()
+            _resetAllState()
         } else {
             selectOrder(orderList.value[orderList.value.length - 1])
         }
     }
 
-    /* ══ POPUP TOPPING ══ */
+    // ── Popup chọn topping ──
     const showPopup = ref(false)
     const selectedProduct = ref(null)
     const selectedToppings = ref([])
@@ -763,7 +610,6 @@ export function useCounterOrder() {
     const selectedIce = ref('0%')
     const selectedSugar = ref('0%')
     const popupStateCache = ref({})
-
     const toppingList = ref([])
     const iceOptions = ['0%', '30%', '50%', '70%', '100%']
     const sugarOptions = ['0%', '30%', '50%', '70%', '100%']
@@ -774,7 +620,7 @@ export function useCounterOrder() {
             const res = await api.get('/ingredients/toppings')
             toppingList.value = res.data.map(t => ({ id: t.id, name: t.name, price: t.price }))
         } catch (error) {
-            console.log('error fetching toppings: ' + error)
+            console.log('Lỗi lấy topping:', error)
         }
     }
 
@@ -783,7 +629,7 @@ export function useCounterOrder() {
             const res = await api.get('/sizes')
             res.data.forEach(s => { SIZE_PRICES[s.name] = s.price })
         } catch (error) {
-            console.log('error fetching sizes: ' + error)
+            console.log('Lỗi lấy size:', error)
         }
     }
 
@@ -807,12 +653,15 @@ export function useCounterOrder() {
     }
 
     function closePopup() {
-        if (selectedProduct.value)
+        if (selectedProduct.value) {
             popupStateCache.value[selectedProduct.value.id] = {
                 toppings: [...selectedToppings.value],
-                size: selectedSize.value, qty: selectedQty.value,
-                ice: selectedIce.value, sugar: selectedSugar.value,
+                size: selectedSize.value,
+                qty: selectedQty.value,
+                ice: selectedIce.value,
+                sugar: selectedSugar.value,
             }
+        }
         showPopup.value = false
     }
 
@@ -821,6 +670,7 @@ export function useCounterOrder() {
         const idx = selectedToppings.value.findIndex(x => x.id === t.id)
         idx === -1 ? selectedToppings.value.push(t) : selectedToppings.value.splice(idx, 1)
     }
+
     function isToppingSelected(t) { return selectedToppings.value.some(x => x.id === t.id) }
     function incQty() { selectedQty.value++ }
     function decQty() { if (selectedQty.value > 1) selectedQty.value-- }
@@ -844,55 +694,47 @@ export function useCounterOrder() {
         try {
             const res = await api.post('/carts/add', cartItemReq)
             const newCartItemId = res.data.items[res.data.items.length - 1].id
-
-            const toppingDetails = selectedToppings.value.map(t => ({
-                id: t.id,
-                name: t.name,
-                price: t.price
-            }))
+            const toppingDetails = selectedToppings.value.map(t => ({ id: t.id, name: t.name, price: t.price }))
 
             const displayItem = {
                 id: selectedProduct.value.id,
                 cartItemId: newCartItemId,
                 name: selectedProduct.value.name,
                 image: selectedProduct.value.image,
-                unitPrice: unitPrice,
+                unitPrice,
                 qty: selectedQty.value,
                 size: selectedSize.value,
+                sizeLabel: selectedSize.value,
                 ice: selectedIce.value,
                 sugar: selectedSugar.value,
                 toppings: selectedToppings.value,
-                toppingDetails: toppingDetails,
+                toppingDetails,
+                basePrice: selectedProduct.value.price,
+                sizePrice,
             }
 
             orderedItems.value.push(displayItem)
-
             if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
-
             delete popupStateCache.value[selectedProduct.value.id]
-
             showPopup.value = false
         } catch (error) {
-            console.error("Confirm order error: " + error);
+            console.error('Lỗi thêm sản phẩm:', error)
         }
     }
 
-    /* ══ COMPUTED HIỂN THỊ ══ */
+    // ── Computed hiển thị ──
     const displayCustomerName = computed(() => {
         const o = currentOrder.value
-        if (!o) return customerName.value || ''
-        if (o.customerName) return o.customerName
-        if (o.anonCode) return o.anonCode
-        return ''
+        return o?.customerName?.trim() || ''
     })
-    const displayCustomerPhone = computed(() => {
-        const o = currentOrder.value
-        return o?.customerPhone || customerPhone.value || 'Không Có Thông Tin'
-    })
+
+    const displayCustomerPhone = computed(() => currentOrder.value?.customerPhone || '')
+
     const displayTableNums = computed(() => {
         const o = currentOrder.value
         return o?.selectedTables?.length ? o.selectedTables : selectedTables.value
     })
+
     const displayTableNum = computed(() => {
         const arr = displayTableNums.value
         return arr.length ? arr[arr.length - 1] : null
@@ -900,48 +742,36 @@ export function useCounterOrder() {
 
     const displayDineMode = computed(() => {
         const o = currentOrder.value
-        if (o && o.dineMode !== undefined) return o.dineMode
-        return dineMode.value
+        return o?.dineMode !== undefined ? o.dineMode : dineMode.value
     })
 
+    const hasActiveOrder = computed(() => currentOrder.value !== null)
+
+    // ── Brewing Cart (đồng bộ từ màn pha chế) ──
     const brewingCart = useBrewingCart()
 
     function checkAndConsumePendingDrinks() {
         if (!brewingCart.hasPendingDrinks()) return
-
-        console.log('Có pending drinks:', brewingCart.pendingDrinks)
         const pendingDrinks = brewingCart.consumePendingDrinks()
-
         if (orderList.value.length === 0) createNewOrder()
-
         appStep.value = 'order'
         if (currentOrder.value) currentOrder.value.step = 'order'
-
-        pendingDrinks.forEach(drink => {
-            orderedItems.value.push(drink)
-            console.log('Đã thêm drink:', drink)
-        })
-
-        if (currentOrder.value) {
-            currentOrder.value.items = [...orderedItems.value]
-        }
+        pendingDrinks.forEach(drink => orderedItems.value.push(drink))
+        if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
     }
 
     function checkAndRestoreAddProductOrder() {
         const raw = sessionStorage.getItem('addProductOrderInfo')
         if (!raw) return
         sessionStorage.removeItem('addProductOrderInfo')
-
         try {
-            const orderInfo = JSON.parse(raw)
-            console.log('Restoring add product order:', orderInfo)
-            createAddProductOrder(orderInfo)
+            createAddProductOrder(JSON.parse(raw))
         } catch (e) {
-            console.error('Error restoring add product order:', e)
+            console.error('Lỗi khôi phục hóa đơn thêm sản phẩm:', e)
         }
     }
 
-    /* ══ LIFECYCLE ══ */
+    // ── Lifecycle ──
     let timer = null
 
     onMounted(() => {
@@ -960,50 +790,56 @@ export function useCounterOrder() {
     })
 
     onActivated(() => {
-        console.log('CounterOrder activated')
         checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
     })
 
     onUnmounted(() => { if (timer) clearInterval(timer) })
 
-    /* ══ EXPORT ══ */
+    // ── Export ──
     return {
         fetchDrinks, fetchToppings,
         appStep, orderMode,
-        goToChoice, chooseTakeaway, chooseDine,
-        showCancelOrderPopup, cancelTargetOrder,
-        requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
         customerName, customerPhone,
         customerNameInput, customerPhoneInput,
         nameError, phoneError,
         customerSaved, isEditingInfo,
         onNameInput, onPhoneInput, saveCustomerInfo, editCustomerInfo,
+
+        showSelectCustomerPopup, openSelectCustomerPopup, closeSelectCustomerPopup,
+        customerList, selectExistingCustomer,
+
         TOTAL_TABLES, selectedTable, selectedTables, occupiedTables,
         availableTables, tablesFull, selectTable, MAX_TABLES_PER_ORDER,
         otherOccupiedTables,
-        showConfirmInfo, confirmWarning, confirmWarningTable,
-        goToConfirm, proceedToOrder, backFromConfirmToInfo,
+
         searchText, products, searchProducts,
         orderList, currentOrder, createNewOrder, selectOrder, MAX_ORDERS,
         orderedItems, totalPrice, removeItem,
-        discountInput, discountCodeList, appliedCode, discountPercent, discountMessage, applyDiscount, finalPrice,
+
+        discountInput, discountCodeList, appliedCode, discountPercent, discountMessage, applyDiscount,
+        finalPrice,
         orderNote, onNoteInput,
-        checkout, showPaymentPopup, paymentMethod, customerMoney, changeAmount,
-        cashMaxWarning, onCashInput,
-        payNameInput, payPhoneInput, payPhoneError,
-        onPayNameInput, onPayPhoneInput,
+
+        checkout, showPaymentPopup, paymentMethod,
         goToReview, backFromReview,
         showReviewPopup,
         confirmPayment, closePaymentPopup,
         showSuccessPopup, closeSuccessPopup, txId, txTime, receiptData,
+
         showPopup, selectedProduct, toppingList, selectedToppings, selectedSize, selectedQty,
         selectedIce, selectedSugar, iceOptions, sugarOptions, SIZE_PRICES,
         openPopup, closePopup, toggleTopping, isToppingSelected, incQty, decQty, confirmOrder,
+
         displayCustomerName, displayCustomerPhone, displayTableNum, displayTableNums,
         displayDineMode,
         MAX_CASH,
         showTablePopup, openTablePopup, closeTablePopup,
         dineMode,
+        showCancelOrderPopup, cancelTargetOrder,
+        requestCancelOrder, confirmCancelOrder, closeCancelOrderPopup,
+
+        hasActiveOrder,
+        pendingInvoiceId,
     }
 }

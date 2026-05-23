@@ -123,4 +123,4 @@ const {
 } = useThongKe()
 </script>
 
-<style src="../CSS/ThongKe.css"></style>
+<style src="../CSS/ThongKe.css" scoped></style>

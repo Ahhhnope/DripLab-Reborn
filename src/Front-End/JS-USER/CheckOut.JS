@@ -1,7 +1,7 @@
 import { useCartStore } from '../../stores/cart.js'
 import { useAuthStore } from '../Authorization/Auth.js'
 import api from '../../api/axios'
-import MomoPopup from '../QRMoMo/Momo.vue'
+import MomoPopup from '../TheATMmomo/Momo.vue'
 
 function getImageUrl(url) {
   if (!url) return ''
