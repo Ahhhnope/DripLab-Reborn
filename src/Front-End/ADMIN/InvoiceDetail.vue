@@ -202,13 +202,14 @@
                       </div>
                       <div class="col-span-4 text-right">
                         <div class="font-bold text-[#3C2A21]">
-                          {{ itemTotal(item).toLocaleString("vi-VN") }} đ
+                          {{
+                            (item.unitPrice * item.qty).toLocaleString("vi-VN")
+                          }}
+                          đ
                         </div>
                         <div class="text-xs text-stone-400 mt-0.5">
-                          {{
-                            itemUnitWithTopping(item).toLocaleString("vi-VN")
-                          }}
-                          đ × {{ item.qty }}
+                          {{ item.unitPrice.toLocaleString("vi-VN") }} đ ×
+                          {{ item.qty }}
                         </div>
                       </div>
                     </div>
@@ -236,7 +237,7 @@
                     <!-- Toppings + giá từng topping -->
                     <div
                       v-if="item.toppings?.length"
-                      class="flex flex-wrap gap-1"
+                      class="flex flex-col gap-1"
                     >
                       <div
                         v-for="(top, ti) in item.toppings"
@@ -433,20 +434,20 @@ async function loadScript(src) {
 }
 // Tổng giá topping của 1 item
 function toppingTotal(item) {
-  return (item.toppings || []).reduce((sum, t) => sum + (t.price || 0), 0)
+  return (item.toppings || []).reduce((sum, t) => sum + (t.price || 0), 0);
 }
 
 // Đơn giá 1 món = basePrice + sizeExtra + tổng topping
 function itemUnitWithTopping(item) {
-  const base    = item.unitPrice || 0
-  const size    = item.sizeExtra || 0
-  const topping = toppingTotal(item)
-  return base + size + topping
+  const base = item.unitPrice || 0;
+  const size = item.sizeExtra || 0;
+  const topping = toppingTotal(item);
+  return base + size + topping;
 }
 
 // Tổng tiền = đơn giá đầy đủ × qty
 function itemTotal(item) {
-  return itemUnitWithTopping(item) * (item.qty || 1)
+  return itemUnitWithTopping(item) * (item.qty || 1);
 }
 
 // ─────────────────────────────────────────────
