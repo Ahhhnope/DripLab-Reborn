@@ -204,11 +204,10 @@ const pages = computed(() => {
 
 <style scoped>
 .page-title {
-  text-align: left;
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
   margin-bottom: 20px;
-  color: #333;
 }
 
 .notify-backdrop {

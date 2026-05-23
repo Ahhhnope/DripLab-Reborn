@@ -28,50 +28,73 @@ function goToPage(page) {
 }
 
 function mapInvoice(inv) {
-  const isOnline = inv.receiveType === 'Online'
-  const items = (inv.items ?? []).map(item => {
-    console.log('mapInvoice called:', inv.invoiceId, inv.items?.[0])
-    const toppingList = (item.toppings ?? []).map(t => ({
-      name: t.name || "",
-      price: t.price || 0,
-    }))
-    const unitPrice = item.unitPrice || 0
-    return {
-      name: item.name || "Món không tên",
-      qty: item.qty || 1,
-      unitPrice,
-      price: unitPrice,
-      size: item.size || null,
-      sugar: item.sugar ?? null,
-      ice: item.ice ?? null,
-      toppings: toppingList,
+  console.log('RAW price data:', {
+    finalPrice: inv.finalPrice,
+    originalPrice: inv.originalPrice,
+    discountAmount: inv.discountAmount,
+    shippingFee: inv.shippingFee,
+  })
 
-      isCustom: !!(item.beanName || item.baseName || item.milkName),
-      beanName: item.beanName ?? null,
-      baseName: item.baseName ?? null,
-      milkName: item.milkName ?? null,
+  const items = (inv.items ?? []).map(item => {
+    const toppingList = (item.toppings ?? []).map(t => ({
+      name: t.name || t.toppingName || "",   // ← thêm fallback toppingName
+      price: t.price || t.toppingPrice || 0, // ← thêm fallback toppingPrice
+    }))
+
+    const unitPrice = item.unitPrice || item.price || 0
+
+    return {
+      name:      item.name || item.productName || "Món không tên",
+      qty:       item.qty  || item.quantity    || 1,
+      unitPrice: item.unitPrice || item.basePrice || 0,  // giá gốc chưa upsize
+      sizeExtra: item.sizeExtra || item.sizePrice || 0,  // ← thêm dòng này
+      price:     item.unitPrice || item.basePrice || 0,
+      size:      item.size     || item.sizeName  || null,
+      sugar:     item.sugar    ?? item.sugarLevel ?? null,
+      ice:       item.ice      ?? item.iceLevel  ?? null,
+      toppings:  toppingList,
+      note:      item.note || "",
+      isCustom:  !!(item.beanName || item.baseName || item.milkName),
+      beanName:  item.beanName ?? null,
+      baseName:  item.baseName ?? null,
+      milkName:  item.milkName ?? null,
     }
   })
 
+  // ✅ Tự tính lại finalPrice thay vì tin backend
+  const originalPrice   = inv.originalPrice   || 0
+  const discountAmount  = inv.discountAmount   || 0
+  const shippingFee     = inv.shippingFee      || 0
+  const finalPrice      = originalPrice - discountAmount + shippingFee
+
   return {
     invoice_id: `HD_${inv.invoiceId}`,
-    order_id: inv.orderId || "N/A",
-    status: inv.status || "Đã hủy",
-    date: inv.createdAt ? new Date(inv.createdAt).toLocaleDateString('vi-VN') : "-",
+    order_id:   inv.orderId || "N/A",
+    status:     inv.status  || "Đã hủy",
+    date:       inv.createdAt
+                  ? new Date(inv.createdAt).toLocaleDateString('vi-VN')
+                  : "-",
     payment_method: inv.paymentMethod || "Chưa chọn",
-    receive_type: inv.receiveType || "Tại Quầy",
-    finalPrice: inv.finalPrice || 0,
-    originalPrice: inv.originalPrice || 0,
-    discountAmount: inv.discountAmount || 0,
-    shippingFee: inv.shippingFee || 0,
-    created_at: inv.createdAt,
-    note: inv.note || "",
+    receive_type:   inv.receiveType   || "Tại Quầy",
+
+    finalPrice,       // ← dùng giá tự tính
+    originalPrice,
+    discountAmount,
+    shippingFee,
+
+    // UseInvoice.JS — sửa created_at để hiển thị đẹp
+      created_at: inv.createdAt
+        ? new Date(inv.createdAt).toLocaleString('vi-VN', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      })
+      : "-",
     customer: {
-      id: inv.customer?.id || "N/A",
-      name: inv.receiverName || inv.customer?.name || "Khách lẻ",
-      phone: inv.receiverPhone || inv.customer?.phone || "-",
-      email: inv.customer?.email || "-",
-      address: inv.shippingAddress || inv.customer?.address || "-",
+      id:      inv.customer?.id       || "N/A",
+      name:    inv.receiverName       || inv.customer?.name    || "Khách lẻ",
+      phone:   inv.receiverPhone      || inv.customer?.phone   || "-",
+      email:   inv.customer?.email    || "-",
+      address: inv.shippingAddress    || inv.customer?.address || "-",
     },
     items,
   }
