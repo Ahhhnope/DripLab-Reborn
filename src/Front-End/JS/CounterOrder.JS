@@ -159,7 +159,7 @@ export function useCounterOrder() {
 
     async function openSelectCustomerPopup() {
         try {
-            const res = await api.get('/customers')
+            const res = await api.get('/users/customers')
             customerList.value = res.data || []
         } catch (error) {
             console.error('Lỗi lấy danh sách khách hàng:', error)
@@ -173,9 +173,9 @@ export function useCounterOrder() {
     }
 
     function selectExistingCustomer(cus) {
-        customerNameInput.value = cus.name || ''
+        customerNameInput.value = cus.fullName || ''
         customerPhoneInput.value = cus.phone || ''
-        customerName.value = cus.name || ''
+        customerName.value = cus.fullName || ''
         customerPhone.value = cus.phone || ''
         nameError.value = ''
         phoneError.value = ''
@@ -218,6 +218,7 @@ export function useCounterOrder() {
 
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
+
         customerSaved.value = true
         isEditingInfo.value = false
         if (currentOrder.value) {
