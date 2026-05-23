@@ -146,9 +146,17 @@
                         >x{{ item.quantity }}</span
                       >
                     </div>
-                    <span class="preview-price">{{
-                      formatVND(item.basePrice * item.quantity)
-                    }}</span>
+                    <div class="preview-price-group">
+                      <span class="preview-price">{{
+                        formatVND(item.basePrice * item.quantity)
+                      }}</span>
+                      <!-- ✅ Thêm dòng đơn giá -->
+                      <span class="preview-unit-price"
+                        >{{ formatVND(item.drinkBasePrice) }} x{{
+                          item.quantity
+                        }}</span
+                      >
+                    </div>
                   </div>
                   <!-- Size -->
                   <div v-if="item.sizeName" class="preview-detail-row">
@@ -179,7 +187,11 @@
                       <span class="preview-detail-label">{{
                         item.baseName
                       }}</span>
-                      <span class="preview-detail-price" v-if="item.basePrice > 0">+{{ formatVND(item.basesPrice) }}</span>
+                      <span
+                        class="preview-detail-price"
+                        v-if="item.basePrice > 0"
+                        >+{{ formatVND(item.basesPrice) }}</span
+                      >
                       <span class="preview-detail-price free" v-else>+0 đ</span>
                     </div>
                     <div v-if="item.milkName" class="preview-detail-row">
@@ -221,7 +233,7 @@
             <p v-else class="preview-empty">Chưa chọn sản phẩm nào</p>
           </div>
           <!-- <div class="summary-rows"> -->
-            <!-- <div class="summary-row">
+          <!-- <div class="summary-row">
               <span>Tạm tính</span>
               <span>{{ formatVND(selectedSubtotal) }}</span>
             </div>
@@ -235,10 +247,10 @@
                 shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee)
               }}</span>
             </div> -->
-            <div class="summary-row total">
-              <span>Tổng cộng</span>
-              <span class="amount">{{ formatVND(grandTotal) }}</span>
-            </div>
+          <div class="summary-row total">
+            <span>Tổng cộng</span>
+            <span class="amount">{{ formatVND(grandTotal) }}</span>
+          </div>
           <!-- </div> -->
           <button
             class="btn-checkout"
@@ -513,8 +525,14 @@
                       <div class="moi-name">{{ item.name }}</div>
                       <div class="moi-qty-badge">x{{ item.quantity }}</div>
                     </div>
-                    <div class="moi-price">
-                      {{ formatVND(item.basePrice * item.quantity) }}
+                    <div class="moi-price-group">
+                      <div class="moi-price">
+                        {{ formatVND(item.basePrice * item.quantity) }}
+                      </div>
+                      <!-- ✅ Thêm đơn giá -->
+                      <div class="moi-unit-price">
+                        {{ formatVND(item.drinkBasePrice) }} x{{ item.quantity }}
+                      </div>
                     </div>
                   </div>
                   <!-- Size -->

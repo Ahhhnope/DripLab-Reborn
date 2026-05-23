@@ -485,10 +485,14 @@
 
                         <!-- Đường / Đá -->
                         <div class="item-options">
-                          <span class="option-tag option-tag--sugar"
+                          <span
+                            v-if="item.sugar != null"
+                            class="option-tag option-tag--sugar"
                             >Đường {{ item.sugar }}%</span
                           >
-                          <span class="option-tag option-tag--ice"
+                          <span
+                            v-if="item.ice != null"
+                            class="option-tag option-tag--ice"
                             >Đá {{ item.ice }}%</span
                           >
                         </div>

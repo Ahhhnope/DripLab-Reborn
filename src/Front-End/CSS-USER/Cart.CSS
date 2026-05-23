@@ -1885,3 +1885,25 @@ aside {
 .btn-use-gps-location svg {
   flex-shrink: 0;
 }
+.preview-price-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.preview-unit-price {
+  font-size: 11px;
+  color: #999;
+}
+.moi-price-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.moi-unit-price {
+  font-size: 11px;
+  color: #999;
+}

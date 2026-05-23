@@ -42,7 +42,6 @@ export function useUserOrders() {
   // ── Map order từ API ─────────────────────────────────────
   function mapOrder(order) {
     const totalQty = (order.items ?? []).reduce((s, i) => s + (i.quantity ?? 1), 0)
-
     return {
       id:              order.id,
       name:            `DL-${order.orderNumber ?? order.id}`,
@@ -65,6 +64,7 @@ export function useUserOrders() {
                  : '-',
         total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
         items: (order.items ?? []).map(item => {
+           console.log('item:', item)
           const sizeName  = item.size?.name  ?? null
           const sizePrice = item.size?.price ?? 0
 
@@ -88,9 +88,10 @@ export function useUserOrders() {
           sizeExtra:   sizePrice,                              
           toppings:    toppingList,                            
           img:         getImageUrl(item.drink?.imageUrl ?? null),
-          sugar:       item.sugarLevel ?? 100,
-          ice:         item.iceLevel   ?? 100,
+          sugar: item.sugar != null ? item.sugar : null,
+          ice:   item.ice   != null ? item.ice   : null,  
           }
+          
         }),
       },
     }
