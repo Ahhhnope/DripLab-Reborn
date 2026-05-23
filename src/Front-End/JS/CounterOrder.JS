@@ -201,7 +201,7 @@ export function useCounterOrder() {
     }
 
     // Trả về true nếu lưu thành công, false nếu thất bại
-    function saveCustomerInfo() {
+    async function saveCustomerInfo() {
         let valid = true
         nameError.value = ''
         phoneError.value = ''
@@ -218,6 +218,12 @@ export function useCounterOrder() {
 
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
+
+        const res = await api.post('/users/add-pos-customer', {
+            fullName: customerName.value,
+            phone: customerPhone.value,
+            role: "OFFLINE"
+        })
 
         customerSaved.value = true
         isEditingInfo.value = false
