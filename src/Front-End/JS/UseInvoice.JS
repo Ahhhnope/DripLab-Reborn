@@ -28,30 +28,22 @@ function goToPage(page) {
 }
 
 function mapInvoice(inv) {
-  console.log('RAW price data:', {
-    finalPrice: inv.finalPrice,
-    originalPrice: inv.originalPrice,
-    discountAmount: inv.discountAmount,
-    shippingFee: inv.shippingFee,
-  })
-
   const items = (inv.items ?? []).map(item => {
     const toppingList = (item.toppings ?? []).map(t => ({
-      name: t.name || t.toppingName || "",   // ← thêm fallback toppingName
-      price: t.price || t.toppingPrice || 0, // ← thêm fallback toppingPrice
+      name:  t.name  || "",
+      price: t.price || 0,
     }))
 
     const unitPrice = item.unitPrice || item.price || 0
 
     return {
-      name:      item.name || item.productName || "Món không tên",
-      qty:       item.qty  || item.quantity    || 1,
-      unitPrice: item.unitPrice || item.basePrice || 0,  // giá gốc chưa upsize
-      sizeExtra: item.sizeExtra || item.sizePrice || 0,  // ← thêm dòng này
-      price:     item.unitPrice || item.basePrice || 0,
-      size:      item.size     || item.sizeName  || null,
-      sugar:     item.sugar    ?? item.sugarLevel ?? null,
-      ice:       item.ice      ?? item.iceLevel  ?? null,
+      name:      item.name || "Món không tên",
+      qty:       item.qty  || 1,
+      unitPrice,           // ✅ dùng thẳng, đã bao gồm topping
+      price:     unitPrice,
+      size:      item.size  || item.sizeName  || null,
+      sugar:     item.sugar ?? item.sugarLevel ?? null,
+      ice:       item.ice   ?? item.iceLevel   ?? null,
       toppings:  toppingList,
       note:      item.note || "",
       isCustom:  !!(item.beanName || item.baseName || item.milkName),
@@ -61,40 +53,38 @@ function mapInvoice(inv) {
     }
   })
 
-  // ✅ Tự tính lại finalPrice thay vì tin backend
-  const originalPrice   = inv.originalPrice   || 0
-  const discountAmount  = inv.discountAmount   || 0
-  const shippingFee     = inv.shippingFee      || 0
-  const finalPrice      = originalPrice - discountAmount + shippingFee
+  // ✅ Dùng thẳng số backend, không tự tính lại
+  const originalPrice  = inv.originalPrice  || 0
+  const discountAmount = inv.discountAmount || 0
+  const shippingFee    = inv.shippingFee    || 0
+  const finalPrice     = inv.finalPrice     || 0
 
   return {
-    invoice_id: `HD_${inv.invoiceId}`,
-    order_id:   inv.orderId || "N/A",
-    status:     inv.status  || "Đã hủy",
-    date:       inv.createdAt
-                  ? new Date(inv.createdAt).toLocaleDateString('vi-VN')
-                  : "-",
+    invoice_id:     `HD_${inv.invoiceId}`,
+    order_id:       inv.orderId || "N/A",
+    status:         inv.status  || "Đã hủy",
+    date:           inv.createdAt
+                      ? new Date(inv.createdAt).toLocaleDateString('vi-VN')
+                      : "-",
     payment_method: inv.paymentMethod || "Chưa chọn",
     receive_type:   inv.receiveType   || "Tại Quầy",
-
-    finalPrice,       // ← dùng giá tự tính
+    finalPrice,
     originalPrice,
     discountAmount,
     shippingFee,
-
-    // UseInvoice.JS — sửa created_at để hiển thị đẹp
-      created_at: inv.createdAt
-        ? new Date(inv.createdAt).toLocaleString('vi-VN', {
-        day: '2-digit', month: '2-digit', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-      })
-      : "-",
+    created_at:     inv.createdAt
+                      ? new Date(inv.createdAt).toLocaleString('vi-VN', {
+                          day: '2-digit', month: '2-digit', year: 'numeric',
+                          hour: '2-digit', minute: '2-digit'
+                        })
+                      : "-",
+    note:     inv.note || "",
     customer: {
-      id:      inv.customer?.id       || "N/A",
-      name:    inv.receiverName       || inv.customer?.name    || "Khách lẻ",
-      phone:   inv.receiverPhone      || inv.customer?.phone   || "-",
-      email:   inv.customer?.email    || "-",
-      address: inv.shippingAddress    || inv.customer?.address || "-",
+      id:      inv.customer?.id    || "N/A",
+      name:    inv.receiverName    || inv.customer?.name    || "Khách lẻ",
+      phone:   inv.receiverPhone   || inv.customer?.phone   || "-",
+      email:   inv.customer?.email || "-",
+      address: inv.shippingAddress || inv.customer?.address || "-",
     },
     items,
   }
@@ -103,11 +93,11 @@ function mapInvoice(inv) {
 async function loadInvoices() {
   try {
     const res = await api.get("/invoices")
-    const mapped = res.data.map(mapInvoice)
+    const sorted = res.data.sort((a, b) => 
+      new Date(b.createdAt) - new Date(a.createdAt)
+    )
 
-    console.log("Sample invoice:", res.data[0])
-
-    mapped.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    const mapped = sorted.map(mapInvoice)
 
     invoices.value = mapped
     filteredInvoices.value = mapped

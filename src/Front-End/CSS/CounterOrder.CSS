@@ -1018,12 +1018,111 @@
   transform: translateY(-1px);
 }
 
+/* ==================== POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==================== */
+@keyframes notif-fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.customer-notif-overlay {
+  z-index: 3000;
+  pointer-events: none;
+}
+
+.customer-notif-popup {
+  pointer-events: auto;
+  text-align: center;
+  padding: 28px 36px 20px;
+  min-width: 320px;
+  max-width: 400px;
+  animation: notif-fadeInScale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-top: 5px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.customer-notif-popup.notif-success {
+  border-top-color: var(--green);
+}
+
+.customer-notif-popup.notif-error {
+  border-top-color: var(--red);
+}
+
+/* Icon vòng tròn lớn */
+.notif-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.notif-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.notif-icon--success {
+  background: #e8f3ec;
+  color: var(--green);
+  border: 3px solid var(--green);
+}
+
+.notif-icon--error {
+  background: #fdecea;
+  color: var(--red);
+  border: 3px solid var(--red);
+}
+
+/* Tiêu đề thông báo */
+.notif-title {
+  margin-bottom: 6px !important;
+}
+
+.notif-title--success {
+  color: var(--green-dark) !important;
+}
+
+.notif-title--error {
+  color: var(--red-dark) !important;
+}
+
+/* Thanh tiến trình tự đóng */
+.notif-progress-wrap {
+  margin-top: 18px;
+  height: 5px;
+  background: #e8e0d4;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.notif-progress-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.05s linear;
+}
+
+.notif-progress-bar--success {
+  background: var(--green);
+}
+
+.notif-progress-bar--error {
+  background: var(--red);
+}
+
 /* ==================== POPUP CHỌN KHÁCH HÀNG ==================== */
-/*
-  FIX: đổi tên class từ select-customer-popup-v2 → select-customer-popup
-  Tăng width lên 700px, dùng table-layout: fixed với width cố định từng cột
-  để đảm bảo luôn hiển thị đủ 4 cột: STT | Tên | SĐT | Thao tác
-*/
 .select-customer-popup {
   background: var(--white);
   border-radius: 14px;
@@ -1135,7 +1234,6 @@
   border-radius: 2px;
 }
 
-/* FIX CHÍNH: table-layout fixed + width cụ thể từng cột */
 .scp-table {
   width: 100%;
   border-collapse: collapse;
@@ -1159,22 +1257,10 @@
   white-space: nowrap;
 }
 
-/* Kích thước cố định từng cột — tổng = 100% */
-.col-stt {
-  width: 60px;
-}
-
-.col-name {
-  width: 45%;
-}
-
-.col-phone {
-  width: 30%;
-}
-
-.col-action {
-  width: 110px;
-}
+.col-stt { width: 60px; }
+.col-name { width: 45%; }
+.col-phone { width: 30%; }
+.col-action { width: 110px; }
 
 .scp-tr {
   transition: background 0.15s;
@@ -1243,7 +1329,6 @@
   font-style: italic;
 }
 
-/* Phân trang */
 .scp-pagination {
   display: flex;
   align-items: center;
