@@ -173,9 +173,9 @@ export function useCounterOrder() {
     }
 
     function selectExistingCustomer(cus) {
-        customerNameInput.value = cus.name || ''
+        customerNameInput.value = cus.fullName || ''
         customerPhoneInput.value = cus.phone || ''
-        customerName.value = cus.name || ''
+        customerName.value = cus.fullName || ''
         customerPhone.value = cus.phone || ''
         nameError.value = ''
         phoneError.value = ''
@@ -217,6 +217,7 @@ export function useCounterOrder() {
 
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
+
         customerSaved.value = true
         isEditingInfo.value = false
         if (currentOrder.value) {
