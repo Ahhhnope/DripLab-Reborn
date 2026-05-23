@@ -608,7 +608,9 @@ export function useCounterOrder() {
                     tables: displayTableNums.value,
                     finalPrice: finalPrice.value,
                     originalPrice: totalPrice.value,
-                    discountAmount: 0,
+                    discountAmount: totalPrice.value - finalPrice.value,  
+                    discountPercent: discountPercent.value,  
+                    promoCode: appliedCode.value || '',
                 },
                 paramsSerializer: params => {
                     const search = new URLSearchParams()
@@ -845,7 +847,7 @@ export function useCounterOrder() {
         fetchDrinks()
         fetchToppings()
         fetchSizes()
-        fetchDiscountCodes() 
+        fetchDiscountCodes()
         checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
         timer = setInterval(() => {
