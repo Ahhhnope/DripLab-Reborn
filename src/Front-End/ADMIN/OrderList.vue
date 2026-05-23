@@ -7,29 +7,17 @@
     <OrderTable :items="pagedItems" @view="onView" />
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="mt-6 flex justify-center">
-      <div class="flex items-center gap-2">
-        <button
-          class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-          :disabled="page === 1"
-          @click="page--"
-        >‹</button>
-
+    <div v-if="totalPages > 1" class="pgbar">
+      <div class="pgctrl">
+        <button class="pb" :disabled="page === 1" @click="page--">‹</button>
         <button
           v-for="p in pages"
           :key="p"
-          class="flex h-9 w-9 items-center justify-center rounded-md border text-sm font-semibold"
-          :class="p === page
-            ? 'border-blue-600 bg-blue-600 text-white'
-            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'"
+          class="pb"
+          :class="{ on: p === page }"
           @click="page = p"
         >{{ p }}</button>
-
-        <button
-          class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40"
-          :disabled="page === totalPages"
-          @click="page++"
-        >›</button>
+        <button class="pb" :disabled="page === totalPages" @click="page++">›</button>
       </div>
     </div>
 
@@ -210,6 +198,29 @@ const pages = computed(() => {
   margin-bottom: 20px;
 }
 
+/* ── Pagination ──────────────────────────────── */
+.pgbar {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.pgctrl { display: flex; gap: 6px; }
+.pb {
+  min-width: 36px; height: 36px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 6px;
+  transition: all 0.15s;
+}
+.pb:hover:not(:disabled) { border-color: #2563eb; color: #2563eb; }
+.pb.on { background: #2563eb; border-color: #2563eb; color: #fff; font-weight: 700; }
+.pb:disabled { opacity: 0.35; cursor: not-allowed; }
+
 .notify-backdrop {
   position: fixed;
   inset: 0;
@@ -226,7 +237,7 @@ const pages = computed(() => {
   width: 100%;
   max-width: 520px;
   background: #ffffff;
-  border-radius: 28px;
+          border-radius: 28px;
   padding: 34px 28px 26px;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.25);
   text-align: center;
