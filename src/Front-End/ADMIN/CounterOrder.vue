@@ -54,7 +54,6 @@ let notifTimer = null
 let notifProgressInterval = null
 
 function showNotification(success) {
-  // Xóa timer cũ nếu đang chạy
   if (notifTimer) { clearTimeout(notifTimer); notifTimer = null }
   if (notifProgressInterval) { clearInterval(notifProgressInterval); notifProgressInterval = null }
 
@@ -77,20 +76,40 @@ function showNotification(success) {
   }, duration)
 }
 
+// FIX 2: Đóng popup thông báo khi click ra ngoài
+function closeNotifOnOverlay() {
+  if (!showCustomerNotif.value) return
+  showCustomerNotif.value = false
+  if (notifTimer) { clearTimeout(notifTimer); notifTimer = null }
+  if (notifProgressInterval) { clearInterval(notifProgressInterval); notifProgressInterval = null }
+}
+
+// FIX 3: Validate cả tên lẫn số điện thoại trước khi thêm
 async function handleSaveCustomerInfo() {
-  // Validate trước khi gọi
   let valid = true
-  if (!customerPhoneInput.value) valid = false
-  else if (customerPhoneInput.value.length < 10) valid = false
+
+  // Validate tên
+  if (!customerNameInput.value || !customerNameInput.value.trim()) {
+    nameError.value = 'Vui lòng nhập họ và tên khách hàng!'
+    valid = false
+  }
+
+  // Validate số điện thoại
+  if (!customerPhoneInput.value) {
+    phoneError.value = 'Vui lòng nhập số điện thoại để thêm khách hàng!'
+    valid = false
+  } else if (customerPhoneInput.value.length < 10) {
+    phoneError.value = 'Số điện thoại phải đủ 10 số!'
+    valid = false
+  }
 
   if (!valid) {
-    saveCustomerInfo()
     showNotification(false)
     return
   }
 
   try {
-    saveCustomerInfo()
+    await saveCustomerInfo()
     showNotification(true)
   } catch (e) {
     showNotification(false)
@@ -130,7 +149,6 @@ function openSelectCustomerPopupWrapped() {
   openSelectCustomerPopup()
 }
 
-// Hiển thị tối đa 5 trang
 const visiblePages = computed(() => {
   const total = customerTotalPages.value
   const current = customerCurrentPage.value
@@ -312,31 +330,53 @@ async function goToReviewWithId() {
       <div class="order-section">
         <div class="order-section-title">CHI TIẾT KHÁCH HÀNG</div>
 
-        <!-- Thông tin khách hàng -->
+        <!-- FIX 1: Thông tin khách hàng - chỉ hiện đầy đủ khi có hóa đơn -->
         <div class="right-customer-block">
           <p class="right-sub-title">Khách Hàng</p>
 
           <div class="right-field">
             <label class="right-field-lbl">Họ và tên</label>
-            <input :value="customerNameInput" @input="onNameInput" type="text" placeholder="Nhập tên khách hàng..."
-              class="right-input" :class="{ error: nameError }" />
+            <input
+              :value="customerNameInput"
+              @input="onNameInput"
+              type="text"
+              placeholder="Nhập tên khách hàng..."
+              class="right-input"
+              :class="{ error: nameError, 'input-disabled': !currentOrder }"
+              :disabled="!currentOrder"
+            />
             <span v-if="nameError" class="right-field-err">{{ nameError }}</span>
           </div>
 
           <div class="right-field">
             <label class="right-field-lbl">Số điện thoại</label>
-            <input :value="customerPhoneInput" @input="onPhoneInput" type="text" inputmode="numeric"
-              placeholder="Nhập số điện thoại..." maxlength="10" class="right-input" :class="{ error: phoneError }" />
+            <input
+              :value="customerPhoneInput"
+              @input="onPhoneInput"
+              type="text"
+              inputmode="numeric"
+              placeholder="Nhập số điện thoại..."
+              maxlength="10"
+              class="right-input"
+              :class="{ error: phoneError, 'input-disabled': !currentOrder }"
+              :disabled="!currentOrder"
+            />
             <span v-if="phoneError" class="right-field-err">{{ phoneError }}</span>
           </div>
 
-          <div class="right-customer-action-row">
+          <!-- FIX 1: Ẩn 2 nút khi chưa có hóa đơn -->
+          <div v-if="currentOrder" class="right-customer-action-row">
             <button class="right-customer-btn right-customer-btn--select" @click="openSelectCustomerPopupWrapped">
               Chọn khách hàng
             </button>
             <button class="right-customer-btn right-customer-btn--add" @click="handleSaveCustomerInfo">
               Thêm khách hàng
             </button>
+          </div>
+          <!-- Placeholder giữ layout khi chưa có hóa đơn -->
+          <div v-else class="right-customer-action-row right-customer-action-row--placeholder">
+            <button class="right-customer-btn right-customer-btn--select" disabled>Chọn khách hàng</button>
+            <button class="right-customer-btn right-customer-btn--add" disabled>Thêm khách hàng</button>
           </div>
 
           <div class="right-meta-row">
@@ -405,11 +445,12 @@ async function goToReviewWithId() {
           <div class="discount-section">
             <p class="discount-label">Mã khuyến mãi</p>
             <div class="discount-bar">
-              <select v-model="discountInput" class="discount-select">
+              <!-- FIX 1: Disable select và nút Áp dụng khi chưa có hóa đơn -->
+              <select v-model="discountInput" class="discount-select" :disabled="!currentOrder">
                 <option value="">Chọn mã khuyến mãi</option>
                 <option v-for="item in discountCodeList" :key="item.code" :value="item.code">{{ item.label }}</option>
               </select>
-              <button class="discount-btn" @click="applyDiscount">Áp dụng</button>
+              <button class="discount-btn" @click="applyDiscount" :disabled="!currentOrder">Áp dụng</button>
             </div>
             <p v-if="discountMessage" class="discount-message"
               :class="{ success: discountPercent > 0, error: discountPercent === 0 && discountMessage }">
@@ -425,9 +466,25 @@ async function goToReviewWithId() {
             </span>
           </div>
           <div class="right-action-btns right-action-btns--footer">
-            <button class="right-mode-btn" @click="openTablePopup">Hình thức</button>
-            <button v-if="orderedItems.length > 0" class="right-pay-btn" @click="checkout">Thanh toán</button>
-            <button v-else class="right-pay-btn right-pay-btn--disabled" disabled>Thanh toán</button>
+            <!-- FIX 1: Disable nút Hình thức khi chưa có hóa đơn -->
+            <button
+              class="right-mode-btn"
+              :class="{ 'right-mode-btn--disabled': !currentOrder }"
+              :disabled="!currentOrder"
+              @click="openTablePopup"
+            >Hình thức</button>
+
+            <!-- FIX 1: Thanh toán chỉ hiện khi có hóa đơn VÀ có sản phẩm -->
+            <button
+              v-if="currentOrder && orderedItems.length > 0"
+              class="right-pay-btn"
+              @click="checkout"
+            >Thanh toán</button>
+            <button
+              v-else
+              class="right-pay-btn right-pay-btn--disabled"
+              disabled
+            >Thanh toán</button>
           </div>
         </div>
       </div>
@@ -449,7 +506,8 @@ async function goToReviewWithId() {
     </div>
 
     <!-- ==================== POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==================== -->
-    <div v-if="showCustomerNotif" class="confirm-overlay customer-notif-overlay">
+    <!-- FIX 2: Click ra ngoài overlay để tắt popup -->
+    <div v-if="showCustomerNotif" class="confirm-overlay customer-notif-overlay" @click.self="closeNotifOnOverlay">
       <div class="confirm-popup customer-notif-popup" :class="customerNotifSuccess ? 'notif-success' : 'notif-error'">
         <div class="confirm-logo">
           <img :src="logoDrip" alt="DripLab" style="height:60px;object-fit:contain" />
