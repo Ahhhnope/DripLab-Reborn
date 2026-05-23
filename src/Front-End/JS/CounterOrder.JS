@@ -200,12 +200,20 @@ export function useCounterOrder() {
         phoneError.value = ''
     }
 
+    // FIX 3: Validate cả tên lẫn số điện thoại
     // Trả về true nếu lưu thành công, false nếu thất bại
     async function saveCustomerInfo() {
         let valid = true
         nameError.value = ''
         phoneError.value = ''
 
+        // Validate tên — bắt buộc phải nhập
+        if (!customerNameInput.value || !customerNameInput.value.trim()) {
+            nameError.value = 'Vui lòng nhập họ và tên khách hàng!'
+            valid = false
+        }
+
+        // Validate số điện thoại
         if (!customerPhoneInput.value) {
             phoneError.value = 'Vui lòng nhập số điện thoại để thêm khách hàng!'
             valid = false

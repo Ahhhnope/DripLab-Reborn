@@ -128,7 +128,11 @@ export function useRegister() {
         email:    email.value,
         phone:    phone.value,
         password: password.value,
-        defaultAddress: fullAddress.value + ", " + ward.value + ", "+ city
+        defaultAddress: fullAddress.value + ", " + ward.value + ", "+ city,
+        loyaltyPoint: 0,
+        tier: {id: 1},
+        usedPoint: 0,
+        avatar: '/IMG/lel.png'
       })
 
       // ── LOG để xem backend trả về gì ──

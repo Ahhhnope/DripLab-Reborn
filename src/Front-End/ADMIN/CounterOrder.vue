@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 defineOptions({ name: 'CounterOrder' })
 import { useCounterOrder } from '../JS/CounterOrder.JS'
-import Momo from '../TheATMmomo/Momo.vue'
+import QRMomo from '../QRMomo/QRmomo.vue'
 
 const router = useRouter()
 const logoMomo = new URL('../IMG/logoMOMO.png', import.meta.url).href
@@ -44,7 +45,8 @@ const {
   pendingInvoiceId,
 } = useCounterOrder()
 
-const showMomoQR = ref(false)
+// ── QR MoMo ──
+const showQRMomo = ref(false)
 
 // ── Thông báo thêm khách hàng ──
 const showCustomerNotif = ref(false)
@@ -54,7 +56,6 @@ let notifTimer = null
 let notifProgressInterval = null
 
 function showNotification(success) {
-  // Xóa timer cũ nếu đang chạy
   if (notifTimer) { clearTimeout(notifTimer); notifTimer = null }
   if (notifProgressInterval) { clearInterval(notifProgressInterval); notifProgressInterval = null }
 
@@ -77,20 +78,36 @@ function showNotification(success) {
   }, duration)
 }
 
+function closeNotifOnOverlay() {
+  if (!showCustomerNotif.value) return
+  showCustomerNotif.value = false
+  if (notifTimer) { clearTimeout(notifTimer); notifTimer = null }
+  if (notifProgressInterval) { clearInterval(notifProgressInterval); notifProgressInterval = null }
+}
+
 async function handleSaveCustomerInfo() {
-  // Validate trước khi gọi
   let valid = true
-  if (!customerPhoneInput.value) valid = false
-  else if (customerPhoneInput.value.length < 10) valid = false
+
+  if (!customerNameInput.value || !customerNameInput.value.trim()) {
+    nameError.value = 'Vui lòng nhập họ và tên khách hàng!'
+    valid = false
+  }
+
+  if (!customerPhoneInput.value) {
+    phoneError.value = 'Vui lòng nhập số điện thoại để thêm khách hàng!'
+    valid = false
+  } else if (customerPhoneInput.value.length < 10) {
+    phoneError.value = 'Số điện thoại phải đủ 10 số!'
+    valid = false
+  }
 
   if (!valid) {
-    saveCustomerInfo()
     showNotification(false)
     return
   }
 
   try {
-    saveCustomerInfo()
+    await saveCustomerInfo()
     showNotification(true)
   } catch (e) {
     showNotification(false)
@@ -130,7 +147,6 @@ function openSelectCustomerPopupWrapped() {
   openSelectCustomerPopup()
 }
 
-// Hiển thị tối đa 5 trang
 const visiblePages = computed(() => {
   const total = customerTotalPages.value
   const current = customerCurrentPage.value
@@ -141,19 +157,21 @@ const visiblePages = computed(() => {
   return Array.from({ length: end - start + 1 }, (_, i) => start + i)
 })
 
-// ── MoMo ──
-function openMomoPayment() {
+// ── QR MoMo handlers ──
+async function openQRMomoPayment() {
+  await goToReviewWithId()
+  showReviewPopup.value = false
   showPaymentPopup.value = false
-  showMomoQR.value = true
+  showQRMomo.value = true
 }
 
-function closeMomoQR() {
-  showMomoQR.value = false
+function closeQRMomo() {
+  showQRMomo.value = false
   showPaymentPopup.value = true
 }
 
-function onMomoPaid() {
-  showMomoQR.value = false
+function onQRMomoPaid() {
+  showQRMomo.value = false
   paymentMethod.value = 'momo'
   const order = currentOrder.value
   receiptData.value = {
@@ -312,31 +330,36 @@ async function goToReviewWithId() {
       <div class="order-section">
         <div class="order-section-title">CHI TIẾT KHÁCH HÀNG</div>
 
-        <!-- Thông tin khách hàng -->
         <div class="right-customer-block">
           <p class="right-sub-title">Khách Hàng</p>
 
           <div class="right-field">
             <label class="right-field-lbl">Họ và tên</label>
             <input :value="customerNameInput" @input="onNameInput" type="text" placeholder="Nhập tên khách hàng..."
-              class="right-input" :class="{ error: nameError }" />
+              class="right-input" :class="{ error: nameError, 'input-disabled': !currentOrder }"
+              :disabled="!currentOrder" />
             <span v-if="nameError" class="right-field-err">{{ nameError }}</span>
           </div>
 
           <div class="right-field">
             <label class="right-field-lbl">Số điện thoại</label>
             <input :value="customerPhoneInput" @input="onPhoneInput" type="text" inputmode="numeric"
-              placeholder="Nhập số điện thoại..." maxlength="10" class="right-input" :class="{ error: phoneError }" />
+              placeholder="Nhập số điện thoại..." maxlength="10" class="right-input"
+              :class="{ error: phoneError, 'input-disabled': !currentOrder }" :disabled="!currentOrder" />
             <span v-if="phoneError" class="right-field-err">{{ phoneError }}</span>
           </div>
 
-          <div class="right-customer-action-row">
+          <div v-if="currentOrder" class="right-customer-action-row">
             <button class="right-customer-btn right-customer-btn--select" @click="openSelectCustomerPopupWrapped">
               Chọn khách hàng
             </button>
             <button class="right-customer-btn right-customer-btn--add" @click="handleSaveCustomerInfo">
               Thêm khách hàng
             </button>
+          </div>
+          <div v-else class="right-customer-action-row right-customer-action-row--placeholder">
+            <button class="right-customer-btn right-customer-btn--select" disabled>Chọn khách hàng</button>
+            <button class="right-customer-btn right-customer-btn--add" disabled>Thêm khách hàng</button>
           </div>
 
           <div class="right-meta-row">
@@ -405,11 +428,11 @@ async function goToReviewWithId() {
           <div class="discount-section">
             <p class="discount-label">Mã khuyến mãi</p>
             <div class="discount-bar">
-              <select v-model="discountInput" class="discount-select">
+              <select v-model="discountInput" class="discount-select" :disabled="!currentOrder">
                 <option value="">Chọn mã khuyến mãi</option>
                 <option v-for="item in discountCodeList" :key="item.code" :value="item.code">{{ item.label }}</option>
               </select>
-              <button class="discount-btn" @click="applyDiscount">Áp dụng</button>
+              <button class="discount-btn" @click="applyDiscount" :disabled="!currentOrder">Áp dụng</button>
             </div>
             <p v-if="discountMessage" class="discount-message"
               :class="{ success: discountPercent > 0, error: discountPercent === 0 && discountMessage }">
@@ -425,8 +448,11 @@ async function goToReviewWithId() {
             </span>
           </div>
           <div class="right-action-btns right-action-btns--footer">
-            <button class="right-mode-btn" @click="openTablePopup">Hình thức</button>
-            <button v-if="orderedItems.length > 0" class="right-pay-btn" @click="checkout">Thanh toán</button>
+            <button class="right-mode-btn" :class="{ 'right-mode-btn--disabled': !currentOrder }"
+              :disabled="!currentOrder" @click="openTablePopup">Hình thức</button>
+
+            <button v-if="currentOrder && orderedItems.length > 0" class="right-pay-btn" @click="checkout">Thanh
+              toán</button>
             <button v-else class="right-pay-btn right-pay-btn--disabled" disabled>Thanh toán</button>
           </div>
         </div>
@@ -449,7 +475,7 @@ async function goToReviewWithId() {
     </div>
 
     <!-- ==================== POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==================== -->
-    <div v-if="showCustomerNotif" class="confirm-overlay customer-notif-overlay">
+    <div v-if="showCustomerNotif" class="confirm-overlay customer-notif-overlay" @click.self="closeNotifOnOverlay">
       <div class="confirm-popup customer-notif-popup" :class="customerNotifSuccess ? 'notif-success' : 'notif-error'">
         <div class="confirm-logo">
           <img :src="logoDrip" alt="DripLab" style="height:60px;object-fit:contain" />
@@ -458,7 +484,8 @@ async function goToReviewWithId() {
           <span v-if="customerNotifSuccess" class="notif-icon notif-icon--success">✓</span>
           <span v-else class="notif-icon notif-icon--error">✕</span>
         </div>
-        <p class="confirm-title notif-title" :class="customerNotifSuccess ? 'notif-title--success' : 'notif-title--error'">
+        <p class="confirm-title notif-title"
+          :class="customerNotifSuccess ? 'notif-title--success' : 'notif-title--error'">
           {{ customerNotifSuccess ? 'Thêm thành công!' : 'Thêm thất bại!' }}
         </p>
         <p class="cancel-order-sub">
@@ -466,13 +493,10 @@ async function goToReviewWithId() {
             ? 'Thông tin khách hàng đã được lưu lại.'
             : 'Vui lòng kiểm tra lại thông tin khách hàng.' }}
         </p>
-        <!-- Thanh tiến trình tự đóng -->
         <div class="notif-progress-wrap">
-          <div
-            class="notif-progress-bar"
+          <div class="notif-progress-bar"
             :class="customerNotifSuccess ? 'notif-progress-bar--success' : 'notif-progress-bar--error'"
-            :style="{ width: customerNotifProgress + '%' }"
-          ></div>
+            :style="{ width: customerNotifProgress + '%' }"></div>
         </div>
       </div>
     </div>
@@ -480,8 +504,6 @@ async function goToReviewWithId() {
     <!-- ==================== POPUP CHỌN KHÁCH HÀNG ==================== -->
     <div v-if="showSelectCustomerPopup" class="confirm-overlay">
       <div class="select-customer-popup">
-
-        <!-- Header -->
         <div class="scp-header">
           <div class="scp-header-left">
             <span class="scp-header-icon">ℹ</span>
@@ -489,14 +511,10 @@ async function goToReviewWithId() {
           </div>
           <button class="scp-close-btn" @click="closeSelectCustomerPopup">✕</button>
         </div>
-
-        <!-- Tìm kiếm -->
         <div class="scp-search-wrap">
           <input v-model="customerSearchText" @input="onCustomerSearch" type="text" class="scp-search-input"
             placeholder="Tìm kiếm theo tên hoặc số điện thoại..." />
         </div>
-
-        <!-- Bảng danh sách -->
         <div class="scp-table-wrap">
           <table class="scp-table">
             <thead>
@@ -522,8 +540,6 @@ async function goToReviewWithId() {
             </tbody>
           </table>
         </div>
-
-        <!-- Phân trang -->
         <div class="scp-pagination">
           <button class="scp-page-btn" :disabled="customerCurrentPage <= 1" @click="customerCurrentPage--">&lt;</button>
           <span v-for="p in visiblePages" :key="p" class="scp-page-num" :class="{ active: p === customerCurrentPage }"
@@ -620,7 +636,7 @@ async function goToReviewWithId() {
                 @click="selectedSize = s">
                 {{ s }}
                 <span class="size-price-hint">{{ SIZE_PRICES[s] ? '+' + SIZE_PRICES[s].toLocaleString() + 'đ' : 'Gốc'
-                  }}</span>
+                }}</span>
               </button>
             </div>
           </div>
@@ -669,6 +685,7 @@ async function goToReviewWithId() {
             placeholder="Nhập ghi chú cho đơn hàng (không bắt buộc)..."></textarea>
         </div>
 
+        <!-- Tiền mặt: nút Kiểm tra -->
         <template v-if="paymentMethod === 'Tiền mặt'">
           <div class="payment-footer">
             <button class="btn-cancel" @click="closePaymentPopup">Hủy</button>
@@ -676,6 +693,7 @@ async function goToReviewWithId() {
           </div>
         </template>
 
+        <!-- MoMo -->
         <template v-else>
           <div class="momo-header">
             <img :src="logoMomo" class="momo-logo" alt="MoMo" />
@@ -684,12 +702,16 @@ async function goToReviewWithId() {
               <p class="momo-amount">{{ finalPrice.toLocaleString() }} VND</p>
             </div>
           </div>
-          <p style="font-size:13px;color:#666;text-align:center;margin-bottom:12px">
-            Nhấn bên dưới để mở cổng thanh toán QR MoMo
-          </p>
           <div class="payment-footer">
             <button class="btn-cancel" @click="closePaymentPopup">Hủy</button>
-            <button class="btn-confirm momo-btn" @click="openMomoPayment">💳 Thanh toán thẻ ATM</button>
+            <!-- ── Nút QR MoMo được thiết kế lại ── -->
+            <button class="btn-confirm btn-momo-qr" @click="openQRMomoPayment">
+              <span class="btn-momo-qr-icon">
+                <img :src="logoMomo" alt="" />
+              </span>
+              <span class="btn-momo-qr-text">Thanh toán QR</span>
+              <span class="btn-momo-qr-arrow">→</span>
+            </button>
           </div>
         </template>
       </div>
@@ -706,7 +728,7 @@ async function goToReviewWithId() {
           <span class="review-lbl">Mã Hóa Đơn</span>
           <span class="review-val review-invoice-id">
             <span class="tx-id" :class="{ pink: paymentMethod === 'momo' }">{{ receiptData.invoiceId || pendingInvoiceId
-              }}</span>
+            }}</span>
           </span>
         </div>
         <div class="review-row">
@@ -720,7 +742,7 @@ async function goToReviewWithId() {
         <div class="review-row">
           <span class="review-lbl">Đặt bàn</span>
           <span class="review-val">{{ receiptData.tableNums?.length ? formatTableNums(receiptData.tableNums) : 'Chưa có'
-            }}</span>
+          }}</span>
         </div>
         <div class="review-row">
           <span class="review-lbl">Thanh Toán</span>
@@ -773,9 +795,9 @@ async function goToReviewWithId() {
           </div>
 
           <div v-if="item.isCustom" class="review-item-meta" style="margin-top:2px">
-            <span v-if="item.beanName" class="rpc-custom-tag">☕ {{ item.beanName }}</span>
-            <span v-if="item.baseName" class="rpc-custom-tag">⚗️ {{ item.baseName }}</span>
-            <span v-if="item.milkName" class="rpc-custom-tag">🥛 {{ item.milkName }}</span>
+            <span v-if="item.beanName" class="rpc-custom-tag"> {{ item.beanName }}</span>
+            <span v-if="item.baseName" class="rpc-custom-tag"> {{ item.baseName }}</span>
+            <span v-if="item.milkName" class="rpc-custom-tag"> {{ item.milkName }}</span>
           </div>
         </div>
 
@@ -818,16 +840,16 @@ async function goToReviewWithId() {
               :class="{ 'success-receipt-header--cash': paymentMethod === 'Tiền mặt' }">
               <img v-if="paymentMethod === 'momo'" :src="logoMomo" class="receipt-logo" alt="MoMo" />
               <span class="receipt-label">Biên lai {{ paymentMethod === 'Tiền mặt' ? 'thanh toán' : 'chuyển tiền'
-                }}</span>
+              }}</span>
             </div>
-            <div class="success-row b"><span>Họ và tên</span><span>{{ receiptData.customerName?.trim() || 'Khách vãng lai' }}</span></div>
+            <div class="success-row b"><span>Họ và tên</span><span>{{ receiptData.customerName?.trim() || 'Khách vãng lai'}}</span></div>
             <div class="success-row b"><span>Số điện thoại</span><span>{{ receiptData.customerPhone || 'Không Có Thông Tin' }}</span></div>
             <div class="success-row b"><span>Đặt bàn</span><span>{{ receiptData.tableNums?.length ?
               formatTableNums(receiptData.tableNums) : 'Chưa có' }}</span></div>
-            <div class="success-row b"><span>Hình thức</span><span>{{ receiptData.dineMode === true ? 'Tại quán' : 'Mang đi' }}</span></div>
+            <div class="success-row b"><span>Hình thức</span><span>{{ receiptData.dineMode === true ? 'Tại quán' : 'Mang đi'}}</span></div>
             <div class="success-row b"><span>Ghi chú</span><span class="receipt-note-val">{{ receiptData.note || 'Không có ghi chú' }}</span></div>
             <div class="receipt-divider"></div>
-            <div class="success-row b"><span>Thanh toán</span><span>{{ paymentMethod === 'Tiền mặt' ? 'Tiền mặt' : 'Ví MoMo'}}</span></div>
+            <div class="success-row b"><span>Thanh toán</span><span>{{ paymentMethod === 'Tiền mặt' ? 'Tiền mặt' : 'Ví MoMo' }}</span></div>
             <div class="success-row b"><span>Mã Hóa Đơn</span><span class="tx-id":class="{ pink: paymentMethod === 'momo' }">{{ txId }}</span></div>
             <div class="success-row b"><span>Thời gian thanh toán</span><span>{{ txTime }}</span></div>
             <div class="receipt-divider"></div>
@@ -880,10 +902,10 @@ async function goToReviewWithId() {
       </div>
     </div>
 
-    <!-- ==================== POPUP QR MOMO ==================== -->
-    <Momo :visible="showMomoQR" :amount="finalPrice"
+    <!-- ==================== QR MOMO PORTAL ==================== -->
+    <QRMomo :visible="showQRMomo" :amount="finalPrice"
       :orderInfo="`Thanh toan DripLab - ${displayCustomerName || (currentOrder && currentOrder.anonCode) || 'Khach le'}`"
-      @close="closeMomoQR" @paid="onMomoPaid" />
+      :invoiceId="pendingInvoiceId" @close="closeQRMomo" @paid="onQRMomoPaid" />
 
   </div>
 </template>
