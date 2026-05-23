@@ -188,12 +188,22 @@ const pagedDrinks = computed(() => {
                     <td>{{ drink.name }}</td>
                     <td>{{ drink.category }}</td>
                     <td>{{ drink.basePrice?.toLocaleString('vi-VN') }}₫</td>
-                    <td>{{ drink.active ? 'Đang bán' : 'Đã Tắt'}}</td> 
+                    <td>{{ drink.active ? 'Đang bán' : 'Tạm Dừng' }}</td>
                     <td>
-                        <button class="btn-edit" @click="openEdit(drink)">Sửa</button>
-                        <button class="btn-delete" @click="toggleDrink(drink.id)">
-                            {{ drink.active ? 'Tắt' : 'Bật' }}
+                        <!-- Icon bút chì sửa -->
+                        <button class="btn-icon-edit" @click="openEdit(drink)" title="Sửa">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
                         </button>
+
+                        <!-- Toggle bật/tắt -->
+                        <label class="toggle-switch" :title="drink.active ? 'Tắt' : 'Bật'">
+                            <input type="checkbox" :checked="drink.active" @change="toggleDrink(drink.id)" />
+                            <span class="toggle-slider"></span>
+                        </label>
                     </td>
                 </tr>
             </tbody>
@@ -208,87 +218,87 @@ const pagedDrinks = computed(() => {
         </div>
 
         <!-- MODAL THÊM -->
-<div v-if="showAddModal" class="modal-overlay">
-    <div class="modal">
-        <h3>Thêm sản phẩm mới</h3>
+        <div v-if="showAddModal" class="modal-overlay">
+            <div class="modal">
+                <h3>Thêm sản phẩm mới</h3>
 
-        <div class="form-group">
-            <label>Tên sản phẩm</label>
-            <input v-model="newDrink.name" placeholder="Tên sản phẩm" />
-            <span v-if="errors.name" class="error-msg">{{ errors.name }}</span>
-        </div>
-        <div class="form-group">
-            <label>Danh mục</label>
-            <select v-model="newDrink.category">
-                <option value="Cà phê">Cà phê</option>
-                <option value="Trà">Trà</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Giá cơ bản (₫)</label>
-            <input type="number" v-model="newDrink.basePrice" />
-            <span v-if="errors.basePrice" class="error-msg">{{ errors.basePrice }}</span>
-        </div>
-        <div class="form-group">
-            <label>Mô tả</label>
-            <input v-model="newDrink.description" placeholder="Mô tả" />
-            <span v-if="errors.description" class="error-msg">{{ errors.description }}</span>
-        </div>
-        <div class="form-group">
-            <label>Ảnh sản phẩm</label>
-            <input type="file" accept="image/*" @change="handleImageUpload($event, 'new')" />
-            <span v-if="errors.imageUrl" class="error-msg">{{ errors.imageUrl }}</span>
-            <div v-if="newDrink.imageUrl" class="preview-wrap">
-                <img :src="getImageUrl(newDrink.imageUrl)" class="img-preview" />
-            </div>
-        </div>
+                <div class="form-group">
+                    <label>Tên sản phẩm</label>
+                    <input v-model="newDrink.name" placeholder="Tên sản phẩm" />
+                    <span v-if="errors.name" class="error-msg">{{ errors.name }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Danh mục</label>
+                    <select v-model="newDrink.category">
+                        <option value="Cà phê">Cà phê</option>
+                        <option value="Trà">Trà</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Giá cơ bản (₫)</label>
+                    <input type="number" v-model="newDrink.basePrice" />
+                    <span v-if="errors.basePrice" class="error-msg">{{ errors.basePrice }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <input v-model="newDrink.description" placeholder="Mô tả" />
+                    <span v-if="errors.description" class="error-msg">{{ errors.description }}</span>
+                </div>
+                <div class="form-group">
+                    <label>Ảnh sản phẩm</label>
+                    <input type="file" accept="image/*" @change="handleImageUpload($event, 'new')" />
+                    <span v-if="errors.imageUrl" class="error-msg">{{ errors.imageUrl }}</span>
+                    <div v-if="newDrink.imageUrl" class="preview-wrap">
+                        <img :src="getImageUrl(newDrink.imageUrl)" class="img-preview" />
+                    </div>
+                </div>
 
-        <div class="ingredients-section">
-            <div class="ingredients-title">Thành phần</div>
+                <div class="ingredients-section">
+                    <div class="ingredients-title">Thành phần</div>
 
-            <div class="form-group">
-                <label>Hạt cà phê</label>
-                <select v-model="newDrink.coffeeBeanId">
-                    <option :value="null">-- Không chọn --</option>
-                    <option v-for="item in coffeeBeans" :key="item.id" :value="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Sữa</label>
-                <select v-model="newDrink.milkId">
-                    <option :value="null">-- Không chọn --</option>
-                    <option v-for="item in milks" :key="item.id" :value="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Kem béo</label>
-                <select v-model="newDrink.heavyCreamId">
-                    <option :value="null">-- Không chọn --</option>
-                    <option v-for="item in heavyCreams" :key="item.id" :value="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Kem lạnh</label>
-                <select v-model="newDrink.iceCreamId">
-                    <option :value="null">-- Không chọn --</option>
-                    <option v-for="item in iceCreams" :key="item.id" :value="item.id">{{ item.name }}</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Cách thức</label>
-                <select v-model="newDrink.instructionId">
-                    <option :value="null">-- Không chọn --</option>
-                    <option v-for="item in instructions" :key="item.id" :value="item.id">{{ item.name }}</option>
-                </select>
+                    <div class="form-group">
+                        <label>Hạt cà phê</label>
+                        <select v-model="newDrink.coffeeBeanId">
+                            <option :value="null">-- Không chọn --</option>
+                            <option v-for="item in coffeeBeans" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sữa</label>
+                        <select v-model="newDrink.milkId">
+                            <option :value="null">-- Không chọn --</option>
+                            <option v-for="item in milks" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kem béo</label>
+                        <select v-model="newDrink.heavyCreamId">
+                            <option :value="null">-- Không chọn --</option>
+                            <option v-for="item in heavyCreams" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kem lạnh</label>
+                        <select v-model="newDrink.iceCreamId">
+                            <option :value="null">-- Không chọn --</option>
+                            <option v-for="item in iceCreams" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cách thức</label>
+                        <select v-model="newDrink.instructionId">
+                            <option :value="null">-- Không chọn --</option>
+                            <option v-for="item in instructions" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn-save" @click="createDrink">Thêm</button>
+                    <button class="btn-cancel" @click="closeModal">Hủy</button>
+                </div>
             </div>
         </div>
-
-        <div class="modal-buttons">
-            <button class="btn-save" @click="createDrink">Thêm</button>
-            <button class="btn-cancel" @click="closeModal">Hủy</button>
-        </div>
-    </div>
-</div>
 
         <!-- MODAL SỬA -->
         <div v-if="showEditModal && selectedDrink" class="modal-overlay">
@@ -354,8 +364,7 @@ const pagedDrinks = computed(() => {
                         <label>Cách thức</label>
                         <select v-model="selectedDrink.instructionId">
                             <option :value="null">-- Không chọn --</option>
-                            <option v-for="item in instructions" :key="item.id" :value="item.id">{{ item.name }}
-                            </option>
+                            <option v-for="item in instructions" :key="item.id" :value="item.id">{{ item.name }}</option>
                         </select>
                     </div>
                 </div>

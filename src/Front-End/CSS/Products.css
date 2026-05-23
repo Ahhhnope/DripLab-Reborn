@@ -50,10 +50,74 @@
 
 /* Buttons */
 .btn-add    { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
-.btn-edit   { background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 6px; }
-.btn-delete { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 .btn-save   { background: #16a34a; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; }
 .btn-cancel { background: #6b7280; color: white; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; }
+
+/* Icon bút chì sửa */
+.btn-icon-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #fff7ed;
+  color: #f59e0b;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.btn-icon-edit:hover {
+  background: #fef3c7;
+}
+
+/* Toggle Switch bật/tắt */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d1d5db;
+  border-radius: 999px;
+  transition: background 0.25s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #22c55e;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
 
 /* Modal */
 .modal-overlay {
@@ -146,7 +210,6 @@
   gap: 10px;
   margin-top: 16px;
 }
-
 
 .pagination {
   display: flex;
