@@ -121,11 +121,11 @@
               <span class="field-label">SĐT</span>
               <span class="field-value">{{ selectedInvoice.customer.phone }}</span>
             </div>
-            <div class="customer-field">
+            <div class="customer-field" v-if="selectedInvoice.receive_type === 'Online'">
               <span class="field-label">Email</span>
               <span class="field-value">{{ selectedInvoice.customer.email }}</span>
             </div>
-            <div class="customer-field">
+            <div class="customer-field" v-if="selectedInvoice.receive_type === 'Online'">
               <span class="field-label">Địa chỉ</span>
               <span class="field-value">{{ selectedInvoice.customer.address }}</span>
             </div>

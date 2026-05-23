@@ -159,15 +159,31 @@
                       }}
                     </div>
 
-                    <div class="col-span-4 text-sm text-stone-400">Email</div>
-                    <div class="col-span-8 text-sm font-medium">
+                    <div
+                      class="col-span-4 text-sm text-stone-400"
+                      v-if="invoice.receive_type === 'Online'"
+                    >
+                      Email
+                    </div>
+                    <div
+                      class="col-span-8 text-sm font-medium"
+                      v-if="invoice.receive_type === 'Online'"
+                    >
                       {{
                         invoice.receiverEmail || invoice.customer?.email || "—"
                       }}
                     </div>
 
-                    <div class="col-span-4 text-sm text-stone-400">Địa chỉ</div>
-                    <div class="col-span-8 text-sm font-medium">
+                    <div
+                      class="col-span-4 text-sm text-stone-400"
+                      v-if="invoice.receive_type === 'Online'"
+                    >
+                      Địa chỉ
+                    </div>
+                    <div
+                      class="col-span-8 text-sm font-medium"
+                      v-if="invoice.receive_type === 'Online'"
+                    >
                       {{
                         invoice.shippingAddress ||
                         invoice.customer?.address ||
