@@ -433,7 +433,7 @@ async function goToReviewWithId() {
               </tr>
               <tr v-for="(cus, i) in pagedCustomerList" :key="cus.id || cus.phone" class="scp-tr">
                 <td class="scp-td col-stt">{{ (customerCurrentPage - 1) * customerPageSize + i + 1 }}</td>
-                <td class="scp-td col-name">{{ cus.name || 'Không tên' }}</td>
+                <td class="scp-td col-name">{{ cus.fullName || 'Không tên' }}</td>
                 <td class="scp-td col-phone">{{ cus.phone || '—' }}</td>
                 <td class="scp-td col-action">
                   <button class="scp-choose-btn" @click="selectExistingCustomer(cus)">Chọn</button>

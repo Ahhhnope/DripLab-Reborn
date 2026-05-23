@@ -159,7 +159,7 @@ export function useCounterOrder() {
 
     async function openSelectCustomerPopup() {
         try {
-            const res = await api.get('/customers')
+            const res = await api.get('/users/customers')
             customerList.value = res.data || []
         } catch (error) {
             console.error('Lỗi lấy danh sách khách hàng:', error)
