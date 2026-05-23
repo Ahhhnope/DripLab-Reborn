@@ -224,30 +224,26 @@
                           đ
                         </div>
                         <div class="text-xs text-stone-400 mt-0.5">
-                          {{ item.unitPrice.toLocaleString("vi-VN") }} đ ×
+                          {{ item.basePrice.toLocaleString("vi-VN") }} đ ×
                           {{ item.qty }}
                         </div>
                       </div>
                     </div>
 
                     <!-- Size + giá upsize -->
-                    <div
-                      v-if="item.size || item.sizeExtra"
-                      class="flex flex-wrap gap-1"
-                    >
-                      <div class="flex items-center gap-1.5">
-                        <span
-                          class="text-[11px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200"
-                        >
-                          Size {{ item.size }}
-                        </span>
-                        <span
-                          v-if="item.sizeExtra > 0"
-                          class="text-[11px] font-semibold text-amber-600"
-                        >
-                          +{{ item.sizeExtra.toLocaleString("vi-VN") }} đ
-                        </span>
-                      </div>
+                    <!-- Size + giá upsize -->
+                    <div v-if="item.size" class="flex items-center gap-1.5">
+                      <span
+                        class="text-[11px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-500 border border-stone-200"
+                      >
+                        Size {{ item.size }}
+                      </span>
+                      <span
+                        v-if="item.sizeExtra > 0"
+                        class="text-[11px] font-semibold text-amber-600"
+                      >
+                        +{{ item.sizeExtra.toLocaleString("vi-VN") }} đ
+                      </span>
                     </div>
 
                     <!-- Toppings + giá từng topping -->

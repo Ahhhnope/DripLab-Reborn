@@ -27,6 +27,9 @@ function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) currentPage.value = page
 }
 
+// Map giá upsize theo size
+const SIZE_EXTRA = { S: 0, M: 5000, L: 10000 }
+
 function mapInvoice(inv) {
   const items = (inv.items ?? []).map(item => {
     const toppingList = (item.toppings ?? []).map(t => ({
@@ -34,16 +37,22 @@ function mapInvoice(inv) {
       price: t.price || 0,
     }))
 
-    const unitPrice = item.unitPrice || item.price || 0
+    const toppingSum = toppingList.reduce((s, t) => s + t.price, 0)
+    const sizeExtra  = SIZE_EXTRA[item.size] ?? 0
+    const unitPrice  = item.unitPrice || item.price || 0
+    // Tính ngược basePrice = unitPrice - topping - size
+    const basePrice  = unitPrice - toppingSum - sizeExtra
 
     return {
       name:      item.name || "Món không tên",
       qty:       item.qty  || 1,
-      unitPrice,           // ✅ dùng thẳng, đã bao gồm topping
+      basePrice,   // giá gốc chưa topping, chưa size
+      sizeExtra,   // giá upsize
+      unitPrice,   // giá đầy đủ (backend) — dùng cho tổng tiền
       price:     unitPrice,
-      size:      item.size  || item.sizeName  || null,
-      sugar:     item.sugar ?? item.sugarLevel ?? null,
-      ice:       item.ice   ?? item.iceLevel   ?? null,
+      size:      item.size || null,
+      sugar:     item.sugar    ?? item.sugarLevel ?? null,
+      ice:       item.ice      ?? item.iceLevel   ?? null,
       toppings:  toppingList,
       note:      item.note || "",
       isCustom:  !!(item.beanName || item.baseName || item.milkName),
@@ -53,11 +62,10 @@ function mapInvoice(inv) {
     }
   })
 
-  // ✅ Dùng thẳng số backend, không tự tính lại
   const originalPrice  = inv.originalPrice  || 0
-  const discountAmount = inv.discountAmount || 0
-  const shippingFee    = inv.shippingFee    || 0
-  const finalPrice     = inv.finalPrice     || 0
+  const discountAmount = inv.discountAmount  || 0
+  const shippingFee    = inv.shippingFee     || 0
+  const finalPrice     = inv.finalPrice      || 0
 
   return {
     invoice_id:     `HD_${inv.invoiceId}`,
