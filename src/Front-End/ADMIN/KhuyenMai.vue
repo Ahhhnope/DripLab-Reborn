@@ -281,4 +281,4 @@ import voucher from "../JS/CustomerVoucher.js"
 export default voucher
 </script>
 
-<style src="../CSS/CustomerVoucher.css"></style>
+<style src="../CSS/CustomerVoucher.css" scoped></style>

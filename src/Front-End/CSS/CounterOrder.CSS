@@ -1122,11 +1122,8 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  min-width: 0;        /* allow flex child to shrink below content size */
-  width: 0;            /* start from 0, let flex: 1 fill the parent width */
-  box-sizing: border-box;
+  min-height: 0;
   padding: 0 20px;
-  box-sizing: border-box;
 }
 
 .scp-table-wrap::-webkit-scrollbar {
@@ -1162,9 +1159,9 @@
   white-space: nowrap;
 }
 
-/* Kích thước cột theo % — tự co giãn theo popup */
+/* Kích thước cố định từng cột — tổng = 100% */
 .col-stt {
-  width: 10%;
+  width: 60px;
 }
 
 .col-name {
@@ -1176,7 +1173,7 @@
 }
 
 .col-action {
-  width: 15%;
+  width: 110px;
 }
 
 .scp-tr {
