@@ -1,7 +1,7 @@
 <template>
   <div class="promo-page">
 
-    <h2>Phiếu giảm giá</h2>
+    <h2>Quản Lý Khuyến Mãi</h2>
 
     <!-- ══════════ FILTER ══════════ -->
     <div class="filter">
