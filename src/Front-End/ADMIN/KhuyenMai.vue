@@ -16,7 +16,6 @@
       <select v-model="type">
         <option value="">Tất cả loại</option>
         <option value="PHẦN TRĂM">Phần trăm</option>
-        <option value="TRỪ TIỀN">Trừ tiền</option>
       </select>
 
       <input type="date" v-model="fromDate" />
@@ -64,48 +63,47 @@
           </tr>
         </thead>
 
-      <tbody>
-        <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
-          <td>{{ (currentPage - 1) * 8 + i + 1 }}</td>
-          <td>{{ v.code }}</td>
-          <td>{{ v.name }}</td>
-          <td>{{ v.type }}</td>
-          <td>{{ v.value }}</td>
-          <td>{{ v.quantity }}</td>
-          <td>
-            {{ v.minOrderValue > 0
+        <tbody>
+          <tr v-for="(v, i) in paginatedVouchers" :key="v.id">
+            <td>{{ (currentPage - 1) * 8 + i + 1 }}</td>
+            <td>{{ v.code }}</td>
+            <td>{{ v.name }}</td>
+            <td>{{ v.type }}</td>
+            <td>{{ v.value }}</td>
+            <td>{{ v.quantity }}</td>
+            <td>
+              {{ v.minOrderValue > 0
                 ? (+v.minOrderValue).toLocaleString('vi-VN') + 'đ'
                 : '—' }}
-          </td>
-          <td>
-            <span :class="['location-badge',
-              v.displayLocation === 'trên web' ? 'web' : 'reward']">
-              {{ v.displayLocation }}
-            </span>
-          </td>
-          <td>
-            <span v-if="v.displayLocation == 'đổi thưởng'" placeholder="0">{{ v.pointCost }}</span>
-          </td>
-          <td>{{ v.start }}</td>
-          <td>{{ v.end }}</td>
-          <td>
-            <span :class="['status-badge',
-              v.status === 'HOẠT ĐỘNG' ? 'active' : 'expired']">
-              {{ v.status }}
-            </span>
-          </td>
-          <td>
-            <div class="action-buttons">
-              <button class="edit-btn"   @click="editVoucher(v)">Sửa</button>
-              <button class="delete-btn" v-if="v.status" @click="switchStatusVoucher(v.id)">Tắt</button>
-              <button class="delete-btn" v-if="!v.status" @click="switchStatusVouchers(v.id)">Bật</button>
-            </div>
-          </td>
-        </tr>
+            </td>
+            <td>
+              <span :class="['location-badge',
+                v.displayLocation === 'online + offline' ? 'web' : 'reward']">
+                {{ v.displayLocation }}
+              </span>
+            </td>
+            <td>
+              <span v-if="v.displayLocation == 'đổi thưởng'" placeholder="0">{{ v.pointCost }}</span>
+            </td>
+            <td>{{ v.start }}</td>
+            <td>{{ v.end }}</td>
+            <td>
+              <span :class="['status-badge',
+                v.status === 'HOẠT ĐỘNG' ? 'active' : 'expired']">
+                {{ v.status }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="edit-btn" @click="editVoucher(v)">Sửa</button>
+                <button class="delete-btn" v-if="v.status" @click="switchStatusVoucher(v.id)">Tắt</button>
+                <button class="delete-btn" v-if="!v.status" @click="switchStatusVouchers(v.id)">Bật</button>
+              </div>
+            </td>
+          </tr>
 
           <!-- Dòng trống giữ chiều cao bảng -->
-          <tr v-for="n in (8 - paginatedVouchers.length)"
-              :key="'e' + n" class="empty-row">
+          <tr v-for="n in (8 - paginatedVouchers.length)" :key="'e' + n" class="empty-row">
             <td v-for="c in 13" :key="c"></td>
           </tr>
         </tbody>
@@ -115,10 +113,7 @@
     <!-- ══════════ PAGINATION ══════════ -->
     <div class="pagination">
       <button @click="prevPage" :disabled="currentPage === 1">&lt;</button>
-      <button
-        v-for="p in totalPages" :key="p"
-        @click="currentPage = p"
-        :class="{ active: currentPage === p }">
+      <button v-for="p in totalPages" :key="p" @click="currentPage = p" :class="{ active: currentPage === p }">
         {{ p }}
       </button>
       <button @click="nextPage" :disabled="currentPage === totalPages">&gt;</button>
@@ -134,9 +129,7 @@
 
           <div class="form-group">
             <label>Mã khuyến mãi <span class="required">*</span></label>
-            <input v-model="addForm.code"
-                   placeholder="VD: SUMMER20"
-                   style="text-transform:uppercase" />
+            <input v-model="addForm.code" placeholder="VD: SUMMER20" style="text-transform:uppercase" />
           </div>
 
           <div class="form-group">
@@ -148,41 +141,36 @@
             <label>Loại</label>
             <select v-model="addForm.category">
               <option value="PHẦN TRĂM">Phần trăm (%)</option>
-              <option value="TRỪ TIỀN">Tiền mặt (VNĐ)</option>
             </select>
           </div>
 
           <div class="form-group">
             <label>Giá trị <span class="required">*</span></label>
-            <input v-model="addForm.value" type="number" min="0"
-                   :placeholder="addForm.category === 'PHẦN TRĂM'
-                     ? 'VD: 10 (= 10%)' : 'VD: 50000 (= 50.000đ)'" />
+            <input v-model="addForm.value" type="number" min="0" :placeholder="addForm.category === 'PHẦN TRĂM'
+              ? 'VD: 10 (= 10%)' : 'VD: 50000 (= 50.000đ)'" />
           </div>
 
           <div class="form-group">
             <label>Số lượng mã <span class="required">*</span></label>
-            <input v-model="addForm.quantity" type="number" min="1"
-                   placeholder="VD: 100" />
+            <input v-model="addForm.quantity" type="number" min="1" placeholder="VD: 100" />
           </div>
 
           <div class="form-group">
             <label>Đơn tối thiểu (đ)</label>
-            <input v-model="addForm.minOrderValue" type="number" min="0"
-                   placeholder="Để 0 nếu không giới hạn" />
+            <input v-model="addForm.minOrderValue" type="number" min="0" placeholder="Để 0 nếu không giới hạn" />
           </div>
 
           <div class="form-group">
             <label>Hiện ở</label>
             <select v-model="addForm.displayLocation">
-              <option value="trên web">Trên web</option>
+              <option value="online + offline">Online + Offline</option>
               <option value="đổi thưởng">Đổi thưởng</option>
             </select>
           </div>
 
           <div class="form-group" v-if="addForm.displayLocation == 'đổi thưởng'">
             <label>Số điểm cần để đổi</label>
-            <input v-model="addForm.pointCost" type="number" min="0"
-                   placeholder="số điểm cần để đổi" />
+            <input v-model="addForm.pointCost" type="number" min="0" placeholder="số điểm cần để đổi" />
           </div>
 
           <div class="form-group">
@@ -198,7 +186,7 @@
         </div>
 
         <div class="modal-actions">
-          <button class="save-btn"   @click="saveAdd">Thêm</button>
+          <button class="save-btn" @click="saveAdd">Thêm</button>
           <button class="cancel-btn" @click="closeAddModal">Hủy</button>
         </div>
       </div>
@@ -226,7 +214,6 @@
             <label>Loại</label>
             <select v-model="editForm.category">
               <option value="PHẦN TRĂM">Phần trăm (%)</option>
-              <option value="TRỪ TIỀN">Tiền mặt (VNĐ)</option>
             </select>
           </div>
 
@@ -242,14 +229,13 @@
 
           <div class="form-group">
             <label>Đơn tối thiểu (đ)</label>
-            <input v-model="editForm.minOrderValue" type="number" min="0"
-                   placeholder="Để 0 nếu không giới hạn" />
+            <input v-model="editForm.minOrderValue" type="number" min="0" placeholder="Để 0 nếu không giới hạn" />
           </div>
 
           <div class="form-group">
             <label>Hiện ở</label>
             <select v-model="editForm.displayLocation">
-              <option value="trên web">Trên web</option>
+              <option value="online + offline">Online + Offline</option>
               <option value="đổi thưởng">Đổi thưởng</option>
             </select>
           </div>
@@ -275,7 +261,7 @@
         </div>
 
         <div class="modal-actions">
-          <button class="save-btn"   @click="saveEdit">Lưu</button>
+          <button class="save-btn" @click="saveEdit">Lưu</button>
           <button class="cancel-btn" @click="closeModal">Hủy</button>
         </div>
       </div>
@@ -283,8 +269,7 @@
 
 
     <!-- ══════════ TOAST ══════════ -->
-    <div class="toast-notification"
-         :class="[toast.type, { show: toast.show }]">
+    <div class="toast-notification" :class="[toast.type, { show: toast.show }]">
       {{ toast.message }}
     </div>
 

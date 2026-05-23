@@ -118,7 +118,7 @@ async function addToCart() {
     ice: parseInt(selection.ice),
     sugar: parseInt(selection.sugar),
     toppings: [...selection.toppings],
-    base: selectedBase.value?.label ?? null,
+    baseId: selectedBase.value?.id ?? null,
     beanId: selectedBean.value?.id ?? selection.bean,
     milkId: selection.milk === 'none' ? null : Number(selection.milk),
     isCustom: true,

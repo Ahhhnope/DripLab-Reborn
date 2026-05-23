@@ -179,7 +179,8 @@
                       <span class="preview-detail-label">{{
                         item.baseName
                       }}</span>
-                      <span class="preview-detail-price free">+0 đ</span>
+                      <span class="preview-detail-price" v-if="item.basePrice > 0">+{{ formatVND(item.basesPrice) }}</span>
+                      <span class="preview-detail-price free" v-else>+0 đ</span>
                     </div>
                     <div v-if="item.milkName" class="preview-detail-row">
                       <span class="preview-detail-icon">-</span>
@@ -219,8 +220,8 @@
             </template>
             <p v-else class="preview-empty">Chưa chọn sản phẩm nào</p>
           </div>
-          <div class="summary-rows">
-            <div class="summary-row">
+          <!-- <div class="summary-rows"> -->
+            <!-- <div class="summary-row">
               <span>Tạm tính</span>
               <span>{{ formatVND(selectedSubtotal) }}</span>
             </div>
@@ -233,12 +234,12 @@
               <span>{{
                 shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee)
               }}</span>
-            </div>
+            </div> -->
             <div class="summary-row total">
               <span>Tổng cộng</span>
               <span class="amount">{{ formatVND(grandTotal) }}</span>
             </div>
-          </div>
+          <!-- </div> -->
           <button
             class="btn-checkout"
             :disabled="selectedItems.length === 0"
