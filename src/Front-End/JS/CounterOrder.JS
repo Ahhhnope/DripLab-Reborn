@@ -602,6 +602,7 @@ export function useCounterOrder() {
                 params: {
                     userId,
                     note: orderNote.value || '',
+                    promoCode: appliedCode.value,
                     paymentMethod: paymentMethod.value,
                     receiverName: order?.customerName?.trim() || 'Khách vãng lai',
                     receiverPhone: order?.customerPhone || '',
