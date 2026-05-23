@@ -124,60 +124,30 @@
             <button class="btn-use-saved" @click="useSavedAddress">
               Sử dụng địa chỉ này
             </button>
-            <div class="form-field form-field--full">
-              <button
-                type="button"
-                class="btn-calc-distance"
-                @click="calcDistance"
-                :disabled="distanceLoading"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                  <path
-                    d="M12 8v4l3 3"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                {{
-                  distanceLoading ? "Đang tính..." : "Tính khoảng cách tới quán"
-                }}
-              </button>
 
-              <div
-                v-if="distanceKm !== null && !distanceLoading"
-                class="distance-result"
-                :class="
-                  distanceKm === -1
+            <div
+              v-if="distanceKm !== null && !distanceLoading && distanceSource === 'saved'"
+              class="distance-result"
+              :class="
+                distanceKm === -1
+                  ? 'distance-far'
+                  : distanceTooFar
                     ? 'distance-far'
-                    : distanceTooFar
-                      ? 'distance-far'
-                      : 'distance-ok'
-                "
-              >
-                <template v-if="distanceKm === -1">
-                  ⚠️ Không thể xác định địa chỉ, vui lòng kiểm tra lại
-                </template>
-                <template v-else-if="distanceTooFar">
-                  🚫 Shop không thể ship vì quá xa ({{ distanceKm }} km &gt; 10
-                  km)
-                </template>
-                <template v-else>
-                  ✅ Khoảng cách: {{ distanceKm }} km — Phí ship:
-                  {{ shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee) }}
-                </template>
-              </div>
-              <span v-if="errors.distance" class="form-error">{{
-                errors.distance
-              }}</span>
+                    : 'distance-ok'
+              "
+            >
+              <template v-if="distanceKm === -1">
+                ⚠️ Không thể xác định địa chỉ, vui lòng kiểm tra lại
+              </template>
+              <template v-else-if="distanceTooFar">
+                🚫 Hiện chưa thể giao hàng vì quá xa ({{ distanceKm }} km &gt; 8 km)
+              </template>
+              <template v-else>
+                ✅ Khoảng cách: {{ distanceKm }} km — Phí ship:
+                {{ distanceTooFar ? "" : ((!canProceed || shippingFee === 0) ? formatVND(0) : formatVND(shippingFee)) }}
+              </template>
             </div>
+            <span v-if="errors.distance" class="form-error">{{ errors.distance }}</span>
           </div>
 
           <div
@@ -220,8 +190,26 @@
                 errors.ward
               }}</span>
             </div>
-            <!-- Sau khi có đủ ward + street thì hiện nút tính khoảng cách -->
-            <div class="form-field form-field--full" v-if="form.ward">
+            <!-- Số nhà, tên đường -->
+            <div class="form-field form-field--full">
+              <label>Số nhà, tên đường <span class="required">*</span></label>
+              <input
+                v-model="form.street"
+                type="text"
+                placeholder="VD: 123 Phố Huế, Ngõ 45 Kim Mã..."
+                :class="['form-input', { 'form-input--error': errors.street }]"
+                @input="onStreetInput"
+              />
+              <span v-if="errors.street" class="form-error">{{
+                errors.street
+              }}</span>
+            </div>
+
+            <!-- Sau khi nhập số nhà/tên đường mới hiện tính khoảng cách -->
+            <div
+              class="form-field form-field--full"
+              v-if="form.ward && form.street && form.street.trim().length"
+            >
               <button
                 type="button"
                 class="btn-calc-distance"
@@ -243,13 +231,11 @@
                     stroke-linecap="round"
                   />
                 </svg>
-                {{
-                  distanceLoading ? "Đang tính..." : "Tính khoảng cách tới quán"
-                }}
+                {{ distanceLoading ? "Đang tính..." : "Tính khoảng cách tới quán" }}
               </button>
 
               <div
-                v-if="distanceKm !== null && !distanceLoading"
+                v-if="distanceKm !== null && !distanceLoading && distanceSource === 'new'"
                 class="distance-result"
                 :class="
                   distanceKm === -1
@@ -263,54 +249,17 @@
                   ⚠️ Không thể xác định địa chỉ, vui lòng kiểm tra lại
                 </template>
                 <template v-else-if="distanceTooFar">
-                  🚫 Shop không thể ship vì quá xa ({{ distanceKm }} km &gt; 10
-                  km)
+                  🚫 Hiện chưa thể giao hàng vì quá xa ({{ distanceKm }} km &gt; 8 km)
                 </template>
                 <template v-else>
                   ✅ Khoảng cách: {{ distanceKm }} km — Phí ship:
-                  {{ shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee) }}
+                  {{ (!canProceed || shippingFee === 0) ? formatVND(0) : formatVND(shippingFee) }}
                 </template>
               </div>
-              <span v-if="errors.distance" class="form-error">{{
-                errors.distance
-              }}</span>
+              <span v-if="errors.distance" class="form-error">{{ errors.distance }}</span>
             </div>
 
-            <!-- Số nhà, tên đường -->
-            <div class="form-field form-field--full">
-              <label>Số nhà, tên đường <span class="required">*</span></label>
-              <input
-                v-model="form.street"
-                type="text"
-                placeholder="VD: 123 Phố Huế, Ngõ 45 Kim Mã..."
-                :class="['form-input', { 'form-input--error': errors.street }]"
-              />
-              <span v-if="errors.street" class="form-error">{{
-                errors.street
-              }}</span>
-            </div>
 
-            <!-- Nút GPS nếu có -->
-            <div class="form-field form-field--full" v-if="gpsText">
-              <button type="button" class="btn-gps" @click="useGpsAddress">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  />
-                  <path
-                    d="M12 2v3M12 19v3M2 12h3M19 12h3"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                Dùng vị trí GPS hiện tại
-              </button>
-            </div>
           </div>
 
           <span v-if="errors.address" class="form-error form-error--block">{{
@@ -373,7 +322,7 @@
 
         <!-- CTA bước 1 -->
         <div class="checkout-cta" v-if="currentStep === 1">
-          <button class="btn-next" @click="goToStep2" :disabled="distanceTooFar">
+          <button class="btn-next" @click="goToStep2" :disabled="!canProceed">
             Xem lại đơn hàng →
           </button>
         </div>
@@ -569,7 +518,7 @@
             <div class="st-row">
               <span>Phí vận chuyển</span>
               <span>{{
-                shippingFee === 0 ? "Miễn phí" : formatVND(shippingFee)
+                (!canProceed || shippingFee === 0) ? formatVND(0) : formatVND(shippingFee)
               }}</span>
             </div>
             <div class="st-row st-total">
@@ -582,7 +531,7 @@
           <button
             v-if="currentStep === 1"
             class="btn-aside-next"
-            @click="goToStep2" :disabled="distanceTooFar"
+            @click="goToStep2" :disabled="!canProceed"
           >
             Tiếp tục →
           </button>
@@ -590,7 +539,7 @@
             v-if="currentStep === 2"
             class="btn-aside-next"
             @click="placeOrder"
-            :disabled="isPlacingOrder || distanceTooFar"
+            :disabled="isPlacingOrder || !canProceed"
           >
             {{ isPlacingOrder ? "Đang xử lý..." : "✓ Đặt hàng ngay" }}
           </button>
@@ -600,6 +549,41 @@
         </div>
       </aside>
     </div>
+
+    <!-- ══ MODAL CẢNH BÁO: khoảng cách 5–8 km ══ -->
+    <transition name="dm-fade">
+      <div v-if="showFarModal" class="dm-overlay" @click.self="closeFarModal">
+        <div class="dm-card dm-card--warn">
+          <div class="dm-icon-wrap dm-icon-wrap--warn">⏳</div>
+          <span class="dm-badge dm-badge--warn">LƯU Ý</span>
+          <h2 class="dm-title">Khoảng cách vận chuyển khá xa</h2>
+          <p class="dm-desc">
+            Vì quãng đường vận chuyển khá xa, Drip Lab lo lắng chất lượng hương vị
+            sẽ không còn trọn vẹn khi đến tay bạn. Bạn vẫn muốn tiếp tục đặt hàng chứ?
+          </p>
+          <div class="dm-actions--2">
+            <button class="dm-btn dm-btn--primary" @click="confirmContinueOrder">Tiếp tục đặt đơn</button>
+            <button class="dm-btn dm-btn--secondary" @click="resetAddressForReinput">Đổi vị trí</button>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+    <!-- ══ MODAL TỪ CHỐI: khoảng cách > 8 km ══ -->
+    <transition name="dm-fade">
+      <div v-if="showRejectModal" class="dm-overlay" @click.self="closeRejectModal">
+        <div class="dm-card dm-card--reject">
+          <div class="dm-icon-wrap dm-icon-wrap--reject">⏳</div>
+          <span class="dm-badge dm-badge--reject">RẤT TIẾC</span>
+          <h2 class="dm-title">Hiện chưa thể giao hàng</h2>
+          <p class="dm-desc">
+            Để đảm bảo chất lượng đồ uống không bị ảnh hưởng bởi quãng đường dài,
+            Drip Lab chưa thể giao hàng đến vị trí của bạn lúc này.
+          </p>
+          <button class="dm-btn dm-btn--confirm" @click="ackReject">Đã hiểu</button>
+        </div>
+      </div>
+    </transition>
 
     <!-- ══ SUCCESS ══ -->
     <transition name="fade">

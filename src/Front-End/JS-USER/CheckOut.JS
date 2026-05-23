@@ -97,9 +97,7 @@ export default {
       addressMode: 'saved', // 'saved' | 'new'
       savedAddress: '',
 
-      gpsText: sessionStorage.getItem('userLocationText') || '',
 
-      // Coupon
       savedPromo: [],
       couponCode: '',
       couponApplied: false,
@@ -119,6 +117,13 @@ export default {
       distanceKm: null,
       distanceLoading: false,
       distanceTooFar: false,
+
+      // Thông báo khoảng cách (lấy từ ChooseStore)
+      showFarModal: false,
+      showRejectModal: false,
+      farDistanceThresholdKm: 5,
+      rejectDistanceThresholdKm: 8,
+      distanceSource: null, // 'saved' | 'new'
     }
   },
 
@@ -168,10 +173,14 @@ export default {
 
     shippingFee() {
       if (!this.selectedItems.length) return 0
+
+      // Nếu chưa tính được khoảng cách thì phí ship = 0 và không cho tiếp tục
       const km = this.computedDistanceKm !== null
         ? this.computedDistanceKm
         : parseFloat(sessionStorage.getItem('selectedStoreDistanceKm') || '')
-      return calcShippingFee(isNaN(km) ? '' : String(km))
+
+      if (!Number.isFinite(km)) return 0
+      return calcShippingFee(String(km))
     },
 
     grandTotal() {
@@ -186,7 +195,24 @@ export default {
     },
 
     canProceed() {
-      return !this.distanceTooFar && this.distanceKm !== -1
+      // phải có kết quả khoảng cách hợp lệ trước khi tiếp tục
+      return (
+        this.distanceKm !== null &&
+        this.distanceKm !== -1 &&
+        !this.distanceLoading &&
+        !this.distanceTooFar
+      )
+    },
+  },
+
+  watch: {
+    addressMode() {
+      // Đổi tab địa chỉ: reset kết quả khoảng cách để tránh hiển thị lẫn nhau
+      this._resetDistanceState()
+      if (this.errors?.distance) {
+        this.errors = { ...this.errors }
+        delete this.errors.distance
+      }
     },
   },
 
@@ -235,25 +261,20 @@ export default {
         w.toLowerCase().includes(this.wardSearch.toLowerCase())
       )
     },
-    useSavedAddress() {
-      // Đã dùng savedAddress – không cần làm gì thêm
+    async useSavedAddress() {
+      this.addressMode = 'saved'
+      await this.calcDistance()
     },
 
-    useGpsAddress() {
-      if (this.gpsText) {
-        this.form.street = this.gpsText
-        this.addressMode = 'new'
-      }
-    },
 
-    canProceed() {
+    _canProceedLegacy() {
         return !this.distanceTooFar && this.distanceKm !== -1
     },
 
     validate() {
       const e = {}
       if (this.distanceTooFar) {
-        e.distance = 'Shop không thể giao hàng vì địa chỉ quá xa (> 10km)'
+        e.distance = 'Hiện chưa thể giao hàng vì khoảng cách quá xa (> 8km)'
       }
       if (!this.form.name.trim()) e.name = 'Vui lòng nhập họ và tên'
       if (!this.form.phone || this.form.phone.length < 10) e.phone = 'Số điện thoại phải đủ 10 số'
@@ -320,13 +341,28 @@ export default {
     onWardInput() {
       const match = this.allWards.find(w => w === this.wardSearch)
       this.form.ward = match || ''
+      this._resetDistanceState()
     },
     onWardChange() {
       const match = this.allWards.find(w => w === this.wardSearch)
       this.form.ward = match || ''
+      this._resetDistanceState()
+    },
+
+    onStreetInput() {
+      this._resetDistanceState()
+    },
+
+    _resetDistanceState() {
+      this.distanceKm = null
+      this.distanceTooFar = false
+      this.computedDistanceKm = null
+      this.distanceSource = null
+      sessionStorage.removeItem('selectedStoreDistanceKm')
     },
 
     async calcDistance() {
+      this.distanceSource = this.addressMode
       if (this.addressMode === 'saved' && this.savedAddress) {
         const parts = this.savedAddress.split(',').map(s => s.trim())
         const hanoiIdx = parts.findIndex(p => p.toLowerCase().includes('hà nội'))
@@ -385,9 +421,16 @@ export default {
       const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1)
       const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2
       this.distanceKm = +(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1)
-      this.distanceTooFar = this.distanceKm >= 10
+      this.distanceTooFar = this.distanceKm >= this.rejectDistanceThresholdKm
       this.computedDistanceKm = this.distanceTooFar ? null : this.distanceKm
       sessionStorage.setItem('selectedStoreDistanceKm', this.distanceTooFar ? '' : String(this.distanceKm))
+
+      // Hiển thị thông báo ngay trên màn hình sau khi tính
+      if (this.distanceKm >= this.rejectDistanceThresholdKm) {
+        this.showRejectModal = true
+      } else if (this.distanceKm >= this.farDistanceThresholdKm) {
+        this.showFarModal = true
+      }
     } catch (e) {
       console.error('Distance error:', e)
       this.distanceKm = -1
@@ -395,6 +438,32 @@ export default {
       this.distanceLoading = false
     }
   },
+
+    closeFarModal() {
+      this.showFarModal = false
+    },
+
+    confirmContinueOrder() {
+      // chỉ đóng thông báo và cho phép user chọn thanh toán tiếp
+      this.showFarModal = false
+    },
+
+    resetAddressForReinput() {
+      // reset phường/xã + số nhà để người dùng nhập lại
+      this.showFarModal = false
+      this.wardSearch = ''
+      this.form.ward = ''
+      this.form.street = ''
+      this._resetDistanceState()
+    },
+
+    closeRejectModal() {
+      this.showRejectModal = false
+    },
+
+    ackReject() {
+      this.showRejectModal = false
+    },
     async onMomoPaid() {
       this.showMomoQR = false
       this.form.payment = 'MOMO'

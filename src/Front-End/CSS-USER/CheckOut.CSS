@@ -242,23 +242,6 @@
 }
 .btn-use-saved:hover { background: #f0e8e0; }
 
-/* GPS button */
-.btn-gps {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: #eef7f0;
-  border: 1.5px solid #5aaa72;
-  border-radius: 8px;
-  color: #2d7d46;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .15s;
-}
-.btn-gps:hover { background: #dff0e5; }
-
 /* ── PAYMENT ─────────────────────────────────── */
 .payment-list {
   display: flex;
@@ -705,7 +688,7 @@
   }
   .checkout-aside {
     position: static;
-    order: -1; /* summary lên trên trên mobile */
+    order: -1;
   }
   .form-grid-2 { grid-template-columns: 1fr; }
   .address-form-grid { grid-template-columns: 1fr; }
@@ -713,6 +696,8 @@
   .checkout-cta { flex-direction: column; }
   .btn-back-step, .btn-next, .btn-place-order { width: 100%; }
 }
+
+/* ── DISTANCE INLINE ─────────────────────────── */
 .btn-calc-distance {
   display: inline-flex;
   align-items: center;
@@ -741,9 +726,133 @@
 }
 .distance-ok  { background: #f0faf3; color: #2e7d4f; border: 1px solid #a8dbb8; }
 .distance-far { background: #fff4f4; color: #c0392b; border: 1px solid #f0b8b8; }
+
 .btn-next:disabled,
 .btn-aside-next:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ════════════════════════════════════════════════
+   DISTANCE MODALS – Redesign theo mẫu
+   (thay thế toàn bộ block cũ)
+════════════════════════════════════════════════ */
+
+/* Overlay */
+.dm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* Card */
+.dm-card {
+  width: 100%;
+  max-width: 390px;
+  background: #fff;
+  border-radius: 22px;
+  padding: 36px 28px 28px;
+  text-align: center;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, .18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: dm-pop .3s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes dm-pop {
+  from { opacity: 0; transform: scale(.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+/* Icon vòng tròn lớn – giống ảnh mẫu */
+.dm-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+.dm-icon-wrap--warn   { background: #fff7ed; }
+.dm-icon-wrap--reject { background: #fef3f2; }
+
+/* Badge pill – nằm dưới icon */
+.dm-badge {
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .7px;
+  margin-bottom: 16px;
+}
+.dm-badge--warn   { background: #fff7ed; color: #ea580c; }
+.dm-badge--reject { background: #fef2f2; color: #dc2626; }
+
+/* Title */
+.dm-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+/* Description */
+.dm-desc {
+  font-size: 14px;
+  color: #6b5b4e;
+  line-height: 1.65;
+  margin: 0 0 24px;
+}
+
+/* ── Buttons ── */
+.dm-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity .18s, transform .12s;
+  letter-spacing: .2px;
+}
+.dm-btn:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+.dm-btn:active               { transform: translateY(0); }
+
+/* Nút xanh lá (xác nhận / đồng ý) – giống ảnh mẫu */
+.dm-btn--confirm { background: #22c55e; color: #fff; }
+.dm-btn--primary { background: #22c55e; color: #fff; }
+
+/* Nút phụ (đổi vị trí) */
+.dm-btn--secondary {
+  background: #f3ede7;
+  color: #5c3d1e;
+}
+
+/* Stack 2 nút (modal LƯU Ý) */
+.dm-actions--2 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* ── Transition fade cho overlay ── */
+.dm-fade-enter-active { transition: opacity .22s ease; }
+.dm-fade-leave-active { transition: opacity .18s ease; }
+.dm-fade-enter-from,
+.dm-fade-leave-to     { opacity: 0; }
