@@ -44,9 +44,7 @@
               <div>Không có dữ liệu</div>
             </td>
           </tr>
-          <tr v-for="g in PAGE_SIZE" :key="'eg' + g" class="ghost-row">
-            <td colspan="7"></td>
-          </tr>
+
         </template>
 
         <template v-else>
@@ -77,9 +75,7 @@
               </div>
             </td>
           </tr>
-          <tr v-for="g in ghostCount" :key="'g' + g" class="ghost-row">
-            <td colspan="7"></td>
-          </tr>
+
         </template>
 
       </tbody>
@@ -234,11 +230,16 @@ function requestEdit(row) {
 
 // ── Bật / Tắt ─────────────────────────────────────
 function requestToggle(row) {
-  const msg = row.status ? 'Xác nhận tắt nguyên liệu này?' : 'Xác nhận bật nguyên liệu này?';
+  const msg = row.status ? 'Xác nhận tạm dừng nguyên liệu này?' : 'Xác nhận hiện nguyên liệu này?';
   openConfirmModal(msg, async () => {
     openConfirmSwitchStatus(row);
     const result = await switchStatus();
-    if (result) showToast(result.error || result.success, result.error ? 'error' : 'ok');
+    if (result) {
+      const toastMsg = result.error
+        ? result.error
+        : (row.status ? 'Đã tạm dừng nguyên liệu!' : 'Đã hiện nguyên liệu!');
+      showToast(toastMsg, result.error ? 'error' : 'ok');
+    }
   });
 }
 </script>
