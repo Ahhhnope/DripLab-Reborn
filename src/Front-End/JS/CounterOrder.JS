@@ -200,6 +200,7 @@ export function useCounterOrder() {
         phoneError.value = ''
     }
 
+    // Trả về true nếu lưu thành công, false nếu thất bại
     function saveCustomerInfo() {
         let valid = true
         nameError.value = ''
@@ -213,7 +214,7 @@ export function useCounterOrder() {
             valid = false
         }
 
-        if (!valid) return
+        if (!valid) return false
 
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
@@ -223,6 +224,7 @@ export function useCounterOrder() {
             currentOrder.value.customerName = customerName.value
             currentOrder.value.customerPhone = customerPhone.value
         }
+        return true
     }
 
     function editCustomerInfo() { isEditingInfo.value = true }
