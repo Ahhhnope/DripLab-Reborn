@@ -499,7 +499,18 @@
                             >
                           </div>
                         </div>
-
+                        <!-- Custom options: Arabica, Pha Phin, Sữa Tươi Vinamilk... -->
+                        <div
+                          v-if="item.customOptions?.length"
+                          class="item-options"
+                        >
+                          <span
+                            v-for="(opt, i) in item.customOptions"
+                            :key="'co-' + i"
+                            class="option-tag"
+                            >{{ opt }}</span
+                          >
+                        </div>
                         <!-- Đường / Đá -->
                         <div class="item-options">
                           <span
@@ -550,7 +561,9 @@
                     </div>
                     <div class="ud-payment-row">
                       <span>Giảm giá</span>
-                        <span style="color: #e53e3e;">- {{ formatPrice(selectedOrder.discountAmount) }}</span>
+                      <span style="color: #e53e3e"
+                        >- {{ formatPrice(selectedOrder.discountAmount) }}</span
+                      >
                     </div>
                     <div class="ud-payment-total">
                       <span>Tổng cộng</span>

@@ -92,6 +92,11 @@ export function useUserOrders() {
           sizeExtra: sizePrice,
           toppings:  toppingList,
           img:       getImageUrl(item.drink?.imageUrl ?? null),
+          customOptions: [
+            item.beanName?.trim() || null,
+            item.baseName?.trim() || null,
+            item.milkName?.trim() || null,
+          ].filter(Boolean),
           sugar:     item.sugar ?? null,
           ice:       item.ice   ?? null,
         }
