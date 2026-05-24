@@ -40,15 +40,14 @@ function mapInvoice(inv) {
     const toppingSum = toppingList.reduce((s, t) => s + t.price, 0)
     const sizeExtra  = SIZE_EXTRA[item.size] ?? 0
     const unitPrice  = item.unitPrice || item.price || 0
-    // Tính ngược basePrice = unitPrice - topping - size
     const basePrice  = unitPrice - toppingSum - sizeExtra
 
     return {
       name:      item.name || "Món không tên",
       qty:       item.qty  || 1,
-      basePrice,   // giá gốc chưa topping, chưa size
-      sizeExtra,   // giá upsize
-      unitPrice,   // giá đầy đủ (backend) — dùng cho tổng tiền
+      basePrice,
+      sizeExtra,
+      unitPrice,
       price:     unitPrice,
       size:      item.size || null,
       sugar:     item.sugar    ?? item.sugarLevel ?? null,
@@ -67,6 +66,15 @@ function mapInvoice(inv) {
   const shippingFee    = inv.shippingFee     || 0
   const finalPrice     = inv.finalPrice      || 0
 
+  // Xác định khách vãng lai: không có customer.id thực, hoặc tên là các giá trị mặc định
+  const isAnon =
+    !inv.customer?.id ||
+    inv.customer?.id === "N/A" ||
+    inv.receiverName === "Khách vãng lai" ||
+    inv.receiverName === "Khách lẻ" ||
+    !inv.receiverName ||
+    !inv.customer
+
   return {
     invoice_id:     `HD_${inv.invoiceId}`,
     order_id:       inv.orderId || "N/A",
@@ -78,9 +86,10 @@ function mapInvoice(inv) {
     receive_type:   inv.receiveType   || "Tại Quầy",
     finalPrice,
     originalPrice,
-    promoCode: inv.promoCode,
+    promoCode:      inv.promoCode,
     discountAmount,
     shippingFee,
+    isAnon,
     created_at:     inv.createdAt
                       ? new Date(inv.createdAt).toLocaleString('vi-VN', {
                           day: '2-digit', month: '2-digit', year: 'numeric',
@@ -102,7 +111,7 @@ function mapInvoice(inv) {
 async function loadInvoices() {
   try {
     const res = await api.get("/invoices")
-    const sorted = res.data.sort((a, b) => 
+    const sorted = res.data.sort((a, b) =>
       new Date(b.createdAt) - new Date(a.createdAt)
     )
 
