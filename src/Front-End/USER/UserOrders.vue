@@ -131,7 +131,7 @@
                   <td>
                     <div class="order-code-cell">
                       <div :class="['order-status-dot', order.status]"></div>
-                      <span class="order-code">{{ order.name }}</span>
+                      <span class="order-code">{{ order.id }}</span>
                     </div>
                   </td>
                   <td class="order-payment">{{ order.paymentMethod }}</td>
@@ -195,7 +195,7 @@
             <!-- HEADER -->
             <div class="ud-header">
               <div class="ud-header__left">
-                <span class="ud-order-code">#{{ selectedOrder.name }}</span>
+                <span class="ud-order-code">#{{ selectedOrder.id }}</span>
                 <span
                   :class="[
                     'ud-status-badge',
@@ -664,7 +664,7 @@
           </div>
           <h3 class="ud-confirm-title">Xác nhận đã nhận hàng?</h3>
           <p class="ud-confirm-desc">
-            Đơn hàng <strong>{{ receiveTarget?.name }}</strong> đã được giao tới
+            Đơn hàng <strong>{{ receiveTarget?.id }}</strong> đã được giao tới
             bạn. Xác nhận để nhận điểm tích lũy.
           </p>
           <div class="ud-points-preview">

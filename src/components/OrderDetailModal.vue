@@ -254,23 +254,14 @@
                       <span class="payment-value">{{ money(localOrder.shippingFee ?? 0) }}</span>
                     </div>
                     <div class="payment-row payment-row--discount">
-                      <span>Giảm giá ({{ localOrder.promoCode }})</span>
+                      <span>Giảm giá</span>
+                      <span v-if="localOrder.promoCode">({{ localOrder.promoCode }})</span>
                       <span>- {{ money(localOrder.discount) }}</span>
                     </div>
                     <div class="payment-total">
                       <span>Tổng cộng</span>
                       <span class="payment-total__amount">{{ money(localOrder.pay) }}</span>
                     </div>
-                  </div>
-
-                  <div class="action-group">
-                    <button class="btn btn--primary" :disabled="localOrder.status !== 'pending'" @click="emitConfirm">
-                      Xác nhận đơn hàng
-                    </button>
-                    <button class="btn btn--danger" :disabled="!['pending', 'processing'].includes(localOrder.status)"
-                      @click="emitCancel">
-                      Huỷ đơn
-                    </button>
                   </div>
                 </div>
               </div>

@@ -155,7 +155,7 @@
                     <div class="col-span-4 text-sm text-stone-400">SĐT</div>
                     <div class="col-span-8 text-sm font-medium">
                       {{ 
-                        invoice.receiverName === 'Khách vãng lai' ? '—' : (invoice.receiverPhone || invoice.customer?.phone || "—") 
+                        invoice.receiverName === 'Khách vãng lai' ? '—' : (invoice.receiverPhone || "—") 
                       }}
                     </div>
 
@@ -725,7 +725,7 @@ async function printInvoice() {
   <!-- ORDER INFO – 2-column grid like the receipt -->
   <table class="info-table">
     <tr>
-      <td class="label">Mã HĐ:</td>
+      <td class="label">Mã đơn hàng:</td>
       <td class="value">#${String(inv.order_id || "").replace(/^#/, "")}</td>
     </tr>
     <tr>

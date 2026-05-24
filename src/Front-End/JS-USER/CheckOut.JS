@@ -306,7 +306,7 @@ export default {
           api.get('/promo-codes/online-offline')
         ]);
 
-        const combined = [...savedRes.data, ...onlineRes.data]
+        const combined = [...savedRes.data.filter(p => !p.isUsed), ...onlineRes.data]
 
         this.savedPromo = combined.filter(p => p.status)
       } catch (e) {
