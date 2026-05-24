@@ -129,7 +129,8 @@
                       <div class="info-row">
                         <span class="info-label">Số điện thoại</span>
                         <a v-if="localOrder.user?.phone" :href="`tel:${localOrder.user.phone}`"
-                          class="info-value info-value--link">{{ localOrder.user.phone }}</a>
+                          class="info-value info-value--link">{{
+                            localOrder.user.phone }}</a>
                         <span v-else class="info-value info-value--empty">-</span>
                       </div>
                       <div class="info-row info-row--align-start">
@@ -222,7 +223,8 @@
 
                         <!-- Đá / Đường -->
                         <div v-if="it.ice != null || it.sugar != null" class="item-options item-options--specs">
-                          <span v-if="it.sugar != null" class="option-tag option-tag--sugar">Đường {{ it.sugar }}%</span>
+                          <span v-if="it.sugar != null" class="option-tag option-tag--sugar">Đường {{ it.sugar
+                          }}%</span>
                           <span v-if="it.ice != null" class="option-tag option-tag--ice">Đá {{ it.ice }}%</span>
                         </div>
                       </div>
@@ -231,7 +233,7 @@
 
                       <div class="item-total">
                         <!-- Tổng tiền sau topping × qty -->
-                        <span class="item-total__final">{{ money(it.total)  }}</span>
+                        <span class="item-total__final">{{ money(it.total) }}</span>
                         <!-- Đơn giá gốc × qty (nhỏ, mờ) -->
                         <span class="item-total__unit">{{ money(it.basePrice) }} × {{ it.qty }}</span>
                       </div>
@@ -382,12 +384,41 @@ const reasonOptions = computed(
   () => REASON_OPTIONS[pendingStatus.value] ?? []
 );
 
+const STATUS_ORDER = ["pending", "processing", "shipping", "delivered"];
+
+const SHIPPING_TERMINALS = ["delivered", "delivery_failed"];
+
 function openConfirmStatus(st) {
   if (!st) return;
-  pendingStatus.value = st.key;
+
+  const currentStatus = localOrder.value?.status;
+  const targetKey = st.key;
+
+  if (targetKey !== "cancelled") {
+    const curIdx = STATUS_ORDER.indexOf(currentStatus);
+    const tgtIdx = STATUS_ORDER.indexOf(targetKey);
+
+    if (currentStatus === "shipping" && targetKey === "delivery_failed") {
+      // Hợp lệ, cho qua
+    } else if (curIdx === -1 || tgtIdx === -1 || tgtIdx !== curIdx + 1) {
+      confirmTitle.value = "Không thể chuyển trạng thái";
+      confirmDesc.value =
+        tgtIdx !== -1 && tgtIdx < curIdx
+          ? "Không thể quay lại trạng thái đã qua."
+          : `Chỉ được chuyển tuần tự. Bước tiếp theo hợp lệ là "${visibleSteps.value.find((s) => s.key === STATUS_ORDER[curIdx + 1])?.label ?? "—"
+          }".`;
+      confirmPrimaryText.value = "Đã hiểu";
+      pendingStatus.value = null;
+      cancelReason.value = "";
+      confirmOpen.value = true;
+      return;
+    }
+  }
+
+  pendingStatus.value = targetKey;
   cancelReason.value = "";
   confirmTitle.value = "Vui lòng xác nhận";
-  confirmDesc.value = `Bạn có chắc chắn muốn chuyển trạng thái sang "${st.label}" không?`;
+  confirmDesc.value = `Bạn có chắc chắn muốn chuyển sang "${st.label}" không?`;
   confirmPrimaryText.value = "Tiếp tục";
   confirmOpen.value = true;
 }

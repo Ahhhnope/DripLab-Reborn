@@ -2,16 +2,16 @@ import { ref, watch } from "vue";
 
 export function useOrderDetailModal(props, emit, { money, statusText }) {
   const loading = ref(false);
-  const error   = ref("");
+  const error = ref("");
 
   // icon: tên dùng trong template (svg inline)
   const statusSteps = [
-    { key: "pending",         label: "Chờ xác nhận",          icon: "doc"   },
-    { key: "processing",      label: "Đang xử lý",             icon: "gear"  },
-    { key: "shipping",        label: "Đang vận chuyển",        icon: "truck" },
-    { key: "delivered",       label: "Đã giao",                icon: "home"  },
-    { key: "delivery_failed", label: "Giao không thành công",  icon: "x"     },
-    { key: "cancelled",       label: "Đã huỷ",                 icon: "ban"   },
+    { key: "pending", label: "Chờ xác nhận", icon: "doc" },
+    { key: "processing", label: "Đang xử lý", icon: "gear" },
+    { key: "shipping", label: "Đang vận chuyển", icon: "truck" },
+    { key: "delivered", label: "Đã giao", icon: "home" },
+    { key: "delivery_failed", label: "Giao không thành công", icon: "x" },
+    { key: "cancelled", label: "Đã huỷ", icon: "ban" },
   ];
 
   // ✅ Chỉ ẩn bớt khi rơi vào 1 trong 3 trạng thái kết thúc
@@ -20,23 +20,36 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
   // - cancelled        -> ẩn delivered, delivery_failed
   // Còn lại (pending/processing/shipping/khác) -> HIỆN FULL tất cả trạng thái
   function getVisibleSteps(currentStatus) {
-    if (currentStatus === "delivered") {
-      return statusSteps.filter((s) =>
-        ["pending", "processing", "shipping", "delivered"].includes(s.key)
-      );
-    }
-    if (currentStatus === "delivery_failed") {
-      return statusSteps.filter((s) =>
-        ["pending", "processing", "shipping", "delivery_failed"].includes(s.key)
-      );
-    }
-    if (currentStatus === "cancelled") {
-      return statusSteps.filter((s) =>
-        ["pending", "processing", "cancelled"].includes(s.key)
-      );
-    }
-    return statusSteps;
+  if (currentStatus === "delivered") {
+    return statusSteps.filter((s) =>
+      ["pending", "processing", "shipping", "delivered"].includes(s.key)
+    );
   }
+  if (currentStatus === "delivery_failed") {
+    return statusSteps.filter((s) =>
+      ["pending", "processing", "shipping", "delivery_failed"].includes(s.key)
+    );
+  }
+  if (currentStatus === "cancelled") {
+    return statusSteps.filter((s) =>
+      ["pending", "processing", "cancelled"].includes(s.key)
+    );
+  }
+
+  const MAIN_FLOW = ["pending", "processing", "shipping", "delivered"];
+  const curIdx = MAIN_FLOW.indexOf(currentStatus);
+
+  return statusSteps.filter((s) => {
+    if (MAIN_FLOW.includes(s.key)) {
+      const idx = MAIN_FLOW.indexOf(s.key);
+      return idx <= curIdx + 1;
+    }
+    if (s.key === "cancelled") return true;
+    // ✅ Hiện delivery_failed khi đang ở shipping trở đi
+    if (s.key === "delivery_failed") return curIdx >= 2; // index 2 = "shipping"
+    return false;
+  });
+}
 
   function close() {
     emit("update:open", false);
@@ -55,7 +68,7 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     if (!props.order) return;
 
     emit("set-status", {
-      id:     props.order.id,
+      id: props.order.id,
       status: nextStatus,
       reason,
     });
@@ -66,7 +79,7 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     if (!code) return;
 
     loading.value = true;
-    error.value   = "";
+    error.value = "";
 
     try {
       // TODO: thay URL này theo backend thật của bạn
@@ -84,7 +97,7 @@ export function useOrderDetailModal(props, emit, { money, statusText }) {
     () => props.open,
     (isOpen) => {
       if (!isOpen) {
-        error.value   = "";
+        error.value = "";
         loading.value = false;
       }
     }
