@@ -328,7 +328,13 @@ export function useCounterOrder() {
                 })) || []
                 const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0
                 const sizePrice = item.size?.price || 0
-                const unitPrice = item.unitPrice || (item.drink.basePrice + sizePrice + toppingTotal)
+                
+                const unitPrice = item.unitPrice || (item.drink.basePrice + sizePrice + toppingTotal) +
+                (item.isCustom ? item.base.price : 0) +
+                (item.isCustom ? item.milk.price : 0) +
+                (item.isCustom ? item.coffeeBean.price : 0)
+
+
                 return {
                     id: item.drink.id,
                     cartItemId: item.id,
@@ -344,8 +350,11 @@ export function useCounterOrder() {
                     toppingDetails,
                     isCustom: item.isCustom,
                     beanName: item.coffeeBean?.name,
-                    baseName: item.base ?? null,
+                    beanPrice: item.coffeeBean?.price,
+                    baseName: item.base.name ?? null,
+                    basePrice: item.base.price,
                     milkName: item.milk?.name,
+                    milkPrice: item.milk?.price
                 }
             })
             if (order.id === currentOrder.value?.id) orderedItems.value = items
@@ -612,6 +621,7 @@ export function useCounterOrder() {
             const res = await api.post('/orders/add', null, {
                 params: {
                     userId,
+                    orderType: 'Tại quầy',
                     note: orderNote.value || '',
                     paymentMethod: paymentMethod.value,
                     receiverName: order?.customerName?.trim() || 'Khách vãng lai',

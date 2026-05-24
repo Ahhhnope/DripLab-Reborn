@@ -301,7 +301,7 @@ export default {
 
     async loadSavedCoupon(userId) {
       try {
-        const res = await api.get('/promo-codes/my-promos', { params: { userId } })
+        const res = await api.get('/promo-codes')
         this.savedPromo = res.data.filter(p => p.status)
       } catch (e) {
         console.log('Error fetching promos:', e)

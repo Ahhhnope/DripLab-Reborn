@@ -401,7 +401,7 @@ async function goToReviewWithId() {
               </div>
               <div v-if="item.isCustom" class="rpc-custom-row">
                 <span class="rpc-custom-tag">{{ item.beanName }}</span>
-                <span class="rpc-custom-tag">{{ item.base }}</span>
+                <span class="rpc-custom-tag">{{ item.baseName }}</span>
                 <span v-if="item.milkName" class="rpc-custom-tag">{{ item.milkName }}</span>
               </div>
               <div class="rpc-price-breakdown">
@@ -413,6 +413,21 @@ async function goToReviewWithId() {
                   <span class="rpc-price-lbl">Size: {{ item.size }}</span>
                   <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() || 0}} đ</span>
                 </div>
+                <div class="rpc-price-row" v-if="item.isCustom">
+                  <span class="rpc-price-lbl">{{ item.baseName }}</span>
+                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() || 0}} đ</span> <br>
+                </div>
+
+                <div class="rpc-price-row" v-if="item.isCustom">
+                  <span class="rpc-price-lbl">{{ item.beanName }}</span>
+                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() || 0}} đ</span>
+                </div>
+
+                <div class="rpc-price-row" v-if="item.isCustom">
+                  <span class="rpc-price-lbl">{{ item.milkName }}</span>
+                  <span class="rpc-price-val">+{{ item.milkPrice.toLocaleString() || 0}} đ</span>
+                </div>
+
                 <div v-for="t in getItemToppingDetails(item)" :key="t.name || t.id"
                   class="rpc-price-row rpc-price-row--topping">
                   <span class="rpc-price-lbl">{{ t.name }}</span>
