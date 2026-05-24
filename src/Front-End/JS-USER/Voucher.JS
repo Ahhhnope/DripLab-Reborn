@@ -10,32 +10,29 @@ function loadState() {
 
 export function useVoucher() {
 
-  // ── DAILY LOGIN ──────────────────────────────────────
   const state = ref(loadState())
-
   const claimedDays = computed(() => state.value.days || [])
 
   function todayStr() {
     return new Date().toISOString().slice(0, 10)
   }
 
-  // Ngày được mở hôm nay = streak + 1, nhưng chỉ nếu hôm nay chưa nhận
   function isDayUnlocked(day) {
     if (state.value.date === todayStr()) return false
     const next = (state.value.streak || 0) + 1
-    return day === (next > 14 ? 1 : next)
+    return day === (next > 7 ? 1 : next)
   }
 
   async function claimDay(day, user) {
     if (!isDayUnlocked(day)) return
-    const newStreak = ((state.value.streak || 0) + 1) > 14 ? 1 : (state.value.streak || 0) + 1
+    const newStreak = ((state.value.streak || 0) + 1) > 7 ? 1 : (state.value.streak || 0) + 1
     const newDays = newStreak === 1 ? [1] : [...claimedDays.value, day]
     state.value = { date: todayStr(), streak: newStreak, days: newDays }
     localStorage.setItem(KEY, JSON.stringify(state.value))
     await api.put('/users/update/' + user.id, {
-      loyaltyPoint: user.loyaltyPoint + (day === 14 ? 500 : 100)
+      loyaltyPoint: user.loyaltyPoint + (day === 7 ? 500 : 100)
     })
-    showToast(day === 14 ? 'Nhận thành công 500 xu! 🎉' : 'Nhận thành công 100 xu! 🎉')
+    showToast(day === 7 ? 'Nhận thành công 500 xu! 🎉' : 'Nhận thành công 100 xu! 🎉')
   }
 
   function resetLogin() {
@@ -43,10 +40,7 @@ export function useVoucher() {
     state.value = {}
   }
 
-  // ── MODAL XÁC THỰC ĐĂNG NHẬP ────────────────────────
   const authModal = ref({ show: false, action: '' })
-
-  // ── TOAST ────────────────────────────────────────────
   const toast = ref({ show: false, message: '' })
   let timer = null
 
@@ -55,6 +49,9 @@ export function useVoucher() {
     clearTimeout(timer)
     timer = setTimeout(() => { toast.value.show = false }, 3000)
   }
+
+  // Gọi để reset khi test — comment lại khi deploy thật
+  // resetLogin()
 
   return {
     claimedDays,
