@@ -78,6 +78,7 @@ function mapInvoice(inv) {
     receive_type:   inv.receiveType   || "Tại Quầy",
     finalPrice,
     originalPrice,
+    promoCode: inv.promoCode,
     discountAmount,
     shippingFee,
     created_at:     inv.createdAt

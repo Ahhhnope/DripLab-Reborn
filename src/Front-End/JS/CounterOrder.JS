@@ -146,6 +146,7 @@ export function useCounterOrder() {
     // ── Thông tin khách hàng ──
     const customerName = ref('')
     const customerPhone = ref('')
+    const chosenCustomerId = ref(null)
     const customerNameInput = ref('')
     const customerPhoneInput = ref('')
     const nameError = ref('')
@@ -173,6 +174,7 @@ export function useCounterOrder() {
     }
 
     function selectExistingCustomer(cus) {
+        chosenCustomerId.value = cus.id || null
         customerNameInput.value = cus.fullName || ''
         customerPhoneInput.value = cus.phone || ''
         customerName.value = cus.fullName || ''
