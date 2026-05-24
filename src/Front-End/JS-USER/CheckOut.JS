@@ -480,11 +480,6 @@ export default {
       this.isPlacingOrder = true
       try {
         const selectedCartItemIds = this.selectedItems.map(i => i.id)
-        const noteStr = [
-          'Online Order',
-          this.form.note ? `Note: "${this.form.note}"` : null,
-          this.couponApplied ? `Coupon: ${this.couponCode}` : null,
-        ].filter(Boolean).join(' - ')
 
         const response = await api.post(
           `/carts/user/${this.authStore.user.id}/checkout-selected`,
@@ -492,7 +487,8 @@ export default {
             cartItemIds: selectedCartItemIds,
             shippingFee: this.shippingFee,
             promoCode: this.couponCode,
-            note: noteStr,
+            orderType: "Online order",
+            note: this.form.note,
             paymentMethod: this.form.payment === 'COD' ? 'Tiền mặt' : 'MoMo',
             customerName: this.form.name,
             customerPhone: this.form.phone,
