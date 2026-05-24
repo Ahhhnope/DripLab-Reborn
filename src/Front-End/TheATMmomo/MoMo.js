@@ -39,7 +39,8 @@ export function useMomoPayment(props, emit) {
 
     // Đồng bộ orderId với invoiceId prop (HD_xx) — giống QRmomo.js
     const orderId = computed(() => {
-        const id = props.invoiceId && props.invoiceId.trim()
+        const id = props.orderId && props.orderId.trim()
+        console.log(props.orderId)
         if (id) return id
         return genOrderId()
     })

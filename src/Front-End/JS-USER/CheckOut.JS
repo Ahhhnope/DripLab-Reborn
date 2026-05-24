@@ -108,6 +108,7 @@ export default {
       isPlacingOrder: false,
       showSuccessModal: false,
       lastOrderId: '',
+      pendingOrderId: '',
 
       showMomoQR: false,
       momoConfirmed: false,
@@ -340,10 +341,12 @@ export default {
       this.couponMessage = ''
     },
 
-    openMomoFlow() {
+    async openMomoFlow() {
+      this.pendingOrderId = await this._fetchNextOrderId();
       this.showMomoQR = true
     },
     closeMomoQR() {
+      this.pendingOrderId = '';
       this.showMomoQR = false
     },
     onWardInput() {
@@ -447,6 +450,18 @@ export default {
     }
   },
 
+  async _fetchNextOrderId() {
+        try {
+            const res = await api.get('/orders')
+            const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            const latest = sorted[0]
+            if (latest?.id) return String(parseInt(latest.id) + 1)
+            return 'DH_01'
+        } catch {
+            return ''
+        }
+    },
+
     closeFarModal() {
       this.showFarModal = false
     },
@@ -523,6 +538,7 @@ export default {
 
     closeSuccess() {
       this.showSuccessModal = false
+      this.pendingOrderId = '';
       this.$router.push('/menu')
     },
   },

@@ -550,22 +550,22 @@
             {{ isPlacingOrder ? "Đang xử lý..." : "✓ Đặt hàng ngay" }}
           </button>
 
-          <!-- <button
+          <button
             v-if="currentStep === 1"
             class="btn-aside-next"
             @click="goToStep2"
           >
             Tiếp tục →
-          </button> -->
+          </button>
 
-          <!-- <button
+          <button
             v-if="currentStep === 2"
             class="btn-aside-next"
             @click="placeOrder"
             :disabled="isPlacingOrder"
           >
             {{ isPlacingOrder ? "Đang xử lý..." : "✓ Đặt hàng ngay" }}
-          </button> -->
+          </button>
 
           <p class="summary-terms">
             Bằng cách đặt hàng, bạn đồng ý với điều khoản dịch vụ.
@@ -635,10 +635,11 @@
     </transition>
 
     <!-- MoMo Popup -->
-    <MomoPopup
+    <MomoPopup 
       :visible="showMomoQR"
       :amount="grandTotal"
       :orderInfo="`Thanh toan DripLab - ${form.name || 'Khach hang'}`"
+      :orderId="pendingOrderId"
       @close="closeMomoQR"
       @paid="onMomoPaid"
     />

@@ -6,6 +6,7 @@ const props = defineProps({
     visible: { type: Boolean, default: false },
     amount: { type: Number, default: 0 },
     orderInfo: { type: String, default: 'Thanh toan DripLab' },
+    orderId: { type: String, default: '' },
 })
 const emit = defineEmits(['close', 'paid'])
 
