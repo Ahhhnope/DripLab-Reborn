@@ -421,7 +421,24 @@
                       </p>
                     </div>
                   </section>
-
+                  <!-- Phương thức & số lượng -->
+                  <section class="ud-section">
+                    <div
+                      class="ud-info-card"
+                      style="display: flex; flex-direction: column; gap: 8px"
+                    >
+                      <div class="ud-payment-row">
+                        <span>Phương thức thanh toán</span>
+                        <span class="ud-payment-val--bold">{{
+                          selectedOrder.paymentMethod
+                        }}</span>
+                      </div>
+                      <div class="ud-payment-row">
+                        <span>Số lượng món</span>
+                        <span>{{ selectedOrder.totalQty }} món</span>
+                      </div>
+                    </div>
+                  </section>
                   <!-- Chi tiết món -->
                   <section class="ud-section">
                     <div class="ud-section__header ud-section__header--between">
@@ -524,21 +541,16 @@
                       Thanh toán
                     </span>
                     <div class="ud-payment-row">
-                      <span>Phương thức</span>
-                      <span class="ud-payment-val--bold">{{
-                        selectedOrder.paymentMethod
-                      }}</span>
+                      <span>Tạm tính</span>
+                      <span>{{ formatPrice(selectedOrder.subTotal) }}</span>
                     </div>
                     <div class="ud-payment-row">
-                      <span>Số lượng món</span>
-                      <span>{{ selectedOrder.totalQty }} món</span>
-                    </div>
-                    <div
-                      class="ud-payment-row"
-                      v-if="selectedOrder.shippingFee > 0"
-                    >
                       <span>Phí giao hàng</span>
                       <span>{{ formatPrice(selectedOrder.shippingFee) }}</span>
+                    </div>
+                    <div class="ud-payment-row">
+                      <span>Giảm giá</span>
+                        <span style="color: #e53e3e;">- {{ formatPrice(selectedOrder.discountAmount) }}</span>
                     </div>
                     <div class="ud-payment-total">
                       <span>Tổng cộng</span>
@@ -547,7 +559,6 @@
                       }}</span>
                     </div>
                   </div>
-
                   <!-- Hành động -->
                   <div class="ud-action-group">
                     <button
