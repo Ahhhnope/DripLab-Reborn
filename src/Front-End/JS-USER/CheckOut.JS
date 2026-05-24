@@ -110,6 +110,7 @@ export default {
       lastOrderId: '',
 
       showMomoQR: false,
+      momoConfirmed: false,
       computedDistanceKm: null,
       allWards: ALL_WARDS,
       wardSearch: '',
@@ -474,11 +475,13 @@ export default {
     async onMomoPaid() {
       this.showMomoQR = false
       this.form.payment = 'MOMO'
+      this.momoConfirmed = true
       await this.placeOrder()
+      this.momoConfirmed = false
     },
 
     async placeOrder() {
-      if (this.form.payment === 'MOMO' && !this.showMomoQR) {
+      if (this.form.payment === 'MOMO' && !this.momoConfirmed) {
         this.openMomoFlow()
         return
       }

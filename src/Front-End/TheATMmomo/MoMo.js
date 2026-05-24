@@ -5,10 +5,8 @@ function getBankImg(filename) {
     return new URL(`../IMG/${filename}`, import.meta.url).href
 }
 
-/* ── Ảnh thẻ ngân hàng nền ── */
 export const CARD_BG_IMG = new URL('../IMG/THENGANHANG.png', import.meta.url).href
 
-/* ── Chỉ giữ ngân hàng có ảnh thật ── */
 export const BANK_LIST = [
     { code: 'VCB', name: 'Vietcombank', img: getBankImg('Vietcombank.jpg') },
     { code: 'VIB', name: 'VIB Bank', img: getBankImg('VIB.png') },
@@ -29,19 +27,22 @@ export const BANK_LIST = [
     { code: 'KLB', name: 'KienLongBank', img: getBankImg('KienLongBank.jpg') },
 ]
 
-/* ── Sinh mã đơn hàng ── */
+// Fallback nếu không có invoiceId truyền vào
 export function genOrderId() {
-    return 'MOMO' + Date.now() + Math.floor(Math.random() * 9000 + 1000)
+    const num = Math.floor(Math.random() * 99) + 1
+    return `HD_${String(num).padStart(2, '0')}`
 }
 
-/* ════════════════════════════════════════════════
-   COMPOSABLE chính
-════════════════════════════════════════════════ */
 export function useMomoPayment(props, emit) {
 
-    // Screens: 'method' | 'atm' | 'success' | 'timeout'
     const screen = ref('method')
-    const orderId = ref(genOrderId())
+
+    // Đồng bộ orderId với invoiceId prop (HD_xx) — giống QRmomo.js
+    const orderId = computed(() => {
+        const id = props.invoiceId && props.invoiceId.trim()
+        if (id) return id
+        return genOrderId()
+    })
 
     /* ── Countdown: 1h 40m = 6000 giây ── */
     const TOTAL_SEC = 6000
@@ -83,12 +84,10 @@ export function useMomoPayment(props, emit) {
         submitting.value = false
     }
 
-    // FIX: Hàm reset toàn bộ session — gọi mỗi khi popup được mở lại
     function resetSession() {
         clearInterval(timerRef)
         secsRemain.value = TOTAL_SEC
-        orderId.value = genOrderId()
-        screen.value = 'method'       // ← luôn về màn chọn phương thức
+        screen.value = 'method'
         resetForm()
         startTimer()
     }
@@ -99,8 +98,6 @@ export function useMomoPayment(props, emit) {
             if (newVal === true) {
                 resetSession()
             } else {
-                // Khi đóng popup: dừng timer, không reset state ngay
-                // (để tránh flicker khi transition đóng)
                 clearInterval(timerRef)
             }
         }
@@ -108,7 +105,7 @@ export function useMomoPayment(props, emit) {
 
     onUnmounted(() => clearInterval(timerRef))
 
-    /* Hiển thị số thẻ đầy đủ (có khoảng cách nhóm 4) — không che */
+    /* Hiển thị số thẻ đầy đủ (có khoảng cách nhóm 4) */
     const cardNumDisplay = computed(() => {
         const raw = cardNumber.value
         const groups = []
@@ -116,7 +113,7 @@ export function useMomoPayment(props, emit) {
         return groups.join(' ')
     })
 
-    /* Số thẻ hiển thị trên hình thẻ — đầy đủ, không che */
+    /* Số thẻ hiển thị trên hình thẻ */
     const cardVisualNum = computed(() => {
         const raw = cardNumber.value
         if (!raw) return '•••• •••• •••• ••••'
