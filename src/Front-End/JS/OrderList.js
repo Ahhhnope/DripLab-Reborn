@@ -58,6 +58,7 @@ export function useOrderList() {
           sortTs,
 
           note: o.note ?? "",
+          promoCode: o.promoCode,
           user: {
             id: o.user?.id ?? null,
             fullName: o.receiverName || o.user?.fullName || "-",

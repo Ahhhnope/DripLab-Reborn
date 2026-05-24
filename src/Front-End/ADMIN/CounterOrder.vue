@@ -411,21 +411,21 @@ async function goToReviewWithId() {
                 </div>
                 <div class="rpc-price-row">
                   <span class="rpc-price-lbl">Size: {{ item.size }}</span>
-                  <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() || 0}} đ</span>
+                  <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() ?? 0}} đ</span>
                 </div>
                 <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.baseName }}</span>
-                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() || 0}} đ</span> <br>
+                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() ?? 0}} đ</span>
                 </div>
 
                 <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.beanName }}</span>
-                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() || 0}} đ</span>
+                  <span class="rpc-price-val">+{{ item.beanPrice.toLocaleString() ?? 0}} đ</span>
                 </div>
 
                 <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.milkName }}</span>
-                  <span class="rpc-price-val">+{{ item.milkPrice.toLocaleString() || 0}} đ</span>
+                  <span class="rpc-price-val">+{{ item.milkPrice.toLocaleString() ?? 0}} đ</span>
                 </div>
 
                 <div v-for="t in getItemToppingDetails(item)" :key="t.name || t.id"

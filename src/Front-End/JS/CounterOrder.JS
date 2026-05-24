@@ -351,8 +351,8 @@ export function useCounterOrder() {
                     isCustom: item.isCustom,
                     beanName: item.coffeeBean?.name,
                     beanPrice: item.coffeeBean?.price,
-                    baseName: item.base.name ?? null,
-                    basePrice: item.base.price,
+                    baseName: item.base?.name ?? null,
+                    basePrice: item.base?.price,
                     milkName: item.milk?.name,
                     milkPrice: item.milk?.price
                 }
@@ -877,7 +877,7 @@ export function useCounterOrder() {
             fetchSizes()
             fetchDiscountCodes()
             fetchCartItems()
-        }, 3000)
+        }, 1000)
     })
 
     onActivated(() => {

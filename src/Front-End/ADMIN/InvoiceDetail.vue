@@ -382,6 +382,7 @@
                   </div>
                   <div class="flex justify-between text-sm text-red-500">
                     <span>Giảm giá</span>
+                    <span v-if="invoice.promoCode"> ({{ invoice.promoCode }})</span>
                     <span class="font-bold"
                       >-
                       {{

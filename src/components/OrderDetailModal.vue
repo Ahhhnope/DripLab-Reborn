@@ -252,7 +252,7 @@
                       <span class="payment-value">{{ money(localOrder.shippingFee ?? 0) }}</span>
                     </div>
                     <div class="payment-row payment-row--discount">
-                      <span>Giảm giá</span>
+                      <span>Giảm giá ({{ localOrder.promoCode }})</span>
                       <span>- {{ money(localOrder.discount) }}</span>
                     </div>
                     <div class="payment-total">
