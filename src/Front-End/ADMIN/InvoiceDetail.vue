@@ -522,13 +522,13 @@ async function printInvoice() {
 
         const sizeSuffix = item.size ? ` (${item.size})` : "";
         const name = `${idx + 1}. ${item.name}${sizeSuffix}`;
-        const total = `${fmt(item.price * item.qty)}d`;
+        const total = `${fmt(item.unitPrice * item.qty)}d`;
 
         return `
     <tr>
       <td class="item-col">
         <div class="item-name">${name}</div>
-        <div class="sub-line">  x${item.qty} x ${fmt(item.unitPrice ?? item.price)}d</div>
+        <div class="sub-line">  x${item.qty} x ${fmt(item.basePrice ?? item.unitPrice ?? item.price)}d</div>
         ${sugarIceLine}
         ${customLine}
         ${toppingLines}
