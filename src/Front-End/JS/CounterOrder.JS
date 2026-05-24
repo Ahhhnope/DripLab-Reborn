@@ -461,7 +461,7 @@ export function useCounterOrder() {
 
      async function fetchDiscountCodes() {
         try {
-            const res = await api.get('/promo-codes')
+            const res = await api.get('/promo-codes/online-offline')
 
             discountCodeList.value = res.data
                 .filter(v => {

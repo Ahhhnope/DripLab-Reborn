@@ -301,8 +301,14 @@ export default {
 
     async loadSavedCoupon(userId) {
       try {
-        const res = await api.get('/promo-codes')
-        this.savedPromo = res.data.filter(p => p.status)
+        const [savedRes, onlineRes] = await Promise.all([
+          api.get('/promo-codes/my-promos', {params: {userId}}),
+          api.get('/promo-codes/online-offline')
+        ]);
+
+        const combined = [...savedRes.data, ...onlineRes.data]
+
+        this.savedPromo = combined.filter(p => p.status)
       } catch (e) {
         console.log('Error fetching promos:', e)
       }
