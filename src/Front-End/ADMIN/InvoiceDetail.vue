@@ -153,12 +153,10 @@
                     </div>
 
                     <div class="col-span-4 text-sm text-stone-400">SĐT</div>
-                    <div class="col-span-8 text-sm font-medium" v-if="invoice.receiverName === 'Khách vãng lai'">
-                      {{invoice.receiverPhone || "—"}}
-                    </div>
-
                     <div class="col-span-8 text-sm font-medium">
-                      {{invoice.customer?.phone || "—"}}
+                      {{ 
+                        invoice.receiverName === 'Khách vãng lai' ? '—' : (invoice.receiverPhone || invoice.customer?.phone || "—") 
+                      }}
                     </div>
 
                     <div

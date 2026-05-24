@@ -561,6 +561,7 @@
                     </div>
                     <div class="ud-payment-row">
                       <span>Giảm giá</span>
+                      <span v-if="selectedOrder.promoCode">({{ selectedOrder.promoCode }})</span>
                       <span style="color: #e53e3e"
                         >- {{ formatPrice(selectedOrder.discountAmount) }}</span
                       >

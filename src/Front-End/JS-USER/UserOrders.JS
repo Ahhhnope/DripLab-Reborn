@@ -58,6 +58,7 @@ export function useUserOrders() {
     shippingFee:     order.shippingFee ?? 0,
     subTotal:        subTotal,        // ✅ cấp order
     discountAmount:  discount,        // ✅ cấp order
+    promoCode: order.promoCode,
     date:            order.orderDate
                        ? new Date(order.orderDate).toLocaleDateString('vi-VN')
                        : '-',
