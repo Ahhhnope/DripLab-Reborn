@@ -3,13 +3,13 @@
     <div class="top-section">
       <div class="daily-login-box">
         <h2 class="daily-title">Đăng Nhập Mỗi Ngày Nhận Điểm</h2>
-        <p class="daily-subtitle">Mỗi ngày đăng nhập nhận 100 điểm, đăng nhập Ngày 14 nhận 500 điểm.</p>
+        <p class="daily-subtitle">Mỗi ngày đăng nhập nhận 100 điểm, đăng nhập Ngày 7 nhận 500 điểm.</p>
 
         <div class="daily-content">
-          <!-- Ngày 1–13 -->
+          <!-- Ngày 1–6 -->
           <div class="days-grid">
             <div
-              v-for="day in regularDays"
+              v-for="day in [1,2,3,4,5,6]"
               :key="day"
               class="day-card"
               :class="{ 'day-locked': !isDayUnlocked(day), 'day-claimed': claimedDays.includes(day) }"
@@ -31,24 +31,24 @@
             </div>
           </div>
 
-          <!-- Ngày 14 -->
+          <!-- Ngày 7 — kéo dài full chiều cao -->
           <div
-            class="day-card day-card-last"
-            :class="{ 'day-locked': !isDayUnlocked(14), 'day-claimed': claimedDays.includes(14) }"
+            class="day-card day-card-7"
+            :class="{ 'day-locked': !isDayUnlocked(7), 'day-claimed': claimedDays.includes(7) }"
           >
-            <div class="day-label">Ngày 14</div>
+            <div class="day-label">Ngày 7</div>
             <div class="coin-wrap">
-              <img :src="coinImg" class="coin-img-big" :class="{ 'coin-dim': !isDayUnlocked(14) }" />
-              <span v-if="!isDayUnlocked(14)" class="lock-icon lock-icon-big">🔒</span>
+              <img :src="coinImg" class="coin-img-big" :class="{ 'coin-dim': !isDayUnlocked(7) }" />
+              <span v-if="!isDayUnlocked(7)" class="lock-icon lock-icon-big">🔒</span>
             </div>
-            <div class="day-last-reward">500 Điểm</div>
+            <div class="day-7-reward">500 Điểm</div>
             <button
               class="day-btn"
-              :class="{ claimed: claimedDays.includes(14), locked: !isDayUnlocked(14) }"
-              @click="handleClaimDay(14)"
-              :disabled="claimedDays.includes(14) || !isDayUnlocked(14)"
+              :class="{ claimed: claimedDays.includes(7), locked: !isDayUnlocked(7) }"
+              @click="handleClaimDay(7)"
+              :disabled="claimedDays.includes(7) || !isDayUnlocked(7)"
             >
-              {{ claimedDays.includes(14) ? 'Đã Nhận' : isDayUnlocked(14) ? 'Nhận' : 'Chưa Tới' }}
+              {{ claimedDays.includes(7) ? 'Đã Nhận' : isDayUnlocked(7) ? 'Nhận' : 'Chưa Tới' }}
             </button>
           </div>
         </div>
@@ -82,7 +82,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import coinImg from '../IMG/logoIconVoucher.png'
 import dripLabLogo from '../IMG/DripLab_Logo.png'
@@ -91,9 +90,6 @@ import { useAuthStore } from '../Authorization/Auth'
 
 const router = useRouter()
 const { claimedDays, isDayUnlocked, claimDay, authModal, toast } = useVoucher()
-
-// Ngày 1–13
-const regularDays = computed(() => Array.from({ length: 13 }, (_, i) => i + 1))
 
 function handleClaimDay(day) {
   const auth = useAuthStore()
