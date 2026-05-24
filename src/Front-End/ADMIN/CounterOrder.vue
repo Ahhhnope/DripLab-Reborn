@@ -254,7 +254,7 @@ function getItemToppingDetails(item) {
 
 function getItemBasePrice(item) {
   const toppingTotal = getItemToppingDetails(item).reduce((s, t) => s + (t.price || 0), 0)
-  return item.unitPrice - toppingTotal
+  return item.unitPrice - toppingTotal - item.sizePrice
 }
 
 // ── Review ──

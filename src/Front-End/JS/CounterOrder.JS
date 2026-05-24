@@ -337,6 +337,7 @@ export function useCounterOrder() {
                     unitPrice,
                     qty: item.quantity,
                     size: item.size?.name || 'S',
+                    sizePrice: item.size?.price || 0,
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
                     toppings: item.toppings,
