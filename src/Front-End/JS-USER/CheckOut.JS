@@ -501,7 +501,7 @@ export default {
             deliveryAddress: this.computedFullAddress,
           }
         )
-        this.lastOrderId = response.data.orderNumber || response.data.id || 'N/A'
+        this.lastOrderId = response.data.id || 'N/A'
         this.showSuccessModal = true
 
         // Xóa khỏi cart store
