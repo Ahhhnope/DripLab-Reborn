@@ -27,6 +27,8 @@
 .admin-table td {
   border: 1px solid #ddd;
   padding: 10px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .error-msg {
