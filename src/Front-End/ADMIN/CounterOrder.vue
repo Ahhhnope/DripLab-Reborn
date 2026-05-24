@@ -409,6 +409,10 @@ async function goToReviewWithId() {
                   <span class="rpc-price-lbl">Giá gốc</span>
                   <span class="rpc-price-val">{{ getItemBasePrice(item).toLocaleString() }} đ</span>
                 </div>
+                <div class="rpc-price-row">
+                  <span class="rpc-price-lbl">Size: {{ item.size }}</span>
+                  <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() || 0}} đ</span>
+                </div>
                 <div v-for="t in getItemToppingDetails(item)" :key="t.name || t.id"
                   class="rpc-price-row rpc-price-row--topping">
                   <span class="rpc-price-lbl">{{ t.name }}</span>

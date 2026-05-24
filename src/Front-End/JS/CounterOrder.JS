@@ -448,9 +448,69 @@ export function useCounterOrder() {
     const discountPercent = ref(0)
     const discountMessage = ref('')
 
-    function applyDiscount() {}
+     async function fetchDiscountCodes() {
+        try {
+            const res = await api.get('/promo-codes')
 
-    const finalPrice = computed(() => totalPrice.value)
+            discountCodeList.value = res.data
+                .filter(v => {
+                    const isOnlineOffline = (v.displayLocation ?? '').toLowerCase() === 'online + offline'
+                    const notExpired = new Date(v.endDate) >= new Date()
+                    const hasQty = v.quantity > 0
+                    const isActive = v.status === true
+                    return isOnlineOffline && notExpired && hasQty && isActive
+                })
+
+
+                .map(v => ({
+                    code: v.code,
+                    label: `${v.code} – Giảm ${v.value}%`,
+                    value: parseFloat(v.value),
+                    minOrderValue: parseFloat(v.minOrderValue) || 0,
+                }))
+        } catch (e) {
+            console.error('Lỗi lấy mã khuyến mãi:', e)
+        }
+    }
+
+
+
+
+
+    function applyDiscount() {
+        if (!discountInput.value) {
+            discountMessage.value = 'Vui lòng chọn mã khuyến mãi!'
+            discountPercent.value = 0
+            appliedCode.value = ''
+
+            return
+        }
+
+        const found = discountCodeList.value.find(d => d.code === discountInput.value)
+
+        if (!found) {
+            discountMessage.value = 'Mã không hợp lệ hoặc đã hết hạn!'
+            discountPercent.value = 0
+            appliedCode.value = ''
+
+            return
+        }
+        if (found.minOrderValue > 0 && totalPrice.value < found.minOrderValue) {
+            discountMessage.value = `Đơn tối thiểu ${found.minOrderValue.toLocaleString('vi-VN')}đ để dùng mã này!`
+            discountPercent.value = 0
+            appliedCode.value = ''
+            return
+        }
+        appliedCode.value = found.code
+        discountPercent.value = found.value
+        discountMessage.value = `Áp dụng thành công! Giảm ${found.value}%`
+    }
+
+    const finalPrice = computed(() =>
+        discountPercent.value > 0
+            ? Math.round(totalPrice.value * (1 - discountPercent.value / 100))
+            : totalPrice.value
+    )
 
     // ── Ghi chú ──
     const orderNote = ref('')
@@ -559,7 +619,9 @@ export function useCounterOrder() {
                     tables: displayTableNums.value,
                     finalPrice: finalPrice.value,
                     originalPrice: totalPrice.value,
-                    discountAmount: 0,
+                    discountAmount: totalPrice.value - finalPrice.value,  
+                    discountPercent: discountPercent.value,  
+                    promoCode: appliedCode.value || '',
                 },
                 paramsSerializer: params => {
                     const search = new URLSearchParams()
@@ -794,6 +856,7 @@ export function useCounterOrder() {
         fetchDrinks()
         fetchToppings()
         fetchSizes()
+        fetchDiscountCodes()
         checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
         fetchCartItems()
@@ -802,6 +865,7 @@ export function useCounterOrder() {
             fetchDrinks()
             fetchToppings()
             fetchSizes()
+            fetchDiscountCodes()
             fetchCartItems()
         }, 3000)
     })
