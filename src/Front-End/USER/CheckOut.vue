@@ -532,21 +532,41 @@
           </div>
 
           <!-- CTA trong aside (mobile ẩn, desktop hiện) -->
-          <button
+          <!-- <button
             v-if="currentStep === 1"
             class="btn-aside-next"
-            @click="goToStep2" :disabled="!canProceed"
+            @click="goToStep2"
+            :disabled="!canProceed"
           >
             Tiếp tục →
-          </button>
-          <button
+          </button> -->
+          
+          <!-- <button
             v-if="currentStep === 2"
             class="btn-aside-next"
             @click="placeOrder"
             :disabled="isPlacingOrder || !canProceed"
           >
             {{ isPlacingOrder ? "Đang xử lý..." : "✓ Đặt hàng ngay" }}
+          </button> -->
+
+          <button
+            v-if="currentStep === 1"
+            class="btn-aside-next"
+            @click="goToStep2"
+          >
+            Tiếp tục →
           </button>
+
+          <button
+            v-if="currentStep === 2"
+            class="btn-aside-next"
+            @click="placeOrder"
+            :disabled="isPlacingOrder"
+          >
+            {{ isPlacingOrder ? "Đang xử lý..." : "✓ Đặt hàng ngay" }}
+          </button>
+
           <p class="summary-terms">
             Bằng cách đặt hàng, bạn đồng ý với điều khoản dịch vụ.
           </p>

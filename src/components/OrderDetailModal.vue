@@ -6,7 +6,7 @@
           <!-- HEADER -->
           <div class="modal-header">
             <div class="modal-header__left">
-              <span class="modal-order-code">#{{ localOrder?.code || "-" }}</span>
+              <span class="modal-order-code">#{{ localOrder?.id || "-" }}</span>
               <span class="status-badge" :class="`status-badge--${localOrder?.status}`">
                 {{ statusText(localOrder?.status) }}
               </span>

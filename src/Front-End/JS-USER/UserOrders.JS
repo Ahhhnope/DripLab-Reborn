@@ -41,61 +41,64 @@ export function useUserOrders() {
 
   // ── Map order từ API ─────────────────────────────────────
   function mapOrder(order) {
-    const totalQty = (order.items ?? []).reduce((s, i) => s + (i.quantity ?? 1), 0)
-    return {
-      id:              order.id,
-      name:            `DL-${order.orderNumber ?? order.id}`,
-      status:          mapStatus(order.status),
-      paymentMethod:   order.paymentMethod ?? 'Tiền mặt',
-      totalQty,
-      price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
-      finalPriceNum:   order.finalPrice ?? 0,
-      shippingFee:     order.shippingFee ?? 0,
-      date:            order.orderDate
-                         ? new Date(order.orderDate).toLocaleDateString('vi-VN')
-                         : '-',
-      shippingAddress: order.shippingAddress ?? '',
-      // ✅ Lấy lý do giao thất bại từ note (admin lưu vào note)
-      failReason: order.failReason ?? null,
-      receiptData: {
-        id:    `#DL-${order.orderNumber ?? order.id}`,
-        date:  order.orderDate
-                 ? new Date(order.orderDate).toLocaleDateString('vi-VN')
-                 : '-',
-        total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
-        items: (order.items ?? []).map(item => {
-           console.log('item:', item)
-          const sizeName  = item.size?.name  ?? null
-          const sizePrice = item.size?.price ?? 0
+  const totalQty = (order.items ?? []).reduce((s, i) => s + (i.quantity ?? 1), 0)
 
-          const toppingList = (item.orderItemToppings ?? []).map(t => ({
+  // ✅ Tính ở đây, ngoài items.map()
+  const subTotal = (order.items ?? []).reduce((s, i) => s + (i.basePriceAtPurchase ?? 0) * (i.quantity ?? 1), 0)
+  const discount = Math.max(0, subTotal + (order.shippingFee ?? 0) - (order.finalPrice ?? 0))
+
+  return {
+    id:              order.id,
+    name:            `DL-${order.orderNumber ?? order.id}`,
+    status:          mapStatus(order.status),
+    paymentMethod:   order.paymentMethod ?? 'Tiền mặt',
+    totalQty,
+    price:           `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
+    finalPriceNum:   order.finalPrice ?? 0,
+    shippingFee:     order.shippingFee ?? 0,
+    subTotal:        subTotal,        // ✅ cấp order
+    discountAmount:  discount,        // ✅ cấp order
+    date:            order.orderDate
+                       ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+                       : '-',
+    shippingAddress: order.shippingAddress ?? '',
+    failReason:      order.failReason ?? null,
+    receiptData: {
+      id:    `#DL-${order.orderNumber ?? order.id}`,
+      date:  order.orderDate
+               ? new Date(order.orderDate).toLocaleDateString('vi-VN')
+               : '-',
+      total: `${(order.finalPrice ?? 0).toLocaleString('vi-VN')} VNĐ`,
+      items: (order.items ?? []).map(item => {
+        console.log('item:', item)
+        const sizeName  = item.size?.name  ?? null
+        const sizePrice = item.size?.price ?? 0
+
+        const toppingList = (item.orderItemToppings ?? []).map(t => ({
           name:  t.topping?.name ?? '',
           price: t.basePriceAtPurchase ?? t.topping?.price ?? 0,
-          }))
+        }))
 
-          const toppingTotal = toppingList.reduce((s, t) => s + t.price, 0)
-          const itemUnitPrice = item.basePriceAtPurchase ?? 0
+        const toppingTotal  = toppingList.reduce((s, t) => s + t.price, 0)
+        const itemUnitPrice = item.basePriceAtPurchase ?? 0
+        const basePrice     = itemUnitPrice - sizePrice - toppingTotal
 
-
-          const basePrice = itemUnitPrice - sizePrice - toppingTotal
-
-          return {
-          name:        item.drink?.name ?? 'Sản phẩm',
-          qty:         item.quantity ?? 1,
-          basePrice:   basePrice,
-          total:       itemUnitPrice * (item.quantity ?? 1),  
+        return {
+          name:      item.drink?.name ?? 'Sản phẩm',
+          qty:       item.quantity ?? 1,
+          basePrice,
+          total:     itemUnitPrice * (item.quantity ?? 1),
           sizeName,
-          sizeExtra:   sizePrice,                              
-          toppings:    toppingList,                            
-          img:         getImageUrl(item.drink?.imageUrl ?? null),
-          sugar: item.sugar != null ? item.sugar : null,
-          ice:   item.ice   != null ? item.ice   : null,  
-          }
-          
-        }),
-      },
-    }
+          sizeExtra: sizePrice,
+          toppings:  toppingList,
+          img:       getImageUrl(item.drink?.imageUrl ?? null),
+          sugar:     item.sugar ?? null,
+          ice:       item.ice   ?? null,
+        }
+      }),
+    },
   }
+}
 
   // ── Fetch ────────────────────────────────────────────────
   const allOrders = ref([])

@@ -463,9 +463,7 @@
     pointer-events: none;
 }
 
-/* ════════════════════════════════════════
-   NÚT ENTER — chỉ hiện hint mờ
-════════════════════════════════════════ */
+
 .mp-qr-paid-btn {
     position: relative;
     z-index: 1;
