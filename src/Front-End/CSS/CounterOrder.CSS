@@ -1,31 +1,58 @@
-/* FONT & BIẾN MÀU */
+/* ================================================================
+   == FONT & BIẾN MÀU TOÀN CỤC ==
+   Định nghĩa font chữ và bảng màu dùng cho toàn bộ component
+   ================================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+/* -- Import font Be Vietnam Pro từ Google Fonts với các trọng số từ 400 (thường) đến 900 (đậm nhất) */
 
+/* == PHẠM VI CSS: Tất cả style chỉ áp dụng trong .counter-root == */
+/* -- Dùng CSS Custom Properties (biến CSS) để dễ thay đổi màu toàn bộ */
 .counter-root {
   --brown: #5c3317;
+  /* -- Màu nâu chủ đạo (tiêu đề, nút chính) */
   --brown-dark: #3e2010;
+  /* -- Màu nâu đậm (hover, accent) */
   --brown-light: #8b5e3c;
+  /* -- Màu nâu nhạt (tab, badge phụ) */
   --cream: #f5f0e8;
+  /* -- Màu kem (nền tổng thể) */
   --cream-dark: #ede5d8;
+  /* -- Màu kem đậm hơn (nền input, phân cách) */
   --green: #4a7c59;
+  /* -- Màu xanh lá (nút thêm, thành công, tại quán) */
   --green-dark: #3a6045;
+  /* -- Màu xanh lá đậm (hover xanh) */
   --red: #c0392b;
+  /* -- Màu đỏ (nút hủy, lỗi) */
   --red-dark: #a93226;
+  /* -- Màu đỏ đậm (hover đỏ) */
   --gold: #d4a843;
+  /* -- Màu vàng đồng (dự phòng, hiện chưa dùng) */
   --white: #ffffff;
+  /* -- Màu trắng */
   --gray: #aaa;
+  /* -- Màu xám (text phụ, placeholder) */
   --gray-light: #f0ece4;
+  /* -- Màu xám nhạt (nền phụ) */
   --text: #2c1a0e;
+  /* -- Màu text chính (gần đen nâu) */
   --shadow: 0 4px 20px rgba(92, 51, 23, 0.15);
+  /* -- Bóng đổ chuẩn */
 
   font-family: 'Plus Jakarta Sans', sans-serif;
+  /* -- Font mặc định cho toàn bộ component */
   width: 100%;
+  /* -- Chiếm toàn bộ chiều ngang */
   height: 100vh;
+  /* -- Chiếm toàn bộ chiều cao viewport */
   overflow: hidden;
+  /* -- Ẩn scrollbar ngoài cùng (mỗi cột có scroll riêng) */
   display: block;
   box-sizing: border-box;
+  /* -- Padding/border tính trong width/height */
 }
 
+/* -- Reset box-sizing cho TẤT CẢ phần tử con */
 .counter-root *,
 .counter-root *::before,
 .counter-root *::after {
@@ -34,37 +61,50 @@
   padding: 0;
 }
 
+/* == ANIMATION: Hiệu ứng xuất hiện từ dưới lên ==
+   -- Dùng cho popup và các phần tử mới xuất hiện */
 @keyframes cr-fadeInUp {
   from {
     opacity: 0;
     transform: translateY(24px);
+    /* -- Bắt đầu thấp hơn 24px */
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+    /* -- Kết thúc ở vị trí bình thường */
   }
 }
 
-/* ==================== MÀN HÌNH ĐẶT MÓN ==================== */
+/* ================================================================
+   == MÀN HÌNH ĐẶT MÓN CHÍNH ==
+   Layout 2 cột: trái (sản phẩm) + phải (đơn hàng)
+   ================================================================ */
 .counter-order {
   display: flex;
+  /* -- Flexbox nằm ngang */
   width: 100%;
   height: 100vh;
   background: var(--cream);
   overflow: hidden;
+  /* -- Không scroll toàn trang, từng cột scroll riêng */
 }
 
-/* CỘT TRÁI */
+/* == CỘT TRÁI: Khu vực danh sách sản phẩm ==
+   -- flex: 1 → chiếm hết không gian còn lại sau khi cột phải đã chiếm 320px */
 .product-section {
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* -- Stack dọc: top-bar → tabs → danh sách sản phẩm */
   min-width: 0;
+  /* -- Quan trọng: cho phép flex item thu nhỏ dưới content size */
   height: 100vh;
   overflow: hidden;
 }
 
+/* -- Thanh tiêu đề "ĐƠN TẠI QUẦY" màu nâu trên cùng */
 .top-bar {
   background: var(--brown);
   color: var(--white);
@@ -74,9 +114,13 @@
   letter-spacing: 1px;
   text-align: center;
   flex-shrink: 0;
+  /* -- Không co lại khi content overflow */
 }
 
-/* TABS */
+/* ================================================================
+   == TABS HÓA ĐƠN ==
+   Thanh chứa nút "+ Thêm hóa đơn" và các tab hóa đơn đang mở
+   ================================================================ */
 .tabs-bar {
   background: var(--cream-dark);
   border-bottom: 2px solid #ddd4c4;
@@ -85,12 +129,15 @@
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
+  /* -- Không xuống hàng → scroll ngang */
   overflow-x: auto;
+  /* -- Scroll ngang khi có nhiều tab */
   overflow-y: hidden;
   flex-shrink: 0;
   min-height: 50px;
 }
 
+/* -- Scrollbar ngang mỏng cho tabs */
 .tabs-bar::-webkit-scrollbar {
   height: 4px;
 }
@@ -100,6 +147,7 @@
   border-radius: 2px;
 }
 
+/* -- Nút "+ Thêm hóa đơn": màu xanh lá, không thu nhỏ */
 .add-order-tab {
   background: var(--green);
   color: var(--white);
@@ -111,6 +159,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
   white-space: nowrap;
+  /* -- Không xuống hàng */
   flex-shrink: 0;
   transition: background 0.2s, transform 0.15s;
 }
@@ -125,6 +174,7 @@
   cursor: not-allowed;
 }
 
+/* -- Tab từng hóa đơn: màu nâu nhạt, đậm hơn khi active */
 .order-tab {
   background: var(--brown-light);
   color: var(--white);
@@ -149,7 +199,12 @@
   background: var(--brown-dark);
 }
 
-/* PRODUCT MAIN */
+/* -- Tab đang được chọn: nâu đậm nhất */
+
+/* ================================================================
+   == KHU VỰC CHÍNH SẢN PHẨM ==
+   Chứa thanh tìm kiếm + lưới sản phẩm (có scroll riêng)
+   ================================================================ */
 .product-main {
   flex: 1;
   padding: 16px 20px;
@@ -158,8 +213,10 @@
   gap: 14px;
   overflow: hidden;
   min-height: 0;
+  /* -- Bắt buộc để flex child có thể scroll */
 }
 
+/* -- Thanh tìm kiếm: input + nút */
 .search-bar {
   display: flex;
   gap: 10px;
@@ -200,17 +257,23 @@
   transform: translateY(-1px);
 }
 
-/* PRODUCT GRID */
+/* ================================================================
+   == LƯỚI SẢN PHẨM ==
+   Grid tự động điều chỉnh số cột theo chiều rộng (min 160px/cột)
+   ================================================================ */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  /* -- Tự điều chỉnh số cột */
   gap: 14px;
   overflow-y: auto;
+  /* -- Scroll dọc cho danh sách dài */
   overflow-x: hidden;
   flex: 1;
   min-height: 0;
   padding-right: 4px;
   align-content: start;
+  /* -- Card bắt đầu từ trên xuống, không bị kéo giãn */
 }
 
 .product-grid::-webkit-scrollbar {
@@ -222,7 +285,7 @@
   border-radius: 3px;
 }
 
-/* PRODUCT CARD */
+/* == CARD SẢN PHẨM == */
 .product-card {
   background: var(--white);
   border: 1.5px solid #e8e0d4;
@@ -233,14 +296,17 @@
   display: flex;
   flex-direction: column;
   height: 240px;
+  /* -- Chiều cao cố định để lưới đều nhau */
 }
 
 .product-card:hover {
   border-color: var(--brown-light);
   box-shadow: 0 4px 16px rgba(92, 51, 23, 0.12);
   transform: translateY(-3px);
+  /* -- Nổi lên khi hover */
 }
 
+/* -- Vùng chứa ảnh sản phẩm (155px) */
 .product-img-wrap {
   width: 100%;
   height: 155px;
@@ -256,6 +322,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* -- Ảnh cắt vừa khung, không bị méo */
   display: block;
   transition: transform 0.25s ease;
 }
@@ -264,7 +331,9 @@
   transform: scale(1.06);
 }
 
-/* LOGO CARD */
+/* -- Ảnh phóng to nhẹ khi hover */
+
+/* == CARD ĐẶC BIỆT: Logo DripLab (dẫn đến trang pha chế tự do) == */
 .logo-card {
   align-items: center;
   justify-content: space-between;
@@ -297,6 +366,7 @@
   line-height: 1.5;
 }
 
+/* -- Thông tin sản phẩm: brand + tên */
 .product-info-row {
   padding: 4px 10px 0px;
 }
@@ -319,6 +389,7 @@
   margin-bottom: 1px;
 }
 
+/* -- Hàng dưới cùng card: giá + nút Mua */
 .product-price {
   font-size: 13px;
   font-weight: 900;
@@ -335,6 +406,7 @@
   margin-top: auto;
 }
 
+/* -- Nút "Mua" màu xanh */
 .buy-btn {
   background: var(--green);
   color: var(--white);
@@ -353,6 +425,7 @@
   transform: translateY(-1px);
 }
 
+/* -- Nút "Chi tiết" màu nâu nhạt */
 .detail-btn {
   background: var(--brown-light);
   color: var(--white);
@@ -371,7 +444,7 @@
   transform: translateY(-1px);
 }
 
-/* EMPTY STATE */
+/* == TRẠNG THÁI RỖNG: Khi chưa có hóa đơn nào == */
 .empty-state {
   flex: 1;
   display: flex;
@@ -398,10 +471,14 @@
   color: var(--gray);
 }
 
-/* CỘT PHẢI */
+/* ================================================================
+   == CỘT PHẢI: Khu vực đơn hàng (320px cố định) ==
+   Chiều cao 100vh, flex column, scroll riêng từng phần
+   ================================================================ */
 .order-section {
   width: 320px;
   min-width: 320px;
+  /* -- Không thu nhỏ hơn 320px */
   background: var(--white);
   border-left: 2px solid var(--cream-dark);
   display: flex;
@@ -409,8 +486,10 @@
   height: 100vh;
   overflow: hidden;
   flex-shrink: 0;
+  /* -- Không bị co lại bởi cột trái */
 }
 
+/* -- Tiêu đề "CHI TIẾT KHÁCH HÀNG" (60px, căn giữa) */
 .order-section-title {
   background: var(--brown);
   color: var(--white);
@@ -426,7 +505,9 @@
   flex-shrink: 0;
 }
 
-/* CUSTOMER BLOCK */
+/* ================================================================
+   == BLOCK NHẬP THÔNG TIN KHÁCH HÀNG ==
+   ================================================================ */
 .right-customer-block {
   border-bottom: 1.5px solid var(--cream-dark);
   padding: 12px 14px;
@@ -443,6 +524,7 @@
   letter-spacing: 0.5px;
 }
 
+/* -- Từng trường nhập (label + input + error) */
 .right-field {
   display: flex;
   flex-direction: column;
@@ -456,6 +538,7 @@
   color: var(--brown);
 }
 
+/* -- Input text: tên và số điện thoại */
 .right-input {
   border: 1.5px solid #ddd4c4;
   border-radius: 8px;
@@ -477,6 +560,7 @@
   border-color: var(--red);
 }
 
+/* -- Viền đỏ khi có lỗi validate */
 .right-input.input-disabled,
 .right-input:disabled {
   background: var(--cream-dark);
@@ -486,12 +570,16 @@
   opacity: 0.7;
 }
 
+/* -- Mờ khi disabled */
 .right-field-err {
   font-size: 11px;
   color: var(--red);
   font-weight: 600;
 }
 
+/* -- Text lỗi đỏ */
+
+/* -- Hàng nút: Chọn khách hàng + Thêm khách hàng */
 .right-customer-action-row {
   display: flex;
   gap: 8px;
@@ -503,6 +591,8 @@
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* -- Nút mờ khi chưa có hóa đơn */
 
 .right-customer-btn {
   flex: 1;
@@ -537,6 +627,7 @@
   transform: translateY(-1px);
 }
 
+/* -- Hàng meta: hiển thị bàn đã chọn + hình thức */
 .right-meta-row {
   display: flex;
   justify-content: space-between;
@@ -557,6 +648,7 @@
   color: var(--brown);
 }
 
+/* -- Badge hiển thị bàn / hình thức */
 .right-table-val {
   background: var(--cream-dark);
   border-radius: 6px;
@@ -572,12 +664,14 @@
   border: 1px solid var(--green);
 }
 
+/* -- Tại quán: xanh */
 .right-table-val.mode-takeaway {
   background: #fff3e0;
   color: #b06000;
   border: 1px solid #d4820a;
 }
 
+/* -- Mang đi: cam */
 .right-table-val.mode-none {
   background: var(--cream-dark);
   color: var(--gray);
@@ -585,7 +679,12 @@
   font-style: italic;
 }
 
-/* PRODUCTS BLOCK */
+/* -- Chưa chọn: xám nghiêng */
+
+/* ================================================================
+   == BLOCK SẢN PHẨM ĐÃ ĐẶT (phần scroll được) ==
+   flex: 1 + overflow-y: auto = chiếm hết không gian còn lại và có scroll
+   ================================================================ */
 .right-products-block {
   flex: 1;
   overflow-y: auto;
@@ -613,7 +712,7 @@
   text-transform: uppercase;
 }
 
-/* RPC CARD */
+/* == CARD SẢN PHẨM TRONG GIỎ HÀNG (rpc = right product card) == */
 .rpc-card {
   background: var(--white);
   border: 1.5px solid #e2d9cc;
@@ -628,6 +727,7 @@
   box-shadow: 0 2px 8px rgba(92, 51, 23, 0.1);
 }
 
+/* -- Header card: nền nâu đậm, tên sản phẩm + badge size/qty + nút xóa */
 .rpc-top {
   display: flex;
   align-items: center;
@@ -673,6 +773,7 @@
   white-space: nowrap;
 }
 
+/* -- Nút X xóa sản phẩm */
 .rpc-remove {
   background: none;
   border: none;
@@ -690,6 +791,7 @@
   transform: scale(1.25);
 }
 
+/* -- Phần thân card: thông số + bảng giá */
 .rpc-body {
   padding: 7px 12px 8px;
 }
@@ -710,6 +812,7 @@
   font-weight: 600;
 }
 
+/* -- Tag cho sản phẩm tự pha chế (hạt, nền, sữa) */
 .rpc-custom-row {
   display: flex;
   gap: 4px;
@@ -726,6 +829,7 @@
   font-weight: 600;
 }
 
+/* -- Bảng phân tích giá (nền kem) */
 .rpc-price-breakdown {
   background: var(--cream);
   border-radius: 6px;
@@ -761,6 +865,9 @@
   color: var(--green-dark);
 }
 
+/* -- Giá topping màu xanh */
+
+/* -- Footer card: tổng tiền */
 .rpc-footer {
   background: var(--cream);
   border-top: 1px solid #e8dfd4;
@@ -782,7 +889,9 @@
   color: var(--green-dark);
 }
 
-/* FOOTER BLOCK */
+/* ================================================================
+   == FOOTER THANH TOÁN (cố định ở dưới cùng cột phải) ==
+   ================================================================ */
 .order-footer-block {
   flex-shrink: 0;
   padding: 10px 12px;
@@ -790,6 +899,7 @@
   background: var(--white);
 }
 
+/* -- Phần mã giảm giá */
 .discount-section {
   margin-bottom: 8px;
 }
@@ -848,6 +958,7 @@
   cursor: not-allowed;
 }
 
+/* -- Thông báo kết quả áp dụng mã */
 .discount-message {
   font-size: 11px;
   font-weight: 600;
@@ -858,10 +969,14 @@
   color: var(--green);
 }
 
+/* -- Áp dụng thành công: xanh */
 .discount-message.error {
   color: var(--red);
 }
 
+/* -- Mã không hợp lệ: đỏ */
+
+/* -- Hàng tổng tiền */
 .total-row {
   display: flex;
   align-items: center;
@@ -890,6 +1005,7 @@
   margin-bottom: 2px;
 }
 
+/* -- Giá gốc gạch ngang khi có giảm giá */
 .discount-badge {
   background: var(--red);
   color: var(--white);
@@ -900,6 +1016,9 @@
   margin-left: 4px;
 }
 
+/* -- Badge -X% màu đỏ */
+
+/* -- Hàng nút hành động cuối cùng */
 .right-action-btns {
   display: flex;
   gap: 8px;
@@ -968,17 +1087,24 @@
   transform: none;
 }
 
-/* ==================== OVERLAY CHUNG ==================== */
+/* ================================================================
+   == OVERLAY CHUNG CHO TẤT CẢ POPUP ==
+   position: fixed → phủ toàn màn hình, z-index cao
+   ================================================================ */
 .confirm-overlay {
   position: fixed;
   inset: 0;
+  /* -- top: 0, right: 0, bottom: 0, left: 0 */
   background: rgba(0, 0, 0, 0.5);
+  /* -- Nền tối mờ 50% */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  /* -- Trên tất cả nội dung thường */
 }
 
+/* -- Popup card trắng với bo góc và shadow */
 .confirm-popup {
   background: var(--white);
   border-radius: 18px;
@@ -987,6 +1113,7 @@
   max-width: 460px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
   animation: cr-fadeInUp 0.3s ease;
+  /* -- Hiệu ứng xuất hiện từ dưới lên */
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -1028,6 +1155,7 @@
   margin-top: -4px;
 }
 
+/* -- Nút xác nhận hủy (màu xanh để nhất quán với hệ thống) */
 .btn-confirm-red {
   background: var(--green);
   color: var(--white);
@@ -1046,13 +1174,17 @@
   transform: translateY(-1px);
 }
 
-/* ==================== POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==================== */
+/* ================================================================
+   == POPUP THÔNG BÁO THÊM KHÁCH HÀNG ==
+   Hiện tự động 5 giây, có thanh tiến trình tự thu hẹp
+   ================================================================ */
 @keyframes notif-fadeInScale {
   from {
     opacity: 0;
     transform: scale(0.88) translateY(16px);
   }
 
+  /* -- Scale + slide lên */
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1064,6 +1196,7 @@
   cursor: pointer;
 }
 
+/* -- z-index cao hơn popup thường */
 .customer-notif-popup {
   pointer-events: auto;
   text-align: center;
@@ -1071,7 +1204,9 @@
   min-width: 320px;
   max-width: 400px;
   animation: notif-fadeInScale 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* -- Hiệu ứng nảy */
   border-top: 5px solid transparent;
+  /* -- Viền màu trên (sẽ được tô màu theo success/error) */
   position: relative;
   overflow: hidden;
   cursor: default;
@@ -1081,10 +1216,14 @@
   border-top-color: var(--green);
 }
 
+/* -- Thành công: viền xanh */
 .customer-notif-popup.notif-error {
   border-top-color: var(--red);
 }
 
+/* -- Thất bại: viền đỏ */
+
+/* -- Icon tròn ✓ hoặc ✕ */
 .notif-icon-wrap {
   display: flex;
   justify-content: center;
@@ -1127,6 +1266,7 @@
   color: var(--red-dark) !important;
 }
 
+/* -- Thanh tiến trình tự thu hẹp (width được cập nhật bởi JS mỗi 50ms) */
 .notif-progress-wrap {
   margin-top: 18px;
   height: 5px;
@@ -1141,6 +1281,7 @@
   transition: width 0.05s linear;
 }
 
+/* -- Chuyển động mượt */
 .notif-progress-bar--success {
   background: var(--green);
 }
@@ -1149,7 +1290,10 @@
   background: var(--red);
 }
 
-/* ==================== POPUP CHỌN KHÁCH HÀNG ==================== */
+/* ================================================================
+   == POPUP CHỌN KHÁCH HÀNG ==
+   Bảng có phân trang, tìm kiếm, scroll dọc phần bảng
+   ================================================================ */
 .select-customer-popup {
   background: var(--white);
   border-radius: 14px;
@@ -1159,11 +1303,13 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* -- Stack: header → search → bảng → phân trang */
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
   animation: cr-fadeInUp 0.3s ease;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* -- Header: tiêu đề + nút đóng */
 .scp-header {
   display: flex;
   align-items: center;
@@ -1219,6 +1365,7 @@
   color: var(--red);
 }
 
+/* -- Ô tìm kiếm */
 .scp-search-wrap {
   display: flex;
   align-items: center;
@@ -1244,6 +1391,7 @@
   border-color: var(--green);
 }
 
+/* -- Vùng bảng có scroll dọc */
 .scp-table-wrap {
   flex: 1;
   overflow-y: auto;
@@ -1261,6 +1409,7 @@
   border-radius: 2px;
 }
 
+/* -- Bảng: table-layout: fixed → cột không thay đổi kích thước theo nội dung */
 .scp-table {
   width: 100%;
   border-collapse: collapse;
@@ -1284,6 +1433,7 @@
   white-space: nowrap;
 }
 
+/* -- Độ rộng các cột */
 .col-stt {
   width: 60px;
 }
@@ -1330,6 +1480,7 @@
   word-break: break-word;
 }
 
+/* -- Cho tên xuống hàng nếu dài */
 .scp-td.col-phone {
   font-family: monospace;
   font-size: 13px;
@@ -1367,6 +1518,7 @@
   font-style: italic;
 }
 
+/* -- Thanh phân trang */
 .scp-pagination {
   display: flex;
   align-items: center;
@@ -1432,7 +1584,11 @@
   color: var(--white);
 }
 
-/* ==================== POPUP HÌNH THỨC + BÀN ==================== */
+/* -- Trang hiện tại: nền xanh dương */
+
+/* ================================================================
+   == POPUP CHỌN HÌNH THỨC + BÀN ==
+   ================================================================ */
 .table-mode-popup {
   background: var(--white);
   border-radius: 18px;
@@ -1463,6 +1619,7 @@
   margin-bottom: 18px;
 }
 
+/* -- Nút chọn hình thức */
 .mode-choice-row {
   display: flex;
   gap: 12px;
@@ -1495,6 +1652,7 @@
   font-weight: 800;
 }
 
+/* -- Thông tin số bàn trống */
 .table-count-row {
   text-align: center;
   font-size: 14px;
@@ -1518,6 +1676,7 @@
   font-weight: 700;
 }
 
+/* -- Danh sách bàn đang chọn (badge) */
 .selected-tables-row {
   display: flex;
   flex-wrap: wrap;
@@ -1555,6 +1714,7 @@
   color: #fff;
 }
 
+/* -- Lưới bàn 5 cột */
 .table-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1585,6 +1745,7 @@
   background: var(--green);
 }
 
+/* -- Bàn đang chọn: xanh */
 .table-btn.occupied {
   background: #ccc;
   color: #888;
@@ -1592,7 +1753,11 @@
   opacity: 0.6;
 }
 
-/* ==================== POPUP TOPPING ==================== */
+/* -- Bàn có người: xám */
+
+/* ================================================================
+   == POPUP TOPPING / SIZE / SỐ LƯỢNG ==
+   ================================================================ */
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -1616,6 +1781,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* -- Header: tên sản phẩm + badge giá */
 .popup-header {
   display: flex;
   justify-content: space-between;
@@ -1652,6 +1818,9 @@
   float: right;
 }
 
+/* -- Text "Tối đa X" float phải */
+
+/* -- Nhóm nút option (đá, đường) */
 .option-group {
   display: flex;
   gap: 8px;
@@ -1685,6 +1854,7 @@
   color: var(--green-dark);
 }
 
+/* -- Lưới topping 4 cột */
 .topping-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1716,6 +1886,7 @@
   cursor: not-allowed;
 }
 
+/* -- Mờ khi đã chọn đủ 3 */
 .topping-name {
   font-size: 11px;
   font-weight: 700;
@@ -1734,6 +1905,7 @@
   color: var(--green-dark);
 }
 
+/* -- Hàng size + số lượng */
 .size-qty-row {
   display: flex;
   gap: 24px;
@@ -1789,6 +1961,7 @@
   color: var(--green-dark);
 }
 
+/* -- Bộ điều chỉnh số lượng: [−] [số] [+] */
 .qty-group {
   display: flex;
   align-items: center;
@@ -1841,6 +2014,7 @@
   justify-content: center;
 }
 
+/* -- Nút Quay Lại / Xác Nhận trong popup */
 .popup-actions {
   display: flex;
   gap: 12px;
@@ -1885,7 +2059,9 @@
   transform: translateY(-1px);
 }
 
-/* ==================== POPUP THANH TOÁN ==================== */
+/* ================================================================
+   == POPUP THANH TOÁN ==
+   ================================================================ */
 .payment-popup {
   background: var(--white);
   border-radius: 18px;
@@ -1922,6 +2098,7 @@
   margin: 0;
 }
 
+/* -- Badge hình thức (tại quán/mang đi) trong popup thanh toán */
 .payment-mode-badge {
   display: inline-flex;
   align-items: center;
@@ -1944,6 +2121,7 @@
   border: 1.5px solid var(--green);
 }
 
+/* -- Lựa chọn phương thức thanh toán */
 .payment-method-title {
   font-size: 14px;
   font-weight: 800;
@@ -1984,18 +2162,21 @@
   color: #1d4ed8;
 }
 
+/* -- Tiền mặt active: xanh dương */
 .payment-method-item.momo-tab.active {
   border-color: #d63484;
   background: #fff0f7;
   color: #a91f5c;
 }
 
+/* -- MoMo active: hồng */
 .momo-tab-logo {
   width: 22px;
   height: 22px;
   object-fit: contain;
 }
 
+/* -- Ô ghi chú */
 .note-section {
   margin-bottom: 14px;
 }
@@ -2026,6 +2207,7 @@
   border-color: var(--brown-light);
 }
 
+/* -- Hàng nút cuối popup */
 .payment-footer {
   display: flex;
   gap: 12px;
@@ -2110,11 +2292,15 @@
   background: #d63484;
 }
 
+/* -- Nút MoMo: màu hồng tím */
 .btn-confirm.momo-btn:hover {
   background: #a91f5c;
 }
 
-/* ── Nút QR MoMo redesign ── */
+/* ================================================================
+   == NÚT QR MOMO (THIẾT KẾ ĐẶC BIỆT) ==
+   Gradient hồng tím, có icon MoMo + mũi tên
+   ================================================================ */
 .btn-momo-qr {
   background: linear-gradient(135deg, #d63484 0%, #a91f5c 100%) !important;
   border: none !important;
@@ -2130,6 +2316,7 @@
   position: relative !important;
 }
 
+/* -- Lớp highlight trắng mờ trên nút (tạo hiệu ứng ánh sáng) */
 .btn-momo-qr::before {
   content: '';
   position: absolute;
@@ -2149,6 +2336,7 @@
   transform: translateY(0) !important;
 }
 
+/* -- Icon MoMo trong nút */
 .btn-momo-qr-icon {
   display: inline-flex;
   align-items: center;
@@ -2188,6 +2376,9 @@
   color: #fff;
 }
 
+/* -- Mũi tên dịch sang phải khi hover */
+
+/* -- Khu vực thông tin MoMo trong popup (logo + số tiền) */
 .momo-header {
   background: #fff0f7;
   border-radius: 12px;
@@ -2218,7 +2409,11 @@
   margin: 0;
 }
 
-/* ==================== POPUP KIỂM TRA ==================== */
+/* -- Số tiền màu hồng MoMo */
+
+/* ================================================================
+   == POPUP KIỂM TRA ĐƠN HÀNG (REVIEW) ==
+   ================================================================ */
 .review-popup {
   background: var(--white);
   border-radius: 18px;
@@ -2315,6 +2510,7 @@
   letter-spacing: 1px;
 }
 
+/* -- Card từng sản phẩm trong review */
 .review-item {
   background: var(--cream);
   border-radius: 10px;
@@ -2405,6 +2601,9 @@
   color: var(--green-dark);
 }
 
+/* -- Giá phụ phí: xanh lá */
+
+/* -- Hàng tổng tiền cuối review */
 .review-total-row {
   display: flex;
   justify-content: space-between;
@@ -2432,7 +2631,10 @@
   margin: 12px 0;
 }
 
-/* ==================== POPUP THÀNH CÔNG ==================== */
+/* ================================================================
+   == POPUP THÀNH CÔNG ==
+   Layout: header (màu) → fixed top (tiêu đề + số tiền) → scroll body (biên lai) → fixed bottom (nút)
+   ================================================================ */
 .success-popup {
   background: var(--white);
   border-radius: 22px;
@@ -2445,9 +2647,11 @@
   animation: cr-fadeInUp 0.35s ease;
   display: flex;
   flex-direction: column;
+  /* -- Stack dọc: header → top → scroll → bottom */
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* -- Header màu (đỏ MoMo hoặc xanh tiền mặt) */
 .success-header {
   background: #d63484;
   padding: 14px 24px 12px;
@@ -2469,6 +2673,7 @@
   opacity: 0.92;
 }
 
+/* -- Logo trắng trên nền màu */
 .success-header-title {
   font-size: 13px;
   font-weight: 800;
@@ -2479,6 +2684,7 @@
   margin: 0;
 }
 
+/* -- Phần cố định trên (tiêu đề + số tiền lớn) */
 .success-fixed-top {
   flex-shrink: 0;
   padding: 14px 24px 10px;
@@ -2500,6 +2706,7 @@
   color: var(--brown-dark);
 }
 
+/* -- Phần scroll (nội dung biên lai) */
 .success-scroll-body {
   flex: 1;
   overflow-y: auto;
@@ -2517,6 +2724,7 @@
   border-radius: 2px;
 }
 
+/* -- Phần cố định dưới (nút Hoàn thành) */
 .success-fixed-bottom {
   flex-shrink: 0;
   padding: 12px 24px 16px;
@@ -2551,6 +2759,7 @@
   background: var(--green);
 }
 
+/* -- Thẻ biên lai (nền kem với viền) */
 .success-receipt {
   background: var(--cream);
   border: 1.5px solid #e0d8cc;
@@ -2582,6 +2791,7 @@
   font-weight: 800;
 }
 
+/* -- Mỗi hàng thông tin trong biên lai */
 .success-row {
   display: flex;
   justify-content: space-between;
@@ -2601,6 +2811,7 @@
   font-weight: 600;
 }
 
+/* -- Label: xám */
 .success-row span:last-child {
   font-weight: 700;
   color: var(--text);
@@ -2609,10 +2820,7 @@
   word-break: break-word;
 }
 
-.success-row.b span:last-child {
-  font-weight: 700;
-}
-
+/* -- Đường kẻ phân cách trong biên lai */
 .receipt-divider {
   height: 1.5px;
   background: #d0c8bc;
@@ -2624,6 +2832,9 @@
   font-weight: 900 !important;
 }
 
+/* -- Số tiền cần thanh toán: nâu đậm, in đậm nhất */
+
+/* -- Mã hóa đơn dạng monospace */
 .tx-id {
   font-family: monospace;
   font-size: 13px;
@@ -2635,6 +2846,9 @@
   color: #d63484;
 }
 
+/* -- Mã hóa đơn MoMo: màu hồng */
+
+/* -- Phần danh sách sản phẩm trong biên lai */
 .receipt-items-section {
   padding: 8px 14px;
   border-bottom: 1px solid #e8e0d4;
@@ -2648,6 +2862,7 @@
   text-transform: uppercase;
 }
 
+/* -- Từng sản phẩm trong biên lai */
 .receipt-item {
   padding: 6px 0;
   border-bottom: 1px dashed #e0d8cc;
@@ -2684,6 +2899,7 @@
   margin-bottom: 3px;
 }
 
+/* -- Bảng giá chi tiết trong biên lai */
 .receipt-price-breakdown {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
@@ -2719,6 +2935,7 @@
   color: var(--green-dark);
 }
 
+/* -- Ghi chú trong biên lai: chữ nghiêng, màu xám */
 .receipt-note-val {
   font-style: italic;
   color: var(--gray) !important;
