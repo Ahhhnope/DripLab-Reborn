@@ -292,7 +292,7 @@ async function printInvoice() {
         const sugarIce = [];
         if (item.sugar != null) sugarIce.push(`Đường ${item.sugar}%`);
         if (item.ice != null) sugarIce.push(`Đá ${item.ice}%`);
-        if (item.size != null || item.sizeLabel != null) sugarIce.push(`${item.size ?? item.sizeLabel}`);
+        if (item.size != null || item.sizeLabel != null) sugarIce.push(`${item.size ?? item.sizeLabel} `);
         const sugarIceLine = sugarIce.length
           ? `<div class="sub-line">  [${sugarIce.join(" / ")}]</div>` : "";
 
