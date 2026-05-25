@@ -412,24 +412,13 @@
                 <!-- Giá chi tiết từng phần -->
                 <div class="si-price-breakdown">
                   <div class="si-pb-row">
-                    <span>Giá gốc</span>
-                    <span>{{ formatVND(item.drinkBasePrice) }}</span>
-                  </div>
-                  <div class="si-pb-row" v-if="item.basePrice > 0">
-                    <span>Base {{ item.base }}</span>
-                    <span>+{{ formatVND(item.basesPrice) }}</span>
-                  </div>
-                  <div class="si-pb-row" v-if="item.sizePrice > 0">
+                    <span>Đơn giá</span>
+                    <span v-if="!item.isCustom">{{ formatVND(item.drinkBasePrice) }}</span>
+                    <span v-if="item.isCustom">{{ formatVND(item.baseCustomPrice) }}</span>
+                  </div>  
+                  <div class="si-pb-row" v-if="item.sizePrice >= 0">
                     <span>Size {{ item.sizeName }}</span>
                     <span>+{{ formatVND(item.sizePrice) }}</span>
-                  </div>
-                  <div class="si-pb-row" v-if="item.beanPrice > 0">
-                    <span>{{ item.beanName }}</span>
-                    <span>+{{ formatVND(item.beanPrice) }}</span>
-                  </div>
-                  <div class="si-pb-row" v-if="item.milkPrice > 0">
-                    <span>{{ item.milkName }}</span>
-                    <span>+{{ formatVND(item.milkPrice) }}</span>
                   </div>
                   <!-- Từng topping riêng lẻ -->
                   <div

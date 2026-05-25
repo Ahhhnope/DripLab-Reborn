@@ -406,7 +406,7 @@ async function goToReviewWithId() {
               </div>
               <div class="rpc-price-breakdown">
                 <div class="rpc-price-row">
-                  <span class="rpc-price-lbl">Giá gốc</span>
+                  <span class="rpc-price-lbl">Đơn giá</span>
                   <span class="rpc-price-val">{{ getItemBasePrice(item).toLocaleString() }} đ</span>
                 </div>
                 <div class="rpc-price-row">

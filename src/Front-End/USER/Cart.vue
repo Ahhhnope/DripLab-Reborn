@@ -161,44 +161,7 @@
                     </div>
                   </div>
                   <!-- Size -->
-                  <template v-if="item.isCustom">
-                    <div v-if="item.beanName" class="preview-detail-row">
-                      <span class="preview-detail-icon">-</span>
-                      <span class="preview-detail-label">{{
-                        item.beanName
-                      }}</span>
-                      <span
-                        class="preview-detail-price"
-                        v-if="item.beanPrice > 0"
-                        >+{{ formatVND(item.beanPrice) }}</span
-                      >
-                      <span class="preview-detail-price free" v-else>+0 đ</span>
-                    </div>
-                    <div v-if="item.baseName" class="preview-detail-row">
-                      <span class="preview-detail-icon">-</span>
-                      <span class="preview-detail-label">{{
-                        item.baseName
-                      }}</span>
-                      <span
-                        class="preview-detail-price"
-                        v-if="item.basePrice > 0"
-                        >+{{ formatVND(item.basesPrice) }}</span
-                      >
-                      <span class="preview-detail-price free" v-else>+0 đ</span>
-                    </div>
-                    <div v-if="item.milkName" class="preview-detail-row">
-                      <span class="preview-detail-icon">-</span>
-                      <span class="preview-detail-label">{{
-                        item.milkName
-                      }}</span>
-                      <span
-                        class="preview-detail-price"
-                        v-if="item.milkPrice > 0"
-                        >+{{ formatVND(item.milkPrice) }}</span
-                      >
-                      <span class="preview-detail-price free" v-else>+0 đ</span>
-                    </div>
-                  </template>
+                  
 
                   <div v-if="item.sizeName" class="preview-detail-row">
                     <span class="preview-detail-icon">≡</span>
@@ -208,7 +171,7 @@
                       >+{{ formatVND(item.sizePrice) }}</span>
                     <span class="preview-detail-price free" v-else>+0 đ</span>
                   </div>
-                  
+
                   <!-- Từng topping riêng -->
                   <div
                     v-for="(tp, i) in item.toppingDetails"
