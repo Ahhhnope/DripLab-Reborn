@@ -115,8 +115,7 @@
                 <div class="space-y-3">
                   <h4 class="font-bold text-stone-800 border-b pb-2">Chi tiết món</h4>
 
-                  <div v-for="(item, i) in invoice.items" :key="i"
-                    class="border-b border-dashed border-stone-100 pb-4 last:border-0 space-y-2">
+                  <div v-for="(item, i) in invoice.items" :key="i" class="border-b border-dashed border-stone-100 pb-4 last:border-0 space-y-2">
                     <div class="grid grid-cols-12 gap-4 items-start">
                       <div class="col-span-7">
                         <div class="font-bold text-stone-800">{{ item.name }}</div>
@@ -130,6 +129,21 @@
                           {{ item.basePrice.toLocaleString("vi-VN") }} đ × {{ item.qty }}
                         </div>
                       </div>
+                    </div>
+
+                    <div v-if="item.isCustom" class="flex flex-wrap gap-1">
+                      <span v-if="item.beanName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background: rgba(120,72,40,0.1); color: #7c4a1e; border: 1px solid rgba(120,72,40,0.2);">
+                        {{ item.beanName }}
+                      </span>
+                      <span v-if="item.baseName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background: rgba(99,72,50,0.1); color: #634832; border: 1px solid rgba(99,72,50,0.2);">
+                        {{ item.baseName }}
+                      </span>
+                      <span v-if="item.milkName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                        style="background: rgba(59,130,246,0.08); color: #1d4ed8; border: 1px solid rgba(59,130,246,0.15);">
+                        {{ item.milkName }}
+                      </span>
                     </div>
 
                     <div v-if="item.size" class="flex items-center gap-1.5">
@@ -162,21 +176,6 @@
                       <span v-if="item.ice != null" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
                         style="background: rgba(59,130,246,0.08); color: #2563eb; border: 1px solid rgba(59,130,246,0.15);">
                         Đá: {{ item.ice }}%
-                      </span>
-                    </div>
-
-                    <div v-if="item.isCustom" class="flex flex-wrap gap-1">
-                      <span v-if="item.beanName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                        style="background: rgba(120,72,40,0.1); color: #7c4a1e; border: 1px solid rgba(120,72,40,0.2);">
-                        {{ item.beanName }}
-                      </span>
-                      <span v-if="item.baseName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                        style="background: rgba(99,72,50,0.1); color: #634832; border: 1px solid rgba(99,72,50,0.2);">
-                        {{ item.baseName }}
-                      </span>
-                      <span v-if="item.milkName" class="text-[11px] font-semibold px-2 py-0.5 rounded-full"
-                        style="background: rgba(59,130,246,0.08); color: #1d4ed8; border: 1px solid rgba(59,130,246,0.15);">
-                        {{ item.milkName }}
                       </span>
                     </div>
 

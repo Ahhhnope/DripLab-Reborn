@@ -200,6 +200,13 @@
                       <div class="item-info">
                         <p class="item-name">{{ it.name }}</p>
 
+                        <!-- Custom coffee info -->
+                        <div v-if="it.isCustom" class="item-options item-options--custom">
+                          <span v-if="it.beanName" class="option-tag option-tag--custom">{{ it.beanName }}</span>
+                          <span v-if="it.baseName" class="option-tag option-tag--custom">{{ it.baseName }}</span>
+                          <span v-if="it.milkName" class="option-tag option-tag--custom">{{ it.milkName }}</span>
+                        </div>
+
                         <!-- Size có upsize (kèm giá) -->
                         <div class="item-options item-options--priced">
                           <div v-if="it.sizeName" class="option-line">
@@ -212,13 +219,6 @@
                             <span class="option-tag">+ {{ tp.name }}</span>
                             <span class="option-price">+{{ money(tp.price) }}</span>
                           </div>
-                        </div>
-
-                        <!-- Custom coffee info -->
-                        <div v-if="it.isCustom" class="item-options item-options--custom">
-                          <span v-if="it.beanName" class="option-tag option-tag--custom">{{ it.beanName }}</span>
-                          <span v-if="it.baseName" class="option-tag option-tag--custom">{{ it.baseName }}</span>
-                          <span v-if="it.milkName" class="option-tag option-tag--custom">{{ it.milkName }}</span>
                         </div>
 
                         <!-- Đá / Đường -->

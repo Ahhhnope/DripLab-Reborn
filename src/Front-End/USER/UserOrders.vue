@@ -473,6 +473,18 @@
                       <div class="item-info">
                         <p class="item-name">{{ item.name }}</p>
 
+                        <!-- Custom options: Arabica, Pha Phin, Sữa Tươi Vinamilk... -->
+                        <div
+                          v-if="item.customOptions?.length"
+                          class="item-options">
+                          <span
+                            v-for="(opt, i) in item.customOptions"
+                            :key="'co-' + i"
+                            class="option-tag">
+                            {{ opt }}
+                          </span>
+                        </div>
+
                         <div class="item-options item-options--priced">
                           <!-- Size -->
                           <div v-if="item.sizeName" class="option-line">
@@ -498,18 +510,6 @@
                               >+{{ formatPrice(tp.price) }}</span
                             >
                           </div>
-                        </div>
-                        <!-- Custom options: Arabica, Pha Phin, Sữa Tươi Vinamilk... -->
-                        <div
-                          v-if="item.customOptions?.length"
-                          class="item-options"
-                        >
-                          <span
-                            v-for="(opt, i) in item.customOptions"
-                            :key="'co-' + i"
-                            class="option-tag"
-                            >{{ opt }}</span
-                          >
                         </div>
                         <!-- Đường / Đá -->
                         <div class="item-options">
@@ -662,10 +662,9 @@
               </svg>
             </span>
           </div>
-          <h3 class="ud-confirm-title">Xác nhận đã nhận hàng?</h3>
+          <h3 class="ud-confirm-title">Bạn được cộng {{ receiveTarget?.earnPoints }} điểm</h3>
           <p class="ud-confirm-desc">
-            Đơn hàng <strong>{{ receiveTarget?.id }}</strong> đã được giao tới
-            bạn. Xác nhận để nhận điểm tích lũy.
+            Đơn hàng <strong>{{ receiveTarget?.id }}</strong> đã được giao tới bạn.
           </p>
           <div class="ud-points-preview">
             <svg
@@ -685,17 +684,17 @@
           </div>
           <div class="ud-confirm-actions">
             <!-- ✅ Đổi "Chưa nhận được" thành gọi reportNotReceived -->
-            <button
+            <!-- <button
               class="ud-confirm-btn ud-confirm-btn--ghost"
               @click="reportNotReceived"
             >
               Không nhận được đơn hàng
-            </button>
+            </button> -->
             <button
               class="ud-confirm-btn ud-confirm-btn--primary ud-confirm-btn--green"
               @click="doConfirmReceive"
             >
-              Đã nhận hàng
+              Nhận điểm
             </button>
           </div>
         </div>
@@ -734,7 +733,7 @@
             <div class="ud-confirm-icon">
               <span class="ud-confirm-icon__inner">✦</span>
             </div>
-            <h3 class="ud-confirm-title">Xác nhận huỷ đơn?</h3>
+            <h3 class="ud-confirm-title">Xác nhận huỷ đơn</h3>
             <p class="ud-confirm-desc">
               Bạn có chắc muốn huỷ đơn hàng
               <strong>{{ cancelTarget?.name }}</strong

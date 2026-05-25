@@ -239,7 +239,35 @@ function formatInvoiceId(val) {
                     <span class="adb-product-base-price">{{ getBasePrice(item).toLocaleString() }} đ</span>
                   </div>
 
+                  <div class="adb-option-row">
+                    <span class="adb-option-name">{{ item.baseName }}</span>
+                  </div>
+
+                  <div class="adb-option-row">
+                    <span class="adb-option-name">{{ item.beanName }}</span>
+                  </div>
+
+                  <div class="adb-option-row">
+                    <span class="adb-option-name">{{ item.milkName }}</span>
+                  </div>
+
                   <div class="adb-product-options">
+                    <div v-if="item.isCustom" class="adb-option-row">
+                      <span class="adb-option-icon">≡</span>
+                      <span class="adb-option-name">Đơn giá</span>
+                      <span class="adb-option-price">
+                        +{{ (item.basePrice + item.beanPrice + item.milkPrice || 0).toLocaleString() }} đ
+                      </span>
+                    </div>
+
+                    <div v-if="!item.isCustom" class="adb-option-row">
+                      <span class="adb-option-icon">≡</span>
+                      <span class="adb-option-name">Đơn giá</span>
+                      <span class="adb-option-price">
+                        +{{ (item.drink?.basePrice).toLocaleString() }} đ
+                      </span>
+                    </div>
+                    
                     <div v-if="item.size" class="adb-option-row">
                       <span class="adb-option-icon">≡</span>
                       <span class="adb-option-name">Size {{ item.size.name }}</span>

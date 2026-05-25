@@ -458,7 +458,7 @@ async function goToReviewWithId() {
               {{ discountMessage }}
             </p>
           </div>
-          <p v-if="discountPercent > 0" class="original-price-row">Giá gốc: {{ totalPrice.toLocaleString() }}đ</p>
+          <p v-if="discountPercent > 0" class="original-price-row">Đơn giá: {{ totalPrice.toLocaleString() }}đ</p>
           <div class="total-row">
             <span class="total-label">Thành tiền:</span>
             <span class="total-amount">
@@ -797,7 +797,7 @@ async function goToReviewWithId() {
 
           <div class="review-price-breakdown">
             <div class="review-price-row">
-              <span class="review-price-lbl">Giá gốc</span>
+              <span class="review-price-lbl">Đơn giá</span>
               <span class="review-price-val">{{ getItemBasePrice(item).toLocaleString() }}đ</span>
             </div>
             <div class="review-price-row">
@@ -823,7 +823,7 @@ async function goToReviewWithId() {
         </div>
 
         <div v-if="receiptData.discountPercent > 0" class="review-row">
-          <span class="review-lbl">Giá gốc</span>
+          <span class="review-lbl">Đơn giá</span>
           <span class="review-val">{{ receiptData.originalPrice.toLocaleString() }}đ</span>
         </div>
         <div v-if="receiptData.discountPercent > 0" class="review-row">
@@ -890,7 +890,7 @@ async function goToReviewWithId() {
                 </div>
                 <div class="receipt-price-breakdown">
                   <div class="receipt-price-row">
-                    <span class="receipt-price-lbl">Giá gốc</span>
+                    <span class="receipt-price-lbl">Đơn giá</span>
                     <span class="receipt-price-val">{{ getItemBasePrice(item).toLocaleString() }} đ</span>
                   </div>
                   <div class="receipt-price-row">
@@ -910,7 +910,7 @@ async function goToReviewWithId() {
               </div>
             </div>
             <div class="receipt-divider"></div>
-            <div v-if="receiptData.discountPercent > 0" class="success-row b"><span>Giá gốc</span><span>{{
+            <div v-if="receiptData.discountPercent > 0" class="success-row b"><span>Đơn giá</span><span>{{
               receiptData.originalPrice.toLocaleString() }} VNĐ</span></div>
             <div v-if="receiptData.discountPercent > 0" class="success-row b"><span>Giảm giá</span><span>-{{
               receiptData.discountPercent }}%</span></div>

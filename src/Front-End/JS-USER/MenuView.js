@@ -210,6 +210,7 @@ export function useMenuView() {
   const showClosedModal = ref(false)
 
   function isStoreOpen() {
+    return true
     const now = new Date()
     const current = now.getHours() * 60 + now.getMinutes()
     return current >= STORE_OPEN_HOUR * 60 && current < STORE_CLOSE_HOUR * 60
