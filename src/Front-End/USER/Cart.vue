@@ -151,11 +151,9 @@
                         formatVND(item.basePrice * item.quantity)
                       }}</span>
                       <!-- ✅ Thêm dòng đơn giá -->
-                      <span class="preview-unit-price"
-                        >{{ formatVND(item.drinkBasePrice) }} x{{
-                          item.quantity
-                        }}</span
-                      >
+                      <span class="preview-unit-price">
+                        {{ formatVND(item.drinkBasePrice) }} x{{item.quantity}}
+                      </span>
                     </div>
                   </div>
                   <!-- Size -->

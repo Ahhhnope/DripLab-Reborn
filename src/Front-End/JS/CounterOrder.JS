@@ -345,7 +345,7 @@ export function useCounterOrder() {
                     unitPrice,
                     qty: item.quantity,
                     size: item.size?.name || 'S',
-                    sizePrice: item.size?.price || 0,
+                    sizePrice: sizePrice,
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
                     toppings: item.toppings,
@@ -353,7 +353,7 @@ export function useCounterOrder() {
                     isCustom: item.isCustom,
                     beanName: item.coffeeBean?.name,
                     beanPrice: item.coffeeBean?.price,
-                    baseName: item.base?.name ?? null,
+                    baseName: item.base?.name,
                     basePrice: item.base?.price,
                     milkName: item.milk?.name,
                     milkPrice: item.milk?.price

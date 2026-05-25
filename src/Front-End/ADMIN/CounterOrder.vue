@@ -885,7 +885,7 @@ async function goToReviewWithId() {
                 <div class="receipt-item-meta">Đá: {{ item.ice }} | Đường: {{ item.sugar }}</div>
                 <div v-if="item.isCustom" class="rpc-custom-row">
                   <span class="rpc-custom-tag">{{ item.beanName }}</span>
-                  <span class="rpc-custom-tag">{{ item.base }}</span>
+                  <span class="rpc-custom-tag">{{ item.baseName }}</span>
                   <span v-if="item.milkName" class="rpc-custom-tag">{{ item.milkName }}</span>
                 </div>
                 <div class="receipt-price-breakdown">
