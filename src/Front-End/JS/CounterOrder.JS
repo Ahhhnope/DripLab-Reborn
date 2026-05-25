@@ -246,7 +246,7 @@ export function useCounterOrder() {
 
     function editCustomerInfo() { isEditingInfo.value = true }
 
-    // ── Bàn ──
+    // ── đặt bàn ──
     const TOTAL_TABLES = 20
     const selectedTables = ref([])
     const occupiedTables = ref([])
@@ -379,6 +379,7 @@ export function useCounterOrder() {
     const orderedItems = ref([])
     let orderCounter = 0
 
+    //Tạo hóa đơn mới
     function createNewOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 20 hóa đơn!'); return }
         orderCounter++
@@ -483,10 +484,6 @@ export function useCounterOrder() {
             console.error('Lỗi lấy mã khuyến mãi:', e)
         }
     }
-
-
-
-
 
     function applyDiscount() {
         if (!discountInput.value) {

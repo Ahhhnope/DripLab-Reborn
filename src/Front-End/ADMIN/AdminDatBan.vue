@@ -31,6 +31,7 @@ const {
   isTableOccupiedInModal,
   countOccupied,
   countAvailable,
+  formatDateTime,
 } = useAdminDatBan()
 
 setRouter(router)
@@ -204,7 +205,7 @@ function formatInvoiceId(val) {
             </div>
             <div class="adb-info-row">
               <span class="adb-info-lbl">Thời gian đặt</span>
-              <span class="adb-info-val">{{ selectedOrder?.createdAt || 'Không có thông tin' }}</span>
+              <span class="adb-info-val">{{ formatDateTime(selectedOrder?.createdAt) }}</span>
             </div>
           </div>
 

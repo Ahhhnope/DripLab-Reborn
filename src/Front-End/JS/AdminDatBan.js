@@ -3,8 +3,6 @@ import api from '@/api/axios'
 
 const _tableOrdersCache = new Map()
 const _tableLatestOrderId = new Map()
-
-// Cache invoiceId thật từ /invoices, key = orderId
 const _orderInvoiceIdMap = new Map()
 
 export function useAdminDatBan() {
@@ -25,12 +23,10 @@ export function useAdminDatBan() {
 
     function setRouter(r) { _router = r }
 
-    // Fetch invoices một lần để build map orderId → invoiceId
     async function fetchInvoiceMap() {
         try {
             const res = await api.get("/invoices")
             res.data.forEach(inv => {
-                // inv.orderId là order ID, inv.invoiceId là mã HD thật (vd: 13)
                 if (inv.orderId && inv.invoiceId != null) {
                     _orderInvoiceIdMap.set(inv.orderId, inv.invoiceId)
                 }
@@ -107,13 +103,9 @@ export function useAdminDatBan() {
             .sort((a, b) => a - b)
     }
 
-    // Lấy invoiceId thật: ưu tiên field invoiceId từ order,
-    // nếu không có thì tra _orderInvoiceIdMap theo orderId
     function resolveInvoiceId(order) {
         if (!order) return null
-        // Backend có thể trả trực tiếp invoiceId
         if (order.invoiceId != null) return order.invoiceId
-        // Tra map đã build từ /invoices
         if (order.id != null && _orderInvoiceIdMap.has(order.id)) {
             return _orderInvoiceIdMap.get(order.id)
         }
@@ -380,6 +372,22 @@ export function useAdminDatBan() {
         return TOTAL_TABLES - countOccupied()
     }
 
+    function formatDateTime(val) {
+        if (!val) return 'Không có thông tin'
+        try {
+            const d = new Date(val)
+            if (isNaN(d.getTime())) return val
+            const hh = String(d.getHours()).padStart(2, '0')
+            const mm = String(d.getMinutes()).padStart(2, '0')
+            const dd = String(d.getDate()).padStart(2, '0')
+            const mo = String(d.getMonth() + 1).padStart(2, '0')
+            const yyyy = d.getFullYear()
+            return `${hh}:${mm} ${dd}/${mo}/${yyyy}`
+        } catch {
+            return val
+        }
+    }
+
     return {
         TOTAL_TABLES,
         occupiedTables,
@@ -408,6 +416,7 @@ export function useAdminDatBan() {
         isTableOccupiedInModal,
         countOccupied,
         countAvailable,
+        formatDateTime,
         syncFromShared
     }
 }
