@@ -21,6 +21,10 @@ const BEST_SELLERS = [
   'mocha',
 ]
 
+// Giờ mở/đóng cửa
+const STORE_OPEN_HOUR  = 8   // 08:00
+const STORE_CLOSE_HOUR = 22  // 22:00
+
 export function useMenuView() {
   const router = useRouter()
   const route = useRoute()
@@ -82,7 +86,6 @@ export function useMenuView() {
           const createdTime = new Date(p.createdAt).getTime()
           const currentTime = new Date().getTime()
           const diffInDays = (currentTime - createdTime) / (1000 * 60 * 60 * 24)
-          
           isNewItem = diffInDays >= 0 && diffInDays <= 3
         }
 
@@ -203,16 +206,23 @@ export function useMenuView() {
     return result
   })
 
-  // 9. Action Handlers
+  // 9. Closed Store Modal
+  const showClosedModal = ref(false)
+
+  function isStoreOpen() {
+    const now = new Date()
+    const current = now.getHours() * 60 + now.getMinutes()
+    return current >= STORE_OPEN_HOUR * 60 && current < STORE_CLOSE_HOUR * 60
+  }
+
+  // 10. Action Handlers
   function setCategory(id) {
     activeCategoryId.value = id
-    // Reset về trang 1 khi đổi danh mục
     router.replace({ query: { ...route.query, page: undefined } })
   }
 
   function setSort(id) {
     activeSort.value = id
-    // Reset về trang 1 khi đổi sắp xếp
     router.replace({ query: { ...route.query, page: undefined } })
   }
 
@@ -221,10 +231,18 @@ export function useMenuView() {
   }
 
   function goToProduct(p) {
+    if (!isStoreOpen()) {
+      showClosedModal.value = true
+      return
+    }
     router.push({ name: 'user-product', params: { id: p.id } })
   }
 
   async function quickAddToCart(p) {
+    if (!isStoreOpen()) {
+      showClosedModal.value = true
+      return
+    }
     if (!authStore.user) {
       alert("Vui lòng đăng nhập để đặt món!")
       return
@@ -251,7 +269,7 @@ export function useMenuView() {
     return c?.label || 'Menu'
   })
 
-  // 10. Return Exports
+  // 11. Return Exports
   return {
     categories,
     activeCategoryId,
@@ -260,14 +278,11 @@ export function useMenuView() {
     sortOptions,
     activeSort,
     setSort,
-    // Paginated products (replaces sortedProducts for the grid)
     sortedProducts: paginatedProducts,
-    // Pagination
     currentPage,
     totalPages,
     visiblePages,
     goToPage,
-    // Search
     searchQuery,
     searchResults,
     previewResults,
@@ -282,6 +297,8 @@ export function useMenuView() {
     formatVnd,
     addProduct: goToProduct,
     openFromImage: goToProduct,
+    quickAddToCart,
+    showClosedModal,   
     loading
   }
 }
