@@ -93,14 +93,14 @@ table {
 }
 
 /* ── Độ rộng cột ─────────────────────────────── */
-col.c-code   { width: 120px; }
-col.c-user   { width: 150px; }
+col.c-code   { width: 100px; }
+col.c-user   { width: 160px; }
 col.c-pay    { width: 110px; }
-col.c-status { width: 135px; }
-col.c-qty    { width: 80px;  }
-col.c-price  { width: 115px; }
-col.c-date   { width: 165px; }
-col.c-action { width: 125px; }
+col.c-status { width: 130px; }
+col.c-qty    { width: 75px;  }
+col.c-price  { width: 130px; }
+col.c-date   { width: 185px; }
+col.c-action { width: 130px; }
 
 thead th {
   background: #f1f5f9;
@@ -145,6 +145,12 @@ tbody td {
   font-weight: 700;
   color: #111827;
   letter-spacing: -0.01em;
+}
+
+/* ── Thêm khoảng thở giữa cột Phải trả và Ngày đặt ── */
+tbody td:nth-child(6),
+thead th:nth-child(6) {
+  padding-right: 20px;
 }
 
 /* ── Status badge ─────────────────────────────── */

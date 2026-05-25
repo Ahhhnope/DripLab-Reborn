@@ -313,7 +313,7 @@
 }
 .modal-grid {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr 280px;
   gap: 20px;
 }
 @media (max-width: 600px) {
@@ -675,6 +675,27 @@
 }
 .payment-row--discount {
   color: #b91c1c;
+}
+.payment-row--discount {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+  align-items: baseline;
+}
+
+.payment-row--discount span:last-child {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.payment-row--discount span:nth-child(2) {
+  font-size: 11px;
+  color: #b91c1c;
+  opacity: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
 }
 .payment-total {
   display: flex;
