@@ -411,7 +411,7 @@ async function goToReviewWithId() {
                 </div>
                 <div class="rpc-price-row">
                   <span class="rpc-price-lbl">Size: {{ item.size }}</span>
-                  <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() ?? 0}} đ</span>
+                  <span class="rpc-price-val">+{{ (item?.sizePrice ?? 0).toLocaleString() }} đ</span>
                 </div>
                 <!-- <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.baseName }}</span>

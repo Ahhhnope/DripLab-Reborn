@@ -151,22 +151,16 @@
                         formatVND(item.basePrice * item.quantity)
                       }}</span>
                       <!-- ✅ Thêm dòng đơn giá -->
-                      <span class="preview-unit-price">
+                      <span class="preview-unit-price" v-if="!item.isCustom">
                         {{ formatVND(item.drinkBasePrice) }} x{{item.quantity}}
+                      </span>
+
+                      <span class="preview-unit-price" v-if="item.isCustom">
+                        {{ formatVND(item.baseCustomPrice) }} x{{item.quantity}}
                       </span>
                     </div>
                   </div>
                   <!-- Size -->
-                  <div v-if="item.sizeName" class="preview-detail-row">
-                    <span class="preview-detail-icon">≡</span>
-                    <span class="preview-detail-label"
-                      >Size {{ item.sizeName }}</span
-                    >
-                    <span class="preview-detail-price" v-if="item.sizePrice > 0"
-                      >+{{ formatVND(item.sizePrice) }}</span
-                    >
-                    <span class="preview-detail-price free" v-else>+0 đ</span>
-                  </div>
                   <template v-if="item.isCustom">
                     <div v-if="item.beanName" class="preview-detail-row">
                       <span class="preview-detail-icon">-</span>
@@ -205,6 +199,16 @@
                       <span class="preview-detail-price free" v-else>+0 đ</span>
                     </div>
                   </template>
+
+                  <div v-if="item.sizeName" class="preview-detail-row">
+                    <span class="preview-detail-icon">≡</span>
+                    <span class="preview-detail-label"
+                      >Size {{ item.sizeName }}</span>
+                    <span class="preview-detail-price" v-if="item.sizePrice > 0"
+                      >+{{ formatVND(item.sizePrice) }}</span>
+                    <span class="preview-detail-price free" v-else>+0 đ</span>
+                  </div>
+                  
                   <!-- Từng topping riêng -->
                   <div
                     v-for="(tp, i) in item.toppingDetails"
