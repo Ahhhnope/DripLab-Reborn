@@ -413,7 +413,7 @@ async function goToReviewWithId() {
                   <span class="rpc-price-lbl">Size: {{ item.size }}</span>
                   <span class="rpc-price-val">+{{ item.sizePrice.toLocaleString() ?? 0}} đ</span>
                 </div>
-                <div class="rpc-price-row" v-if="item.isCustom">
+                <!-- <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.baseName }}</span>
                   <span class="rpc-price-val">+{{ item.basePrice.toLocaleString() ?? 0}} đ</span>
                 </div>
@@ -426,7 +426,7 @@ async function goToReviewWithId() {
                 <div class="rpc-price-row" v-if="item.isCustom">
                   <span class="rpc-price-lbl">{{ item.milkName }}</span>
                   <span class="rpc-price-val">+{{ item.milkPrice.toLocaleString() ?? 0}} đ</span>
-                </div>
+                </div> -->
 
                 <div v-for="t in getItemToppingDetails(item)" :key="t.name || t.id"
                   class="rpc-price-row rpc-price-row--topping">
@@ -788,6 +788,8 @@ async function goToReviewWithId() {
           </div>
           <div class="review-item-meta">Đá: {{ item.ice }} | Đường: {{ item.sugar }}</div>
 
+          
+
           <div class="review-item-badges" v-if="getItemToppingDetails(item).length">
             <span class="review-badge">Size {{ item.sizeLabel || item.size }}</span>
             <span v-for="t in getItemToppingDetails(item)" :key="t.name" class="review-badge">{{ t.name }}</span>
@@ -890,6 +892,10 @@ async function goToReviewWithId() {
                   <div class="receipt-price-row">
                     <span class="receipt-price-lbl">Giá gốc</span>
                     <span class="receipt-price-val">{{ getItemBasePrice(item).toLocaleString() }} đ</span>
+                  </div>
+                  <div class="receipt-price-row">
+                    <span class="receipt-price-lbl">Size {{ item.size ?? item.sizeLabel }}</span>
+                    <span class="receipt-price-val">+{{ item.sizePrice.toLocaleString() }} đ</span>
                   </div>
                   <div class="receipt-price-row">
                     <span class="receipt-price-lbl">Số lượng</span>

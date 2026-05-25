@@ -292,6 +292,7 @@ async function printInvoice() {
         const sugarIce = [];
         if (item.sugar != null) sugarIce.push(`Đường ${item.sugar}%`);
         if (item.ice != null) sugarIce.push(`Đá ${item.ice}%`);
+        if (item.size != null || item.sizeLabel != null) sugarIce.push(`${item.size ?? item.sizeLabel}`);
         const sugarIceLine = sugarIce.length
           ? `<div class="sub-line">  [${sugarIce.join(" / ")}]</div>` : "";
 
@@ -396,7 +397,7 @@ async function printInvoice() {
   <div class="invoice-id">Số HĐ: ${inv.invoice_id || ""}</div>
   <div class="dash">${dash(38)}</div>
   <table class="info-table">
-    <tr><td class="label">Mã HĐ:</td><td class="value">#${String(inv.order_id || "").replace(/^#/, "")}</td></tr>
+    <tr><td class="label">Mã đơn hàng:</td><td class="value">#${String(inv.order_id || "").replace(/^#/, "")}</td></tr>
     <tr><td class="label">Bàn:</td><td class="value">${tableInfo}</td></tr>
     <tr><td class="label">Giờ vào:</td><td class="value">${now}</td></tr>
   </table>
