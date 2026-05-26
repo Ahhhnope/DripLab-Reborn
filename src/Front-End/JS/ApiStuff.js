@@ -6,6 +6,10 @@ export async function getDrinks() {
 }
 
 export async function addDrink(drink) {
+  const price = parseFloat(drink.basePrice);
+  if (isNaN(price) || price <= 0 || !Number.isInteger(price))
+    throw new Error('Giá không hợp lệ!');
+
   const res = await api.post('/drinks/add', {
     name: drink.name,
     category: drink.category,
@@ -21,6 +25,10 @@ export async function addDrink(drink) {
 }
 
 export async function updateDrink(drink) {
+  const price = parseFloat(drink.basePrice);
+  if (isNaN(price) || price <= 0 || !Number.isInteger(price))
+    throw new Error('Giá không hợp lệ!');
+
   await api.put(`/drinks/update/${drink.id}`, {
     name: drink.name,
     category: drink.category,

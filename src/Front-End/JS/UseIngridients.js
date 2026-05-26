@@ -108,6 +108,10 @@ export function useIngredients(endpoint, idPrefix = "ITEM") {
 
   const submitForm = async () => {
     if (!form.value.tenLoai.trim()) return { error: "Vui lòng nhập tên!" };
+
+    const rawPrice = parseFloat(form.value.gia);
+    if (isNaN(rawPrice) || rawPrice < 0) return { error: "Giá không hợp lệ hoặc âm!" };
+    if (!Number.isInteger(rawPrice))      return { error: "Giá phải là số nguyên!" };
     
     const payload = {
       name: form.value.tenLoai,

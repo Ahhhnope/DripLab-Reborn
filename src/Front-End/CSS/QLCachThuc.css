@@ -134,6 +134,13 @@ tbody td {
 .toggle-switch input:checked + .toggle-slider { background: #22c55e; }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
 
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
 /* ── Pagination ──────────────────────────────────── */
 .pgbar { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 10px; }
 .pginfo { font-size: 13px; color: #6b7280; }

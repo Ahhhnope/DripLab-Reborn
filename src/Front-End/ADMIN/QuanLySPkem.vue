@@ -74,7 +74,22 @@
           <div class="form-group"><label>Mã ID <em>(tự động)</em></label><input :value="form.id" readonly /></div>
           <div class="form-group"><label>Ngày tạo <em>(tự động)</em></label><input :value="form.ngayTaoDisp" readonly /></div>
           <div class="form-group full"><label>Tên loại kem lạnh</label><input ref="inputName" v-model="form.tenLoai" placeholder="VD: Kem vanilla, Kem matcha..." @keyup.enter="requestSubmit" /></div>
-          <div class="form-group full"><label>Giá (VNĐ)</label><input v-model="form.gia" type="number" placeholder="VD: 22000" min="0" step="1" @keypress="blockDecimal" @keyup.enter="requestSubmit" /></div>
+          <div class="form-group full">
+            <label>Giá (VNĐ)</label>
+            <input
+              v-model="form.gia"
+              type="number"
+              placeholder="VD: 50000"
+              min="0"
+              step="1"
+              @keypress="blockDecimal"
+              @paste="blockPaste"
+              @input="sanitizePrice"
+              @blur="clampPrice"
+              @keyup.enter="handleSubmit"
+            />
+            <span v-if="priceError" class="field-error">{{ priceError }}</span>
+          </div>
         </div>
         <div class="popup-actions">
           <button class="cancel-btn" @click="showForm = false">Hủy</button>
@@ -139,10 +154,35 @@ async function doConfirm() {
 }
 
 // ── Validate & submit ──────────────────────────────
+const priceError = ref('');
+
+// already have this, just add '+' to the list
 const blockDecimal = (e) => {
-  if (['-', '.', ',', 'e', 'E'].includes(e.key)) e.preventDefault();
+  if (['-', '+', '.', ',', 'e', 'E'].includes(e.key)) e.preventDefault();
 };
 
+const blockPaste = (e) => {
+  const pasted = (e.clipboardData || window.clipboardData).getData('text');
+  if (!/^\d+$/.test(pasted.trim())) {
+    e.preventDefault();
+    priceError.value = 'Giá chỉ được chứa chữ số nguyên dương!';
+    setTimeout(() => { priceError.value = ''; }, 3000);
+  }
+};
+
+const sanitizePrice = () => {
+  const clean = String(form.value.gia ?? '').replace(/[^\d]/g, '');
+  form.value.gia = clean === '' ? 0 : parseInt(clean, 10);
+};
+
+const clampPrice = () => {
+  const num = Number(form.value.gia);
+  if (isNaN(num) || num < 0) {
+    form.value.gia = 0;
+    priceError.value = 'Giá không được âm — đã đặt lại về 0.';
+    setTimeout(() => { priceError.value = ''; }, 3000);
+  }
+};
 function requestSubmit() {
   let rawPrice = Number(form.value?.gia || 0);
   if (rawPrice < 0) { showToast('Giá không được để âm!', 'error'); return; }

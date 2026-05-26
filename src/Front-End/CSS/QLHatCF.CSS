@@ -77,6 +77,13 @@ tbody td {
   display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
 .edit-btn {
   border: none; border-radius: 8px; cursor: pointer; transition: all 0.18s;
   display: inline-flex; align-items: center; justify-content: center;

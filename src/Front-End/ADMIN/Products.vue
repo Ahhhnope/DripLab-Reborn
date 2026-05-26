@@ -45,6 +45,8 @@ async function doConfirm() {
     if (confirmAction.value) await confirmAction.value();
     closeConfirm();
 }
+
+
 // ──────────────────────────────────────────────────────────
 
 function validateNewDrink() {
@@ -55,7 +57,8 @@ function validateNewDrink() {
         errors.value.name = 'Vui lòng nhập tên sản phẩm!';
         valid = false;
     }
-    if (!newDrink.value.basePrice || newDrink.value.basePrice <= 0) {
+    const rawPrice = Number(newDrink.value.basePrice);
+    if (!newDrink.value.basePrice || isNaN(rawPrice) || !Number.isInteger(rawPrice) || newDrink.value.basePrice <= 0) {
         errors.value.basePrice = 'Vui lòng nhập giá lớn hơn 0!';
         valid = false;
     }
@@ -69,6 +72,33 @@ function validateNewDrink() {
     }
     return valid;
 }
+
+const blockPrice = (e) => {
+  if (['-', '+', '.', ',', 'e', 'E'].includes(e.key)) e.preventDefault();
+};
+
+const blockPricePaste = (e, target) => {
+  const pasted = (e.clipboardData || window.clipboardData).getData('text');
+  if (!/^\d+$/.test(pasted.trim())) {
+    e.preventDefault();
+    const msg = 'Giá chỉ được chứa chữ số nguyên dương!';
+    if (target === 'new') errors.value.basePrice = msg;
+    // edit modal has no errors ref, so just do nothing (blockPrice already guards keys)
+  }
+};
+
+const sanitizePrice = (target) => {
+  const src = target === 'new' ? newDrink : selectedDrink;
+  const clean = String(src.value.basePrice ?? '').replace(/[^\d]/g, '');
+  src.value.basePrice = clean === '' ? 0 : parseInt(clean, 10);
+};
+
+const clampPrice = (target) => {
+  const src = target === 'new' ? newDrink : selectedDrink;
+  const num = Number(src.value.basePrice);
+  if (isNaN(num) || num < 0) src.value.basePrice = 0;
+};
+
 
 // Thêm mới — validate trước rồi mở confirm
 function requestCreateDrink() {
@@ -267,7 +297,16 @@ const pagedDrinks = computed(() => {
                 </div>
                 <div class="form-group">
                     <label>Giá cơ bản (₫)</label>
-                    <input type="number" v-model="newDrink.basePrice" />
+                    <input
+                        type="number"
+                        v-model="newDrink.basePrice"
+                        min="0"
+                        step="1"
+                        @keypress="blockPrice"
+                        @paste="blockPricePaste($event, 'new')"
+                        @input="sanitizePrice('new')"
+                        @blur="clampPrice('new')"
+                    />
                     <span v-if="errors.basePrice" class="error-msg">{{ errors.basePrice }}</span>
                 </div>
                 <div class="form-group">
@@ -345,7 +384,16 @@ const pagedDrinks = computed(() => {
                 </div>
                 <div class="form-group">
                     <label>Giá cơ bản (₫)</label>
-                    <input type="number" v-model="selectedDrink.basePrice" />
+                    <input
+                        type="number"
+                        v-model="selectedDrink.basePrice"
+                        min="0"
+                        step="1"
+                        @keypress="blockPrice"
+                        @paste="blockPricePaste($event, 'edit')"
+                        @input="sanitizePrice('edit')"
+                        @blur="clampPrice('edit')"
+                    />
                 </div>
                 <div class="form-group">
                     <label>Mô tả</label>
