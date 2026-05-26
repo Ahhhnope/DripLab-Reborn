@@ -254,7 +254,7 @@ function getItemToppingDetails(item) {
 
 function getItemBasePrice(item) {
   const toppingTotal = getItemToppingDetails(item).reduce((s, t) => s + (t.price || 0), 0)
-  return item.unitPrice - toppingTotal - item.sizePrice
+  return (item?.unitPrice ?? 0) - (item?.sizePrice ?? 0) - toppingTotal
 }
 
 // ── Review ──
@@ -895,7 +895,7 @@ async function goToReviewWithId() {
                   </div>
                   <div class="receipt-price-row">
                     <span class="receipt-price-lbl">Size {{ item.size ?? item.sizeLabel }}</span>
-                    <span class="receipt-price-val">+{{ item.sizePrice.toLocaleString() }} đ</span>
+                    <span class="receipt-price-val">+{{ (item?.sizePrice ?? 0).toLocaleString() }} đ</span>
                   </div>
                   <div class="receipt-price-row">
                     <span class="receipt-price-lbl">Số lượng</span>
