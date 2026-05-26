@@ -74,6 +74,10 @@ export default {
             end: '',
             status: 'HOẠT ĐỘNG'
         },
+        formErrors: {
+            addValue: '', addQuantity: '', addDates: '',
+            editValue: '', editQuantity: '', editDates: ''
+        },
 
         // Toast
         toast: { show: false, message: '', type: 'success' }
@@ -135,13 +139,27 @@ export default {
 
         async saveAdd() {
             const f = this.addForm
-            if (!f.code || !f.name || !f.value || !f.start || !f.end) {
-                this.showToast('Vui lòng điền đầy đủ thông tin!', 'error')
-                return
+            this.formErrors.addValue = ''
+            this.formErrors.addQuantity = ''
+            this.formErrors.addDates = ''
+
+
+            if (!f.code || !f.name || !f.start || !f.end) {
+                this.showToast('Vui lòng điền đầy đủ thông tin!', 'error'); return
             }
-            if (parseFloat(f.value) > 50) {
-                this.showToast('Giá trị giảm không được vượt quá 50%!', 'error')
-                return
+            const val = Number(f.value)
+            if (isNaN(val) || val <= 0 || !Number.isInteger(val)) {
+                this.formErrors.addValue = 'Giá trị phải là số nguyên lớn hơn 0!'; return
+            }
+            if (f.category === 'PHẦN TRĂM' && val > 50) {
+                this.formErrors.addValue = 'Giá trị giảm không được vượt quá 50%!'; return
+            }
+            const qty = Number(f.quantity)
+            if (isNaN(qty) || qty < 1 || !Number.isInteger(qty)) {
+                this.formErrors.addQuantity = 'Số lượng phải là số nguyên ít nhất 1!'; return
+            }
+            if (f.start > f.end) {
+                this.formErrors.addDates = 'Ngày bắt đầu không được sau ngày kết thúc!'; return
             }
             try {
                 await api.post(API + '/add', {
@@ -185,6 +203,25 @@ export default {
 
         async saveEdit() {
             const f = this.editForm
+            this.formErrors.editValue = ''
+            this.formErrors.editQuantity = ''
+            this.formErrors.editDates = ''
+
+            const val = Number(f.value)
+            if (isNaN(val) || val <= 0 || !Number.isInteger(val)) {
+                this.formErrors.editValue = 'Giá trị phải là số nguyên lớn hơn 0!'; return
+            }
+            if (f.category === 'PHẦN TRĂM' && val > 50) {
+                this.formErrors.editValue = 'Giá trị giảm không được vượt quá 50%!'; return
+            }
+            const qty = Number(f.quantity)
+            if (isNaN(qty) || qty < 1 || !Number.isInteger(qty)) {
+                this.formErrors.editQuantity = 'Số lượng phải là số nguyên ít nhất 1!'; return
+            }
+            if (f.start && f.end && f.start > f.end) {
+                this.formErrors.editDates = 'Ngày bắt đầu không được sau ngày kết thúc!'; return
+            }
+            
             try {
                 await api.put(API + '/update/' + f.id, {
                     id: f.id,
@@ -231,6 +268,39 @@ export default {
                 this.showToast('Lỗi bật / tắt voucher: ' + (e.response?.data?.message || e.message), 'error')
             }
 
+        },
+
+        blockNegative(e) {
+        if (['-', '+', '.', ',', 'e', 'E'].includes(e.key)) e.preventDefault()
+        },
+
+        blockNegativePaste(e, form, field) {
+        const pasted = (e.clipboardData || window.clipboardData).getData('text')
+        if (!/^\d+$/.test(pasted.trim())) {
+            e.preventDefault()
+            this.showToast('Chỉ được nhập số nguyên dương!', 'error')
+        }
+        },
+
+        sanitizePositiveInt(form, field) {
+        const clean = String(this[form][field] ?? '').replace(/[^\d]/g, '')
+        this[form][field] = clean === '' ? 0 : parseInt(clean, 10)
+        },
+
+        clampPositive(form, field, min = 0) {
+        const num = Number(this[form][field])
+        if (isNaN(num) || num < min) this[form][field] = min
+        },
+
+        // ── Date range guard ─────────────────────────────────────────
+        validateDates(form) {
+        const errKey = form === 'addForm' ? 'addDates' : 'editDates'
+        const f = this[form]
+        if (f.start && f.end && f.start > f.end) {
+            this.formErrors[errKey] = 'Ngày bắt đầu không được sau ngày kết thúc!'
+        } else {
+            this.formErrors[errKey] = ''
+        }
         },
 
         // ── Pagination ──────────────────────────────────────────

@@ -79,7 +79,7 @@ export function useBrewing() {
         id: String(ins.id),
         label: ins.name,
         sub: ins.instructions,
-        priceDelta: BASE_PRICES[ins.name] ?? 0,
+        priceDelta: ins.price ?? 0,
         color: BASE_COLORS[ins.name] ?? '#2b1b14',
       }))
 

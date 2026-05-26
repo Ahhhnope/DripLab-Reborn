@@ -146,18 +146,43 @@
 
           <div class="form-group">
             <label>Giá trị <span class="required">*</span></label>
-            <input v-model="addForm.value" type="number" min="0" :placeholder="addForm.category === 'PHẦN TRĂM'
-              ? 'VD: 10 (= 10%)' : 'VD: 50000 (= 50.000đ)'" />
+            <input
+              v-model="addForm.value"
+              type="number" min="0" step="1"
+              :placeholder="addForm.category === 'PHẦN TRĂM' ? 'VD: 10 (= 10%)' : 'VD: 50000 (= 50.000đ)'"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'addForm', 'value')"
+              @input="sanitizePositiveInt('addForm', 'value')"
+              @blur="clampPositive('addForm', 'value')"
+            />
+            <span v-if="formErrors.addValue" class="error-msg">{{ formErrors.addValue }}</span>
           </div>
 
           <div class="form-group">
             <label>Số lượng mã <span class="required">*</span></label>
-            <input v-model="addForm.quantity" type="number" min="1" placeholder="VD: 100" />
+            <input
+              v-model="addForm.quantity"
+              type="number" min="1" step="1"
+              placeholder="VD: 100"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'addForm', 'quantity')"
+              @input="sanitizePositiveInt('addForm', 'quantity')"
+              @blur="clampPositive('addForm', 'quantity', 1)"
+            />
+            <span v-if="formErrors.addQuantity" class="error-msg">{{ formErrors.addQuantity }}</span>
           </div>
 
           <div class="form-group">
             <label>Đơn tối thiểu (đ)</label>
-            <input v-model="addForm.minOrderValue" type="number" min="0" placeholder="Để 0 nếu không giới hạn" />
+            <input
+              v-model="addForm.minOrderValue"
+              type="number" min="0" step="1"
+              placeholder="Để 0 nếu không giới hạn"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'addForm', 'minOrderValue')"
+              @input="sanitizePositiveInt('addForm', 'minOrderValue')"
+              @blur="clampPositive('addForm', 'minOrderValue')"
+            />
           </div>
 
           <div class="form-group">
@@ -175,12 +200,14 @@
 
           <div class="form-group">
             <label>Ngày bắt đầu <span class="required">*</span></label>
-            <input type="date" v-model="addForm.start" />
+            <input type="date" v-model="addForm.start" @change="validateDates('addForm')" />
+            <span v-if="formErrors.addDates" class="error-msg">{{ formErrors.addDates }}</span>
           </div>
 
           <div class="form-group">
             <label>Ngày kết thúc <span class="required">*</span></label>
-            <input type="date" v-model="addForm.end" />
+            <input type="date" v-model="addForm.end" @change="validateDates('addForm')" />
+            <span v-if="formErrors.addDates" class="error-msg">{{ formErrors.addDates }}</span>
           </div>
 
         </div>
@@ -219,17 +246,41 @@
 
           <div class="form-group">
             <label>Giá trị</label>
-            <input v-model="editForm.value" type="number" min="0" />
+            <input
+              v-model="editForm.value"
+              type="number" min="0" step="1"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'editForm', 'value')"
+              @input="sanitizePositiveInt('editForm', 'value')"
+              @blur="clampPositive('editForm', 'value')"
+            />
+            <span v-if="formErrors.editValue" class="error-msg">{{ formErrors.editValue }}</span>
           </div>
 
           <div class="form-group">
             <label>Số lượng mã</label>
-            <input v-model="editForm.quantity" type="number" min="0" />
+            <input
+              v-model="editForm.quantity"
+              type="number" min="1" step="1"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'editForm', 'quantity')"
+              @input="sanitizePositiveInt('editForm', 'quantity')"
+              @blur="clampPositive('editForm', 'quantity', 1)"
+            />
+            <span v-if="formErrors.editQuantity" class="error-msg">{{ formErrors.editQuantity }}</span>
           </div>
 
           <div class="form-group">
             <label>Đơn tối thiểu (đ)</label>
-            <input v-model="editForm.minOrderValue" type="number" min="0" placeholder="Để 0 nếu không giới hạn" />
+            <input
+              v-model="editForm.minOrderValue"
+              type="number" min="0" step="1"
+              placeholder="Để 0 nếu không giới hạn"
+              @keypress="blockNegative"
+              @paste="blockNegativePaste($event, 'editForm', 'minOrderValue')"
+              @input="sanitizePositiveInt('editForm', 'minOrderValue')"
+              @blur="clampPositive('editForm', 'minOrderValue')"
+            />
           </div>
 
           <div class="form-group">
@@ -242,12 +293,14 @@
 
           <div class="form-group">
             <label>Ngày bắt đầu</label>
-            <input type="date" v-model="editForm.start" />
+            <input type="date" v-model="editForm.start" @change="validateDates('editForm')" />
+            <span v-if="formErrors.editDates" class="error-msg">{{ formErrors.editDates }}</span>
           </div>
 
           <div class="form-group">
             <label>Ngày kết thúc</label>
-            <input type="date" v-model="editForm.end" />
+            <input type="date" v-model="editForm.end" @change="validateDates('editForm')" />
+            <span v-if="formErrors.editDates" class="error-msg">{{ formErrors.editDates }}</span>
           </div>
 
           <div class="form-group">
