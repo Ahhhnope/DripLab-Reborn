@@ -397,7 +397,7 @@ async function printInvoice() {
   <div class="dash">${dash(38)}</div>
   <table class="info-table">
     <tr><td class="label">Mã đơn hàng:</td><td class="value">#${String(inv.order_id || "").replace(/^#/, "")}</td></tr>
-    <tr><td class="label">Bàn:</td><td class="value">${tableInfo}</td></tr>
+    <tr><td class="label">Hình thức nhận:</td><td class="value">${tableInfo}</td></tr>
     <tr><td class="label">Giờ vào:</td><td class="value">${now}</td></tr>
   </table>
   <table class="info-table">
