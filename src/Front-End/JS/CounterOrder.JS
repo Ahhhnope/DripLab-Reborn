@@ -20,6 +20,12 @@ function formatInvoiceId(raw) {
     return `HD_${String(num).padStart(2, '0')}`
 }
 
+// Đảm bảo một giá trị là số hợp lệ, fallback về 0
+function safeNum(val) {
+    const n = Number(val)
+    return isNaN(n) ? 0 : n
+}
+
 export function useCounterOrder() {
     const authStore = useAuthStore()
 
@@ -42,7 +48,6 @@ export function useCounterOrder() {
         const order = cancelTargetOrder.value
         if (!order) return
 
-        // Giải phóng bàn nếu có
         if (order.selectedTables?.length) {
             try {
                 await Promise.all(
@@ -78,7 +83,6 @@ export function useCounterOrder() {
         cancelTargetOrder.value = null
     }
 
-    // Reset toàn bộ state về mặc định
     function _resetAllState() {
         currentOrder.value = null
         orderedItems.value = []
@@ -102,13 +106,35 @@ export function useCounterOrder() {
         appStep.value = 'order'
     }
 
-    // Xóa toàn bộ cart item của một hóa đơn
     async function _clearCartForOrder(order) {
         if (!order?.items?.length) return
         try {
-            await Promise.all(order.items.map(item => api.delete(`/carts/remove/${item.cartItemId}`).catch(() => { })))
+            await Promise.all(
+                order.items.map(item =>
+                    api.delete(`/carts/remove/${item.cartItemId}`).catch(() => { })
+                )
+            )
         } catch (error) {
             console.error('Lỗi xóa giỏ hàng:', error)
+        }
+    }
+
+    // ── Chuẩn hóa item để đảm bảo mọi field số đều hợp lệ ──
+    // Dùng cho cả item thêm từ popup, từ brewing cart, từ fetchCartItems
+    function _normalizeItem(item) {
+        return {
+            ...item,
+            unitPrice: safeNum(item.unitPrice),
+            qty: safeNum(item.qty) || 1,
+            sizePrice: safeNum(item.sizePrice),
+            basePrice: safeNum(item.basePrice),
+            beanPrice: safeNum(item.beanPrice),
+            basePrice_custom: safeNum(item.basePrice_custom),
+            milkPrice: safeNum(item.milkPrice),
+            toppingDetails: (item.toppingDetails || []).map(t => ({
+                ...t,
+                price: safeNum(t.price)
+            })),
         }
     }
 
@@ -117,7 +143,6 @@ export function useCounterOrder() {
 
     function openTablePopup() {
         const order = currentOrder.value
-        // Tạm bỏ khỏi danh sách occupied để cho chọn lại
         if (order?.selectedTables?.length) {
             order.selectedTables.forEach(t => {
                 const idx = occupiedTables.value.indexOf(t)
@@ -135,7 +160,6 @@ export function useCounterOrder() {
             currentOrder.value.selectedTables = [...selectedTables.value]
             currentOrder.value.dineMode = dineMode.value
         }
-        // Thêm lại vào occupied
         if (dineMode.value === true) {
             selectedTables.value.forEach(t => {
                 if (!occupiedTables.value.includes(t)) occupiedTables.value.push(t)
@@ -202,20 +226,16 @@ export function useCounterOrder() {
         phoneError.value = ''
     }
 
-    // FIX 3: Validate cả tên lẫn số điện thoại
-    // Trả về true nếu lưu thành công, false nếu thất bại
     async function saveCustomerInfo() {
         let valid = true
         nameError.value = ''
         phoneError.value = ''
 
-        // Validate tên — bắt buộc phải nhập
         if (!customerNameInput.value || !customerNameInput.value.trim()) {
             nameError.value = 'Vui lòng nhập họ và tên khách hàng!'
             valid = false
         }
 
-        // Validate số điện thoại
         if (!customerPhoneInput.value) {
             phoneError.value = 'Vui lòng nhập số điện thoại để thêm khách hàng!'
             valid = false
@@ -229,7 +249,7 @@ export function useCounterOrder() {
         customerName.value = customerNameInput.value.trim()
         customerPhone.value = customerPhoneInput.value.trim()
 
-        const res = await api.post('/users/add-pos-customer', {
+        await api.post('/users/add-pos-customer', {
             fullName: customerName.value,
             phone: customerPhone.value,
             role: "OFFLINE"
@@ -246,7 +266,7 @@ export function useCounterOrder() {
 
     function editCustomerInfo() { isEditingInfo.value = true }
 
-    // ── đặt bàn ──
+    // ── Đặt bàn ──
     const TOTAL_TABLES = 20
     const selectedTables = ref([])
     const occupiedTables = ref([])
@@ -308,7 +328,7 @@ export function useCounterOrder() {
                 id: d.id,
                 name: d.name,
                 image: getImageUrl(d.imageUrl),
-                price: d.basePrice,
+                price: safeNum(d.basePrice),
                 category: d.category
             }))
         } catch (error) {
@@ -316,9 +336,30 @@ export function useCounterOrder() {
         }
     }
 
+    // Xóa toàn bộ cart items trên backend của user (dùng trước khi tạo addProductOrder)
+    async function _clearBackendCart() {
+        try {
+            const userId = authStore.user?.id
+            const res = await api.get(`/carts/items/${userId}`)
+            if (res.data?.length) {
+                await Promise.all(
+                    res.data.map(item =>
+                        api.delete(`/carts/remove/${item.id}`).catch(() => {})
+                    )
+                )
+            }
+        } catch (err) {
+            console.warn('Không thể xóa cart backend:', err)
+        }
+    }
+
+    // fetchCartItems chỉ dùng cho addProductMode
     async function fetchCartItems(targetOrder = null) {
         const order = targetOrder || currentOrder.value
         if (!order) return
+        if (!order.addProductMode) return
+        if (order.items.length > 0) return
+
         try {
             const userId = authStore.user?.id
             const res = await api.get(`/carts/items/${userId}`)
@@ -326,18 +367,14 @@ export function useCounterOrder() {
                 const toppingDetails = item.toppings?.map(t => ({
                     id: t.topping?.id,
                     name: t.topping?.name,
-                    price: t.topping?.price
+                    price: safeNum(t.topping?.price)
                 })) || []
-                const toppingTotal = item.toppings?.reduce((sum, t) => sum + t.topping.price, 0) || 0
-                const sizePrice = item.size?.price || 0
-                
-                const unitPrice = item.unitPrice || (item.drink.basePrice + sizePrice + toppingTotal) +
-                (item.isCustom ? item.base.price : 0) +
-                (item.isCustom ? item.milk.price : 0) +
-                (item.isCustom ? item.coffeeBean.price : 0)
+                const toppingTotal = toppingDetails.reduce((sum, t) => sum + t.price, 0)
+                const sizePrice = safeNum(item.size?.price)
+                const basePrice = safeNum(item.drink?.basePrice)
+                const unitPrice = safeNum(item.unitPrice) || (basePrice + sizePrice + toppingTotal)
 
-
-                return {
+                return _normalizeItem({
                     id: item.drink.id,
                     cartItemId: item.id,
                     name: item.drink.name,
@@ -345,20 +382,22 @@ export function useCounterOrder() {
                     unitPrice,
                     qty: item.quantity,
                     size: item.size?.name || 'S',
-                    sizePrice: sizePrice,
+                    sizeLabel: item.size?.name || 'S',
+                    sizePrice,
                     ice: item.ice + '%',
                     sugar: item.sugar + '%',
-                    toppings: item.toppings,
+                    toppings: item.toppings || [],
                     toppingDetails,
                     isCustom: item.isCustom,
-                    beanName: item.coffeeBean?.name,
-                    beanPrice: item.coffeeBean?.price,
-                    baseName: item.base?.name,
-                    basePrice: item.base?.price,
-                    milkName: item.milk?.name,
-                    milkPrice: item.milk?.price
-                }
+                    beanName: item.coffeeBean?.name || '',
+                    beanPrice: safeNum(item.coffeeBean?.price),
+                    baseName: item.base?.name || '',
+                    basePrice: basePrice,
+                    milkName: item.milk?.name || '',
+                    milkPrice: safeNum(item.milk?.price),
+                })
             })
+
             if (order.id === currentOrder.value?.id) orderedItems.value = items
             order.items = [...items]
         } catch (error) {
@@ -379,7 +418,6 @@ export function useCounterOrder() {
     const orderedItems = ref([])
     let orderCounter = 0
 
-    //Tạo hóa đơn mới
     function createNewOrder() {
         if (orderList.value.length >= MAX_ORDERS) { alert('Đã đạt tối đa 20 hóa đơn!'); return }
         orderCounter++
@@ -406,7 +444,7 @@ export function useCounterOrder() {
         const order = {
             id: Date.now(),
             orderNumber: orderCounter,
-            items: [],
+            items: [],          // luôn bắt đầu trống — nhân viên chọn thêm SP mới
             customerName: orderInfo.customerName || '',
             customerPhone: orderInfo.customerPhone || '',
             selectedTables: orderInfo.tables || [],
@@ -418,13 +456,15 @@ export function useCounterOrder() {
         }
         orderList.value.push(order)
         currentOrder.value = order
-        orderedItems.value = []
+        orderedItems.value = []     // không load cart cũ từ backend
         selectedTables.value = [...order.selectedTables]
         orderNote.value = order.note || ''
         dineMode.value = true
         customerNameInput.value = order.customerName || ''
         customerPhoneInput.value = order.customerPhone || ''
         appStep.value = 'order'
+        // Xóa toàn bộ cart backend để tránh items cũ lẫn vào hóa đơn mới
+        _clearBackendCart()
     }
 
     function selectOrder(order) {
@@ -444,7 +484,7 @@ export function useCounterOrder() {
 
     // ── Giỏ hàng ──
     const totalPrice = computed(() =>
-        orderedItems.value.reduce((sum, item) => sum + item.unitPrice * item.qty, 0)
+        orderedItems.value.reduce((sum, item) => sum + safeNum(item.unitPrice) * safeNum(item.qty), 0)
     )
 
     function removeItem(index, cartItemId) {
@@ -460,10 +500,9 @@ export function useCounterOrder() {
     const discountPercent = ref(0)
     const discountMessage = ref('')
 
-     async function fetchDiscountCodes() {
+    async function fetchDiscountCodes() {
         try {
             const res = await api.get('/promo-codes/online-offline')
-
             discountCodeList.value = res.data
                 .filter(v => {
                     const isOnlineOffline = (v.displayLocation ?? '').toLowerCase() === 'online + offline'
@@ -472,8 +511,6 @@ export function useCounterOrder() {
                     const isActive = v.status === true
                     return isOnlineOffline && notExpired && hasQty && isActive
                 })
-
-
                 .map(v => ({
                     code: v.code,
                     label: `${v.code} – Giảm ${v.value}%`,
@@ -490,17 +527,13 @@ export function useCounterOrder() {
             discountMessage.value = 'Vui lòng chọn mã khuyến mãi!'
             discountPercent.value = 0
             appliedCode.value = ''
-
             return
         }
-
         const found = discountCodeList.value.find(d => d.code === discountInput.value)
-
         if (!found) {
             discountMessage.value = 'Mã không hợp lệ hoặc đã hết hạn!'
             discountPercent.value = 0
             appliedCode.value = ''
-
             return
         }
         if (found.minOrderValue > 0 && totalPrice.value < found.minOrderValue) {
@@ -560,20 +593,23 @@ export function useCounterOrder() {
 
     function _buildReceiptData(resolvedInvoiceId) {
         const order = currentOrder.value
+        // Normalize toàn bộ items trước khi đưa vào receipt — tránh undefined gây crash template
         const itemsWithDetails = orderedItems.value.map(item => {
             const cloned = JSON.parse(JSON.stringify(item))
+            // Đảm bảo toppingDetails luôn có
             if (!cloned.toppingDetails?.length) {
-                cloned.toppingDetails = cloned.toppings?.map(t => ({
+                cloned.toppingDetails = (cloned.toppings || []).map(t => ({
                     id: t.topping?.id || t.id,
-                    name: t.topping?.name || t.name,
-                    price: t.topping?.price || t.price || 0
-                })) || []
+                    name: t.topping?.name || t.name || '',
+                    price: safeNum(t.topping?.price ?? t.price)
+                }))
             }
-            return cloned
+            // Đảm bảo mọi field số không bao giờ là undefined/NaN
+            return _normalizeItem(cloned)
         })
 
         receiptData.value = {
-            finalPrice: finalPrice.value,
+            finalPrice: safeNum(finalPrice.value),
             items: itemsWithDetails,
             customerName: order?.customerName?.trim() || customerName.value?.trim() || '',
             customerPhone: order?.customerPhone || customerPhone.value || '',
@@ -581,8 +617,8 @@ export function useCounterOrder() {
             note: orderNote.value || order?.note || '',
             dineMode: dineMode.value === true,
             invoiceId: resolvedInvoiceId || '',
-            discountPercent: discountPercent.value,
-            originalPrice: totalPrice.value,
+            discountPercent: safeNum(discountPercent.value),
+            originalPrice: safeNum(totalPrice.value),
         }
     }
 
@@ -617,6 +653,33 @@ export function useCounterOrder() {
             const userId = authStore.user?.id
             const order = currentOrder.value
 
+            // ── FIX: Backend lấy toàn bộ cart của user → phải xóa tạm items
+            // của các hóa đơn KHÁC khỏi backend cart trước khi gọi /orders/add.
+            // Items đó vẫn được lưu trong order.items ở frontend nên không mất.
+            const currentCartItemIds = new Set(
+                (order?.items || []).map(i => i.cartItemId).filter(Boolean)
+            )
+            const otherOrders = orderList.value.filter(o => o.id !== order?.id)
+            const otherCartItemIds = []
+            otherOrders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    if (item.cartItemId && !currentCartItemIds.has(item.cartItemId)) {
+                        otherCartItemIds.push(item.cartItemId)
+                    }
+                })
+            })
+
+            // Xóa tạm khỏi backend cart (không xóa khỏi frontend order.items)
+            if (otherCartItemIds.length > 0) {
+                await Promise.all(
+                    otherCartItemIds.map(id =>
+                        api.delete(`/carts/remove/${id}`).catch(err =>
+                            console.warn(`Không xóa được cart item ${id}:`, err)
+                        )
+                    )
+                )
+            }
+
             const res = await api.post('/orders/add', null, {
                 params: {
                     userId,
@@ -628,8 +691,8 @@ export function useCounterOrder() {
                     tables: displayTableNums.value,
                     finalPrice: finalPrice.value,
                     originalPrice: totalPrice.value,
-                    discountAmount: totalPrice.value - finalPrice.value,  
-                    discountPercent: discountPercent.value,  
+                    discountAmount: totalPrice.value - finalPrice.value,
+                    discountPercent: discountPercent.value,
                     promoCode: appliedCode.value || '',
                 },
                 paramsSerializer: params => {
@@ -641,6 +704,37 @@ export function useCounterOrder() {
                     return search.toString()
                 }
             })
+
+            // ── Re-add cart items của các hóa đơn khác trở lại backend cart
+            // để các hóa đơn còn lại vẫn thanh toán được sau này
+            if (otherCartItemIds.length > 0) {
+                for (const o of otherOrders) {
+                    for (const item of (o.items || [])) {
+                        if (!item.cartItemId || currentCartItemIds.has(item.cartItemId)) continue
+                        try {
+                            const cartItemReq = {
+                                userId,
+                                drinkId: item.id,
+                                quantity: item.qty,
+                                sizeId: item.size === 'S' ? 1 : (item.size === 'M' ? 2 : 3),
+                                ice: parseInt(item.ice) || 0,
+                                sugar: parseInt(item.sugar) || 0,
+                                toppings: (item.toppingDetails || []).map(t => t.id).filter(Boolean),
+                                isCustom: item.isCustom || false,
+                            }
+                            const reAddRes = await api.post('/carts/add', cartItemReq)
+                            // Cập nhật cartItemId mới cho item trong order
+                            const newItems = reAddRes.data?.items
+                            if (newItems?.length) {
+                                const newId = newItems[newItems.length - 1].id
+                                item.cartItemId = newId
+                            }
+                        } catch (err) {
+                            console.warn('Không re-add được cart item:', item.name, err)
+                        }
+                    }
+                }
+            }
 
             showReviewPopup.value = false
 
@@ -659,8 +753,10 @@ export function useCounterOrder() {
             txTime.value = new Date().toLocaleString('vi-VN')
             receiptData.value = { ...receiptData.value, invoiceId: resolvedInvoiceId }
             showSuccessPopup.value = true
+
         } catch (error) {
             console.error('Lỗi xác nhận thanh toán:', error)
+            alert('Thanh toán thất bại: ' + (error?.response?.data?.message || error?.message || 'Lỗi không xác định'))
         }
     }
 
@@ -704,7 +800,7 @@ export function useCounterOrder() {
     async function fetchToppings() {
         try {
             const res = await api.get('/ingredients/toppings')
-            toppingList.value = res.data.map(t => ({ id: t.id, name: t.name, price: t.price }))
+            toppingList.value = res.data.map(t => ({ id: t.id, name: t.name, price: safeNum(t.price) }))
         } catch (error) {
             console.log('Lỗi lấy topping:', error)
         }
@@ -713,7 +809,7 @@ export function useCounterOrder() {
     async function fetchSizes() {
         try {
             const res = await api.get('/sizes')
-            res.data.forEach(s => { SIZE_PRICES[s.name] = s.price })
+            res.data.forEach(s => { SIZE_PRICES[s.name] = safeNum(s.price) })
         } catch (error) {
             console.log('Lỗi lấy size:', error)
         }
@@ -762,9 +858,10 @@ export function useCounterOrder() {
     function decQty() { if (selectedQty.value > 1) selectedQty.value-- }
 
     async function confirmOrder() {
-        const toppingPrice = selectedToppings.value.reduce((s, t) => s + t.price, 0)
-        const sizePrice = SIZE_PRICES[selectedSize.value] || 0
-        const unitPrice = selectedProduct.value.price + toppingPrice + sizePrice
+        const toppingPrice = selectedToppings.value.reduce((s, t) => s + safeNum(t.price), 0)
+        const sizePrice = safeNum(SIZE_PRICES[selectedSize.value])
+        const basePrice = safeNum(selectedProduct.value.price)
+        const unitPrice = basePrice + toppingPrice + sizePrice
 
         const cartItemReq = {
             userId: authStore.user?.id,
@@ -780,9 +877,13 @@ export function useCounterOrder() {
         try {
             const res = await api.post('/carts/add', cartItemReq)
             const newCartItemId = res.data.items[res.data.items.length - 1].id
-            const toppingDetails = selectedToppings.value.map(t => ({ id: t.id, name: t.name, price: t.price }))
+            const toppingDetails = selectedToppings.value.map(t => ({
+                id: t.id,
+                name: t.name,
+                price: safeNum(t.price)
+            }))
 
-            const displayItem = {
+            const displayItem = _normalizeItem({
                 id: selectedProduct.value.id,
                 cartItemId: newCartItemId,
                 name: selectedProduct.value.name,
@@ -795,12 +896,20 @@ export function useCounterOrder() {
                 sugar: selectedSugar.value,
                 toppings: selectedToppings.value,
                 toppingDetails,
-                basePrice: selectedProduct.value.price,
+                basePrice,
                 sizePrice,
-            }
+                isCustom: false,
+                beanName: '',
+                beanPrice: 0,
+                baseName: '',
+                milkName: '',
+                milkPrice: 0,
+            })
 
             orderedItems.value.push(displayItem)
-            if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
+            if (currentOrder.value) {
+                currentOrder.value.items = [...orderedItems.value]
+            }
             delete popupStateCache.value[selectedProduct.value.id]
             showPopup.value = false
         } catch (error) {
@@ -833,7 +942,7 @@ export function useCounterOrder() {
 
     const hasActiveOrder = computed(() => currentOrder.value !== null)
 
-    // ── Brewing Cart (đồng bộ từ màn pha chế) ──
+    // ── Brewing Cart ──
     const brewingCart = useBrewingCart()
 
     function checkAndConsumePendingDrinks() {
@@ -842,8 +951,11 @@ export function useCounterOrder() {
         if (orderList.value.length === 0) createNewOrder()
         appStep.value = 'order'
         if (currentOrder.value) currentOrder.value.step = 'order'
-        pendingDrinks.forEach(drink => orderedItems.value.push(drink))
-        if (currentOrder.value) currentOrder.value.items = [...orderedItems.value]
+        // Normalize từng item từ brewing cart trước khi push
+        pendingDrinks.forEach(drink => orderedItems.value.push(_normalizeItem(drink)))
+        if (currentOrder.value) {
+            currentOrder.value.items = [...orderedItems.value]
+        }
     }
 
     function checkAndRestoreAddProductOrder() {
@@ -868,15 +980,17 @@ export function useCounterOrder() {
         fetchDiscountCodes()
         checkAndRestoreAddProductOrder()
         checkAndConsumePendingDrinks()
-        fetchCartItems()
+        if (currentOrder.value?.addProductMode) {
+            fetchCartItems()
+        }
         timer = setInterval(() => {
             refreshTableStatus()
             fetchDrinks()
             fetchToppings()
             fetchSizes()
             fetchDiscountCodes()
-            fetchCartItems()
-        }, 1000)
+            // KHÔNG gọi fetchCartItems ở đây
+        }, 10000)
     })
 
     onActivated(() => {
